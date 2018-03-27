@@ -37,6 +37,7 @@ DAMAGE.
 
 #pragma once
 
+#include <m8r.h>
 #include <Ticker.h>
 
 // BrightnessManager
@@ -45,62 +46,64 @@ DAMAGE.
 // from that, with hysteresis. Samples at sampleRate ms and accumulates numSamples.
 // Samples are clamped to maxLevels and then normalized to between 0 and numLevels - 1.
 
-class BrightnessManager
-{
-public:
-	BrightnessManager(uint8_t lightSensor, uint16_t maxLevel, uint8_t numLevels, 
-					  uint32_t sampleRate = 100, uint8_t numSamples = 5)
-		: _lightSensor(lightSensor)
-		, _maxLevel(maxLevel)
-		, _numLevels(numLevels)
-		, _numSamples(numSamples)
-	{
-		_ticker.attach_ms(sampleRate, compute, this);
-	}
-	
-	uint8_t brightness() const { return _currentBrightness; }
-	
-	virtual void callback(uint8_t brightness) = 0;
-	
-private:
-	static void compute(BrightnessManager* self) { self->computeBrightness(); }
+namespace m8r {
 
-	void computeBrightness()
+	class BrightnessManager
 	{
-		uint16_t ambientLightLevel = analogRead(_lightSensor);
-		
-		uint32_t brightnessLevel = ambientLightLevel;
-		if (brightnessLevel > _maxLevel) {
-			brightnessLevel = _maxLevel;
+	public:
+		BrightnessManager(uint8_t lightSensor, uint16_t maxLevel, uint8_t numLevels, 
+						  uint32_t sampleRate = 100, uint8_t numSamples = 5)
+			: _lightSensor(lightSensor)
+			, _maxLevel(maxLevel)
+			, _numLevels(numLevels)
+			, _numSamples(numSamples)
+		{
+			_ticker.attach_ms(sampleRate, compute, this);
 		}
 	
-		// Make brightness level between 1 and _numLevels
-		brightnessLevel = (brightnessLevel * _numLevels + (_maxLevel / 2)) / _maxLevel;
-		if (brightnessLevel >= _numLevels) {
-			brightnessLevel = _numLevels - 1;
-		}
+		uint8_t brightness() const { return _currentBrightness; }
+	
+		virtual void callback(uint8_t brightness) = 0;
+	
+	private:
+		static void compute(BrightnessManager* self) { self->computeBrightness(); }
+
+		void computeBrightness()
+		{
+			uint16_t ambientLightLevel = analogRead(_lightSensor);
 		
-		_brightnessAccumulator += brightnessLevel;		
+			uint32_t brightnessLevel = ambientLightLevel;
+			if (brightnessLevel > _maxLevel) {
+				brightnessLevel = _maxLevel;
+			}
+	
+			// Make brightness level between 1 and _numLevels
+			brightnessLevel = (brightnessLevel * _numLevels + (_maxLevel / 2)) / _maxLevel;
+			if (brightnessLevel >= _numLevels) {
+				brightnessLevel = _numLevels - 1;
+			}
+		
+			_brightnessAccumulator += brightnessLevel;		
 
-		if (++_brightnessSampleCount >= _numSamples) {
-			_brightnessSampleCount = 0;
-			uint32_t brightness = (_brightnessAccumulator + (_numSamples / 2)) / _numSamples;
-			_brightnessAccumulator = 0;
+			if (++_brightnessSampleCount >= _numSamples) {
+				_brightnessSampleCount = 0;
+				uint32_t brightness = (_brightnessAccumulator + (_numSamples / 2)) / _numSamples;
+				_brightnessAccumulator = 0;
 
-			if (brightness != _currentBrightness) {
-				_currentBrightness = brightness;
-				callback(_currentBrightness);
+				if (brightness != _currentBrightness) {
+					_currentBrightness = brightness;
+					callback(_currentBrightness);
+				}
 			}
 		}
-	}
 
-	uint8_t _currentBrightness = 255;
-	uint32_t _brightnessAccumulator = 0;
-	uint8_t _brightnessSampleCount = 0;
-	Ticker _ticker;
-	uint8_t _lightSensor;
-	uint16_t _maxLevel;
-	uint8_t _numLevels;
-	uint8_t _numSamples;
-};
-
+		uint8_t _currentBrightness = 255;
+		uint32_t _brightnessAccumulator = 0;
+		uint8_t _brightnessSampleCount = 0;
+		Ticker _ticker;
+		uint8_t _lightSensor;
+		uint16_t _maxLevel;
+		uint8_t _numLevels;
+		uint8_t _numSamples;
+	};
+}
