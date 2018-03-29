@@ -63,7 +63,7 @@ namespace m8r {
 	
 		uint8_t brightness() const { return _currentBrightness; }
 	
-		virtual void callback(uint8_t brightness) = 0;
+		virtual void handleBrightnessChange(uint8_t brightness) = 0;
 	
 	private:
 		static void compute(BrightnessManager* self) { self->computeBrightness(); }
@@ -92,7 +92,7 @@ namespace m8r {
 
 				if (brightness != _currentBrightness) {
 					_currentBrightness = brightness;
-					callback(_currentBrightness);
+					handleBrightnessChange(_currentBrightness);
 				}
 			}
 		}
