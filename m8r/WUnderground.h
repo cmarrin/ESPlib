@@ -104,14 +104,14 @@ namespace m8r {
 		{
 		}
 		
-		virtual void callback(bool succeeded) = 0;
+		virtual void handleWeatherInfo(bool succeeded) = 0;
 		
 		uint32_t currentTime() const { return _currentTime; }
 		int8_t currentTemp() const { return _currentTemp; }
 		int8_t lowTemp() const { return _lowTemp; }
 		int8_t highTemp() const { return _highTemp; }
 	
-		void feed()
+		void feedWUnderground()
 		{
 			if (!_needUpdate) {
 				return;
@@ -165,7 +165,7 @@ namespace m8r {
 			int32_t timeToNextCheck = failed ? 120 : ((60 * 60) - (static_cast<int32_t>(_currentTime % (60 * 60))) + 60);
 			_ticker.once(timeToNextCheck, fire, this);
 			
-			callback(!failed);
+			handleWeatherInfo(!failed);
 	
 			m8r::cout << "Time set to:" << 
 				strtok(ctime(reinterpret_cast<time_t*>(&_currentTime)), "\n") << 
