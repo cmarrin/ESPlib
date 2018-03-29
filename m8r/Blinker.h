@@ -39,7 +39,7 @@ DAMAGE.
 
 #include <Ticker.h>
 
-// Ticker class
+// Blinker class
 //
 // Blink the LED connected to the passed pin. SampleRate passed to
 // the ctor determines the rate at which the underlying ticker fires
