@@ -122,29 +122,29 @@ namespace m8r {
 			bool failed = false;
 	
 			HTTPClient http;
-			m8r::cout << "Getting weather and time feed...\n";
+			m8r::cout << L_F("Getting weather and time feed...\n");
 
 			String wuURL;
-			wuURL += "http://api.wunderground.com/api/";
+			wuURL += L_F("http://api.wunderground.com/api/");
 			wuURL += _key;
-			wuURL +="/conditions/forecast/q/";
+			wuURL += L_F("/conditions/forecast/q/");
 			wuURL += _state;
-			wuURL += "/";
+			wuURL += L_F("/");
 			wuURL += _city;
-			wuURL += ".json?a=";
+			wuURL += L_F(".json?a=");
 			wuURL += millis();
 	
-			m8r::cout << "URL='" << wuURL << "'\n";
+			m8r::cout << L_F("URL='") << wuURL << L_F("'\n");
 	
 			http.begin(wuURL);
 			int httpCode = http.GET();
 
 			if (httpCode > 0) {
-				m8r::cout << "    got response: " << httpCode << "\n";
+				m8r::cout << L_F("    got response: ") << httpCode << L_F("\n");
 
 				if(httpCode == HTTP_CODE_OK) {
 					String payload = http.getString();
-					m8r::cout << "Got payload, parsing...\n";
+					m8r::cout << L_F("Got payload, parsing...\n");
 					JsonStreamingParser parser;
 					MyJsonListener listener;
 					parser.setListener(&listener);
@@ -155,7 +155,7 @@ namespace m8r {
 					_currentTime = listener.localEpoch() + (listener.localTZOffset() * 3600 / 100);
 				}
 			} else {
-				m8r::cout << "[HTTP] GET... failed, error: " << http.errorToString(httpCode) << "(" << httpCode << ")\n";
+				m8r::cout << L_F("[HTTP] GET... failed, error: ") << http.errorToString(httpCode) << L_F("(") << httpCode << L_F(")\n");
 				failed = true;
 			}
 
@@ -167,9 +167,9 @@ namespace m8r {
 			
 			handleWeatherInfo(!failed);
 	
-			m8r::cout << "Time set to:" << 
+			m8r::cout << L_F("Time set to:") << 
 				strtok(ctime(reinterpret_cast<time_t*>(&_currentTime)), "\n") << 
-				", next setting in " << timeToNextCheck << " seconds\n";
+				L_F(", next setting in ") << timeToNextCheck << L_F(" seconds\n");
 		}
 		
 	private:

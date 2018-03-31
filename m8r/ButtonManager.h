@@ -128,13 +128,13 @@ namespace m8r {
 		
 		void addButton(const Button& button) { _buttons.push_back(button); }
 		
-		static const char* stringFromEvent(Event event)
+		static const ROMString& stringFromEvent(Event event)
 		{
 			switch(event) {
-				case Event::Press: return "Press";
-				case Event::Release: return "Release";
-				case Event::Click: return "Click";
-				case Event::LongPress: return "LongPress";
+				case Event::Press: return L_F("Press");
+				case Event::Release: return L_F("Release");
+				case Event::Click: return L_F("Click");
+				case Event::LongPress: return L_F("LongPress");
 			}	
 		}
 		
