@@ -56,26 +56,8 @@ namespace m8r {
 	public:
 		virtual ~MyJsonListener() { }
 	
-		virtual void key(String key) override
-		{
-			if (key == "local_epoch") {
-				_waitingForLocalEpoch = true;
-			} else if (key == "local_tz_offset") {
-				_waitingForLocalTZOffset = true;
-			}
-		}
-	
-		virtual void value(String value) override
-		{
-			if (_waitingForLocalEpoch) {
-				_waitingForLocalEpoch = false;
-				_localEpoch = value.toInt();
-			} else if (_waitingForLocalTZOffset) {
-				_waitingForLocalTZOffset = false;
-				_localTZOffset = value.toInt();
-			} 
-		}
-	
+		virtual void key(String key) override;
+		virtual void value(String value) override;
 		virtual void whitespace(char c) override { }
 		virtual void startDocument() override { }
 		virtual void endArray() override { }
@@ -111,66 +93,7 @@ namespace m8r {
 		int8_t lowTemp() const { return _lowTemp; }
 		int8_t highTemp() const { return _highTemp; }
 	
-		void feedWUnderground()
-		{
-			if (!_needUpdate) {
-				return;
-			}
-			
-			_needUpdate = false;
-			
-			bool failed = false;
-	
-			HTTPClient http;
-			m8r::cout << L_F("Getting weather and time feed...\n");
-
-			String wuURL;
-			wuURL += L_F("http://api.wunderground.com/api/");
-			wuURL += _key;
-			wuURL += L_F("/conditions/forecast/q/");
-			wuURL += _state;
-			wuURL += L_F("/");
-			wuURL += _city;
-			wuURL += L_F(".json?a=");
-			wuURL += millis();
-	
-			m8r::cout << L_F("URL='") << wuURL << L_F("'\n");
-	
-			http.begin(wuURL);
-			int httpCode = http.GET();
-
-			if (httpCode > 0) {
-				m8r::cout << L_F("    got response: ") << httpCode << L_F("\n");
-
-				if(httpCode == HTTP_CODE_OK) {
-					String payload = http.getString();
-					m8r::cout << L_F("Got payload, parsing...\n");
-					JsonStreamingParser parser;
-					MyJsonListener listener;
-					parser.setListener(&listener);
-					for (int i = 0; i < payload.length(); ++i) {
-						parser.parse(payload.c_str()[i]);
-					}
-			
-					_currentTime = listener.localEpoch() + (listener.localTZOffset() * 3600 / 100);
-				}
-			} else {
-				m8r::cout << L_F("[HTTP] GET... failed, error: ") << http.errorToString(httpCode) << L_F("(") << httpCode << L_F(")\n");
-				failed = true;
-			}
-
-			http.end();
-	
-			// Check one minute past the hour. That way if daylight savings changes, we catch it sooner
-			int32_t timeToNextCheck = failed ? 120 : ((60 * 60) - (static_cast<int32_t>(_currentTime % (60 * 60))) + 60);
-			_ticker.once(timeToNextCheck, fire, this);
-			
-			handleWeatherInfo(!failed);
-	
-			m8r::cout << L_F("Time set to:") << 
-				strtok(ctime(reinterpret_cast<time_t*>(&_currentTime)), "\n") << 
-				L_F(", next setting in ") << timeToNextCheck << L_F(" seconds\n");
-		}
+		void feedWUnderground();
 		
 	private:
 		static void fire(WUnderground* self) { self->_needUpdate = true; }

@@ -37,6 +37,7 @@ DAMAGE.
 
 #pragma once
 
+#include <m8r.h>
 #include <Ticker.h>
 #include <vector>
 
@@ -55,13 +56,7 @@ namespace m8r {
 		// can be used for all pins except GPIO16 which can be FLoat or Pulldown only
 		enum class PinMode { Float, Pullup, Pulldown };
 		
-		Button(uint8_t pin, uint32_t id, bool activeHigh = false, PinMode mode = PinMode::Pullup)
-			: _pin(pin)
-			, _id(id)
-			, _activeHigh(activeHigh)
-		{
-			pinMode(_pin, (mode == PinMode::Float) ? INPUT : INPUT_PULLUP);
-		}
+		Button(uint8_t pin, uint32_t id, bool activeHigh = false, PinMode = PinMode::Pullup);
 		
 		uint32_t id() const { return _id; }
 	
@@ -116,67 +111,18 @@ namespace m8r {
 		// press or release to register
 		ButtonManager(uint32_t debounceTime = DefaultDebounceTime,
 					  uint32_t clickTime = DefaultClickTime,
-					  uint32_t longPressTime = DefaultLongPressTime)
-			: _clickTime(clickTime)
-			, _longPressTime(longPressTime)
-		{
-			_msPerTick = debounceTime / TickMultiplier;
-			_ticker.attach_ms(_msPerTick, _fire, this);
-		}
+					  uint32_t longPressTime = DefaultLongPressTime);
 		
 		virtual void handleButtonEvent(const Button&, Event) = 0;
 		
 		void addButton(const Button& button) { _buttons.push_back(button); }
 		
-		static const ROMString& stringFromEvent(Event event)
-		{
-			switch(event) {
-				case Event::Press: return L_F("Press");
-				case Event::Release: return L_F("Release");
-				case Event::Click: return L_F("Click");
-				case Event::LongPress: return L_F("LongPress");
-			}	
-		}
+		static const ROMString& stringFromEvent(Event event);
 		
 	private:
 		static void _fire(ButtonManager* self) { self->fire(); }
 		
-		void fire()
-		{
-			for (auto& it : _buttons) {
-				if (it._waitTime >= 0) {
-					it._waitTime += _msPerTick;
-					if (it._waitTime > _longPressTime) {
-						it._waitTime = -1;
-						handleButtonEvent(it, Event::LongPress);
-					}
-				}
-				
-				bool pressed = digitalRead(it._pin) ^ !it._activeHigh;
-				if (pressed != it._pressed) {
-					it._pressed = pressed;
-					it._ticks = 0;
-				} else if (it._ticks >= 0) {
-					if (++it._ticks >= TickMultiplier) {
-						// Debounce sucessful. See what we've got
-						it._ticks = -1;
-						if (pressed) {
-							// New state is a press, send it
-							handleButtonEvent(it, Event::Press);
-							it._waitTime = 0;
-						} else {
-							if (it._waitTime < _clickTime) {
-								handleButtonEvent(it, Event::Click);
-							} else if (it._waitTime <= _longPressTime) {
-								handleButtonEvent(it, Event::Release);
-							}
-							it._waitTime = -1;
-						}
-						it._ticks = -1;
-					}
-				}
-			}
-		}
+		void fire();
 		
 		std::vector<Button> _buttons;
 		Ticker _ticker;

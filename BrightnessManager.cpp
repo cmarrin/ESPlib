@@ -1,5 +1,5 @@
 //
-//  BrightnessManager.h
+//  BrightnessManager.cpp
 //
 //  Created by Chris Marrin on 3/25/2018
 //
@@ -35,41 +35,44 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF S
 DAMAGE.
 */
 
-#pragma once
+#include "m8r/BrightnessManager.h"
 
-#include <m8r.h>
-#include <Ticker.h>
+using namespace m8r;
 
-// BrightnessManager
-//
-// Periodically checks lightSensor port for a voltage and computes a brightness
-// from that, with hysteresis. Samples at sampleRate ms and accumulates numSamples.
-// Samples are clamped to maxLevels and then normalized to between 0 and numLevels - 1.
+BrightnessManager::BrightnessManager(uint8_t lightSensor, uint16_t maxLevel, uint8_t numLevels, uint32_t sampleRate, uint8_t numSamples)
+	: _lightSensor(lightSensor)
+	, _maxLevel(maxLevel)
+	, _numLevels(numLevels)
+	, _numSamples(numSamples)
+{
+	_ticker.attach_ms(sampleRate, compute, this);
+}
 
-namespace m8r {
+void BrightnessManager::computeBrightness()
+{
+	uint16_t ambientLightLevel = analogRead(_lightSensor);
 
-	class BrightnessManager
-	{
-	public:
-		BrightnessManager(uint8_t lightSensor, uint16_t maxLevel, uint8_t numLevels, 
-						  uint32_t sampleRate = 100, uint8_t numSamples = 5);
-	
-		uint8_t brightness() const { return _currentBrightness; }
-	
-		virtual void handleBrightnessChange(uint8_t brightness) = 0;
-	
-	private:
-		static void compute(BrightnessManager* self) { self->computeBrightness(); }
+	uint32_t brightnessLevel = ambientLightLevel;
+	if (brightnessLevel > _maxLevel) {
+		brightnessLevel = _maxLevel;
+	}
 
-		void computeBrightness();
+	// Make brightness level between 1 and _numLevels
+	brightnessLevel = (brightnessLevel * _numLevels + (_maxLevel / 2)) / _maxLevel;
+	if (brightnessLevel >= _numLevels) {
+		brightnessLevel = _numLevels - 1;
+	}
 
-		uint8_t _currentBrightness = 255;
-		uint32_t _brightnessAccumulator = 0;
-		uint8_t _brightnessSampleCount = 0;
-		Ticker _ticker;
-		uint8_t _lightSensor;
-		uint16_t _maxLevel;
-		uint8_t _numLevels;
-		uint8_t _numSamples;
-	};
+	_brightnessAccumulator += brightnessLevel;		
+
+	if (++_brightnessSampleCount >= _numSamples) {
+		_brightnessSampleCount = 0;
+		uint32_t brightness = (_brightnessAccumulator + (_numSamples / 2)) / _numSamples;
+		_brightnessAccumulator = 0;
+
+		if (brightness != _currentBrightness) {
+			_currentBrightness = brightness;
+			handleBrightnessChange(_currentBrightness);
+		}
+	}
 }

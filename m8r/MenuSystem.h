@@ -1,5 +1,5 @@
 //
-//  BrightnessManager.h
+//  MenuSystem.h
 //
 //  Created by Chris Marrin on 3/25/2018
 //
@@ -37,39 +37,52 @@ DAMAGE.
 
 #pragma once
 
-#include <m8r.h>
-#include <Ticker.h>
-
-// BrightnessManager
-//
-// Periodically checks lightSensor port for a voltage and computes a brightness
-// from that, with hysteresis. Samples at sampleRate ms and accumulates numSamples.
-// Samples are clamped to maxLevels and then normalized to between 0 and numLevels - 1.
+#include <vector>
 
 namespace m8r {
 
-	class BrightnessManager
+	// MenuSystem 
+	//
+	// A set of classes to implement a menu system. Designed for constained displays
+	// with an interface of one or more buttons. Create a subclas of MenuSystem with
+	// implementations of the render and one or more of the button methods. Then
+	// build the menu system out of Menu and MenuItem instances
+
+	class MenuItem
 	{
 	public:
-		BrightnessManager(uint8_t lightSensor, uint16_t maxLevel, uint8_t numLevels, 
-						  uint32_t sampleRate = 100, uint8_t numSamples = 5);
-	
-		uint8_t brightness() const { return _currentBrightness; }
-	
-		virtual void handleBrightnessChange(uint8_t brightness) = 0;
-	
+		MenuItem(const std::string& s) : _string(s) { }
+		
+		virtual menuItemSelected(const MenuItem&) { }
+		
+		void addMenuItem(std::shared_ptr<MenuItem>&);
+		
 	private:
-		static void compute(BrightnessManager* self) { self->computeBrightness(); }
-
-		void computeBrightness();
-
-		uint8_t _currentBrightness = 255;
-		uint32_t _brightnessAccumulator = 0;
-		uint8_t _brightnessSampleCount = 0;
-		Ticker _ticker;
-		uint8_t _lightSensor;
-		uint16_t _maxLevel;
-		uint8_t _numLevels;
-		uint8_t _numSamples;
+		std::string _string;
 	};
+	
+	class Menu : public MenuItem
+	{
+	public:
+		Menu(const String& s) : _string(s) { }
+		
+		virtual menuItemSelected(const MenuItem&) { }
+		
+		void addMenuItem(std::shared_ptr<MenuItem>&);
+		
+	private:
+		std::vector<std::shared_ptr<MenuItem>> _menu;
+	};
+	
+	class Menu : public MenuItem
+	{
+	public:
+		Menu() { }
+		
+		void setMenu(std::shared_ptr<MenuItem>& item) { _menu = item; }
+		
+	private:
+		std::shared_ptr<MenuItem> _menu;
+	};
+	
 }
