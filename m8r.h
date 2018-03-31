@@ -88,11 +88,49 @@ enum ErrorType {
     ErrorUser = 0x80,
 };
 
+#ifndef __STRINGIFY
+#define __STRINGIFY(a) #a
+#endif
+#define FLASH_ATTR   __attribute__((section(".irom0.text")))
+#define RAM_ATTR     __attribute__((section(".iram.text")))
+#define RODATA_ATTR  __attribute__((section(".irom.text"))) __attribute__((aligned(4)))
+#define ROMSTR_ATTR  __attribute__((section(".irom.text.romstr"))) __attribute__((aligned(4)))
+
+static inline uint8_t FLASH_ATTR readRomByte(const uint8_t* addr)
+{
+    uint32_t bytes;
+    bytes = *(uint32_t*)((uint32_t)addr & ~3);
+    return ((uint8_t*)&bytes)[(uint32_t)addr & 3];
+}
+
+#define L_PSTR(s) (__extension__({static const char __c[] ROMSTR_ATTR = (s); &__c[0];}))
+#define L_F(string_literal) (FPSTR(L_PSTR(string_literal)))
+
+#define MakeROMString(name, s) \
+	static constexpr char __##name[ ] PROGMEM = s; \
+	static constexpr m8r::ROMString name(reinterpret_cast<const __FlashStringHelper*>(__##name))
+
+#define MakeLocalROMString(name, s) \
+	static constexpr char __##name[ ] ROMSTR_ATTR = s; \
+	static constexpr m8r::ROMString name(reinterpret_cast<const __FlashStringHelper*>(__##name))
+
+class ROMString
+{
+public:
+	constexpr ROMString(const __FlashStringHelper* s) : _s(s) { }
+	
+	operator String() const { return String(_s); }
+	
+private:
+	const __FlashStringHelper* _s;
+};
+
 class OutputStream
 {
 public:
 	OutputStream& operator << (const char* s) { Serial.print(s); return *this; }
 	OutputStream& operator << (const Printable& p) { p.printTo(Serial); return *this; }
+	OutputStream& operator << (const __FlashStringHelper* s) { Serial.print(s); return *this; }
 	OutputStream& operator << (const String& s) { Serial.print(s); return *this; }
 	OutputStream& operator << (int32_t v) { Serial.print(v); return *this; }
 	OutputStream& operator << (uint32_t v) { Serial.print(v); return *this; }
