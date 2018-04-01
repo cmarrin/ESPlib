@@ -37,6 +37,8 @@ DAMAGE.
 
 #pragma once
 
+#include <Arduino.h>
+#include <memory>
 #include <vector>
 
 namespace m8r {
@@ -47,42 +49,110 @@ namespace m8r {
 	// with an interface of one or more buttons. Create a subclas of MenuSystem with
 	// implementations of the render and one or more of the button methods. Then
 	// build the menu system out of Menu and MenuItem instances
+	
+	class MenuSystem;
 
 	class MenuItem
 	{
+		friend class MenuSystem;
+		
 	public:
-		MenuItem(const std::string& s) : _string(s) { }
+		enum class Move { Up, Down, In, Out };
+
+		MenuItem(const String& s) : _string(s) { }
 		
-		virtual menuItemSelected(const MenuItem&) { }
+		enum class Action { None, Activate };
 		
-		void addMenuItem(std::shared_ptr<MenuItem>&);
+		virtual bool move(Move dir, bool wrap, Action action = Action::None)
+		{
+		}
+
+		virtual void menuItemEvent(const MenuItem&) { }
+		virtual void show(MenuSystem* menuSystem);
 		
-	private:
-		std::string _string;
+		void start(MenuSystem* menuSystem)
+		{
+			_active = true;
+			show(menuSystem);
+		}
+		
+		const String& string() const { return _string; }
+				
+	protected:
+		String _string;
+		bool _active = false;
 	};
 	
 	class Menu : public MenuItem
 	{
 	public:
-		Menu(const String& s) : _string(s) { }
-		
-		virtual menuItemSelected(const MenuItem&) { }
+		Menu(const String& s) : MenuItem(s) { }
 		
 		void addMenuItem(std::shared_ptr<MenuItem>&);
 		
-	private:
-		std::vector<std::shared_ptr<MenuItem>> _menu;
+	private:		
+		virtual bool move(Move dir, bool wrap, Action action = Action::None) override
+		{
+			if (action == Action::Activate) {
+				_active = true;
+				_cur = 0;
+				return true;
+			}
+			
+			if (!_active) {
+				if (move(dir, wrap)) {
+					return true;
+				}
+				
+				// We've just be activated by an Out
+				_active = true;
+				return true;
+			}
+			
+			switch(dir) {
+				case Move::Up:
+				if (_cur == 0 && !wrap) {
+					return true;
+				}
+				_cur = _menuItems.size() - 1;
+				return true;
+
+				case Move::Down:
+				if (_cur == _menuItems.size() - 1 && !wrap) {
+					return true;
+				}
+				_cur += 1;
+				return true;
+
+				case Move::In:
+				_active = false;
+				return move(dir, wrap, Action::Activate);
+
+				case Move::Out:
+				_active = false;
+				return false;
+			}
+		}
+		
+		std::vector<std::shared_ptr<MenuItem>> _menuItems;
+		int16_t _cur = -1;
 	};
 	
-	class Menu : public MenuItem
+	class MenuSystem
 	{
 	public:
-		Menu() { }
+		MenuSystem(bool wrap = true) : _wrap(wrap) { }
 		
 		void setMenu(std::shared_ptr<MenuItem>& item) { _menu = item; }
 		
+		void start() { _menu->start(this); }
+		void move(MenuItem::Move dir) { _menu->move(dir, _wrap); }
+		
+		virtual void showMenuItem(const MenuItem*) = 0;
+		
 	private:
 		std::shared_ptr<MenuItem> _menu;
+		bool _wrap;
 	};
 	
 }
