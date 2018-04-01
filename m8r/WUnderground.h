@@ -65,12 +65,29 @@ namespace m8r {
 	
 		uint32_t localEpoch() const { return _localEpoch; }
 		int32_t localTZOffset() const { return _localTZOffset; }
+		int32_t currentTemp() const { return _currentTemp; }
+		int32_t lowTemp() const { return _lowTemp; }
+		int32_t highTemp() const { return _highTemp; }
 	
 	private:
-		bool _waitingForLocalEpoch = false;
+		// LocalEpoch, LocalTZOffset and CurrentTemp are all independent. When we see the string we wait for the
+		// next entity, which will be the value. For forecast temps we wait for the sequence:
+		//
+		//		"forecast" -> "simpleforecast" -> "period" -> <value == 1> -> <"high" | "low"> -> "fahrenheit" -> <value>
+		// If the period value is anything other that "1", we go back to the Period state
+		enum class State {
+			None, LocalEpoch, LocalTZOffset, CurrentTemp, 
+			SimpleForecast, Period,
+			Low, High, LowF, HighF, LowFValue, HighFValue
+		};
+		
+		State _state = State::None;
+		
 		uint32_t _localEpoch = 0;
-		bool _waitingForLocalTZOffset = false;
 		int32_t _localTZOffset = 0;
+		int32_t _currentTemp = -1000;
+		int32_t _lowTemp = -1000;
+		int32_t _highTemp = -1000;
 	};
 
 	class WUnderground
@@ -101,9 +118,9 @@ namespace m8r {
 		Ticker _ticker;
 		
 		uint32_t _currentTime = 0;
-		int8_t _currentTemp = 0;
-		int8_t _lowTemp = 0;
-		int8_t _highTemp = 0;
+		int32_t _currentTemp = 0;
+		int32_t _lowTemp = 0;
+		int32_t _highTemp = 0;
 		
 		bool _needUpdate = true;
 	};

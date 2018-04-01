@@ -45,22 +45,89 @@ using namespace m8r;
 
 void MyJsonListener::key(String key)
 {
-	if (key == "local_epoch") {
-		_waitingForLocalEpoch = true;
-	} else if (key == "local_tz_offset") {
-		_waitingForLocalTZOffset = true;
+	switch(_state) {
+		case State::None:
+		if (key == "local_epoch") {
+			_state = State::LocalEpoch;
+		} else if (key == "local_tz_offset") {
+			_state = State::LocalTZOffset;
+		} else if (key == "temp_f") {
+			_state = State::CurrentTemp;
+		} else if (key == "simpleforecast") {
+			_state = State::SimpleForecast;
+		}
+		break;
+		
+		case State::SimpleForecast:
+		if (key == "period") {
+			_state = State::Period;
+		}
+		break;
+
+		case State::High:
+		if (key == "high") {
+			_state = State::HighF;
+		}
+		break;
+
+		case State::Low:
+		if (key == "low") {
+			_state = State::LowF;
+		}
+		break;
+
+		case State::HighF:
+		if (key == "fahrenheit") {
+			_state = State::HighFValue;
+		}
+		break;
+
+		case State::LowF:
+		if (key == "fahrenheit") {
+			_state = State::LowFValue;
+		}
+		break;
 	}
 }
 
 void MyJsonListener::value(String value)
 {
-	if (_waitingForLocalEpoch) {
-		_waitingForLocalEpoch = false;
+	switch(_state) {
+		case State::LocalEpoch: 
 		_localEpoch = value.toInt();
-	} else if (_waitingForLocalTZOffset) {
-		_waitingForLocalTZOffset = false;
+		_state = State::None;
+		break;
+		
+		case State::LocalTZOffset: 
 		_localTZOffset = value.toInt();
-	} 
+		_state = State::None;
+		break;
+		
+		case State::CurrentTemp: 
+		_currentTemp = value.toInt();
+		_state = State::None;
+		break;
+		
+		case State::Period: {
+			int32_t v = value.toInt();
+			if (v != 1) {
+				_state = State::SimpleForecast;
+			} else {
+				_state = State::High;
+			}
+			break;
+		}
+		
+		case State::HighFValue: 
+		_highTemp = value.toInt();
+		_state = State::Low;
+		break;
+		
+		case State::LowFValue: 
+		_lowTemp = value.toInt();
+		_state = State::None;
+		break;
+	}
 }
 
 void WUnderground::feedWUnderground()
@@ -105,6 +172,9 @@ void WUnderground::feedWUnderground()
 			}
 	
 			_currentTime = listener.localEpoch() + (listener.localTZOffset() * 3600 / 100);
+			_currentTemp = listener.currentTemp();
+			_lowTemp = listener.lowTemp();
+			_highTemp = listener.highTemp();
 		}
 	} else {
 		m8r::cout << L_F("[HTTP] GET... failed, error: ") << http.errorToString(httpCode) << L_F("(") << httpCode << L_F(")\n");
@@ -122,4 +192,5 @@ void WUnderground::feedWUnderground()
 	m8r::cout << L_F("Time set to:") << 
 		strtok(ctime(reinterpret_cast<time_t*>(&_currentTime)), "\n") << 
 		L_F(", next setting in ") << timeToNextCheck << L_F(" seconds\n");
+	m8r::cout << "Temps - current:" << _currentTemp << ", low:" << _lowTemp << ", high:" << _highTemp << "\n";
 }
