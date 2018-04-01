@@ -37,6 +37,10 @@ DAMAGE.
 
 #include "m8r/WUnderground.h"
 
+#include <ESP8266HTTPClient.h>
+#include <JsonStreamingParser.h>
+#include <time.h>
+
 using namespace m8r;
 
 void MyJsonListener::key(String key)

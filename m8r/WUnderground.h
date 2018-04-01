@@ -38,11 +38,8 @@ DAMAGE.
 #pragma once
 
 #include <m8r.h>
-#include <ESP8266HTTPClient.h>
-#include <JsonStreamingParser.h>
 #include <JsonListener.h>
 #include <Ticker.h>
-#include <time.h>
 
 // WUnderground
 //
