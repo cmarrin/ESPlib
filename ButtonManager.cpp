@@ -47,9 +47,10 @@ Button::Button(uint8_t pin, uint32_t id, bool activeHigh, PinMode mode)
 	pinMode(_pin, (mode == PinMode::Float) ? INPUT : INPUT_PULLUP);
 }
 
-ButtonManager::ButtonManager(uint32_t debounceTime, uint32_t clickTime, uint32_t longPressTime)
+ButtonManager::ButtonManager(std::function<void(const Button&, Event)> handler, uint32_t debounceTime, uint32_t clickTime, uint32_t longPressTime)
 	: _clickTime(clickTime)
 	, _longPressTime(longPressTime)
+	, _handler(handler)
 {
 	_msPerTick = debounceTime / TickMultiplier;
 	_ticker.attach_ms(_msPerTick, _fire, this);
@@ -72,7 +73,7 @@ void ButtonManager::fire()
 			it._waitTime += _msPerTick;
 			if (it._waitTime > _longPressTime) {
 				it._waitTime = -1;
-				handleButtonEvent(it, Event::LongPress);
+				_handler(it, Event::LongPress);
 			}
 		}
 		
@@ -86,13 +87,13 @@ void ButtonManager::fire()
 				it._ticks = -1;
 				if (pressed) {
 					// New state is a press, send it
-					handleButtonEvent(it, Event::Press);
+					_handler(it, Event::Press);
 					it._waitTime = 0;
 				} else {
 					if (it._waitTime < _clickTime) {
-						handleButtonEvent(it, Event::Click);
+						_handler(it, Event::Click);
 					} else if (it._waitTime <= _longPressTime) {
-						handleButtonEvent(it, Event::Release);
+						_handler(it, Event::Release);
 					}
 					it._waitTime = -1;
 				}

@@ -109,11 +109,10 @@ namespace m8r {
 		// Set a tick that is TickMultiplier times faster than debounce time.
 		// We need that many times for the state to remain unchanged for a button
 		// press or release to register
-		ButtonManager(uint32_t debounceTime = DefaultDebounceTime,
+		ButtonManager(std::function<void(const Button&, Event)> handler, 
+					  uint32_t debounceTime = DefaultDebounceTime,
 					  uint32_t clickTime = DefaultClickTime,
 					  uint32_t longPressTime = DefaultLongPressTime);
-		
-		virtual void handleButtonEvent(const Button&, Event) = 0;
 		
 		void addButton(const Button& button) { _buttons.push_back(button); }
 		
@@ -129,5 +128,6 @@ namespace m8r {
 		uint32_t _msPerTick = 0;
 		uint32_t _clickTime;
 		uint32_t _longPressTime;
+		std::function<void(const Button&, Event)> _handler;
 	};
 }
