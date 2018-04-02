@@ -37,7 +37,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Font_8x8_8pt.h"
 #include "Font_Compact_5pt.h"
-#include <SPI.h>
 
 using namespace m8r;
 
