@@ -40,6 +40,7 @@ DAMAGE.
 #include <m8r.h>
 #include <JsonListener.h>
 #include <Ticker.h>
+#include <ctime>
 
 // WUnderground
 //
@@ -68,6 +69,7 @@ namespace m8r {
 		int32_t currentTemp() const { return _currentTemp; }
 		int32_t lowTemp() const { return _lowTemp; }
 		int32_t highTemp() const { return _highTemp; }
+		const String& conditions() const { return _conditions; }
 	
 	private:
 		// LocalEpoch, LocalTZOffset and CurrentTemp are all independent. When we see the string we wait for the
@@ -78,7 +80,8 @@ namespace m8r {
 		enum class State {
 			None, LocalEpoch, LocalTZOffset, CurrentTemp, 
 			SimpleForecast, Period,
-			Low, High, LowF, HighF, LowFValue, HighFValue
+			Low, High, LowF, HighF, LowFValue, HighFValue,
+			Conditions, ConditionsValue
 		};
 		
 		State _state = State::None;
@@ -88,6 +91,7 @@ namespace m8r {
 		int32_t _currentTemp = -1000;
 		int32_t _lowTemp = -1000;
 		int32_t _highTemp = -1000;
+		String _conditions;
 	};
 
 	class WUnderground
@@ -106,6 +110,10 @@ namespace m8r {
 		int8_t currentTemp() const { return _currentTemp; }
 		int8_t lowTemp() const { return _lowTemp; }
 		int8_t highTemp() const { return _highTemp; }
+		const String& conditions() const { return _conditions; }
+		
+		static String strftime(const char* format, uint32_t time);
+		static String prettyDay(uint32_t time);
 	
 		void feedWUnderground();
 		
@@ -121,6 +129,7 @@ namespace m8r {
 		int32_t _currentTemp = 0;
 		int32_t _lowTemp = 0;
 		int32_t _highTemp = 0;
+		String _conditions;
 		
 		bool _needUpdate = true;
 	};

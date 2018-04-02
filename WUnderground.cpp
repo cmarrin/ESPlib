@@ -70,21 +70,27 @@ void MyJsonListener::key(String key)
 		}
 		break;
 
-		case State::Low:
-		if (key == "low") {
-			_state = State::LowF;
-		}
-		break;
-
 		case State::HighF:
 		if (key == "fahrenheit") {
 			_state = State::HighFValue;
 		}
 		break;
 
+		case State::Low:
+		if (key == "low") {
+			_state = State::LowF;
+		}
+		break;
+
 		case State::LowF:
 		if (key == "fahrenheit") {
 			_state = State::LowFValue;
+		}
+		break;
+
+		case State::Conditions:
+		if (key == "conditions") {
+			_state = State::ConditionsValue;
 		}
 		break;
 	}
@@ -125,6 +131,11 @@ void MyJsonListener::value(String value)
 		
 		case State::LowFValue: 
 		_lowTemp = value.toInt();
+		_state = State::Conditions;
+		break;
+		
+		case State::ConditionsValue: 
+		_conditions = value;
 		_state = State::None;
 		break;
 	}
@@ -189,8 +200,32 @@ void WUnderground::feedWUnderground()
 	
 	handleWeatherInfo(!failed);
 
-	m8r::cout << L_F("Time set to:") << 
-		strtok(ctime(reinterpret_cast<time_t*>(&_currentTime)), "\n") << 
+	m8r::cout << L_F("Time set to:") << strftime("%a %b %d, %Y %r", currentTime()) << 
 		L_F(", next setting in ") << timeToNextCheck << L_F(" seconds\n");
 	m8r::cout << "Temps - current:" << _currentTemp << ", low:" << _lowTemp << ", high:" << _highTemp << "\n";
+}
+
+String WUnderground::strftime(const char* format, uint32_t time)
+{
+	struct tm* timeinfo = localtime(reinterpret_cast<time_t*>(&time));
+	char s[100];
+	std::strftime(s, 99, format, timeinfo);
+	return s;
+}
+
+String WUnderground::prettyDay(uint32_t time)
+{
+	struct tm* timeinfo = localtime(reinterpret_cast<time_t*>(&time));
+	int day = timeinfo->tm_mday;
+	String s(day);
+	switch(day) {
+		case 1:
+		case 21:
+		case 31: return s + "st";
+		case 2:
+		case 22: return s + "nd";
+		case 3:
+		case 23: return s + "rd";
+		default: return s + "th";
+	}
 }
