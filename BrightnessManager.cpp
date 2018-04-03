@@ -39,11 +39,12 @@ DAMAGE.
 
 using namespace m8r;
 
-BrightnessManager::BrightnessManager(uint8_t lightSensor, uint16_t maxLevel, uint8_t numLevels, uint32_t sampleRate, uint8_t numSamples)
+BrightnessManager::BrightnessManager(std::function<void(uint8_t brightness)> handler, uint8_t lightSensor, uint16_t maxLevel, uint8_t numLevels, uint32_t sampleRate, uint8_t numSamples)
 	: _lightSensor(lightSensor)
 	, _maxLevel(maxLevel)
 	, _numLevels(numLevels)
 	, _numSamples(numSamples)
+	, _handler(handler)
 {
 	_ticker.attach_ms(sampleRate, compute, this);
 }
@@ -72,7 +73,7 @@ void BrightnessManager::computeBrightness()
 
 		if (brightness != _currentBrightness) {
 			_currentBrightness = brightness;
-			handleBrightnessChange(_currentBrightness);
+			_handler(_currentBrightness);
 		}
 	}
 }

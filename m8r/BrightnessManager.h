@@ -51,13 +51,12 @@ namespace m8r {
 	class BrightnessManager
 	{
 	public:
-		BrightnessManager(uint8_t lightSensor, uint16_t maxLevel, uint8_t numLevels, 
+		BrightnessManager(std::function<void(uint8_t brightness)> handler, 
+						  uint8_t lightSensor, uint16_t maxLevel, uint8_t numLevels, 
 						  uint32_t sampleRate = 100, uint8_t numSamples = 5);
 	
 		uint8_t brightness() const { return _currentBrightness; }
-	
-		virtual void handleBrightnessChange(uint8_t brightness) = 0;
-	
+		
 	private:
 		static void compute(BrightnessManager* self) { self->computeBrightness(); }
 
@@ -71,5 +70,6 @@ namespace m8r {
 		uint16_t _maxLevel;
 		uint8_t _numLevels;
 		uint8_t _numSamples;
+		std::function<void(uint8_t brightness)> _handler;
 	};
 }
