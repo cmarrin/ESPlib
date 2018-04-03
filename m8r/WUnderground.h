@@ -97,14 +97,13 @@ namespace m8r {
 	class WUnderground
 	{
 	public:
-		WUnderground(const String& key, const String& city, const String& state)
+		WUnderground(const String& key, const String& city, const String& state, std::function<void(bool succeeded)> handler)
 			: _key(key)
 			, _city(city)
 			, _state(state)
+			, _handler(handler)
 		{
 		}
-		
-		virtual void handleWeatherInfo(bool succeeded) = 0;
 		
 		uint32_t currentTime() const { return _currentTime; }
 		int8_t currentTemp() const { return _currentTemp; }
@@ -115,7 +114,7 @@ namespace m8r {
 		static String strftime(const char* format, uint32_t time);
 		static String prettyDay(uint32_t time);
 	
-		void feedWUnderground();
+		void feed();
 		
 	private:
 		static void fire(WUnderground* self) { self->_needUpdate = true; }
@@ -132,6 +131,8 @@ namespace m8r {
 		String _conditions;
 		
 		bool _needUpdate = true;
+
+		std::function<void(bool succeeded)> _handler;
 	};
 
 }

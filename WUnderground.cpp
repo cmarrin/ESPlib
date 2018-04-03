@@ -141,7 +141,7 @@ void MyJsonListener::value(String value)
 	}
 }
 
-void WUnderground::feedWUnderground()
+void WUnderground::feed()
 {
 	if (!_needUpdate) {
 		return;
@@ -199,7 +199,7 @@ void WUnderground::feedWUnderground()
 	int32_t timeToNextCheck = failed ? 120 : ((60 * 60) - (static_cast<int32_t>(_currentTime % (60 * 60))) + 60);
 	_ticker.once(timeToNextCheck, fire, this);
 	
-	handleWeatherInfo(!failed);
+	_handler(!failed);
 
 	m8r::cout << L_F("Time set to:") << strftime("%a %b %d, %Y %r", currentTime()) << 
 		L_F(", next setting in ") << timeToNextCheck << L_F(" seconds\n");
