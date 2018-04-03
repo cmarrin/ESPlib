@@ -39,7 +39,56 @@ DAMAGE.
 
 using namespace m8r;
 
+MenuSystem::MenuSystem(std::function<void(const MenuItem*)> showHandler, bool wrap)
+	: _wrap(wrap)
+	, _showHandler(showHandler)
+{
+}
+
 void MenuItem::show(MenuSystem* menuSystem)
 {
-	menuSystem->showMenuItem(this);
+	menuSystem->_showHandler(this);
+}
+
+bool Menu::move(Move dir, bool wrap, Action action)
+{
+	if (action == Action::Activate) {
+		_active = true;
+		_cur = 0;
+		return true;
+	}
+	
+	if (!_active) {
+		if (move(dir, wrap)) {
+			return true;
+		}
+		
+		// We've just be activated by an Out
+		_active = true;
+		return true;
+	}
+	
+	switch(dir) {
+		case Move::Up:
+		if (_cur == 0 && !wrap) {
+			return true;
+		}
+		_cur = _menuItems.size() - 1;
+		return true;
+
+		case Move::Down:
+		if (_cur == _menuItems.size() - 1 && !wrap) {
+			return true;
+		}
+		_cur += 1;
+		return true;
+
+		case Move::In:
+		_active = false;
+		return move(dir, wrap, Action::Activate);
+
+		case Move::Out:
+		_active = false;
+		return false;
+	}
 }

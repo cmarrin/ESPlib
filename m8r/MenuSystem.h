@@ -54,8 +54,6 @@ namespace m8r {
 
 	class MenuItem
 	{
-		friend class MenuSystem;
-		
 	public:
 		enum class Move { Up, Down, In, Out };
 
@@ -91,48 +89,7 @@ namespace m8r {
 		void addMenuItem(std::shared_ptr<MenuItem>&);
 		
 	private:		
-		virtual bool move(Move dir, bool wrap, Action action = Action::None) override
-		{
-			if (action == Action::Activate) {
-				_active = true;
-				_cur = 0;
-				return true;
-			}
-			
-			if (!_active) {
-				if (move(dir, wrap)) {
-					return true;
-				}
-				
-				// We've just be activated by an Out
-				_active = true;
-				return true;
-			}
-			
-			switch(dir) {
-				case Move::Up:
-				if (_cur == 0 && !wrap) {
-					return true;
-				}
-				_cur = _menuItems.size() - 1;
-				return true;
-
-				case Move::Down:
-				if (_cur == _menuItems.size() - 1 && !wrap) {
-					return true;
-				}
-				_cur += 1;
-				return true;
-
-				case Move::In:
-				_active = false;
-				return move(dir, wrap, Action::Activate);
-
-				case Move::Out:
-				_active = false;
-				return false;
-			}
-		}
+		virtual bool move(Move dir, bool wrap, Action action = Action::None) override;
 		
 		std::vector<std::shared_ptr<MenuItem>> _menuItems;
 		int16_t _cur = -1;
@@ -140,16 +97,19 @@ namespace m8r {
 	
 	class MenuSystem
 	{
+		friend class MenuItem;
+		
 	public:
-		MenuSystem(bool wrap = true) : _wrap(wrap) { }
+		MenuSystem(std::function<void(const MenuItem*)> showHandler, bool wrap = true);
 		
 		void setMenu(std::shared_ptr<MenuItem>& item) { _menu = item; }
 		
 		void start() { _menu->start(this); }
 		void move(MenuItem::Move dir) { _menu->move(dir, _wrap); }
-		
-		virtual void showMenuItem(const MenuItem*) = 0;
-		
+				
+	protected:
+		std::function<void(const MenuItem*)> _showHandler;
+
 	private:
 		std::shared_ptr<MenuItem> _menu;
 		bool _wrap;
