@@ -186,6 +186,7 @@ void WUnderground::feedWUnderground()
 			_currentTemp = listener.currentTemp();
 			_lowTemp = listener.lowTemp();
 			_highTemp = listener.highTemp();
+			_conditions = listener.conditions();
 		}
 	} else {
 		m8r::cout << L_F("[HTTP] GET... failed, error: ") << http.errorToString(httpCode) << L_F("(") << httpCode << L_F(")\n");
