@@ -114,7 +114,14 @@ void Max7219Display::scrollString(const String& s, uint32_t scrollRate, Font fon
 {
 	setFont(font);
 	_scrollString = s;
-	_scrollOffset = -_matrix.width(); // Make scroll start offscreen
+	_scrollOffset = _matrix.width(); // Make scroll start offscreen
+
+	int16_t x1, y1;
+	uint16_t w, h;
+	_matrix.getTextBounds((char*) _scrollString.c_str(), 0, 0, &x1, &y1, &w, &h);
+	_scrollY = _matrix.height() - (h + y1);
+	_scrollW = w;
+	
 	_scrollTimer.attach_ms(scrollRate, _scroll, this);
 }
 
@@ -156,17 +163,35 @@ void Max7219Display::setTime(uint32_t currentTime, Font font)
 
 void Max7219Display::scroll()
 {
-	int16_t x1, y1;
-	uint16_t w, h;
-	_matrix.getTextBounds((char*) _scrollString.c_str(), 0, 0, &x1, &y1, &w, &h);
-	if (_scrollOffset++ >= w) {
+	if (_scrollOffset-- + _scrollW <= 0) {
 		_scrollTimer.detach();
 		scrollDone();
 	}
 
+	int n = 0;
+	size_t length = _scrollString.length();
+	int16_t x = _scrollOffset;
 	_matrix.fillScreen(LOW);
 
-	_matrix.setCursor(-_scrollOffset, _matrix.height() - (h + y1));
-	_matrix.print(_scrollString);
+	for (int i = 0; i < length; ++i) {
+		if (x >= _matrix.width()) {
+			break;
+		}
+
+		// FIXME: Adafruit_GFX should have a function to give the xAdvance
+        uint8_t first = pgm_read_byte(&Font_8x8_8pt.first);
+        GFXglyph *glyph  = &(((GFXglyph *)pgm_read_dword(&Font_8x8_8pt.glyph))[_scrollString[i] - first]);
+		uint8_t xAdvance = pgm_read_byte(&glyph->xAdvance);
+		
+		if (x + xAdvance > 0) {
+			char c[2] = " ";
+			c[0] = _scrollString.c_str()[i];
+			_matrix.drawChar(x, _scrollY, c[0], 0xffff, 0xffff, 1);
+			++n;
+		}
+		
+		x += xAdvance;
+	}
+	
 	_matrix.write(); // Send bitmap to display
 }

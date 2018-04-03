@@ -37,6 +37,7 @@ DAMAGE.
 
 #pragma once
 
+#include <m8r.h>
 #include <Adafruit_GFX.h>
 #include <Ticker.h>
 #include <Max72xxPanel.h>
@@ -72,6 +73,8 @@ namespace m8r {
 		Ticker _scrollTimer;
 		String _scrollString;
 		int32_t _scrollOffset;
+		int16_t _scrollY;
+		int32_t _scrollW;
 	};
 
 }
