@@ -40,8 +40,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-Max7219Display::Max7219Display()
+Max7219Display::Max7219Display(std::function<void()> scrollDone)
 	: _matrix(SS, 4, 1)
+	, _scrollDone(scrollDone)
 {
 	pinMode(SS, OUTPUT);
 	digitalWrite(SS, LOW);
@@ -165,7 +166,7 @@ void Max7219Display::scroll()
 {
 	if (_scrollOffset-- + _scrollW <= 0) {
 		_scrollTimer.detach();
-		scrollDone();
+		_scrollDone();
 	}
 
 	int n = 0;

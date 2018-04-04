@@ -50,9 +50,7 @@ namespace m8r {
 	public:
 		enum class Font { Normal, Compact };
 	
-		Max7219Display();
-	
-		virtual void scrollDone() = 0;
+		Max7219Display(std::function<void()> scrollDone);
 
 		void clear();
 		void setBrightness(float level);
@@ -75,6 +73,7 @@ namespace m8r {
 		int32_t _scrollOffset;
 		int16_t _scrollY;
 		int32_t _scrollW;
+		std::function<void()> _scrollDone;
 	};
 
 }
