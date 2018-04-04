@@ -169,7 +169,6 @@ void Max7219Display::scroll()
 		_scrollDone();
 	}
 
-	int n = 0;
 	size_t length = _scrollString.length();
 	int16_t x = _scrollOffset;
 	_matrix.fillScreen(LOW);
@@ -179,16 +178,11 @@ void Max7219Display::scroll()
 			break;
 		}
 
-		// FIXME: Adafruit_GFX should have a function to give the xAdvance
-        uint8_t first = pgm_read_byte(&Font_8x8_8pt.first);
-        GFXglyph *glyph  = &(((GFXglyph *)pgm_read_dword(&Font_8x8_8pt.glyph))[_scrollString[i] - first]);
-		uint8_t xAdvance = pgm_read_byte(&glyph->xAdvance);
+		uint8_t xAdvance = _matrix.getXAdvance(_scrollString[i]);
 		
 		if (x + xAdvance > 0) {
-			char c[2] = " ";
-			c[0] = _scrollString.c_str()[i];
-			_matrix.drawChar(x, _scrollY, c[0], 0xffff, 0xffff, 1);
-			++n;
+			_matrix.setCursor(x, _scrollY);
+			_matrix.Adafruit_GFX::write(_scrollString[i]);
 		}
 		
 		x += xAdvance;
