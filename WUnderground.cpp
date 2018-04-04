@@ -141,14 +141,8 @@ void MyJsonListener::value(String value)
 	}
 }
 
-void WUnderground::feed()
+bool WUnderground::update()
 {
-	if (!_needUpdate) {
-		return;
-	}
-	
-	_needUpdate = false;
-	
 	bool failed = false;
 
 	HTTPClient http;
@@ -199,11 +193,10 @@ void WUnderground::feed()
 	int32_t timeToNextCheck = failed ? 120 : ((60 * 60) - (static_cast<int32_t>(_currentTime % (60 * 60))) + 60);
 	_ticker.once(timeToNextCheck, fire, this);
 	
-	_handler(!failed);
-
 	m8r::cout << L_F("Time set to:") << strftime("%a %b %d, %Y %r", currentTime()) << 
 		L_F(", next setting in ") << timeToNextCheck << L_F(" seconds\n");
 	m8r::cout << "Temps - current:" << _currentTemp << ", low:" << _lowTemp << ", high:" << _highTemp << "\n";
+	return !failed;
 }
 
 String WUnderground::strftime(const char* format, uint32_t time)
