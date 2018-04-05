@@ -54,7 +54,7 @@ namespace m8r {
 
 		void clear();
 		void setBrightness(float level);
-		void setString(const String& string, Font = Font::Normal, bool colon = false, bool pm = false);
+		void setString(const String& string, Font = Font::Normal);
 		void scrollString(const String& s, uint32_t scrollRate, Font = Font::Normal);
 		void setTime(uint32_t currentTime, Font = Font::Normal);
 

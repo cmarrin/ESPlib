@@ -87,19 +87,18 @@ void Max7219Display::setBrightness(float level)
 	_matrix.setIntensity(level);
 }
 	
-void Max7219Display::setString(const String& string, Font font, bool colon, bool pm)
+void Max7219Display::setString(const String& string, Font font)
 {
-	setFont(font);
-	String s = string;
-	if (string.length() >= 2 && colon) {
-		s = s.substring(0, 2) + ":" + s.substring(2);
+	if (_scrollTimer.active()) {
+		_scrollTimer.detach();
 	}
-	s.trim();  
+
+	setFont(font);
 
 	// center the string
 	int16_t x1, y1;
 	uint16_t w, h;
-	_matrix.getTextBounds((char*) s.c_str(), 0, 0, &x1, &y1, &w, &h);
+	_matrix.getTextBounds((char*) string.c_str(), 0, 0, &x1, &y1, &w, &h);
 
 	int32_t yoff = (_matrix.height() - h + 1) / 2;
 	if (yoff < 0) {
@@ -107,7 +106,7 @@ void Max7219Display::setString(const String& string, Font font, bool colon, bool
 	}
 	_matrix.setCursor((_matrix.width() - w) / 2, _matrix.height() - (h + y1) - yoff);
 	_matrix.fillScreen(LOW);
-	_matrix.print(s);
+	_matrix.print(string);
 	_matrix.write(); // Send bitmap to display
 }
 
@@ -142,16 +141,14 @@ void Max7219Display::setTime(uint32_t currentTime, Font font)
 			hours -= 12;
 		}
 	}
-	if (hours < 10) {
-		string = " ";
-	} else {
-		string = "";
-	}
 	string += String(hours);
+	string += ":";
 	if (timeinfo->tm_min < 10) {
 		string += "0";
 	}
 	string += String(timeinfo->tm_min);
+
+	// FIXME: Show AM/PM?
 
 	static String lastStringSent;
 	if (string == lastStringSent) {
@@ -159,7 +156,7 @@ void Max7219Display::setTime(uint32_t currentTime, Font font)
 	}
 	lastStringSent = string;
 
-	setString(string, font, true, pm);
+	setString(string, font);
 }
 
 void Max7219Display::scroll()
