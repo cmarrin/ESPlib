@@ -167,6 +167,7 @@ void Max7219Display::scroll()
 	if (_scrollOffset-- + _scrollW <= 0) {
 		_scrollTimer.detach();
 		_scrollDone();
+		return;
 	}
 
 	size_t length = _scrollString.length();
