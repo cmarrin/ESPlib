@@ -112,6 +112,10 @@ void Max7219Display::setString(const String& string, Font font)
 
 void Max7219Display::scrollString(const String& s, uint32_t scrollRate, Font font)
 {
+	if (_scrollTimer.active()) {
+		_scrollTimer.detach();
+	}
+
 	setFont(font);
 	_scrollString = s;
 	_scrollOffset = _matrix.width(); // Make scroll start offscreen
@@ -125,7 +129,7 @@ void Max7219Display::scrollString(const String& s, uint32_t scrollRate, Font fon
 	_scrollTimer.attach_ms(scrollRate, _scroll, this);
 }
 
-void Max7219Display::setTime(uint32_t currentTime, Font font)
+void Max7219Display::setTime(uint32_t currentTime, bool force, Font font)
 {
 	bool pm = false;
 	String string;
@@ -151,7 +155,7 @@ void Max7219Display::setTime(uint32_t currentTime, Font font)
 	// FIXME: Show AM/PM?
 
 	static String lastStringSent;
-	if (string == lastStringSent) {
+	if (string == lastStringSent && !force) {
 		return;
 	}
 	lastStringSent = string;
