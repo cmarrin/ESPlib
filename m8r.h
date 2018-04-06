@@ -125,6 +125,8 @@ private:
 	const __FlashStringHelper* _s;
 };
 
+static constexpr char* endl = "\n";
+
 class OutputStream
 {
 public:
