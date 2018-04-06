@@ -87,7 +87,7 @@ void Max7219Display::setBrightness(float level)
 	_matrix.setIntensity(level);
 }
 	
-void Max7219Display::setString(const String& string, Font font)
+void Max7219Display::showString(const String& string, Font font)
 {
 	if (_scrollTimer.active()) {
 		_scrollTimer.detach();
@@ -129,7 +129,7 @@ void Max7219Display::scrollString(const String& s, uint32_t scrollRate, Font fon
 	_scrollTimer.attach_ms(scrollRate, _scroll, this);
 }
 
-void Max7219Display::setTime(uint32_t currentTime, bool force, Font font)
+void Max7219Display::showTime(uint32_t currentTime, bool force, Font font)
 {
 	bool pm = false;
 	String string;
@@ -160,7 +160,7 @@ void Max7219Display::setTime(uint32_t currentTime, bool force, Font font)
 	}
 	lastStringSent = string;
 
-	setString(string, font);
+	showString(string, font);
 }
 
 void Max7219Display::scroll()
