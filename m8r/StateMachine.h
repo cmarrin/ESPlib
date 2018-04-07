@@ -51,35 +51,61 @@ namespace m8r {
 	public:
 		using Action = std::function<void()>;
 		using NextStates = std::vector<std::pair<Input, State>>;
+		using ShowStringCallback = std::function<void(const String&)>;
 		
 		struct StateEntry
 		{
-			StateEntry(State state, Action action, NextStates nextStates)
+			StateEntry(State state, Action action, NextStates nextStates, const String& s)
 				: _state(state)
 				, _action(action)
 				, _nextStates(nextStates)
+				, _string(s)
 			{ }
 			
-			StateEntry(State state, Action action, State jumpState)
+			StateEntry(State state, Action action, State jumpState, const String& s)
 				: _state(state)
 				, _action(action)
 				, _jumpState(jumpState)
+				, _string(s)
 			{ }
 			
 			State _state;
 			Action _action;
 			NextStates _nextStates;
 			State _jumpState;
+			String _string;
 		};
+		
+		StateMachine(ShowStringCallback cb = nullptr) : _showStringCallback(cb) { }
 		
 		void addState(State state, Action action, const NextStates& nextStates)
 		{
-			_states.emplace_back(state, action, nextStates);
+			_states.emplace_back(state, action, nextStates, "");
+		}
+		
+		void addState(State state, const String& s, const NextStates& nextStates)
+		{
+			_states.emplace_back(state, nullptr, nextStates, s);
+		}
+		
+		void addState(State state, const String& s, Action action, const NextStates& nextStates)
+		{
+			_states.emplace_back(state, action, nextStates, s);
 		}
 		
 		void addState(State state, Action action, State jumpState)
 		{
-			_states.emplace_back(state, action, jumpState);
+			_states.emplace_back(state, action, jumpState, "");
+		}
+		
+		void addState(State state, const String& s, State jumpState)
+		{
+			_states.emplace_back(state, nullptr, jumpState, s);
+		}
+		
+		void addState(State state, const String& s, Action action, State jumpState)
+		{
+			_states.emplace_back(state, action, jumpState, s);
 		}
 		
 		void gotoState(State state)
@@ -87,7 +113,16 @@ namespace m8r {
 			auto it = findState(state);
 			if (it != _states.end()) {
 				_currentState = state;
-				it->_action();
+				
+				if (_showStringCallback && it->_string.length()) {
+					m8r::cout << "StateMachine:" << it->_string << m8r::endl;
+					_showStringCallback(it->_string);
+				}
+				
+				if (it->_action) {
+					it->_action();
+				}
+				
 				if (it->_nextStates.empty()) {
 					gotoState(it->_jumpState);
 				}
@@ -120,6 +155,7 @@ namespace m8r {
 		
 		StateVector _states;
 		State _currentState;
+		ShowStringCallback _showStringCallback;
 	};
 
 }
