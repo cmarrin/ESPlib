@@ -49,16 +49,37 @@ namespace m8r {
 	class StateMachine
 	{
 	public:
+		using Action = std::function<void()>;
+		using NextStates = std::vector<std::pair<Input, State>>;
+		
 		struct StateEntry
 		{
+			StateEntry(State state, Action action, NextStates nextStates)
+				: _state(state)
+				, _action(action)
+				, _nextStates(nextStates)
+			{ }
+			
+			StateEntry(State state, Action action, State jumpState)
+				: _state(state)
+				, _action(action)
+				, _jumpState(jumpState)
+			{ }
+			
 			State _state;
-			std::function<void()> _action;
-			std::vector<std::pair<Input, State>> _nextStates;
+			Action _action;
+			NextStates _nextStates;
+			State _jumpState;
 		};
 		
-		void addState(State state, std::function<void()> action, const std::vector<std::pair<Input, State>>& nextStates)
+		void addState(State state, Action action, const NextStates& nextStates)
 		{
-			_states.push_back({ state, action, nextStates });
+			_states.emplace_back(state, action, nextStates);
+		}
+		
+		void addState(State state, Action action, State jumpState)
+		{
+			_states.emplace_back(state, action, jumpState);
 		}
 		
 		void gotoState(State state)
@@ -67,6 +88,9 @@ namespace m8r {
 			if (it != _states.end()) {
 				_currentState = state;
 				it->_action();
+				if (it->_nextStates.empty()) {
+					gotoState(it->_jumpState);
+				}
 			}
 		}
 		
