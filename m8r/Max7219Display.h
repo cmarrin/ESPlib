@@ -59,7 +59,7 @@ namespace m8r {
 		void showTime(uint32_t currentTime, bool force = false, Font = Font::Normal);
 
 	private:
-		static constexpr uint32_t WatusiRate = 120;
+		static constexpr uint32_t WatusiRate = 80;
 		static constexpr int32_t WatusiMargin = 3;
 		
 		void scroll();
