@@ -106,9 +106,8 @@ void Max7219Display::showString(const String& string, Font font)
 		return;
 	}
 
-	int32_t yoff = (_matrix.height() - h + 1) / 2;
 
-	_matrix.setCursor((_matrix.width() - w) / 2, _matrix.height() - (h + y1) - yoff);
+	_matrix.setCursor((_matrix.width() - w) / 2, -y1);
 	_matrix.fillScreen(LOW);
 	_matrix.print(string);
 	_matrix.write(); // Send bitmap to display
@@ -135,7 +134,7 @@ void Max7219Display::scrollString(const String& s, uint32_t scrollRate, ScrollTy
 	int16_t x1, y1;
 	uint16_t w, h;
 	_matrix.getTextBounds((char*) _scrollString.c_str(), 0, 0, &x1, &y1, &w, &h);
-	_scrollY = _matrix.height() - (h + y1);
+	_scrollY = -y1;
 	_scrollW = w;
 	_scrollType = scrollType;
 	
