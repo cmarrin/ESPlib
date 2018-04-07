@@ -48,31 +48,28 @@ namespace m8r {
 	class Max7219Display
 	{
 	public:
-		enum class Font { Normal, Compact };
-	
 		Max7219Display(std::function<void()> scrollDone);
 
 		void clear();
 		void setBrightness(float level);
-		void showString(const String& string, Font = Font::Normal);
-		void scrollString(const String& s, uint32_t scrollRate, Font = Font::Normal);
-		void showTime(uint32_t currentTime, bool force = false, Font = Font::Normal);
+		void showString(const String& string);
+		void showTime(uint32_t currentTime, bool force = false);
 
 	private:
+		static constexpr uint32_t ScrollRate = 50;
 		static constexpr uint32_t WatusiRate = 80;
 		static constexpr int32_t WatusiMargin = 3;
 		
-		void scroll();
-	
-		void setFont(Font);
-	
 		enum class ScrollType { Scroll, WatusiLeft, WatusiRight };
-		
-		void scrollString(const String& s, uint32_t scrollRate, ScrollType);
-	
+
+		void scrollString(const char* s, uint32_t scrollRate, ScrollType);
+		void scroll();
 		static void _scroll(Max7219Display* self) { self->scroll(); }
 	
-	private:
+		// Look for control chars. \a means to use the compact font, \v means to scroll.
+		// Returns offset into string past control chars
+		uint32_t getControlChars(const String& s, bool& scroll);
+	
 		Max72xxPanel _matrix;
 		Ticker _scrollTimer;
 		String _scrollString;

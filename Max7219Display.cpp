@@ -47,7 +47,6 @@ Max7219Display::Max7219Display(std::function<void()> scrollDone)
 	pinMode(SS, OUTPUT);
 	digitalWrite(SS, LOW);
 
-	setFont(Font::Normal);
 	_matrix.setTextWrap(false);
 
 	_matrix.setIntensity(0); // Use a value between 0 and 15 for brightness
@@ -65,9 +64,19 @@ Max7219Display::Max7219Display(std::function<void()> scrollDone)
 	clear();
 }
 
-void Max7219Display::setFont(Font font)
+uint32_t Max7219Display::getControlChars(const String& s, bool& scroll)
 {
-	_matrix.setFont((font == Font::Compact) ? &Font_Compact_5pt : &Font_8x8_8pt);
+	scroll = false;
+	
+	for (int i = 0; i < s.length(); ++i) {
+		if (s[i] == '\a') {
+			_matrix.setFont(&Font_Compact_5pt);
+		} else if (s[i] == '\v') {
+			scroll = true;
+		} else {
+			return i;
+		}
+	}
 }
 
 void Max7219Display::clear()
@@ -87,13 +96,20 @@ void Max7219Display::setBrightness(float level)
 	_matrix.setIntensity(level);
 }
 	
-void Max7219Display::showString(const String& string, Font font)
+void Max7219Display::showString(const String& string)
 {
 	if (_scrollTimer.active()) {
 		_scrollTimer.detach();
 	}
+	
+	_matrix.setFont(&Font_8x8_8pt);
 
-	setFont(font);
+	bool scroll;
+	uint32_t i = getControlChars(string, scroll);
+	if (scroll) {
+		scrollString(string.c_str() + i, ScrollRate, ScrollType::Scroll);
+		return;
+	}
 
 	// center the string
 	int16_t x1, y1;
@@ -102,49 +118,18 @@ void Max7219Display::showString(const String& string, Font font)
 	
 	if (w > _matrix.width()) {
 		// Text is too wide. Do the watusi
-		scrollString(string, WatusiRate, ScrollType::WatusiLeft);
+		scrollString(string.c_str() + i, WatusiRate, ScrollType::WatusiLeft);
 		return;
 	}
 
 
 	_matrix.setCursor((_matrix.width() - w) / 2, -y1);
 	_matrix.fillScreen(LOW);
-	_matrix.print(string);
+	_matrix.print(string.c_str() + i);
 	_matrix.write(); // Send bitmap to display
 }
 
-void Max7219Display::scrollString(const String& s, uint32_t scrollRate, Font font)
-{
-	if (_scrollTimer.active()) {
-		_scrollTimer.detach();
-	}
-
-	setFont(font);
-	scrollString(s, scrollRate, ScrollType::Scroll);
-}
-
-void Max7219Display::scrollString(const String& s, uint32_t scrollRate, ScrollType scrollType)
-{
-	if (_scrollTimer.active()) {
-		_scrollTimer.detach();
-	}
-
-	_scrollString = s;
-
-	int16_t x1, y1;
-	uint16_t w, h;
-	_matrix.getTextBounds((char*) _scrollString.c_str(), 0, 0, &x1, &y1, &w, &h);
-	_scrollY = -y1;
-	_scrollW = w;
-	_scrollType = scrollType;
-	
-	// If we're doing a full scroll, start offscreen
-	_scrollOffset = (scrollType == ScrollType::Scroll) ? _matrix.width() : WatusiMargin;
-	_scrollTimer.attach_ms(scrollRate, _scroll, this);
-
-}
-
-void Max7219Display::showTime(uint32_t currentTime, bool force, Font font)
+void Max7219Display::showTime(uint32_t currentTime, bool force)
 {
 	bool pm = false;
 	String string;
@@ -175,7 +160,28 @@ void Max7219Display::showTime(uint32_t currentTime, bool force, Font font)
 	}
 	lastStringSent = string;
 
-	showString(string, font);
+	showString(string);
+}
+
+void Max7219Display::scrollString(const char* s, uint32_t scrollRate, ScrollType scrollType)
+{
+	if (_scrollTimer.active()) {
+		_scrollTimer.detach();
+	}
+
+	_scrollString = s;
+
+	int16_t x1, y1;
+	uint16_t w, h;
+	_matrix.getTextBounds((char*) _scrollString.c_str(), 0, 0, &x1, &y1, &w, &h);
+	_scrollY = -y1;
+	_scrollW = w;
+	_scrollType = scrollType;
+	
+	// If we're doing a full scroll, start offscreen
+	_scrollOffset = (scrollType == ScrollType::Scroll) ? _matrix.width() : WatusiMargin;
+	_scrollTimer.attach_ms(scrollRate, _scroll, this);
+
 }
 
 void Max7219Display::scroll()
