@@ -58,11 +58,17 @@ namespace m8r {
 		void scrollString(const String& s, uint32_t scrollRate, Font = Font::Normal);
 		void showTime(uint32_t currentTime, bool force = false, Font = Font::Normal);
 
-	private:	
+	private:
+		static constexpr uint32_t WatusiRate = 120;
+		static constexpr int32_t WatusiMargin = 3;
+		
 		void scroll();
 	
 		void setFont(Font);
 	
+		enum class ScrollType { Scroll, WatusiLeft, WatusiRight };
+		
+		void scrollString(const String& s, uint32_t scrollRate, ScrollType);
 	
 		static void _scroll(Max7219Display* self) { self->scroll(); }
 	
@@ -73,6 +79,7 @@ namespace m8r {
 		int32_t _scrollOffset;
 		int16_t _scrollY;
 		int32_t _scrollW;
+		ScrollType _scrollType;
 		std::function<void()> _scrollDone;
 	};
 

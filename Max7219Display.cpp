@@ -99,11 +99,15 @@ void Max7219Display::showString(const String& string, Font font)
 	int16_t x1, y1;
 	uint16_t w, h;
 	_matrix.getTextBounds((char*) string.c_str(), 0, 0, &x1, &y1, &w, &h);
+	
+	if (w > _matrix.width()) {
+		// Text is too wide. Do the watusi
+		scrollString(string, WatusiRate, ScrollType::WatusiLeft);
+		return;
+	}
 
 	int32_t yoff = (_matrix.height() - h + 1) / 2;
-	if (yoff < 0) {
-		yoff = 0;
-	}
+
 	_matrix.setCursor((_matrix.width() - w) / 2, _matrix.height() - (h + y1) - yoff);
 	_matrix.fillScreen(LOW);
 	_matrix.print(string);
@@ -117,16 +121,28 @@ void Max7219Display::scrollString(const String& s, uint32_t scrollRate, Font fon
 	}
 
 	setFont(font);
+	scrollString(s, scrollRate, ScrollType::Scroll);
+}
+
+void Max7219Display::scrollString(const String& s, uint32_t scrollRate, ScrollType scrollType)
+{
+	if (_scrollTimer.active()) {
+		_scrollTimer.detach();
+	}
+
 	_scrollString = s;
-	_scrollOffset = _matrix.width(); // Make scroll start offscreen
 
 	int16_t x1, y1;
 	uint16_t w, h;
 	_matrix.getTextBounds((char*) _scrollString.c_str(), 0, 0, &x1, &y1, &w, &h);
 	_scrollY = _matrix.height() - (h + y1);
 	_scrollW = w;
+	_scrollType = scrollType;
 	
+	// If we're doing a full scroll, start offscreen
+	_scrollOffset = (scrollType == ScrollType::Scroll) ? _matrix.width() : WatusiMargin;
 	_scrollTimer.attach_ms(scrollRate, _scroll, this);
+
 }
 
 void Max7219Display::showTime(uint32_t currentTime, bool force, Font font)
@@ -165,12 +181,20 @@ void Max7219Display::showTime(uint32_t currentTime, bool force, Font font)
 
 void Max7219Display::scroll()
 {
-	if (_scrollOffset-- + _scrollW <= 0) {
-		_scrollTimer.detach();
-		_scrollDone();
-		return;
+	if (_scrollType == ScrollType::Scroll) {
+		if (_scrollOffset-- + _scrollW <= 0) {
+			_scrollTimer.detach();
+			_scrollDone();
+			return;
+		}
+	} else if (_scrollType == ScrollType::WatusiLeft) {
+		if (_scrollOffset-- <= _matrix.width() - _scrollW - WatusiMargin) {
+			_scrollType = ScrollType::WatusiRight;
+		}
+	} else if (_scrollOffset++ >= WatusiMargin) {
+			_scrollType = ScrollType::WatusiLeft;
 	}
-
+	
 	size_t length = _scrollString.length();
 	int16_t x = _scrollOffset;
 	_matrix.fillScreen(LOW);
