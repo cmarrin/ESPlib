@@ -115,7 +115,6 @@ namespace m8r {
 				_currentState = state;
 				
 				if (_showStringCallback && it->_string.length()) {
-					m8r::cout << "StateMachine:" << it->_string << m8r::endl;
 					_showStringCallback(it->_string);
 				}
 				
