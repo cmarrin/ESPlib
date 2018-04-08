@@ -76,7 +76,10 @@ namespace m8r {
 			String _string;
 		};
 		
-		StateMachine(ShowStringCallback cb = nullptr) : _showStringCallback(cb) { }
+		StateMachine() { }
+		StateMachine(ShowStringCallback cb) : _showStringCallback(cb) { }
+		StateMachine(const NextStates& nextStates) : _commonNextStates(nextStates) { }
+		StateMachine(ShowStringCallback cb, const NextStates& nextStates) : _showStringCallback(cb) , _commonNextStates(nextStates) { }
 		
 		void addState(State state, Action action, const NextStates& nextStates)
 		{
@@ -130,6 +133,14 @@ namespace m8r {
 		
 		void sendInput(Input input)
 		{
+			// First check the common next states
+			auto commonIt = std::find_if(_commonNextStates.begin(), _commonNextStates.end(), [input](const std::pair<Input, State>& entry) {
+				return entry.first == input;
+			});
+			if (commonIt != _commonNextStates.end()) {
+				gotoState(commonIt->second);
+			}
+			
 			auto it = findState(_currentState);
 			if (it == _states.end()) {
 				return;
@@ -155,6 +166,7 @@ namespace m8r {
 		StateVector _states;
 		State _currentState;
 		ShowStringCallback _showStringCallback;
+		NextStates _commonNextStates;
 	};
 
 }
