@@ -96,7 +96,7 @@ void Max7219Display::setBrightness(float level)
 	_matrix.setIntensity(level);
 }
 	
-void Max7219Display::showString(const String& string)
+void Max7219Display::showString(const String& string, uint32_t underscoreStart, uint32_t underscoreLength)
 {
 	if (_scrollTimer.active()) {
 		_scrollTimer.detach();
@@ -105,27 +105,44 @@ void Max7219Display::showString(const String& string)
 	_matrix.setFont(&Font_8x8_8pt);
 
 	bool scroll;
-	uint32_t i = getControlChars(string, scroll);
+	uint32_t charStart = getControlChars(string, scroll);
 	if (scroll) {
-		scrollString(string.c_str() + i, ScrollRate, ScrollType::Scroll);
+		scrollString(string.c_str() + charStart, ScrollRate, ScrollType::Scroll);
 		return;
 	}
 
 	// center the string
 	int16_t x1, y1;
 	uint16_t w, h;
-	_matrix.getTextBounds((char*) string.c_str(), 0, 0, &x1, &y1, &w, &h);
+	_matrix.getTextBounds((char*) string.c_str() + charStart, 0, 0, &x1, &y1, &w, &h);
 	
 	if (w > _matrix.width()) {
 		// Text is too wide. Do the watusi
-		scrollString(string.c_str() + i, WatusiRate, ScrollType::WatusiLeft);
+		scrollString(string.c_str() + charStart, WatusiRate, ScrollType::WatusiLeft);
 		return;
 	}
 
 
 	_matrix.setCursor((_matrix.width() - w) / 2, -y1);
 	_matrix.fillScreen(LOW);
-	_matrix.print(string.c_str() + i);
+	
+	// Add underscores if needed
+	bool needUnderscore = false;
+	if (underscoreLength > 0 && underscoreStart < string.length() - charStart) {
+		needUnderscore = true;
+		if (underscoreLength + underscoreStart > string.length() - charStart) {
+			underscoreLength = string.length() - charStart - underscoreStart;
+		}
+	}
+	
+	for (int index = 0; index < string.length() - charStart; ++index) {
+		int16_t cursorX = _matrix.getCursorX();
+		_matrix.Adafruit_GFX::write(string[index + charStart]);
+		if (needUnderscore && index >= underscoreStart && index < underscoreStart + underscoreLength) {
+		    _matrix.drawFastHLine(cursorX, _matrix.height() - 1, _matrix.getCursorX() - cursorX, 0xffff);
+		}
+	}
+	
 	_matrix.write(); // Send bitmap to display
 }
 

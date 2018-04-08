@@ -52,7 +52,7 @@ namespace m8r {
 
 		void clear();
 		void setBrightness(float level);
-		void showString(const String& string);
+		void showString(const String& string, uint32_t underscoreStart = 0, uint32_t underscoreLength = 0);
 		void showTime(uint32_t currentTime, bool force = false);
 
 	private:
