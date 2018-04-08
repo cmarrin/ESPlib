@@ -142,6 +142,7 @@ public:
 	OutputStream& operator << (uint8_t v) { Serial.print(v); return *this; }
 	OutputStream& operator << (float v) { Serial.print(v); return *this; }
 	OutputStream& operator << (double v) { Serial.print(v); return *this; }
+	OutputStream& operator << (bool v) { Serial.print(v ? "true" : "false"); return *this; }
 };
 
 extern OutputStream cout;
