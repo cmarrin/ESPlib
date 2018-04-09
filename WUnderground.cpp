@@ -199,12 +199,17 @@ bool WUnderground::update()
 	return !failed;
 }
 
+String WUnderground::strftime(const char* format, const struct tm& time)
+{
+	char s[100];
+	std::strftime(s, 99, format, &time);
+	return s;
+}
+
 String WUnderground::strftime(const char* format, uint32_t time)
 {
 	struct tm* timeinfo = localtime(reinterpret_cast<time_t*>(&time));
-	char s[100];
-	std::strftime(s, 99, format, timeinfo);
-	return s;
+	return strftime(format, *timeinfo);
 }
 
 String WUnderground::prettyDay(uint32_t time)

@@ -112,6 +112,7 @@ namespace m8r {
 		const String& conditions() const { return _conditions; }
 		
 		static String strftime(const char* format, uint32_t time);
+		static String strftime(const char* format, const struct tm&);
 		static String prettyDay(uint32_t time);
 	
 		bool update();
