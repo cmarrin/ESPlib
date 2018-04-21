@@ -53,7 +53,7 @@ void BrightnessManager::computeBrightness()
 {
 	uint16_t ambientLightLevel = analogRead(_lightSensor);
 
-	uint32_t brightnessLevel = ambientLightLevel;
+	uint32_t brightnessLevel = 1024 - ambientLightLevel;
 	if (brightnessLevel > _maxLevel) {
 		brightnessLevel = _maxLevel;
 	}
