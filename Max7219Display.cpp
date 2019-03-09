@@ -85,13 +85,10 @@ void Max7219Display::clear()
 	_matrix.write(); // Send bitmap to display
 }
 
-void Max7219Display::setBrightness(float level)
+void Max7219Display::setBrightness(uint32_t level)
 {
-	level *= 15;
 	if (level > 15) {
 		level = 15;
-	} else if (level < 0) {
-		level = 0;
 	}
 	_matrix.setIntensity(level);
 }
