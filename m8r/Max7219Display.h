@@ -51,7 +51,7 @@ namespace m8r {
 		Max7219Display(std::function<void()> scrollDone);
 
 		void clear();
-		void setBrightness(float level);
+		void setBrightness(uint32_t level);
 		void showString(const String& string, uint32_t underscoreStart = 0, uint32_t underscoreLength = 0);
 		void showTime(uint32_t currentTime, bool force = false);
 
