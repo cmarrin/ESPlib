@@ -39,6 +39,7 @@ DAMAGE.
 
 #include <m8r.h>
 #include <Ticker.h>
+#include <functional>
 #include <vector>
 
 namespace m8r {
