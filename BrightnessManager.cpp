@@ -37,43 +37,86 @@ DAMAGE.
 
 #include "m8r/BrightnessManager.h"
 
+//#define DEBUG_BRIGHTNESS
+
 using namespace m8r;
 
-BrightnessManager::BrightnessManager(std::function<void(uint8_t brightness)> handler, uint8_t lightSensor, uint16_t maxLevel, uint8_t numLevels, uint32_t sampleRate, uint8_t numSamples)
+BrightnessManager::BrightnessManager(std::function<void(uint32_t brightness)> handler, uint8_t lightSensor, bool invert,
+									 uint32_t minLevel, uint32_t maxLevel,
+									 uint32_t numBrightness, int32_t minBrightness, int32_t maxBrightness,
+									 uint8_t numSamples)
 	: _lightSensor(lightSensor)
+	, _invert(invert) 
+	, _minLevel(minLevel)
 	, _maxLevel(maxLevel)
-	, _numLevels(numLevels)
+	, _numBrightness(numBrightness)
+	, _minBrightness((minBrightness < 0) ? 0 : minBrightness)
+	, _maxBrightness((maxBrightness < 0) ? numBrightness : maxBrightness)
 	, _numSamples(numSamples)
 	, _handler(handler)
+{
+}
+
+void BrightnessManager::start(uint32_t sampleRate)
 {
 	_ticker.attach_ms(sampleRate, compute, this);
 }
 
 void BrightnessManager::computeBrightness()
 {
-	uint16_t ambientLightLevel = analogRead(_lightSensor);
+	uint32_t ambientLightLevel = analogRead(_lightSensor);
+#ifdef DEBUG_BRIGHTNESS
+	m8r::cout << "**** Raw ambientLightLevel=" << ambientLightLevel << "\n";
+#endif
 
-	uint32_t brightnessLevel = 1024 - ambientLightLevel;
-	if (brightnessLevel > _maxLevel) {
-		brightnessLevel = _maxLevel;
+	if (_invert) {
+		ambientLightLevel = 1024 - ambientLightLevel;
 	}
 
-	// Make brightness level between 1 and _numLevels
-	brightnessLevel = (brightnessLevel * _numLevels + (_maxLevel / 2)) / _maxLevel;
-	if (brightnessLevel >= _numLevels) {
-		brightnessLevel = _numLevels - 1;
-	}
+	ambientLightLevel = std::min(_maxLevel, std::max(_minLevel, ambientLightLevel));
+	ambientLightLevel -= _minLevel;
 
-	_brightnessAccumulator += brightnessLevel;		
+#ifdef DEBUG_BRIGHTNESS
+	m8r::cout << "**** Adjusted ambientLightLevel=" << ambientLightLevel << "\n";
+#endif
 
-	if (++_brightnessSampleCount >= _numSamples) {
-		_brightnessSampleCount = 0;
-		uint32_t brightness = (_brightnessAccumulator + (_numSamples / 2)) / _numSamples;
-		_brightnessAccumulator = 0;
+	_ambientLightAccumulator += ambientLightLevel;
 
-		if (brightness != _currentBrightness) {
-			_currentBrightness = brightness;
-			_handler(_currentBrightness);
+	if (++_ambientLightSampleCount >= _numSamples) {
+		int32_t averageAmbientLightLevel = _ambientLightAccumulator / _numSamples;
+		_ambientLightAccumulator = 0;
+		_ambientLightSampleCount = 0;
+
+#ifdef DEBUG_BRIGHTNESS
+		m8r::cout << "**** Average ambientLightLevel=" << averageAmbientLightLevel << "\n";
+#endif
+
+		// Use hysteresis to avoid throbbing the light level.
+		int32_t diff = _maxLevel - _minLevel;
+		int32_t ambientLightStepSize = diff * 1.1 / _numBrightness;
+		int32_t currentAmbientLightLevel = static_cast<int32_t>(_currentAmbientLightLevel);
+
+#ifdef DEBUG_BRIGHTNESS
+		m8r::cout << "**** ambientLightStepSize=" << ambientLightStepSize << ", currentAmbientLightLevel=" << currentAmbientLightLevel << "\n";
+#endif
+
+		if (averageAmbientLightLevel <= currentAmbientLightLevel + ambientLightStepSize &&
+			averageAmbientLightLevel >= currentAmbientLightLevel - ambientLightStepSize) {
+			return;
 		}
+
+		_currentAmbientLightLevel = averageAmbientLightLevel;
+		uint32_t brightnessLevel = (_currentAmbientLightLevel * _numBrightness + diff / 2) / diff;
+		if (brightnessLevel < _minBrightness) {
+			brightnessLevel = _minBrightness;
+		} else if (brightnessLevel > _maxBrightness) {
+			brightnessLevel = _maxBrightness;
+		}
+
+#ifdef DEBUG_BRIGHTNESS
+		m8r::cout << "**** Sending brightnessLevel=" << brightnessLevel << "\n";
+#endif
+
+		_handler(brightnessLevel);
 	}
 }

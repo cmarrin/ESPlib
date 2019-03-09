@@ -44,31 +44,35 @@ DAMAGE.
 //
 // Periodically checks lightSensor port for a voltage and computes a brightness
 // from that, with hysteresis. Samples at sampleRate ms and accumulates numSamples.
-// Samples are clamped to maxLevels and then normalized to between 0 and numLevels - 1.
+// Samples are clamped to maxLevels and then normalized to between 0 and numBrightness - 1.
 
 namespace m8r {
 
 	class BrightnessManager
 	{
 	public:
-		BrightnessManager(std::function<void(uint8_t brightness)> handler, 
-						  uint8_t lightSensor, uint16_t maxLevel, uint8_t numLevels, 
-						  uint32_t sampleRate = 100, uint8_t numSamples = 5);
-	
-		uint8_t brightness() const { return _currentBrightness; }
-		
+		BrightnessManager(std::function<void(uint32_t brightness)> handler, 
+						  uint8_t lightSensor, bool invert, uint32_t minLevel, uint32_t maxLevel, 
+						  uint32_t numBrightness, int32_t minBrightness = -1, int32_t maxBrightness = -1, uint8_t numSamples = 5);
+						  
+		void start(uint32_t sampleRate = 100);
+			
 	private:
 		static void compute(BrightnessManager* self) { self->computeBrightness(); }
 
 		void computeBrightness();
 
-		uint8_t _currentBrightness = 255;
-		uint32_t _brightnessAccumulator = 0;
-		uint8_t _brightnessSampleCount = 0;
+		int32_t _currentAmbientLightLevel = std::numeric_limits<int32_t>::max();
+		uint32_t _ambientLightAccumulator = 0;
+		uint8_t _ambientLightSampleCount = 0;
 		Ticker _ticker;
 		uint8_t _lightSensor;
-		uint16_t _maxLevel;
-		uint8_t _numLevels;
+		bool _invert;
+		uint32_t _minLevel;
+		uint32_t _maxLevel;
+		uint32_t _minBrightness;
+		uint32_t _maxBrightness;
+		uint32_t _numBrightness;
 		uint8_t _numSamples;
 		std::function<void(uint8_t brightness)> _handler;
 	};
