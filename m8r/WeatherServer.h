@@ -37,7 +37,7 @@ DAMAGE.
 
 // WeatherServer
 //
-// Get the local weather conditions. Currently uses OpenWeatherMap
+// Get the local weather conditions. Currently uses apixu.com
 
 namespace m8r {
 
