@@ -42,38 +42,38 @@ DAMAGE.
 
 namespace m8r {
 
-	class MyJsonListener : public JsonListener
-	{
-	public:
-		virtual ~MyJsonListener() { }
-	
-		virtual void key(String key) override;
-		virtual void value(String value) override;
-		virtual void whitespace(char c) override { }
-		virtual void startDocument() override { }
-		virtual void endArray() override { }
-		virtual void endObject() override { }
-		virtual void endDocument() override { }
-		virtual void startArray() override { }
-		virtual void startObject() override { }
-	
-		uint32_t localEpoch() const { return _localEpoch; }
-		int32_t localTZOffset() const { return _localTZOffset; }
-	
-	private:
-		enum class State {
-			None, LocalEpoch, LocalTZOffset
-		};
-		
-		State _state = State::None;
-		
-		uint32_t _localEpoch = 0;
-		int32_t _localTZOffset = 0;
-	};
-
 	class LocalTimeServer
 	{
 	public:
+		class MyJsonListener : public JsonListener
+		{
+		public:
+			virtual ~MyJsonListener() { }
+	
+			virtual void key(String key) override;
+			virtual void value(String value) override;
+			virtual void whitespace(char c) override { }
+			virtual void startDocument() override { }
+			virtual void endArray() override { }
+			virtual void endObject() override { }
+			virtual void endDocument() override { }
+			virtual void startArray() override { }
+			virtual void startObject() override { }
+	
+			uint32_t localEpoch() const { return _localEpoch; }
+			int32_t localTZOffset() const { return _localTZOffset; }
+	
+		private:
+			enum class State {
+				None, LocalEpoch, LocalTZOffset
+			};
+		
+			State _state = State::None;
+		
+			uint32_t _localEpoch = 0;
+			int32_t _localTZOffset = 0;
+		};
+
 		LocalTimeServer(const String& key, const String& city, std::function<void()> handler)
 			: _key(key)
 			, _city(city)

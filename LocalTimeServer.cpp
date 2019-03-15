@@ -36,7 +36,7 @@ DAMAGE.
 
 using namespace m8r;
 
-void MyJsonListener::key(String key)
+void LocalTimeServer::MyJsonListener::key(String key)
 {
 	switch(_state) {
 		case State::None:
@@ -49,7 +49,7 @@ void MyJsonListener::key(String key)
 	}
 }
 
-void MyJsonListener::value(String value)
+void LocalTimeServer::MyJsonListener::value(String value)
 {
 	switch(_state) {
 		case State::LocalEpoch: 
