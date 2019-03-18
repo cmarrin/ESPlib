@@ -142,13 +142,15 @@ bool WeatherServer::update()
 
 	http.end();
 
-	// Check in 3 hours
-	int32_t timeToNextCheck = 3 * 60 * 60;
+	// Check every hour
+	int32_t timeToNextCheck = 60 * 60;
 	_ticker.once(timeToNextCheck, fire, this);
 	
 	m8r::cout << L_F("Weather: conditions='") << _conditions << 
 	 			 L_F("', currentTemp=") << _currentTemp << 
 		 		 L_F("', lowTemp=") << _lowTemp << 
-			 	 L_F("', highTemp=") << _highTemp << "\n"; 
+				 L_F("', highTemp=") << _highTemp << 
+				 L_F("', next setting in ") << timeToNextCheck << 
+				 L_F(" seconds\n");
 	return !failed;
 }
