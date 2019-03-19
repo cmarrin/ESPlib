@@ -133,14 +133,7 @@ namespace m8r {
 		
 		void sendInput(Input input)
 		{
-			// First check the common next states
-			auto commonIt = std::find_if(_commonNextStates.begin(), _commonNextStates.end(), [input](const std::pair<Input, State>& entry) {
-				return entry.first == input;
-			});
-			if (commonIt != _commonNextStates.end()) {
-				gotoState(commonIt->second);
-			}
-			
+			// Check next states for currentState
 			auto it = findState(_currentState);
 			if (it == _states.end()) {
 				return;
@@ -152,6 +145,14 @@ namespace m8r {
 
 			if (inputIt != it->_nextStates.end()) {
 				gotoState(inputIt->second);
+			}
+
+			// Check the common next states
+			auto commonIt = std::find_if(_commonNextStates.begin(), _commonNextStates.end(), [input](const std::pair<Input, State>& entry) {
+				return entry.first == input;
+			});
+			if (commonIt != _commonNextStates.end()) {
+				gotoState(commonIt->second);
 			}
 		}
 		
