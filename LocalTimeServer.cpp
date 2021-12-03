@@ -80,8 +80,20 @@ bool LocalTimeServer::update()
 
 	m8r::cout << L_F("URL='") << apiURL << L_F("'\n");
 
-	http.begin(apiURL);
-	int httpCode = http.GET();
+	http.setReuse(true);
+	http.setTimeout(10000);
+	int httpCode = 0;
+	
+	for (int count = 0; count < 10; ++count) {
+		http.begin(apiURL);
+		httpCode = http.GET();
+		if (httpCode == 0) {
+			delay(1000);
+			m8r::cout << "no response from time server, retrying...\n";
+		} else {
+			break;
+		}
+	}
 
 	if (httpCode > 0) {
 		m8r::cout << L_F("    got response: ") << httpCode << L_F("\n");
