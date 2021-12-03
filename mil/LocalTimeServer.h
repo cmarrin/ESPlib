@@ -74,9 +74,8 @@ namespace mil {
 			int32_t _localTZOffset = 0;
 		};
 
-		LocalTimeServer(const String& key, const String& city, std::function<void()> handler)
-			: _key(key)
-			, _city(city)
+		LocalTimeServer(const String& city, std::function<void()> handler)
+			: _city(city)
 			, _handler(handler)
 		{
 		}
@@ -90,9 +89,10 @@ namespace mil {
 		bool update();
 		
 	private:
+		static constexpr char* TimeAPIKey = "OFTZYMX4MSPG";
+
 		static void fire(LocalTimeServer* self) { self->_handler(); }
 
-		String _key;
 		String _city;
 		Ticker _ticker;
 		

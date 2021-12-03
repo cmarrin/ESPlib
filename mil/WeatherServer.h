@@ -83,9 +83,8 @@ namespace mil {
 			String _conditions;
 		};
 
-		WeatherServer(const String& key, const String& zip, std::function<void()> handler)
-			: _key(key)
-			, _zip(zip)
+		WeatherServer(const String& zip, std::function<void()> handler)
+			: _zip(zip)
 			, _handler(handler)
 		{
 		}
@@ -98,9 +97,10 @@ namespace mil {
 		bool update();
 		
 	private:
+		static constexpr char* WeatherAPIKey = "4a5c6eaf78d449f88d5182555210312";
+
 		static void fire(WeatherServer* self) { self->_handler(); }
 
-		String _key;
 		String _zip;
 		Ticker _ticker;
 				

@@ -108,7 +108,7 @@ bool WeatherServer::update()
 
 	String apiURL;
 	apiURL += "http://api.weatherapi.com/v1/forecast.json?key=";
-	apiURL += _key;
+	apiURL += WeatherAPIKey;
 	apiURL +="&q=";
 	apiURL += _zip;
 	apiURL +="&days=1";

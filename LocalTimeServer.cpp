@@ -74,7 +74,7 @@ bool LocalTimeServer::update()
 	String apiURL;
 	apiURL += "http://api.timezonedb.com";
 	apiURL += "/v2.1/get-time-zone?key=";
-	apiURL += _key;
+	apiURL += TimeAPIKey;
 	apiURL +="&format=json&by=zone&zone=";
 	apiURL += _city;
 

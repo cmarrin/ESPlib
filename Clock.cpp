@@ -9,11 +9,11 @@ All rights reserved.
 
 #include "mil/Clock.h"
 
-Clock::Clock(const mil::ROMString& startupMessage)
+Clock::Clock(const mil::ROMString& startupMessage, const String& timeCity, const String& weatherCity)
 		: _stateMachine([this](const String s) { showString(s); }, { { Input::SelectLongPress, State::AskRestart } })
 		, _buttonManager([this](const mil::Button& b, mil::ButtonManager::Event e) { handleButtonEvent(b, e); })
-		, _localTimeServer(TimeAPIKey, TimeCity, [this]() { _needsUpdateTime = true; })
-		, _weatherServer(WeatherAPIKey, WeatherCity, [this]() { _needsUpdateWeather = true; })
+		, _localTimeServer(timeCity, [this]() { _needsUpdateTime = true; })
+		, _weatherServer(weatherCity, [this]() { _needsUpdateWeather = true; })
 		, _brightnessManager([this](uint32_t b) { handleBrightnessChange(b); }, LightSensor, 
 							 InvertAmbientLightLevel, MinAmbientLightLevel, MaxAmbientLightLevel, NumberOfBrightnessLevels)
 		, _blinker(BUILTIN_LED, BlinkSampleRate)

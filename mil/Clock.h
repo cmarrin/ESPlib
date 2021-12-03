@@ -67,9 +67,7 @@ static constexpr const char* ConfigPortalName = "MT Galileo Clock";
 static constexpr const char* ConfigPortalPassword = "";
 
 // Time and weather related
-MakeROMString(TimeAPIKey, "OFTZYMX4MSPG");
 MakeROMString(TimeCity, "America/Los_Angeles");
-MakeROMString(WeatherAPIKey, "4a5c6eaf78d449f88d5182555210312");
 MakeROMString(WeatherCity, "93405");
 
 // Button
@@ -87,7 +85,7 @@ enum class Input { Idle, SelectClick, SelectLongPress, ShowDone, Connected, NetC
 class Clock
 {
 public:
-	Clock(const mil::ROMString& startupMessage);
+	Clock(const mil::ROMString& startupMessage, const String& timeCity, const String& weatherCity);
 	
 	virtual void setup();
 	virtual void loop();
@@ -127,5 +125,5 @@ private:
 	bool _settingTimeChanged = false;
 	bool _enableNetwork = false;
 	
-	const mil::ROMString _startupMessage;
+	String _startupMessage;
 };
