@@ -145,6 +145,7 @@ namespace m8r {
 
 			if (inputIt != it->_nextStates.end()) {
 				gotoState(inputIt->second);
+				return;
 			}
 
 			// Check the common next states
