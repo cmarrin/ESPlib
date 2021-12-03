@@ -107,10 +107,11 @@ bool WeatherServer::update()
 	m8r::cout << L_F("Getting weather feed...\n");
 
 	String apiURL;
-	apiURL += "http://api.apixu.com/v1/forecast.json?key=";
+	apiURL += "http://api.weatherapi.com/v1/forecast.json?key=";
 	apiURL += _key;
 	apiURL +="&q=";
-	apiURL += _city;
+	apiURL += _zip;
+	apiURL +="&days=1";
 
 	m8r::cout << L_F("URL='") << apiURL << L_F("'\n");
 

@@ -83,9 +83,9 @@ namespace m8r {
 			String _conditions;
 		};
 
-		WeatherServer(const String& key, const String& city, std::function<void()> handler)
+		WeatherServer(const String& key, const String& zip, std::function<void()> handler)
 			: _key(key)
-			, _city(city)
+			, _zip(zip)
 			, _handler(handler)
 		{
 		}
@@ -101,7 +101,7 @@ namespace m8r {
 		static void fire(WeatherServer* self) { self->_handler(); }
 
 		String _key;
-		String _city;
+		String _zip;
 		Ticker _ticker;
 				
 		int32_t _currentTemp = 0;
