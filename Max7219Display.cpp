@@ -71,6 +71,7 @@ uint32_t Max7219Display::getControlChars(const String& s, bool& scroll)
 	for (int i = 0; i < s.length(); ++i) {
 		if (s[i] == '\a') {
 			_matrix.setFont(&Font_Compact_5pt);
+			_currentFont = &Font_Compact_5pt;
 		} else if (s[i] == '\v') {
 			scroll = true;
 		} else {
@@ -100,6 +101,7 @@ void Max7219Display::showString(const String& string, uint32_t underscoreStart, 
 	}
 	
 	_matrix.setFont(&Font_8x8_8pt);
+	_currentFont = &Font_8x8_8pt;
 
 	bool scroll;
 	uint32_t charStart = getControlChars(string, scroll);
@@ -195,8 +197,22 @@ void Max7219Display::scrollString(const char* s, uint32_t scrollRate, ScrollType
 	// If we're doing a full scroll, start offscreen
 	_scrollOffset = (scrollType == ScrollType::Scroll) ? _matrix.width() : WatusiMargin;
 	_scrollTimer.attach_ms(scrollRate, _scroll, this);
-
 }
+
+static uint8_t getXAdvance(char c, const GFXfont* font)
+ {
+	 if (!font) {
+		 return 0;
+	 }
+	 
+     uint8_t first = pgm_read_byte(&(font->first)),
+             last  = pgm_read_byte(&(font->last));
+     if((c >= first) && (c <= last)) { // Char present in this font?
+         GFXglyph *glyph = font->glyph + (c - first);
+         return pgm_read_byte(&glyph->xAdvance);
+ 	}
+ 	return 0;
+ }
 
 void Max7219Display::scroll()
 {
@@ -223,7 +239,7 @@ void Max7219Display::scroll()
 			break;
 		}
 
-		uint8_t xAdvance = _matrix.getXAdvance(_scrollString[i]);
+		uint8_t xAdvance = getXAdvance(_scrollString[i], _currentFont);
 		
 		if (x + xAdvance > 0) {
 			_matrix.setCursor(x, _scrollY);

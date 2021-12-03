@@ -71,6 +71,7 @@ namespace m8r {
 		uint32_t getControlChars(const String& s, bool& scroll);
 	
 		Max72xxPanel _matrix;
+		const GFXfont* _currentFont = nullptr;
 		Ticker _scrollTimer;
 		String _scrollString;
 		int32_t _scrollOffset;
