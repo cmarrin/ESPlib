@@ -35,11 +35,11 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF S
 DAMAGE.
 */
 
-#include "m8r/BrightnessManager.h"
+#include "mil/BrightnessManager.h"
 
 //#define DEBUG_BRIGHTNESS
 
-using namespace m8r;
+using namespace mil;
 
 BrightnessManager::BrightnessManager(std::function<void(uint32_t brightness)> handler, uint8_t lightSensor, bool invert,
 									 uint32_t minLevel, uint32_t maxLevel,
@@ -66,7 +66,7 @@ void BrightnessManager::computeBrightness()
 {
 	uint32_t ambientLightLevel = analogRead(_lightSensor);
 #ifdef DEBUG_BRIGHTNESS
-	m8r::cout << "**** Raw ambientLightLevel=" << ambientLightLevel << "\n";
+	mil::cout << "**** Raw ambientLightLevel=" << ambientLightLevel << "\n";
 #endif
 
 	if (_invert) {
@@ -77,7 +77,7 @@ void BrightnessManager::computeBrightness()
 	ambientLightLevel -= _minLevel;
 
 #ifdef DEBUG_BRIGHTNESS
-	m8r::cout << "**** Adjusted ambientLightLevel=" << ambientLightLevel << "\n";
+	mil::cout << "**** Adjusted ambientLightLevel=" << ambientLightLevel << "\n";
 #endif
 
 	_ambientLightAccumulator += ambientLightLevel;
@@ -88,7 +88,7 @@ void BrightnessManager::computeBrightness()
 		_ambientLightSampleCount = 0;
 
 #ifdef DEBUG_BRIGHTNESS
-		m8r::cout << "**** Average ambientLightLevel=" << averageAmbientLightLevel << "\n";
+		mil::cout << "**** Average ambientLightLevel=" << averageAmbientLightLevel << "\n";
 #endif
 
 		// Use hysteresis to avoid throbbing the light level.
@@ -97,7 +97,7 @@ void BrightnessManager::computeBrightness()
 		int32_t currentAmbientLightLevel = static_cast<int32_t>(_currentAmbientLightLevel);
 
 #ifdef DEBUG_BRIGHTNESS
-		m8r::cout << "**** ambientLightStepSize=" << ambientLightStepSize << ", currentAmbientLightLevel=" << currentAmbientLightLevel << "\n";
+		mil::cout << "**** ambientLightStepSize=" << ambientLightStepSize << ", currentAmbientLightLevel=" << currentAmbientLightLevel << "\n";
 #endif
 
 		if (averageAmbientLightLevel <= currentAmbientLightLevel + ambientLightStepSize &&
@@ -114,7 +114,7 @@ void BrightnessManager::computeBrightness()
 		}
 
 #ifdef DEBUG_BRIGHTNESS
-		m8r::cout << "**** Sending brightnessLevel=" << brightnessLevel << "\n";
+		mil::cout << "**** Sending brightnessLevel=" << brightnessLevel << "\n";
 #endif
 
 		_handler(brightnessLevel);

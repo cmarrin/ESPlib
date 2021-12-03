@@ -28,12 +28,12 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF S
 DAMAGE.
 */
 
-#include "m8r/WeatherServer.h"
+#include "mil/WeatherServer.h"
 
 #include <ESP8266HTTPClient.h>
 #include <JsonStreamingParser.h>
 
-using namespace m8r;
+using namespace mil;
 
 void WeatherServer::MyJsonListener::key(String key)
 {
@@ -104,7 +104,7 @@ bool WeatherServer::update()
 	bool failed = false;
 
 	HTTPClient http;
-	m8r::cout << L_F("Getting weather feed...\n");
+	mil::cout << L_F("Getting weather feed...\n");
 
 	String apiURL;
 	apiURL += "http://api.weatherapi.com/v1/forecast.json?key=";
@@ -113,17 +113,17 @@ bool WeatherServer::update()
 	apiURL += _zip;
 	apiURL +="&days=1";
 
-	m8r::cout << L_F("URL='") << apiURL << L_F("'\n");
+	mil::cout << L_F("URL='") << apiURL << L_F("'\n");
 
 	http.begin(apiURL);
 	int httpCode = http.GET();
 
 	if (httpCode > 0) {
-		m8r::cout << L_F("    got response: ") << httpCode << L_F("\n");
+		mil::cout << L_F("    got response: ") << httpCode << L_F("\n");
 
 		if(httpCode == HTTP_CODE_OK) {
 			String payload = http.getString();
-			m8r::cout << L_F("Got payload, parsing...\n");
+			mil::cout << L_F("Got payload, parsing...\n");
 			JsonStreamingParser parser;
 			MyJsonListener listener;
 			parser.setListener(&listener);
@@ -137,7 +137,7 @@ bool WeatherServer::update()
 			_conditions = listener._conditions;
 		}
 	} else {
-		m8r::cout << L_F("[HTTP] GET... failed, error: ") << http.errorToString(httpCode) << L_F("(") << httpCode << L_F(")\n");
+		mil::cout << L_F("[HTTP] GET... failed, error: ") << http.errorToString(httpCode) << L_F("(") << httpCode << L_F(")\n");
 		failed = true;
 	}
 
@@ -147,7 +147,7 @@ bool WeatherServer::update()
 	int32_t timeToNextCheck = 60 * 60;
 	_ticker.once(timeToNextCheck, fire, this);
 	
-	m8r::cout << L_F("Weather: conditions='") << _conditions << 
+	mil::cout << L_F("Weather: conditions='") << _conditions << 
 	 			 L_F("', currentTemp=") << _currentTemp << 
 		 		 L_F("', lowTemp=") << _lowTemp << 
 				 L_F("', highTemp=") << _highTemp << 

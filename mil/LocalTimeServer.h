@@ -1,10 +1,3 @@
-//
-//  Blinker.h
-//
-//  Created by Chris Marrin on 3/25/2018
-//
-//
-
 /*
 Copyright (c) 2009-2018 Chris Marrin (chris@marrin.com)
 All rights reserved.
@@ -37,50 +30,75 @@ DAMAGE.
 
 #pragma once
 
+#include <mil.h>
+#include <JsonListener.h>
 #include <Ticker.h>
+#include <ctime>
 
-// Blinker class
+// LocalTimeServer
 //
-// Blink the LED connected to the passed pin. SampleRate passed to
-// the ctor determines the rate at which the underlying ticker fires
-// and the rate passed to setRate determines at what rate the LED
-// blinks. The LED is on for one sampleRate time and off for the rest.
-// For instance, with a sampleRate of 20ms and a rate of 100ms, the
-// LED will blink 10 times a second and stay on for 20ms each time.
+// Get the local time feed from timezonedb.com. Parses the current time 
+// and date
 
-namespace m8r {
+namespace mil {
 
-	class Blinker
+	class LocalTimeServer
 	{
 	public:
-		Blinker(uint8_t led, uint32_t sampleRate)
-			: _led(led)
-			, _sampleRate(sampleRate)
+		class MyJsonListener : public JsonListener
 		{
-			pinMode(BUILTIN_LED, OUTPUT);
-			_ticker.attach_ms(sampleRate, blink, this);
+		public:
+			virtual ~MyJsonListener() { }
+	
+			virtual void key(String key) override;
+			virtual void value(String value) override;
+			virtual void whitespace(char c) override { }
+			virtual void startDocument() override { }
+			virtual void endArray() override { }
+			virtual void endObject() override { }
+			virtual void endDocument() override { }
+			virtual void startArray() override { }
+			virtual void startObject() override { }
+	
+			uint32_t localEpoch() const { return _localEpoch; }
+			int32_t localTZOffset() const { return _localTZOffset; }
+	
+		private:
+			enum class State {
+				None, LocalEpoch, LocalTZOffset
+			};
+		
+			State _state = State::None;
+		
+			uint32_t _localEpoch = 0;
+			int32_t _localTZOffset = 0;
+		};
+
+		LocalTimeServer(const String& key, const String& city, std::function<void()> handler)
+			: _key(key)
+			, _city(city)
+			, _handler(handler)
+		{
 		}
+		
+		uint32_t currentTime() const { return _currentTime; }
+		
+		static String strftime(const char* format, uint32_t time);
+		static String strftime(const char* format, const struct tm&);
+		static String prettyDay(uint32_t time);
 	
-		void setRate(uint32_t rate) { _rate = (rate + (_sampleRate / 2)) / _sampleRate; }
-	
+		bool update();
+		
 	private:
-		static void blink(Blinker* self)
-		{
-			if (self->_count == 0) {
-				digitalWrite(BUILTIN_LED, LOW);
-			} else if (self->_count == 1){
-				digitalWrite(BUILTIN_LED, HIGH);
-			}
-			if (++self->_count >= self->_rate) {
-				self->_count = 0;
-			}
-		}
-	
+		static void fire(LocalTimeServer* self) { self->_handler(); }
+
+		String _key;
+		String _city;
 		Ticker _ticker;
-		uint32_t _rate = 10; // In 10 ms units
-		uint32_t _count = 0;
-		uint8_t _led;
-		uint32_t _sampleRate;
+		
+		uint32_t _currentTime = 0;
+		
+		std::function<void()> _handler;
 	};
 
 }

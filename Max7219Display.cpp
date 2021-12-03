@@ -33,12 +33,12 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------*/
 
-#include "m8r/Max7219Display.h"
+#include "mil/Max7219Display.h"
 
 #include "Font_8x8_8pt.h"
 #include "Font_Compact_5pt.h"
 
-using namespace m8r;
+using namespace mil;
 
 Max7219Display::Max7219Display(std::function<void()> scrollDone)
 	: _matrix(SS, 4, 1)

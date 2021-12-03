@@ -35,9 +35,9 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF S
 DAMAGE.
 */
 
-#include "m8r/MenuSystem.h"
+#include "mil/MenuSystem.h"
 
-using namespace m8r;
+using namespace mil;
 
 MenuSystem::MenuSystem(std::function<void(const MenuItem*)> showHandler, bool wrap)
 	: _wrap(wrap)

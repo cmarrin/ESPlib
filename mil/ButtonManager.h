@@ -37,12 +37,12 @@ DAMAGE.
 
 #pragma once
 
-#include <m8r.h>
+#include <mil.h>
 #include <Ticker.h>
 #include <functional>
 #include <vector>
 
-namespace m8r {
+namespace mil {
 
 	// ButtonManager class
 	//

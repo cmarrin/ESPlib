@@ -37,13 +37,13 @@ DAMAGE.
 
 #pragma once
 
-#include <m8r.h>
+#include <mil.h>
 #include <Adafruit_GFX.h>
 #include <Ticker.h>
 #include <Max72xxPanel.h>
 #include <time.h>
 
-namespace m8r {
+namespace mil {
 
 	class Max7219Display
 	{

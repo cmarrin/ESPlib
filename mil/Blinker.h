@@ -1,5 +1,5 @@
 //
-//  BrightnessManager.h
+//  Blinker.h
 //
 //  Created by Chris Marrin on 3/25/2018
 //
@@ -37,43 +37,50 @@ DAMAGE.
 
 #pragma once
 
-#include <m8r.h>
 #include <Ticker.h>
 
-// BrightnessManager
+// Blinker class
 //
-// Periodically checks lightSensor port for a voltage and computes a brightness
-// from that, with hysteresis. Samples at sampleRate ms and accumulates numSamples.
-// Samples are clamped to maxLevels and then normalized to between 0 and numBrightness - 1.
+// Blink the LED connected to the passed pin. SampleRate passed to
+// the ctor determines the rate at which the underlying ticker fires
+// and the rate passed to setRate determines at what rate the LED
+// blinks. The LED is on for one sampleRate time and off for the rest.
+// For instance, with a sampleRate of 20ms and a rate of 100ms, the
+// LED will blink 10 times a second and stay on for 20ms each time.
 
-namespace m8r {
+namespace esplib {
 
-	class BrightnessManager
+	class Blinker
 	{
 	public:
-		BrightnessManager(std::function<void(uint32_t brightness)> handler, 
-						  uint8_t lightSensor, bool invert, uint32_t minLevel, uint32_t maxLevel, 
-						  uint32_t numBrightness, int32_t minBrightness = -1, int32_t maxBrightness = -1, uint8_t numSamples = 5);
-						  
-		void start(uint32_t sampleRate = 100);
-			
+		Blinker(uint8_t led, uint32_t sampleRate)
+			: _led(led)
+			, _sampleRate(sampleRate)
+		{
+			pinMode(BUILTIN_LED, OUTPUT);
+			_ticker.attach_ms(sampleRate, blink, this);
+		}
+	
+		void setRate(uint32_t rate) { _rate = (rate + (_sampleRate / 2)) / _sampleRate; }
+	
 	private:
-		static void compute(BrightnessManager* self) { self->computeBrightness(); }
-
-		void computeBrightness();
-
-		int32_t _currentAmbientLightLevel = std::numeric_limits<int32_t>::max();
-		uint32_t _ambientLightAccumulator = 0;
-		uint8_t _ambientLightSampleCount = 0;
+		static void blink(Blinker* self)
+		{
+			if (self->_count == 0) {
+				digitalWrite(BUILTIN_LED, LOW);
+			} else if (self->_count == 1){
+				digitalWrite(BUILTIN_LED, HIGH);
+			}
+			if (++self->_count >= self->_rate) {
+				self->_count = 0;
+			}
+		}
+	
 		Ticker _ticker;
-		uint8_t _lightSensor;
-		bool _invert;
-		uint32_t _minLevel;
-		uint32_t _maxLevel;
-		uint32_t _minBrightness;
-		uint32_t _maxBrightness;
-		uint32_t _numBrightness;
-		uint8_t _numSamples;
-		std::function<void(uint8_t brightness)> _handler;
+		uint32_t _rate = 10; // In 10 ms units
+		uint32_t _count = 0;
+		uint8_t _led;
+		uint32_t _sampleRate;
 	};
+
 }

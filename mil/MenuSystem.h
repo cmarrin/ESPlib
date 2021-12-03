@@ -41,7 +41,7 @@ DAMAGE.
 #include <memory>
 #include <vector>
 
-namespace m8r {
+namespace mil {
 
 	// MenuSystem 
 	//

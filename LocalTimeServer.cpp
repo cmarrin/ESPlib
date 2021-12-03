@@ -28,13 +28,13 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF S
 DAMAGE.
 */
 
-#include "m8r/LocalTimeServer.h"
+#include "mil/LocalTimeServer.h"
 
 #include <ESP8266HTTPClient.h>
 #include <JsonStreamingParser.h>
 #include <time.h>
 
-using namespace m8r;
+using namespace mil;
 
 void LocalTimeServer::MyJsonListener::key(String key)
 {
@@ -69,7 +69,7 @@ bool LocalTimeServer::update()
 	bool failed = false;
 
 	HTTPClient http;
-	m8r::cout << L_F("Getting time feed...\n");
+	mil::cout << L_F("Getting time feed...\n");
 
 	String apiURL;
 	apiURL += "http://api.timezonedb.com";
@@ -78,7 +78,7 @@ bool LocalTimeServer::update()
 	apiURL +="&format=json&by=zone&zone=";
 	apiURL += _city;
 
-	m8r::cout << L_F("URL='") << apiURL << L_F("'\n");
+	mil::cout << L_F("URL='") << apiURL << L_F("'\n");
 
 	http.setReuse(true);
 	http.setTimeout(10000);
@@ -89,18 +89,18 @@ bool LocalTimeServer::update()
 		httpCode = http.GET();
 		if (httpCode == 0) {
 			delay(1000);
-			m8r::cout << "no response from time server, retrying...\n";
+			mil::cout << "no response from time server, retrying...\n";
 		} else {
 			break;
 		}
 	}
 
 	if (httpCode > 0) {
-		m8r::cout << L_F("    got response: ") << httpCode << L_F("\n");
+		mil::cout << L_F("    got response: ") << httpCode << L_F("\n");
 
 		if(httpCode == HTTP_CODE_OK) {
 			String payload = http.getString();
-			m8r::cout << L_F("Got payload, parsing...\n");
+			mil::cout << L_F("Got payload, parsing...\n");
 			JsonStreamingParser parser;
 			MyJsonListener listener;
 			parser.setListener(&listener);
@@ -111,7 +111,7 @@ bool LocalTimeServer::update()
 			_currentTime = listener.localEpoch();
 		}
 	} else {
-		m8r::cout << L_F("[HTTP] GET... failed, error: ") << http.errorToString(httpCode) << L_F("(") << httpCode << L_F(")\n");
+		mil::cout << L_F("[HTTP] GET... failed, error: ") << http.errorToString(httpCode) << L_F("(") << httpCode << L_F(")\n");
 		failed = true;
 	}
 
@@ -121,7 +121,7 @@ bool LocalTimeServer::update()
 	int32_t timeToNextCheck = failed ? 120 : ((60 * 60) - (static_cast<int32_t>(_currentTime % (60 * 60))) + 60);
 	_ticker.once(timeToNextCheck, fire, this);
 	
-	m8r::cout << L_F("Time set to:") << strftime("%a %b %d, %Y %r", currentTime()) << 
+	mil::cout << L_F("Time set to:") << strftime("%a %b %d, %Y %r", currentTime()) << 
 		L_F(", next setting in ") << timeToNextCheck << L_F(" seconds\n");
 	return !failed;
 }

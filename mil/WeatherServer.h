@@ -30,7 +30,7 @@ DAMAGE.
 
 #pragma once
 
-#include <m8r.h>
+#include <mil.h>
 #include <JsonListener.h>
 #include <Ticker.h>
 #include <ctime>
@@ -39,7 +39,7 @@ DAMAGE.
 //
 // Get the local weather conditions. Currently uses apixu.com
 
-namespace m8r {
+namespace mil {
 
 	class WeatherServer
 	{

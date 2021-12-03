@@ -35,9 +35,9 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF S
 DAMAGE.
 */
 
-#include "m8r/ButtonManager.h"
+#include "mil/ButtonManager.h"
 
-using namespace m8r;
+using namespace mil;
 
 Button::Button(uint8_t pin, uint32_t id, bool activeHigh, PinMode mode)
 	: _pin(pin)

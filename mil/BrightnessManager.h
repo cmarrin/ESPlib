@@ -1,3 +1,10 @@
+//
+//  BrightnessManager.h
+//
+//  Created by Chris Marrin on 3/25/2018
+//
+//
+
 /*
 Copyright (c) 2009-2018 Chris Marrin (chris@marrin.com)
 All rights reserved.
@@ -30,75 +37,43 @@ DAMAGE.
 
 #pragma once
 
-#include <m8r.h>
-#include <JsonListener.h>
+#include <mil.h>
 #include <Ticker.h>
-#include <ctime>
 
-// LocalTimeServer
+// BrightnessManager
 //
-// Get the local time feed from timezonedb.com. Parses the current time 
-// and date
+// Periodically checks lightSensor port for a voltage and computes a brightness
+// from that, with hysteresis. Samples at sampleRate ms and accumulates numSamples.
+// Samples are clamped to maxLevels and then normalized to between 0 and numBrightness - 1.
 
-namespace m8r {
+namespace mil {
 
-	class LocalTimeServer
+	class BrightnessManager
 	{
 	public:
-		class MyJsonListener : public JsonListener
-		{
-		public:
-			virtual ~MyJsonListener() { }
-	
-			virtual void key(String key) override;
-			virtual void value(String value) override;
-			virtual void whitespace(char c) override { }
-			virtual void startDocument() override { }
-			virtual void endArray() override { }
-			virtual void endObject() override { }
-			virtual void endDocument() override { }
-			virtual void startArray() override { }
-			virtual void startObject() override { }
-	
-			uint32_t localEpoch() const { return _localEpoch; }
-			int32_t localTZOffset() const { return _localTZOffset; }
-	
-		private:
-			enum class State {
-				None, LocalEpoch, LocalTZOffset
-			};
-		
-			State _state = State::None;
-		
-			uint32_t _localEpoch = 0;
-			int32_t _localTZOffset = 0;
-		};
-
-		LocalTimeServer(const String& key, const String& city, std::function<void()> handler)
-			: _key(key)
-			, _city(city)
-			, _handler(handler)
-		{
-		}
-		
-		uint32_t currentTime() const { return _currentTime; }
-		
-		static String strftime(const char* format, uint32_t time);
-		static String strftime(const char* format, const struct tm&);
-		static String prettyDay(uint32_t time);
-	
-		bool update();
-		
+		BrightnessManager(std::function<void(uint32_t brightness)> handler, 
+						  uint8_t lightSensor, bool invert, uint32_t minLevel, uint32_t maxLevel, 
+						  uint32_t numBrightness, int32_t minBrightness = -1, int32_t maxBrightness = -1, uint8_t numSamples = 5);
+						  
+		void start(uint32_t sampleRate = 100);
+			
 	private:
-		static void fire(LocalTimeServer* self) { self->_handler(); }
+		static void compute(BrightnessManager* self) { self->computeBrightness(); }
 
-		String _key;
-		String _city;
+		void computeBrightness();
+
+		int32_t _currentAmbientLightLevel = std::numeric_limits<int32_t>::max();
+		uint32_t _ambientLightAccumulator = 0;
+		uint8_t _ambientLightSampleCount = 0;
 		Ticker _ticker;
-		
-		uint32_t _currentTime = 0;
-		
-		std::function<void()> _handler;
+		uint8_t _lightSensor;
+		bool _invert;
+		uint32_t _minLevel;
+		uint32_t _maxLevel;
+		uint32_t _minBrightness;
+		uint32_t _maxBrightness;
+		uint32_t _numBrightness;
+		uint8_t _numSamples;
+		std::function<void(uint8_t brightness)> _handler;
 	};
-
 }
