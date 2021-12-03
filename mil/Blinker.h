@@ -48,7 +48,7 @@ DAMAGE.
 // For instance, with a sampleRate of 20ms and a rate of 100ms, the
 // LED will blink 10 times a second and stay on for 20ms each time.
 
-namespace esplib {
+namespace mil {
 
 	class Blinker
 	{
