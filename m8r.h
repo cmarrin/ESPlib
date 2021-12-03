@@ -108,11 +108,11 @@ static inline uint8_t FLASH_ATTR readRomByte(const uint8_t* addr)
 
 #define MakeROMString(name, s) \
 	static constexpr char __##name[ ] PROGMEM = s; \
-	static constexpr m8r::ROMString name(reinterpret_cast<const __FlashStringHelper*>(__##name))
+	static const m8r::ROMString name(reinterpret_cast<const __FlashStringHelper*>(__##name))
 
 #define MakeLocalROMString(name, s) \
 	static constexpr char __##name[ ] ROMSTR_ATTR = s; \
-	static constexpr m8r::ROMString name(reinterpret_cast<const __FlashStringHelper*>(__##name))
+	static const m8r::ROMString name(reinterpret_cast<const __FlashStringHelper*>(__##name))
 
 class ROMString
 {
