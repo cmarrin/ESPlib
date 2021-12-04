@@ -91,6 +91,12 @@ public:
 	void startShowDoneTimer(uint32_t ms);
 	
 	uint32_t currentTime() { return _currentTime; }
+	String strftime(const char* format, uint32_t time) { return _localTimeServer.strftime(format, time); }
+	String prettyDay(uint32_t time) { return _localTimeServer.prettyDay(time); }
+	String weatherConditions() { return _weatherServer.conditions(); }
+	uint32_t currentTemp() { return _weatherServer.currentTemp(); }
+	uint32_t highTemp() { return _weatherServer.highTemp(); }
+	uint32_t lowTemp() { return _weatherServer.lowTemp(); }
 
 private:
 	void startNetwork();
