@@ -47,6 +47,8 @@ All rights reserved.
 #include <assert.h>
 #include <time.h>
 
+namespace mil {
+
 // All rates in ms
 
 // Number of ms Display stays off in each mode
@@ -62,17 +64,6 @@ static constexpr uint32_t MaxAmbientLightLevel = 900;
 static constexpr uint32_t MinAmbientLightLevel = 100;
 static constexpr uint32_t NumberOfBrightnessLevels = 31;
 
-// Network related
-static constexpr const char* ConfigPortalName = "MT Galileo Clock";
-static constexpr const char* ConfigPortalPassword = "";
-
-// Time and weather related
-MakeROMString(TimeCity, "America/Los_Angeles");
-MakeROMString(WeatherCity, "93405");
-
-// Button
-static constexpr uint8_t SelectButton = D1;
-
 enum class State {
 	Connecting, NetConfig, NetFail, UpdateFail, 
 	Startup, ShowInfo, ShowTime, Idle,
@@ -85,15 +76,21 @@ enum class Input { Idle, SelectClick, SelectLongPress, ShowDone, Connected, NetC
 class Clock
 {
 public:
-	Clock(const mil::ROMString& startupMessage, const String& timeCity, const String& weatherCity);
+	Clock(const String& startupMessage, const String& connectingMessage, 
+		  const String& timeCity, const String& weatherCity, 
+		  uint8_t button, const String& configPortalName);
 	
 	virtual void setup();
 	virtual void loop();
 	
-	virtual void showTime(bool force = false) = 0;
+	virtual void showTime() = 0;
 	virtual void showInfo() = 0;
 	virtual void showString(const String&) = 0;
 	virtual void setBrightness(uint32_t) = 0;
+	
+	void startShowDoneTimer(uint32_t ms);
+	
+	uint32_t currentTime() { return _currentTime; }
 
 private:
 	void startNetwork();
@@ -107,6 +104,11 @@ private:
 		self->_stateMachine.sendInput(Input::Idle);
 	}
 
+	static void showDoneTick(Clock* self)
+	{
+		self->_stateMachine.sendInput(Input::ShowDone);
+	}
+
 	mil::StateMachine<State, Input> _stateMachine;
 	mil::ButtonManager _buttonManager;
 	mil::LocalTimeServer _localTimeServer;
@@ -114,6 +116,7 @@ private:
 	mil::BrightnessManager _brightnessManager;
 	mil::Blinker _blinker;
 	Ticker _secondTimer;
+	Ticker _showDoneTimer;
 	
 	uint32_t _currentTime = 0;
 	bool _needsUpdateTime = false;
@@ -126,4 +129,11 @@ private:
 	bool _enableNetwork = false;
 	
 	String _startupMessage;
+	String _connectingMessage;
+	uint8_t _button = D1;
+	String _configPortalName;
+	
+	
 };
+
+}

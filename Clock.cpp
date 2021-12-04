@@ -9,7 +9,11 @@ All rights reserved.
 
 #include "mil/Clock.h"
 
-Clock::Clock(const mil::ROMString& startupMessage, const String& timeCity, const String& weatherCity)
+using namespace mil;
+
+Clock::Clock(const String& startupMessage, const String& connectingMessage,
+			 const String& timeCity, const String& weatherCity, 
+			 uint8_t button, const String& configPortalName)
 		: _stateMachine([this](const String s) { showString(s); }, { { Input::SelectLongPress, State::AskRestart } })
 		, _buttonManager([this](const mil::Button& b, mil::ButtonManager::Event e) { handleButtonEvent(b, e); })
 		, _localTimeServer(timeCity, [this]() { _needsUpdateTime = true; })
@@ -18,6 +22,9 @@ Clock::Clock(const mil::ROMString& startupMessage, const String& timeCity, const
 							 InvertAmbientLightLevel, MinAmbientLightLevel, MaxAmbientLightLevel, NumberOfBrightnessLevels)
 		, _blinker(BUILTIN_LED, BlinkSampleRate)
 		, _startupMessage(startupMessage)
+		, _connectingMessage(connectingMessage)
+		, _button(button)
+		, _configPortalName(configPortalName)
 	{
 		memset(&_settingTime, 0, sizeof(_settingTime));
 		_settingTime.tm_mday = 1;
@@ -26,14 +33,11 @@ Clock::Clock(const mil::ROMString& startupMessage, const String& timeCity, const
 	
 void Clock::setup()
 {
-	Serial.begin(115200);
-	delay(500);
-
 	mil::cout << "\n\n" << _startupMessage << "\n\n";
   
 	_brightnessManager.start();
 
-	_buttonManager.addButton(mil::Button(SelectButton, SelectButton, false, mil::Button::PinMode::Pullup));
+	_buttonManager.addButton(mil::Button(_button, _button, false, mil::Button::PinMode::Pullup));
 	
 	startStateMachine();
 
@@ -69,6 +73,12 @@ void Clock::loop()
 		startNetwork();
 	}
 }
+
+
+void Clock::startShowDoneTimer(uint32_t ms)
+{
+	_showDoneTimer.once_ms(ms, showDoneTick, this);
+}
 	
 void Clock::startNetwork()
 {
@@ -90,7 +100,7 @@ void Clock::startNetwork()
 		_enteredConfigMode = true;
 	});
 
-	if (!wifiManager.autoConnect(ConfigPortalName)) {
+	if (!wifiManager.autoConnect(_configPortalName.c_str())) {
 		mil::cout << L_F("*** Failed to connect and hit timeout\n");
 		ESP.reset();
 		delay(1000);
@@ -119,17 +129,16 @@ void Clock::startNetwork()
 	
 void Clock::startStateMachine()
 {
-	_stateMachine.addState(State::Connecting, L_F("\aConnecting..."), [this] { startNetwork(); },
+	_stateMachine.addState(State::Connecting, _connectingMessage, [this] { startNetwork(); },
 		{
-			  { Input::ShowDone, State::Connecting }
-			, { Input::Connected, State::Startup }
+			  { Input::Connected, State::Startup }
 			, { Input::NetFail, State::NetFail }
 			, { Input::NetConfig, State::NetConfig }
 		}
 	);
 	_stateMachine.addState(State::NetConfig, [this] {
 		String s = "\vConfigure WiFi. Connect to the '";
-		s += ConfigPortalName;
+		s += _configPortalName;
 		s += "' wifi network from your computer or mobile device, or press [select] to retry.";
 		showString(s);
 	},
@@ -165,9 +174,9 @@ void Clock::startStateMachine()
 		}
 	);
 	
-	_stateMachine.addState(State::ShowTime, [this] { showTime(true); }, State::Idle);
+	_stateMachine.addState(State::ShowTime, [this] { showTime(); }, State::Idle);
 	
-	_stateMachine.addState(State::Idle, [this] { showTime(_currentTime); },
+	_stateMachine.addState(State::Idle, [this] { showTime(); },
 		{
 			  { Input::SelectClick, State::ShowInfo }
 			, { Input::Idle, State::Idle }
@@ -207,14 +216,12 @@ void Clock::startStateMachine()
 	
 void Clock::handleButtonEvent(const mil::Button& button, mil::ButtonManager::Event event)
 {
-	switch(button.id()) {
-		case SelectButton:
+	if (button.id() == _button) {
 		if (event == mil::ButtonManager::Event::Click) {
 			_stateMachine.sendInput(Input::SelectClick);
 		} else if (event == mil::ButtonManager::Event::LongPress) {
 			_stateMachine.sendInput(Input::SelectLongPress);
 		}
-		break;
 	}
 }
 
