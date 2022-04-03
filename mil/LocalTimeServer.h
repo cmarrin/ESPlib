@@ -89,7 +89,7 @@ namespace mil {
 		bool update();
 		
 	private:
-		static constexpr char* TimeAPIKey = "OFTZYMX4MSPG";
+		static const constexpr char* TimeAPIKey = "OFTZYMX4MSPG";
 
 		static void fire(LocalTimeServer* self) { self->_handler(); }
 

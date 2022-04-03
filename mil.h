@@ -88,8 +88,7 @@ enum ErrorType {
     ErrorUser = 0x80,
 };
 
-
-static constexpr char* endl = "\n";
+static constexpr const char* endl = "\n";
 
 class OutputStream
 {

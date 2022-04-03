@@ -97,7 +97,7 @@ namespace mil {
 		bool update();
 		
 	private:
-		static constexpr char* WeatherAPIKey = "4a5c6eaf78d449f88d5182555210312";
+		static constexpr const char* WeatherAPIKey = "4a5c6eaf78d449f88d5182555210312";
 
 		static void fire(WeatherServer* self) { self->_handler(); }
 
