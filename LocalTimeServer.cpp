@@ -68,6 +68,7 @@ bool LocalTimeServer::update()
 {
 	bool failed = false;
 
+	WiFiClient client;
 	HTTPClient http;
 	mil::cout << F("Getting time feed...\n");
 
@@ -85,7 +86,7 @@ bool LocalTimeServer::update()
 	int httpCode = 0;
 	
 	for (int count = 0; count < 10; ++count) {
-		http.begin(apiURL);
+		http.begin(client, apiURL);
 		httpCode = http.GET();
 		if (httpCode == 0) {
 			delay(1000);

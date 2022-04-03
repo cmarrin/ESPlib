@@ -103,6 +103,7 @@ bool WeatherServer::update()
 {
 	bool failed = false;
 
+    WiFiClient client;
 	HTTPClient http;
 	mil::cout << F("Getting weather feed...\n");
 
@@ -115,7 +116,7 @@ bool WeatherServer::update()
 
 	mil::cout << F("URL='") << apiURL << F("'\n");
 
-	http.begin(apiURL);
+	http.begin(client, apiURL);
 	int httpCode = http.GET();
 
 	if (httpCode > 0) {
