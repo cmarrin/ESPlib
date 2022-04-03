@@ -86,6 +86,8 @@ void Clock::startNetwork()
 	
 	WiFiManager wifiManager;
 
+	wifiManager.setDebugOutput(false);
+
 	if (_needsNetworkReset) {
 		_needsNetworkReset = false;
 		wifiManager.resetSettings();			
@@ -228,5 +230,4 @@ void Clock::handleButtonEvent(const mil::Button& button, mil::ButtonManager::Eve
 void Clock::handleBrightnessChange(uint32_t brightness)
 {
 	setBrightness(brightness);
-	mil::cout << "setting brightness to " << brightness << "\n";
 }
