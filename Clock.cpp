@@ -165,17 +165,18 @@ void Clock::startStateMachine()
 	);
 	_stateMachine.addState(State::Startup, [this] { showString(_startupMessage); },
 		{
-			  { Input::ShowDone, State::ShowTime }
-			, { Input::SelectClick, State::ShowTime }
+			  { Input::ShowDone, State::ForceShowTime }
+			, { Input::SelectClick, State::ForceShowTime }
 		}
 	);
 	_stateMachine.addState(State::ShowInfo, [this] { showInfo(); },
 		{
-			  { Input::ShowDone, State::ShowTime }
-			, { Input::SelectClick, State::ShowTime }
+			  { Input::ShowDone, State::ForceShowTime }
+			, { Input::SelectClick, State::ForceShowTime }
 		}
 	);
 	
+	_stateMachine.addState(State::ForceShowTime, [this] { showTime(true); }, State::Idle);
 	_stateMachine.addState(State::ShowTime, [this] { showTime(); }, State::Idle);
 	
 	_stateMachine.addState(State::Idle, [this] { showTime(); },
@@ -199,14 +200,14 @@ void Clock::startStateMachine()
 	_stateMachine.addState(State::AskResetNetwork, F("\vReset network? (long press for yes)"),
 		{
 	  	  	  { Input::ShowDone, State::AskResetNetwork }
-			, { Input::SelectClick, State::ShowTime }
+			, { Input::SelectClick, State::ForceShowTime }
 			, { Input::SelectLongPress, State::VerifyResetNetwork }
 		}
 	);
 	_stateMachine.addState(State::VerifyResetNetwork, F("\vAre you sure? (long press for yes)"),
 		{
 	  	  	  { Input::ShowDone, State::VerifyResetNetwork }
-			, { Input::SelectClick, State::ShowTime }
+			, { Input::SelectClick, State::ForceShowTime }
 			, { Input::SelectLongPress, State::ResetNetwork }
 		}
 	);

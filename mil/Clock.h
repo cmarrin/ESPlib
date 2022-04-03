@@ -66,7 +66,7 @@ static constexpr uint32_t NumberOfBrightnessLevels = 31;
 
 enum class State {
 	Connecting, NetConfig, NetFail, UpdateFail, 
-	Startup, ShowInfo, ShowTime, Idle,
+	Startup, ShowInfo, ForceShowTime, ShowTime, Idle,
 	AskResetNetwork, VerifyResetNetwork, ResetNetwork,
 	AskRestart, Restart
 };
@@ -83,7 +83,7 @@ public:
 	virtual void setup();
 	virtual void loop();
 	
-	virtual void showTime() = 0;
+	virtual void showTime(bool force = false) = 0;
 	virtual void showInfo() = 0;
 	virtual void showString(const String&) = 0;
 	virtual void setBrightness(uint32_t) = 0;
