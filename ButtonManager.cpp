@@ -56,16 +56,6 @@ ButtonManager::ButtonManager(std::function<void(const Button&, Event)> handler, 
 	_ticker.attach_ms(_msPerTick, _fire, this);
 }
 
-const ROMString& ButtonManager::stringFromEvent(Event event)
-{
-	switch(event) {
-		case Event::Press: return L_F("Press");
-		case Event::Release: return L_F("Release");
-		case Event::Click: return L_F("Click");
-		case Event::LongPress: return L_F("LongPress");
-	}	
-}
-
 void ButtonManager::fire()
 {
 	for (auto& it : _buttons) {

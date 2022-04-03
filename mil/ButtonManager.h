@@ -117,8 +117,6 @@ namespace mil {
 		
 		void addButton(const Button& button) { _buttons.push_back(button); }
 		
-		static const ROMString& stringFromEvent(Event event);
-		
 	private:
 		static void _fire(ButtonManager* self) { self->fire(); }
 		

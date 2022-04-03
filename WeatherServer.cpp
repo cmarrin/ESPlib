@@ -104,7 +104,7 @@ bool WeatherServer::update()
 	bool failed = false;
 
 	HTTPClient http;
-	mil::cout << L_F("Getting weather feed...\n");
+	mil::cout << F("Getting weather feed...\n");
 
 	String apiURL;
 	apiURL += "http://api.weatherapi.com/v1/forecast.json?key=";
@@ -113,17 +113,17 @@ bool WeatherServer::update()
 	apiURL += _zip;
 	apiURL +="&days=1";
 
-	mil::cout << L_F("URL='") << apiURL << L_F("'\n");
+	mil::cout << F("URL='") << apiURL << F("'\n");
 
 	http.begin(apiURL);
 	int httpCode = http.GET();
 
 	if (httpCode > 0) {
-		mil::cout << L_F("    got response: ") << httpCode << L_F("\n");
+		mil::cout << F("    got response: ") << httpCode << F("\n");
 
 		if(httpCode == HTTP_CODE_OK) {
 			String payload = http.getString();
-			mil::cout << L_F("Got payload, parsing...\n");
+			mil::cout << F("Got payload, parsing...\n");
 			JsonStreamingParser parser;
 			MyJsonListener listener;
 			parser.setListener(&listener);
@@ -137,7 +137,7 @@ bool WeatherServer::update()
 			_conditions = listener._conditions;
 		}
 	} else {
-		mil::cout << L_F("[HTTP] GET... failed, error: ") << http.errorToString(httpCode) << L_F("(") << httpCode << L_F(")\n");
+		mil::cout << F("[HTTP] GET... failed, error: ") << http.errorToString(httpCode) << F("(") << httpCode << F(")\n");
 		failed = true;
 	}
 
@@ -147,11 +147,11 @@ bool WeatherServer::update()
 	int32_t timeToNextCheck = 60 * 60;
 	_ticker.once(timeToNextCheck, fire, this);
 	
-	mil::cout << L_F("Weather: conditions='") << _conditions << 
-	 			 L_F("', currentTemp=") << _currentTemp << 
-		 		 L_F("', lowTemp=") << _lowTemp << 
-				 L_F("', highTemp=") << _highTemp << 
-				 L_F("', next setting in ") << timeToNextCheck << 
-				 L_F(" seconds\n");
+	mil::cout << F("Weather: conditions='") << _conditions << 
+	 			 F("', currentTemp=") << _currentTemp << 
+		 		 F("', lowTemp=") << _lowTemp << 
+				 F("', highTemp=") << _highTemp << 
+				 F("', next setting in ") << timeToNextCheck << 
+				 F(" seconds\n");
 	return !failed;
 }

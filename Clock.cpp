@@ -92,16 +92,16 @@ void Clock::startNetwork()
 	}
 	
 	wifiManager.setAPCallback([this](WiFiManager* wifiManager) {
-		mil::cout << L_F("Entered config mode:ip=") << 
-					 WiFi.softAPIP() << L_F(", ssid='") << 
-					 wifiManager->getConfigPortalSSID() << L_F("'\n");
+		mil::cout << F("Entered config mode:ip=") << 
+					 WiFi.softAPIP() << F(", ssid='") << 
+					 wifiManager->getConfigPortalSSID() << F("'\n");
 		_blinker.setRate(ConfigRate);
 		_stateMachine.sendInput(Input::NetConfig);
 		_enteredConfigMode = true;
 	});
 
 	if (!wifiManager.autoConnect(_configPortalName.c_str())) {
-		mil::cout << L_F("*** Failed to connect and hit timeout\n");
+		mil::cout << F("*** Failed to connect and hit timeout\n");
 		ESP.reset();
 		delay(1000);
 	}
@@ -113,9 +113,9 @@ void Clock::startNetwork()
 	}
 
     WiFiMode_t currentMode = WiFi.getMode();
-	mil::cout << L_F("Wifi connected, Mode=") << 
+	mil::cout << F("Wifi connected, Mode=") << 
 				 wifiManager.getModeString(currentMode) << 
-				 L_F(", IP=") << 
+				 F(", IP=") << 
 				 WiFi.localIP() << mil::endl;
 
 	_enableNetwork = true;
@@ -149,13 +149,13 @@ void Clock::startStateMachine()
 		    , { Input::NetFail, State::NetFail }
 		}
 	);
-	_stateMachine.addState(State::NetFail, L_F("\vNetwork failed, press [select] to retry."),
+	_stateMachine.addState(State::NetFail, F("\vNetwork failed, press [select] to retry."),
 		{
 			  { Input::ShowDone, State::NetFail }
 			, { Input::SelectClick, State::Connecting }
 		}
 	);
-	_stateMachine.addState(State::UpdateFail, L_F("\vTime or weather update failed, press [select] to retry."),
+	_stateMachine.addState(State::UpdateFail, F("\vTime or weather update failed, press [select] to retry."),
 		{
 		      { Input::ShowDone, State::UpdateFail }
 			, { Input::SelectClick, State::Connecting }
@@ -184,7 +184,7 @@ void Clock::startStateMachine()
 	);
 	
 	// Restart
-	_stateMachine.addState(State::AskRestart, L_F("\vRestart? (long press for yes)"),
+	_stateMachine.addState(State::AskRestart, F("\vRestart? (long press for yes)"),
 		{
 		  	  { Input::ShowDone, State::AskRestart }
 			, { Input::SelectClick, State::AskResetNetwork }
@@ -194,14 +194,14 @@ void Clock::startStateMachine()
 	_stateMachine.addState(State::Restart, [] { ESP.reset(); delay(1000); }, State::Connecting);
 	
 	// Network reset
-	_stateMachine.addState(State::AskResetNetwork, L_F("\vReset network? (long press for yes)"),
+	_stateMachine.addState(State::AskResetNetwork, F("\vReset network? (long press for yes)"),
 		{
 	  	  	  { Input::ShowDone, State::AskResetNetwork }
 			, { Input::SelectClick, State::ShowTime }
 			, { Input::SelectLongPress, State::VerifyResetNetwork }
 		}
 	);
-	_stateMachine.addState(State::VerifyResetNetwork, L_F("\vAre you sure? (long press for yes)"),
+	_stateMachine.addState(State::VerifyResetNetwork, F("\vAre you sure? (long press for yes)"),
 		{
 	  	  	  { Input::ShowDone, State::VerifyResetNetwork }
 			, { Input::SelectClick, State::ShowTime }

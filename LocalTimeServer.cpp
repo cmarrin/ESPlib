@@ -69,7 +69,7 @@ bool LocalTimeServer::update()
 	bool failed = false;
 
 	HTTPClient http;
-	mil::cout << L_F("Getting time feed...\n");
+	mil::cout << F("Getting time feed...\n");
 
 	String apiURL;
 	apiURL += "http://api.timezonedb.com";
@@ -78,7 +78,7 @@ bool LocalTimeServer::update()
 	apiURL +="&format=json&by=zone&zone=";
 	apiURL += _city;
 
-	mil::cout << L_F("URL='") << apiURL << L_F("'\n");
+	mil::cout << F("URL='") << apiURL << F("'\n");
 
 	http.setReuse(true);
 	http.setTimeout(10000);
@@ -96,11 +96,11 @@ bool LocalTimeServer::update()
 	}
 
 	if (httpCode > 0) {
-		mil::cout << L_F("    got response: ") << httpCode << L_F("\n");
+		mil::cout << F("    got response: ") << httpCode << F("\n");
 
 		if(httpCode == HTTP_CODE_OK) {
 			String payload = http.getString();
-			mil::cout << L_F("Got payload, parsing...\n");
+			mil::cout << F("Got payload, parsing...\n");
 			JsonStreamingParser parser;
 			MyJsonListener listener;
 			parser.setListener(&listener);
@@ -111,7 +111,7 @@ bool LocalTimeServer::update()
 			_currentTime = listener.localEpoch();
 		}
 	} else {
-		mil::cout << L_F("[HTTP] GET... failed, error: ") << http.errorToString(httpCode) << L_F("(") << httpCode << L_F(")\n");
+		mil::cout << F("[HTTP] GET... failed, error: ") << http.errorToString(httpCode) << F("(") << httpCode << F(")\n");
 		failed = true;
 	}
 
@@ -121,8 +121,8 @@ bool LocalTimeServer::update()
 	int32_t timeToNextCheck = failed ? 120 : ((60 * 60) - (static_cast<int32_t>(_currentTime % (60 * 60))) + 60);
 	_ticker.once(timeToNextCheck, fire, this);
 	
-	mil::cout << L_F("Time set to:") << strftime("%a %b %d, %Y %r", currentTime()) << 
-		L_F(", next setting in ") << timeToNextCheck << L_F(" seconds\n");
+	mil::cout << F("Time set to:") << strftime("%a %b %d, %Y %r", currentTime()) << 
+		F(", next setting in ") << timeToNextCheck << F(" seconds\n");
 	return !failed;
 }
 
