@@ -20,7 +20,7 @@ Clock::Clock(const String& startupMessage, const String& connectingMessage,
 		, _weatherServer(weatherCity, [this]() { _needsUpdateWeather = true; })
 		, _brightnessManager([this](uint32_t b) { handleBrightnessChange(b); }, LightSensor, 
 							 InvertAmbientLightLevel, MinAmbientLightLevel, MaxAmbientLightLevel, NumberOfBrightnessLevels)
-		, _blinker(BUILTIN_LED, BlinkSampleRate)
+		, _blinker(LED_BUILTIN, BlinkSampleRate)
 		, _startupMessage(startupMessage)
 		, _connectingMessage(connectingMessage)
 		, _button(button)

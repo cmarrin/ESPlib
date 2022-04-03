@@ -57,7 +57,7 @@ namespace mil {
 			: _led(led)
 			, _sampleRate(sampleRate)
 		{
-			pinMode(BUILTIN_LED, OUTPUT);
+			pinMode(LED_BUILTIN, OUTPUT);
 			_ticker.attach_ms(sampleRate, blink, this);
 		}
 	
@@ -67,9 +67,9 @@ namespace mil {
 		static void blink(Blinker* self)
 		{
 			if (self->_count == 0) {
-				digitalWrite(BUILTIN_LED, LOW);
+				digitalWrite(LED_BUILTIN, LOW);
 			} else if (self->_count == 1){
-				digitalWrite(BUILTIN_LED, HIGH);
+				digitalWrite(LED_BUILTIN, HIGH);
 			}
 			if (++self->_count >= self->_rate) {
 				self->_count = 0;
