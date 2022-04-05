@@ -13,13 +13,14 @@ using namespace mil;
 
 Clock::Clock(const String& startupMessage, const String& connectingMessage,
 			 const String& timeCity, const String& weatherCity, 
+   		  	 bool invertAmbientLightLevel, uint32_t numBrightnessLevels,
 			 uint8_t button, const String& configPortalName)
 		: _stateMachine([this](const String s) { showString(s); }, { { Input::SelectLongPress, State::AskRestart } })
 		, _buttonManager([this](const mil::Button& b, mil::ButtonManager::Event e) { handleButtonEvent(b, e); })
 		, _localTimeServer(timeCity, [this]() { _needsUpdateTime = true; })
 		, _weatherServer(weatherCity, [this]() { _needsUpdateWeather = true; })
 		, _brightnessManager([this](uint32_t b) { handleBrightnessChange(b); }, LightSensor, 
-							 InvertAmbientLightLevel, MinAmbientLightLevel, MaxAmbientLightLevel, NumberOfBrightnessLevels)
+							 invertAmbientLightLevel, MinAmbientLightLevel, MaxAmbientLightLevel, numBrightnessLevels)
 		, _blinker(LED_BUILTIN, BlinkSampleRate)
 		, _startupMessage(startupMessage)
 		, _connectingMessage(connectingMessage)
