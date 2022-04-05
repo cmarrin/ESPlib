@@ -55,7 +55,7 @@ namespace mil {
 static constexpr uint32_t ConnectingRate = 400;
 static constexpr uint32_t ConfigRate = 100;
 static constexpr uint32_t ConnectedRate = 1900;
-static constexpr uint32_t BlinkSampleRate = 10;
+static constexpr uint32_t BlinkSampleRate = 4;
 
 // BrightnessManager settings
 static constexpr uint32_t LightSensor = A0;
