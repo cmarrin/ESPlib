@@ -47,6 +47,7 @@ DAMAGE.
 // Samples are clamped to maxLevels and then normalized to between 0 and numBrightness - 1.
 
 namespace mil {
+	static constexpr uint32_t Hysteresis = 20; // Number of steps before a change will happen
 
 	class BrightnessManager
 	{
