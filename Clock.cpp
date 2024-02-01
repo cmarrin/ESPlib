@@ -231,5 +231,5 @@ void Clock::handleButtonEvent(const mil::Button& button, mil::ButtonManager::Eve
 
 void Clock::handleBrightnessChange(uint32_t brightness)
 {
-	setBrightness(brightness);
+	setBrightness((brightness < 5) ? 5 : brightness);
 }
