@@ -16,9 +16,9 @@ WordClock::rangeFromWord(Word word) const
         case Word::URDot:           { static WordRange buf(15, 1); return buf; };
         case Word::LLDot:           { static WordRange buf(240, 1); return buf; };
         case Word::LRDot:           { static WordRange buf(255, 1); return buf; };
-        case Word::Its:             { static WordRange buf(1, 4); return buf; };
-        case Word::A:               { static WordRange buf(6, 1); return buf; };
-        case Word::Quarter:         { static WordRange buf(8, 7); return buf; };
+        case Word::Its:             { static WordRange buf(1, 3); return buf; };
+        case Word::A:               { static WordRange buf(5, 1); return buf; };
+        case Word::Quarter:         { static WordRange buf(7, 7); return buf; };
         case Word::Half:            { static WordRange buf(32, 4); return buf; };
         case Word::Past:            { static WordRange buf(37, 4); return buf; };
         case Word::To:              { static WordRange buf(40, 2); return buf; };
@@ -38,7 +38,7 @@ WordClock::rangeFromWord(Word word) const
         case Word::ElevenHour:      { static WordRange buf(80, 6); return buf; };
         case Word::Noon:            { static WordRange buf(119, 4); return buf; };
         case Word::Midnight:        { static WordRange buf(72, 8); return buf; };
-        case Word::OClock:          { static WordRange buf(96, 7); return buf; };
+        case Word::OClock:          { static WordRange buf(97, 6); return buf; };
         case Word::At:              { static WordRange buf(112, 2); return buf; };
         case Word::Night:           { static WordRange buf(122, 5); return buf; };
         case Word::In:              { static WordRange buf(104, 2); return buf; };
@@ -46,10 +46,10 @@ WordClock::rangeFromWord(Word word) const
         case Word::Morning:         { static WordRange buf(128, 7); return buf; };
         case Word::Afternoon:       { static WordRange buf(114, 9); return buf; };
         case Word::Evening:         { static WordRange buf(135, 7); return buf; };
-        case Word::Itll:            { static WordRange buf(144, 5); return buf; };
-        case Word::Be:              { static WordRange buf(150, 2); return buf; };
+        case Word::Itll:            { static WordRange buf(144, 4); return buf; };
+        case Word::Be:              { static WordRange buf(149, 2); return buf; };
         case Word::Clear:           { static WordRange buf(167, 5); return buf; };
-        case Word::Windy:           { static WordRange buf(153, 5); return buf; };
+        case Word::Windy:           { static WordRange buf(152, 5); return buf; };
         case Word::Partly:          { static WordRange buf(160, 6); return buf; };
         case Word::Cloudy:          { static WordRange buf(181, 6); return buf; };
         case Word::Rainy:           { static WordRange buf(171, 5); return buf; };
