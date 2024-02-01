@@ -59,8 +59,7 @@ static constexpr uint32_t BlinkSampleRate = 4;
 
 // BrightnessManager settings
 static constexpr uint32_t LightSensor = A0;
-static constexpr uint32_t MaxAmbientLightLevel = 1000;
-static constexpr uint32_t MinAmbientLightLevel = 100;
+static constexpr uint32_t NumberOfBrightnessLevels = 250;
 
 enum class State {
 	Connecting, NetConfig, NetFail, UpdateFail, 
@@ -76,7 +75,7 @@ class Clock
 public:
 	Clock(const String& startupMessage, const String& connectingMessage, 
 		  const String& timeCity, const String& weatherCity,
-		  bool invertAmbientLightLevel, uint32_t numBrightnessLevels,
+		  bool invertAmbientLightLevel, uint32_t minBrightness, uint32_t maxBrightness,
 		  uint8_t button, const String& configPortalName);
 	
 	virtual void setup();
