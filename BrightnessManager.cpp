@@ -76,10 +76,6 @@ void BrightnessManager::computeBrightness()
 	ambientLightLevel = std::min(_maxLevel, std::max(_minLevel, ambientLightLevel));
 	ambientLightLevel -= _minLevel;
 
-#ifdef DEBUG_BRIGHTNESS
-	mil::cout << "**** Adjusted ambientLightLevel=" << ambientLightLevel << "\n";
-#endif
-
 	_ambientLightAccumulator += ambientLightLevel;
 
 	if (++_ambientLightSampleCount >= _numSamples) {
@@ -95,10 +91,6 @@ void BrightnessManager::computeBrightness()
 		int32_t diff = _maxLevel - _minLevel;
 		int32_t ambientLightStepSize = diff / Hysteresis;
 		int32_t currentAmbientLightLevel = static_cast<int32_t>(_currentAmbientLightLevel);
-
-#ifdef DEBUG_BRIGHTNESS
-		mil::cout << "**** ambientLightStepSize=" << ambientLightStepSize << ", currentAmbientLightLevel=" << currentAmbientLightLevel << "\n";
-#endif
 
 		if (averageAmbientLightLevel <= currentAmbientLightLevel + ambientLightStepSize &&
 			averageAmbientLightLevel >= currentAmbientLightLevel - ambientLightStepSize) {
