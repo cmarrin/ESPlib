@@ -11,19 +11,16 @@ All rights reserved.
 
 using namespace mil;
 
-Clock::Clock(const String& startupMessage, const String& connectingMessage,
-			 const String& timeCity, const String& weatherCity, 
+Clock::Clock(const String& timeCity, const String& weatherCity, 
    		  	 bool invertAmbientLightLevel, uint32_t minBrightness, uint32_t maxBrightness,
 			 uint8_t button, const String& configPortalName)
-		: _stateMachine([this](const String s) { showString(s); }, { { Input::SelectLongPress, State::AskRestart } })
+		: _stateMachine({ { Input::SelectLongPress, State::AskRestart } })
 		, _buttonManager([this](const mil::Button& b, mil::ButtonManager::Event e) { handleButtonEvent(b, e); })
 		, _localTimeServer(timeCity, [this]() { _needsUpdateTime = true; })
 		, _weatherServer(weatherCity, [this]() { _needsUpdateWeather = true; })
 		, _brightnessManager([this](uint32_t b) { handleBrightnessChange(b); }, LightSensor, 
 							 invertAmbientLightLevel, minBrightness, maxBrightness, NumberOfBrightnessLevels)
 		, _blinker(LED_BUILTIN, BlinkSampleRate)
-		, _startupMessage(startupMessage)
-		, _connectingMessage(connectingMessage)
 		, _button(button)
 		, _configPortalName(configPortalName)
 	{
@@ -34,8 +31,6 @@ Clock::Clock(const String& startupMessage, const String& connectingMessage,
 	
 void Clock::setup()
 {
-	mil::cout << "\n\n" << _startupMessage << "\n\n";
-  
 	_brightnessManager.start();
 
 	_buttonManager.addButton(mil::Button(_button, _button, false, mil::Button::PinMode::Pullup));
@@ -132,19 +127,14 @@ void Clock::startNetwork()
 	
 void Clock::startStateMachine()
 {
-	_stateMachine.addState(State::Connecting, _connectingMessage, [this] { startNetwork(); },
+	_stateMachine.addState(State::Connecting, [this] { showString(Message::Connecting); startNetwork(); },
 		{
 			  { Input::Connected, State::Startup }
 			, { Input::NetFail, State::NetFail }
 			, { Input::NetConfig, State::NetConfig }
 		}
 	);
-	_stateMachine.addState(State::NetConfig, [this] {
-		String s = "\vConfigure WiFi. Connect to the '";
-		s += _configPortalName;
-		s += "' wifi network from your computer or mobile device, or press [select] to retry.";
-		showString(s);
-	},
+	_stateMachine.addState(State::NetConfig, [this] { showString(Message::NetConfig); },
 		{
 		      { Input::ShowDone, State::NetConfig }
 		    , { Input::SelectClick, State::Connecting }
@@ -152,19 +142,19 @@ void Clock::startStateMachine()
 		    , { Input::NetFail, State::NetFail }
 		}
 	);
-	_stateMachine.addState(State::NetFail, F("\vNetwork failed, press [select] to retry."),
+	_stateMachine.addState(State::NetFail, [this] { showString(Message::NetFail); },
 		{
 			  { Input::ShowDone, State::NetFail }
 			, { Input::SelectClick, State::Connecting }
 		}
 	);
-	_stateMachine.addState(State::UpdateFail, F("\vTime or weather update failed, press [select] to retry."),
+	_stateMachine.addState(State::UpdateFail, [this] { showString(Message::UpdateFail); },
 		{
 		      { Input::ShowDone, State::UpdateFail }
 			, { Input::SelectClick, State::Connecting }
 		}
 	);
-	_stateMachine.addState(State::Startup, [this] { showString(_startupMessage); },
+	_stateMachine.addState(State::Startup, [this] { showString(Message::Startup); },
 		{
 			  { Input::ShowDone, State::ForceShowTime }
 			, { Input::SelectClick, State::ForceShowTime }
@@ -188,7 +178,7 @@ void Clock::startStateMachine()
 	);
 	
 	// Restart
-	_stateMachine.addState(State::AskRestart, F("\vRestart? (long press for yes)"),
+	_stateMachine.addState(State::AskRestart, [this] { showString(Message::AskRestart); },
 		{
 		  	  { Input::ShowDone, State::AskRestart }
 			, { Input::SelectClick, State::AskResetNetwork }
@@ -198,14 +188,14 @@ void Clock::startStateMachine()
 	_stateMachine.addState(State::Restart, [] { ESP.reset(); delay(1000); }, State::Connecting);
 	
 	// Network reset
-	_stateMachine.addState(State::AskResetNetwork, F("\vReset network? (long press for yes)"),
+	_stateMachine.addState(State::AskResetNetwork, [this] { showString(Message::AskResetNetwork); },
 		{
 	  	  	  { Input::ShowDone, State::AskResetNetwork }
 			, { Input::SelectClick, State::ForceShowTime }
 			, { Input::SelectLongPress, State::VerifyResetNetwork }
 		}
 	);
-	_stateMachine.addState(State::VerifyResetNetwork, F("\vAre you sure? (long press for yes)"),
+	_stateMachine.addState(State::VerifyResetNetwork, [this] { showString(Message::VerifyResetNetwork); },
 		{
 	  	  	  { Input::ShowDone, State::VerifyResetNetwork }
 			, { Input::SelectClick, State::ForceShowTime }

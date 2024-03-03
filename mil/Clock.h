@@ -70,11 +70,12 @@ enum class State {
 
 enum class Input { Idle, SelectClick, SelectLongPress, ShowDone, Connected, NetConfig, NetFail, UpdateFail };
 
+enum class Message { Startup, Connecting, NetConfig, NetFail, UpdateFail, AskRestart, AskResetNetwork, VerifyResetNetwork };
+
 class Clock
 {
 public:
-	Clock(const String& startupMessage, const String& connectingMessage, 
-		  const String& timeCity, const String& weatherCity,
+	Clock(const String& timeCity, const String& weatherCity,
 		  bool invertAmbientLightLevel, uint32_t minBrightness, uint32_t maxBrightness,
 		  uint8_t button, const String& configPortalName);
 	
@@ -83,7 +84,7 @@ public:
 	
 	virtual void showTime(bool force = false) = 0;
 	virtual void showInfo() = 0;
-	virtual void showString(const String&) = 0;
+	virtual void showString(Message) = 0;
 	virtual void setBrightness(uint32_t) = 0;
 	
 	void startShowDoneTimer(uint32_t ms);
@@ -132,8 +133,6 @@ private:
 	bool _settingTimeChanged = false;
 	bool _enableNetwork = false;
 	
-	String _startupMessage;
-	String _connectingMessage;
 	uint8_t _button = D1;
 	String _configPortalName;
 	
