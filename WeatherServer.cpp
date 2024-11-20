@@ -30,7 +30,8 @@ DAMAGE.
 
 #include "mil/WeatherServer.h"
 
-#include <ESP8266HTTPClient.h>
+#include <WiFi.h>
+#include <HTTPClient.h>
 #include <JsonStreamingParser.h>
 
 using namespace mil;
@@ -120,7 +121,7 @@ bool WeatherServer::update()
 	int httpCode = http.GET();
 
 	if (httpCode > 0) {
-		mil::cout << F("    got response: ") << httpCode << F("\n");
+		mil::cout << F("    got response: ") << int32_t(httpCode) << F("\n");
 
 		if(httpCode == HTTP_CODE_OK) {
 			String payload = http.getString();
@@ -138,7 +139,7 @@ bool WeatherServer::update()
 			_conditions = listener._conditions;
 		}
 	} else {
-		mil::cout << F("[HTTP] GET... failed, error: ") << http.errorToString(httpCode) << F("(") << httpCode << F(")\n");
+		mil::cout << F("[HTTP] GET... failed, error: ") << http.errorToString(httpCode) << F("(") << int32_t(httpCode) << F(")\n");
 		failed = true;
 	}
 

@@ -91,4 +91,5 @@ bool Menu::move(Move dir, bool wrap, Action action)
 		_active = false;
 		return false;
 	}
+    return false;
 }

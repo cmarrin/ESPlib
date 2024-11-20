@@ -78,6 +78,7 @@ uint32_t Max7219Display::getControlChars(const String& s, bool& scroll)
 			return i;
 		}
 	}
+    return 0;
 }
 
 void Max7219Display::clear()

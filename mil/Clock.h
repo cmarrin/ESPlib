@@ -133,7 +133,7 @@ private:
 	bool _settingTimeChanged = false;
 	bool _enableNetwork = false;
 	
-	uint8_t _button = D1;
+	uint8_t _button = 1;
 	String _configPortalName;
 	
 	

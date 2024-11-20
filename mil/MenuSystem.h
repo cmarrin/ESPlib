@@ -63,6 +63,7 @@ namespace mil {
 		
 		virtual bool move(Move dir, bool wrap, Action action = Action::None)
 		{
+            return false;
 		}
 
 		virtual void menuItemEvent(const MenuItem&) { }

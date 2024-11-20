@@ -100,13 +100,13 @@ void Clock::startNetwork()
 
 	if (!wifiManager.autoConnect(_configPortalName.c_str())) {
 		mil::cout << F("*** Failed to connect and hit timeout\n");
-		ESP.reset();
+		ESP.restart();
 		delay(1000);
 	}
 	
 	if (_enteredConfigMode) {
 		// If we've been in config mode, the network doesn't startup correctly, let's reboot
-		ESP.reset();
+		ESP.restart();
 		delay(1000);
 	}
 
@@ -185,7 +185,7 @@ void Clock::startStateMachine()
 			, { Input::SelectLongPress, State::Restart }
 		}
 	);
-	_stateMachine.addState(State::Restart, [] { ESP.reset(); delay(1000); }, State::Connecting);
+	_stateMachine.addState(State::Restart, [] { ESP.restart(); delay(1000); }, State::Connecting);
 	
 	// Network reset
 	_stateMachine.addState(State::AskResetNetwork, [this] { showString(Message::AskResetNetwork); },
