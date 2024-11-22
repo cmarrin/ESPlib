@@ -7,33 +7,29 @@ Copyright (c) 2021, Chris Marrin
 All rights reserved.
 -------------------------------------------------------------------------*/
 
-// Arduino IDE Setup:
+// Application is the main class for ESP based projects. It uses the 
+// mil::TimeWeatherServer to get the time current weather conditions.
 //
-// Board: LOLIN(WEMOS) D1 R2 & mini
-
-// Clock is the base class for ESP based clocks. It supports an ambient light sensor
-// on AO and a button on a passed in port number (D1 by default)
+// It also sets up the WiFi network. On the first time through or when
+// network settings have been reset, it uses WiFiManager to setup a captive
+// network to let the user set the ssid and password for the network. Then
+// it restarts and connects to the local network. On subsequent runs it
+// connects directly to the local network.
 //
-// It uses the mil::LocalTimeServer to get the time and mil::WeatherServer for
-// current conditions, current, low and high temps
+// A Blinker is used to indicate the network status on the on-board LED
+// if any. If one is available, its pin number is provided to the 
+// Application constructor.
 //
-// Subclasses must implement the display function to output text to the display.
-
-
-// Pinout
+// It has a state machine which managers the network status and allows
+// the network to be restart or reset. The main app tells Application
+// to go into the network restart or network reset state. This is 
+// typically done with a pushbutton managed by the main app. For instance
+// a long press of the button will enter the Restart state, a second
+// long press will enter the Reset state. In either of these states
+// a long press will activate restart or reset.
 //
-//      A0 - Light sensor
-//
-// Light sensor
-//
-//                             A0
-//                             |
-//                             |
-//		3.3v -------- 47KΩ ----|---- Sensor -------- GND
-//                                   ^
-//                                   |
-//                             Longer Lead
-//
+// The state machine sends messages to the main app to show information
+// about the current network status.
 
 #include <mil.h>
 #include <mil/Blinker.h>
@@ -56,10 +52,6 @@ static constexpr uint32_t ConnectingRate = 400;
 static constexpr uint32_t ConfigRate = 100;
 static constexpr uint32_t ConnectedRate = 1900;
 static constexpr uint32_t BlinkSampleRate = 4;
-
-// BrightnessManager settings
-static constexpr uint32_t LightSensor = A0;
-static constexpr uint32_t NumberOfBrightnessLevels = 250;
 
 enum class State {
 	Connecting, NetConfig, NetFail, UpdateFail, 
