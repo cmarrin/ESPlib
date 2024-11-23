@@ -28,17 +28,22 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF S
 DAMAGE.
 */
 
-#include "mil/WeatherServer.h"
+#include "TimeWeatherServer.h"
 
-#include <WiFi.h>
+#ifdef ARDUINO
 #include <HTTPClient.h>
-#include <JsonStreamingParser.h>
+#else
+#include <curl/curl.h>
+#endif
+
+#include "JsonStreamingParser.h"
 
 using namespace mil;
 
-void WeatherServer::MyJsonListener::key(String key)
+void TimeWeatherServer::MyJsonListener::key(const std::string& key)
 {
 	switch(_state) {
+        default: break;
 		case State::None:
 		if (key == "current") {
 			_state = State::Current;
@@ -73,49 +78,68 @@ void WeatherServer::MyJsonListener::key(String key)
 	}
 }
 
-void WeatherServer::MyJsonListener::value(String value)
+void TimeWeatherServer::MyJsonListener::value(const std::string& value)
 {
 	switch(_state) {
+        default: break;
 		case State::ConditionText: 
 		_conditions = value;
 		_state = State::Current;
 		break;
 		case State::CurrentTemp: 
-		_currentTemp = value.toFloat() + 0.5;
+		_currentTemp = int32_t(std::stof(value) + 0.5);
 		_state = State::Current;
 		break;
 		case State::MinTemp:
-		_lowTemp = value.toFloat() + 0.5;
+		_lowTemp = int32_t(std::stof(value) + 0.5);
 		_state = State::Day;
 		break;
 		case State::MaxTemp: 
-		_highTemp = value.toFloat() + 0.5;
+		_highTemp = int32_t(std::stof(value) + 0.5);
 		_state = State::Day;
 		break;
 	}
 }
 
-void WeatherServer::MyJsonListener::endObject()
+void TimeWeatherServer::MyJsonListener::endObject()
 {
 	_state = State::None;
 }
 
-bool WeatherServer::update()
+#ifndef ARDUINO
+// HTTP callback for Mac
+static size_t httpCB(char* p, size_t size, size_t nmemb, void* parser)
+{
+    size *= nmemb;
+    for (size_t i = 0; i < size; ++i) {
+        reinterpret_cast<JsonStreamingParser*>(parser)->parse(p[i]);
+    }
+    return size;
+}
+#endif
+
+bool TimeWeatherServer::update()
 {
 	bool failed = false;
 
-    WiFiClient client;
-	HTTPClient http;
-	mil::cout << F("Getting weather feed...\n");
+	cout << F("Getting weather feed...\n");
 
-	String apiURL;
+	std::string apiURL;
 	apiURL += "http://api.weatherapi.com/v1/forecast.json?key=";
 	apiURL += WeatherAPIKey;
 	apiURL +="&q=";
 	apiURL += _zip;
 	apiURL +="&days=1";
 
-	mil::cout << F("URL='") << apiURL << F("'\n");
+	cout << F("URL='") << apiURL << F("'\n");
+
+    JsonStreamingParser parser;
+    MyJsonListener listener;
+    parser.setListener(&listener);
+
+#ifdef ARDUINO
+    WiFiClient client;
+	HTTPClient http;
 
 	http.begin(client, apiURL);
 	int httpCode = http.GET();
@@ -126,9 +150,6 @@ bool WeatherServer::update()
 		if(httpCode == HTTP_CODE_OK) {
 			String payload = http.getString();
 			mil::cout << F("Got payload, parsing...\n");
-			JsonStreamingParser parser;
-			MyJsonListener listener;
-			parser.setListener(&listener);
 			for (int i = 0; i < payload.length(); ++i) {
 				parser.parse(payload.c_str()[i]);
 			}
@@ -144,12 +165,36 @@ bool WeatherServer::update()
 	}
 
 	http.end();
+#else
+    CURL* curl = curl_easy_init();
+    
+    if(curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, apiURL.c_str());
+ 
+        // Use HTTP/3 but fallback to earlier HTTP if necessary
+        curl_easy_setopt(curl, CURLOPT_HTTP_VERSION, (long) CURL_HTTP_VERSION_3);
+
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &parser);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, httpCB);
+         
+        // Perform the request, res gets the return code
+        CURLcode res = curl_easy_perform(curl);
+        
+        // Check for errors
+        if(res != CURLE_OK) {
+            cout << "curl_easy_perform() failed: " << curl_easy_strerror(res) << "\n";
+        }
+        
+        // always cleanup
+        curl_easy_cleanup(curl);
+    }
+#endif
 
 	// Check every hour
-	int32_t timeToNextCheck = 60 * 60;
-	_ticker.once(timeToNextCheck, fire, this);
+	int32_t timeToNextCheck = 60 * 60 * 1000;
+	_ticker.once_ms(timeToNextCheck, [this]() { _handler(); });
 	
-	mil::cout << F("Weather: conditions='") << _conditions << 
+	cout << F("Weather: conditions='") << _conditions << 
 	 			 F("', currentTemp=") << _currentTemp << 
 		 		 F("', lowTemp=") << _lowTemp << 
 				 F("', highTemp=") << _highTemp << 

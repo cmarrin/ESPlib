@@ -30,74 +30,91 @@ DAMAGE.
 
 #pragma once
 
-#include <mil.h>
-#include <JsonListener.h>
-#include <Ticker.h>
+#include "mil.h"
+
+#include "JsonListener.h"
 #include <ctime>
 
-// LocalTimeServer
+// TimeWeatherServer
 //
-// Get the local time feed from timezonedb.com. Parses the current time 
-// and date
+// Get the local time and weather conditions
 
 namespace mil {
 
-	class LocalTimeServer
+	class TimeWeatherServer
 	{
 	public:
 		class MyJsonListener : public JsonListener
 		{
+			friend class WeatherServer;
+		
 		public:
 			virtual ~MyJsonListener() { }
 	
-			virtual void key(String key) override;
-			virtual void value(String value) override;
+			virtual void key(const std::string& key) override;
+			virtual void value(const std::string& value) override;
 			virtual void whitespace(char c) override { }
 			virtual void startDocument() override { }
 			virtual void endArray() override { }
-			virtual void endObject() override { }
+			virtual void endObject() override;
 			virtual void endDocument() override { }
 			virtual void startArray() override { }
 			virtual void startObject() override { }
 	
-			uint32_t localEpoch() const { return _localEpoch; }
-			int32_t localTZOffset() const { return _localTZOffset; }
-	
 		private:
 			enum class State {
-				None, LocalEpoch, LocalTZOffset
+				None,
+				Current,
+					CurrentTemp,
+					Condition,
+						ConditionText,
+				Forecast,
+					ForecastDay,
+						Day,
+							MinTemp,	
+							MaxTemp,	
 			};
 		
 			State _state = State::None;
 		
-			uint32_t _localEpoch = 0;
-			int32_t _localTZOffset = 0;
+			int32_t _currentTemp = 0;
+			int32_t _lowTemp = 0;
+			int32_t _highTemp = 0;
+			std::string _conditions;
 		};
 
-		LocalTimeServer(const String& city, std::function<void()> handler)
-			: _city(city)
+		TimeWeatherServer(const char* zip, std::function<void()> handler)
+			: _zip(zip)
 			, _handler(handler)
 		{
 		}
 		
 		uint32_t currentTime() const { return _currentTime; }
 		
-		static String strftime(const char* format, uint32_t time);
-		static String strftime(const char* format, const struct tm&);
-		static String prettyDay(uint32_t time);
-	
+		static std::string strftime(const char* format, uint32_t time);
+		static std::string strftime(const char* format, const struct tm&);
+		static std::string prettyDay(uint32_t time);
+
+		uint32_t currentTemp() const { return _currentTemp; }
+		uint32_t lowTemp() const { return _lowTemp; }
+		uint32_t highTemp() const { return _highTemp; }
+		const char* conditions() const { return _conditions.c_str(); }
+		
 		bool update();
 		
 	private:
-		static const constexpr char* TimeAPIKey = "OFTZYMX4MSPG";
+		static constexpr const char* WeatherAPIKey = "4a5c6eaf78d449f88d5182555210312";
 
-		static void fire(LocalTimeServer* self) { self->_handler(); }
-
-		String _city;
+		std::string _zip;
 		Ticker _ticker;
-		
+				
 		uint32_t _currentTime = 0;
-		
+
+		int32_t _currentTemp = 0;
+		int32_t _lowTemp = 0;
+		int32_t _highTemp = 0;
+		std::string _conditions;
+
 		std::function<void()> _handler;
 	};
 
