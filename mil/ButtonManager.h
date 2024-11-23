@@ -37,8 +37,8 @@ DAMAGE.
 
 #pragma once
 
-#include <mil.h>
-#include <Ticker.h>
+#include "mil.h"
+
 #include <functional>
 #include <vector>
 
@@ -118,8 +118,6 @@ namespace mil {
 		void addButton(const Button& button) { _buttons.push_back(button); }
 		
 	private:
-		static void _fire(ButtonManager* self) { self->fire(); }
-		
 		void fire();
 		
 		std::vector<Button> _buttons;

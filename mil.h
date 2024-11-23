@@ -42,12 +42,87 @@ DAMAGE.
     or implement the interfaces
 */
 
+#ifdef ARDUINO
 #include <Arduino.h>
 #include <Printable.h>
+#include <Ticker.h>
+#else
+#include <cstdint>
+#include <unistd.h>
+#include <iostream>
+#include <chrono>
+#include <thread>
 
-enum ErrorConditionType { ErrorConditionNote, ErrorConditionWarning, ErrorConditionFatal };
+#define cout std::cout
+#define F(s) s
+
+static inline void delay(uint32_t ms) { useconds_t us = useconds_t(ms) * 1000; usleep(us); }
+static inline void pinMode(uint8_t, uint8_t) { }
+static inline uint32_t analogRead(uint8_t) { return 0; }
+static inline bool digitalRead(uint8_t) { return 0; }
+
+static constexpr uint8_t INPUT = 0;
+static constexpr uint8_t INPUT_PULLUP = 0;
+
+class Ticker
+{
+public:
+    using callback_t = std::function<void(void)>;
+    
+    void once_ms(uint64_t ms, callback_t callback)
+    {
+        _ms = ms;
+        _cb = callback;
+
+        std::thread([this]() { 
+            std::this_thread::sleep_for(std::chrono::milliseconds(_ms));
+            _cb();
+        }).detach();
+    }
+    
+    void attach_ms(uint64_t ms, callback_t callback)
+    {
+        _ms = ms;
+        _cb = callback;
+
+        std::thread([this]() { 
+            while (true) { 
+                auto x = std::chrono::steady_clock::now() + std::chrono::milliseconds(_ms);
+                _cb();
+                std::this_thread::sleep_until(x);
+            }
+        }).detach();
+    }
+
+private:
+    uint64_t _ms = 0;
+    callback_t _cb;
+};
+
+class WiFiClass
+{
+public:
+    const char* softAPIP() { return "127.0.0.1"; }
+    const char* localIP() { return "127.0.0.1"; }
+};
+
+extern WiFiClass WiFi;
+
+class WiFiManager
+{
+public:
+    void setDebugOutput(bool) { }
+    void resetSettings() { }
+    void setAPCallback( std::function<void(WiFiManager*)>) { }
+    const char* getConfigPortalSSID() { return "127.0.0.1"; }
+    bool autoConnect(char const *apName, char const *apPassword = NULL) { return true; }
+
+};
+#endif
 
 namespace mil {
+
+enum class ErrorCondition { Note, Warning, Fatal };
 
 enum ErrorType {
     AssertOutOfMem = 0x01,
@@ -90,6 +165,7 @@ enum ErrorType {
 
 static constexpr const char* endl = "\n";
 
+#ifdef ARDUINO
 class OutputStream
 {
 public:
@@ -109,8 +185,9 @@ public:
 };
 
 extern OutputStream cout;
+#endif
 
-void _showErrorCondition(char c, uint32_t code, enum ErrorConditionType type);
+void _showErrorCondition(char c, uint32_t code, enum ErrorCondition type);
 
 #define ASSERT(expr, code) if (!(expr)) FATAL(code)
 #define FATAL(code) _showErrorCondition(0, code, ErrorConditionFatal)
@@ -121,9 +198,9 @@ inline uint16_t makeuint16(uint8_t a, uint8_t b)
 	return (static_cast<uint16_t>(a) << 8) | static_cast<uint16_t>(b);
 }
 
-inline void NOTE(uint16_t code) { _showErrorCondition(0, code, ErrorConditionNote); }
-inline void NOTE(uint8_t code1, uint8_t code2) { _showErrorCondition(0, makeuint16(code1, code2), ErrorConditionNote); }
-inline void CNOTE(char c, uint8_t code) { _showErrorCondition(c, code, ErrorConditionNote); }
+inline void NOTE(uint16_t code) { _showErrorCondition(0, code, ErrorCondition::Note); }
+inline void NOTE(uint8_t code1, uint8_t code2) { _showErrorCondition(0, makeuint16(code1, code2), ErrorCondition::Note); }
+inline void CNOTE(char c, uint8_t code) { _showErrorCondition(c, code, ErrorCondition::Note); }
 
 }
 

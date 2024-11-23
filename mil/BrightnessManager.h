@@ -37,8 +37,7 @@ DAMAGE.
 
 #pragma once
 
-#include <mil.h>
-#include <Ticker.h>
+#include "mil.h"
 
 // BrightnessManager
 //
@@ -59,8 +58,6 @@ namespace mil {
 		void start(uint32_t sampleRate = 100);
 			
 	private:
-		static void compute(BrightnessManager* self) { self->computeBrightness(); }
-
 		void computeBrightness();
 
 		int32_t _currentAmbientLightLevel = std::numeric_limits<int32_t>::max();

@@ -37,7 +37,7 @@ DAMAGE.
 
 #pragma once
 
-#include <Ticker.h>
+#include "mil.h"
 
 // Blinker class
 //
@@ -50,6 +50,7 @@ DAMAGE.
 
 namespace mil {
 
+#ifdef ARDUINO
 	class Blinker
 	{
 	public:
@@ -82,5 +83,15 @@ namespace mil {
 		uint8_t _led;
 		uint32_t _sampleRate;
 	};
+#else
+    // Dummy on Mac
+	class Blinker
+	{
+	public:
+		Blinker(uint8_t led, uint32_t sampleRate) { }
+
+		void setRate(uint32_t rate) { }
+    };
+#endif
 
 }

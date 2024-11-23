@@ -37,7 +37,8 @@ DAMAGE.
 
 #pragma once
 
-#include <mil.h>
+#include "mil.h"
+#include <functional>
 #include <vector>
 
 namespace mil {
@@ -51,7 +52,7 @@ namespace mil {
 	public:
 		using Action = std::function<void()>;
 		using NextStates = std::vector<std::pair<Input, State>>;
-		using ShowStringCallback = std::function<void(const String&)>;
+		using ShowStringCallback = std::function<void(const std::string&)>;
 		
 		struct StateEntry
 		{

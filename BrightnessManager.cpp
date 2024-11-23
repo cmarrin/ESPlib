@@ -59,7 +59,7 @@ BrightnessManager::BrightnessManager(std::function<void(uint32_t brightness)> ha
 
 void BrightnessManager::start(uint32_t sampleRate)
 {
-	_ticker.attach_ms(sampleRate, compute, this);
+	_ticker.attach_ms(sampleRate, [this]() { computeBrightness(); });
 }
 
 void BrightnessManager::computeBrightness()
