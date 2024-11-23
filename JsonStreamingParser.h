@@ -25,7 +25,6 @@ See more at http://blog.squix.ch and https://github.com/squix78/json-streaming-p
 
 #pragma once
 
-#include <Arduino.h>
 #include "JsonListener.h"
 
 #define STATE_START_DOCUMENT     0
@@ -60,7 +59,7 @@ class JsonStreamingParser {
     int stackPos = 0;
     JsonListener* myListener;
 
-    boolean doEmitWhitespace = false;
+    bool doEmitWhitespace = false;
     // fixed length buffer array to prepare for c code
     char buffer[BUFFER_MAX_LENGTH];
     int bufferPos = 0;
@@ -87,9 +86,9 @@ class JsonStreamingParser {
 
     void processEscapeCharacters(char c);
 
-    boolean isDigit(char c);
+    bool isDigit(char c);
 
-    boolean isHexCharacter(char c);
+    bool isHexCharacter(char c);
 
     char convertCodepointToCharacter(int num);
 
@@ -117,7 +116,7 @@ class JsonStreamingParser {
 
     void endUnicodeSurrogateInterstitial();
 
-    boolean doesCharArrayContain(char myArray[], int length, char c);
+    bool doesCharArrayContain(char myArray[], int length, char c);
 
     int getHexArrayAsDecimal(char hexArray[], int length);
 

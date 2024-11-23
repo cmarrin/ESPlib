@@ -25,7 +25,7 @@ See more at http://blog.squix.ch and https://github.com/squix78/json-streaming-p
 
 #pragma once
 
-#include <Arduino.h>
+#include <string>
 
 class JsonListener {
   private:
@@ -36,9 +36,9 @@ class JsonListener {
   
     virtual void startDocument() = 0;
 
-    virtual void key(String key) = 0;
+    virtual void key(const std::string& key) = 0;
 
-    virtual void value(String value) = 0;
+    virtual void value(const std::string& value) = 0;
 
     virtual void endArray() = 0;
 
