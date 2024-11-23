@@ -59,7 +59,7 @@ DAMAGE.
 static inline void delay(uint32_t ms) { useconds_t us = useconds_t(ms) * 1000; usleep(us); }
 static inline void pinMode(uint8_t, uint8_t) { }
 static inline uint32_t analogRead(uint8_t) { return 0; }
-static inline bool digitalRead(uint8_t) { return 0; }
+static inline bool digitalRead(uint8_t) { return 1; } // digital pins are active low
 
 static constexpr uint8_t INPUT = 0;
 static constexpr uint8_t INPUT_PULLUP = 0;
