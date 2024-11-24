@@ -39,6 +39,8 @@ DAMAGE.
 //
 // Get the local time and weather conditions
 
+class JsonStreamingParser;
+
 namespace mil {
 
 	class TimeWeatherServer
@@ -46,7 +48,7 @@ namespace mil {
 	public:
 		class MyJsonListener : public JsonListener
 		{
-			friend class WeatherServer;
+			friend class TimeWeatherServer;
 		
 		public:
 			virtual ~MyJsonListener() { }
@@ -64,6 +66,9 @@ namespace mil {
 		private:
 			enum class State {
 				None,
+                Timestamp,
+                Location,
+                    TimeZone,
 				Current,
 					CurrentTemp,
 					Condition,
@@ -77,10 +82,12 @@ namespace mil {
 		
 			State _state = State::None;
 		
+			uint64_t _currentTime = 0;
 			int32_t _currentTemp = 0;
 			int32_t _lowTemp = 0;
 			int32_t _highTemp = 0;
 			std::string _conditions;
+            std::string _timeZone;
 		};
 
 		TimeWeatherServer(const char* zip, std::function<void()> handler)
@@ -89,11 +96,11 @@ namespace mil {
 		{
 		}
 		
-		uint32_t currentTime() const { return _currentTime; }
+		uint64_t currentTime() const { return _currentTime; }
 		
-		static std::string strftime(const char* format, uint32_t time);
+		static std::string strftime(const char* format, uint64_t time);
 		static std::string strftime(const char* format, const struct tm&);
-		static std::string prettyDay(uint32_t time);
+		static std::string prettyDay(uint64_t time);
 
 		uint32_t currentTemp() const { return _currentTemp; }
 		uint32_t lowTemp() const { return _lowTemp; }
@@ -104,11 +111,14 @@ namespace mil {
 		
 	private:
 		static constexpr const char* WeatherAPIKey = "4a5c6eaf78d449f88d5182555210312";
+		static const constexpr char* TimeAPIKey = "OFTZYMX4MSPG";
+
+        void fetchAndParse(const char* url, JsonStreamingParser*);
 
 		std::string _zip;
 		Ticker _ticker;
 				
-		uint32_t _currentTime = 0;
+		uint64_t _currentTime = 0;
 
 		int32_t _currentTemp = 0;
 		int32_t _lowTemp = 0;

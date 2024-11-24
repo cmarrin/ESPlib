@@ -45,12 +45,20 @@ void TimeWeatherServer::MyJsonListener::key(const std::string& key)
 	switch(_state) {
         default: break;
 		case State::None:
-		if (key == "current") {
+        if (key == "timestamp") {
+            _state = State::Timestamp;
+        } else if (key == "location") {
+			_state = State::Location;
+		} else if (key == "current") {
 			_state = State::Current;
 		} else if (key == "forecast") {
 			_state = State::Forecast;
 		}
 		break;
+        case State::Location:
+        if (key == "tz_id") {
+            _state = State::TimeZone;
+        }
 		case State::Current:
 		if (key == "temp_f") {
 			_state = State::CurrentTemp;
@@ -82,6 +90,14 @@ void TimeWeatherServer::MyJsonListener::value(const std::string& value)
 {
 	switch(_state) {
         default: break;
+        case State::Timestamp:
+        _currentTime = uint64_t(std::stol(value));
+        _state = State::None;
+        break;
+        case State::TimeZone:
+        _timeZone = value;
+        _state = State::Location;
+        break;
 		case State::ConditionText: 
 		_conditions = value;
 		_state = State::Current;
@@ -118,30 +134,32 @@ static size_t httpCB(char* p, size_t size, size_t nmemb, void* parser)
 }
 #endif
 
-bool TimeWeatherServer::update()
+
+
+//		static const constexpr char* TimeAPIKey = "OFTZYMX4MSPG";
+//
+//
+//	String apiURL;
+//	apiURL += "http://api.timezonedb.com";
+//	apiURL += "/v2.1/get-time-zone?key=";
+//	apiURL += TimeAPIKey;
+//	apiURL +="&format=json&by=zone&zone=";
+//	apiURL += _city;
+//
+//
+//
+//http://api.timezonedb.com/v2.1/get-time-zone?key=OFTZYMX4MSPG&format=json&by=position&lat=35.2783&lng=-120.692
+//http://api.timezonedb.com/v2.1/get-time-zone?key=OFTZYMX4MSPG&format=json&by=zone&zone=America/Los_Angeles
+//1732379310
+
+void
+TimeWeatherServer::fetchAndParse(const char* url, JsonStreamingParser* parser)
 {
-	bool failed = false;
-
-	cout << F("Getting weather feed...\n");
-
-	std::string apiURL;
-	apiURL += "http://api.weatherapi.com/v1/forecast.json?key=";
-	apiURL += WeatherAPIKey;
-	apiURL +="&q=";
-	apiURL += _zip;
-	apiURL +="&days=1";
-
-	cout << F("URL='") << apiURL << F("'\n");
-
-    JsonStreamingParser parser;
-    MyJsonListener listener;
-    parser.setListener(&listener);
-
 #ifdef ARDUINO
     WiFiClient client;
 	HTTPClient http;
 
-	http.begin(client, apiURL);
+	http.begin(client, url);
 	int httpCode = http.GET();
 
 	if (httpCode > 0) {
@@ -151,13 +169,8 @@ bool TimeWeatherServer::update()
 			String payload = http.getString();
 			mil::cout << F("Got payload, parsing...\n");
 			for (int i = 0; i < payload.length(); ++i) {
-				parser.parse(payload.c_str()[i]);
+				parser->parse(payload.c_str()[i]);
 			}
-	
-			_currentTemp = listener._currentTemp;
-			_lowTemp = listener._lowTemp;
-			_highTemp = listener._highTemp;
-			_conditions = listener._conditions;
 		}
 	} else {
 		mil::cout << F("[HTTP] GET... failed, error: ") << http.errorToString(httpCode) << F("(") << int32_t(httpCode) << F(")\n");
@@ -169,12 +182,12 @@ bool TimeWeatherServer::update()
     CURL* curl = curl_easy_init();
     
     if(curl) {
-        curl_easy_setopt(curl, CURLOPT_URL, apiURL.c_str());
+        curl_easy_setopt(curl, CURLOPT_URL, url);
  
         // Use HTTP/3 but fallback to earlier HTTP if necessary
         curl_easy_setopt(curl, CURLOPT_HTTP_VERSION, (long) CURL_HTTP_VERSION_3);
 
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &parser);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, parser);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, httpCB);
          
         // Perform the request, res gets the return code
@@ -189,16 +202,88 @@ bool TimeWeatherServer::update()
         curl_easy_cleanup(curl);
     }
 #endif
+}
+
+bool TimeWeatherServer::update()
+{
+	bool failed = false;
+
+	cout << F("Getting weather feed...\n");
+
+	std::string apiURL;
+	apiURL = "http://api.weatherapi.com/v1/forecast.json?key=";
+	apiURL += WeatherAPIKey;
+	apiURL +="&q=";
+	apiURL += _zip;
+	apiURL +="&days=1";
+
+	cout << F("URL='") << apiURL << F("'\n");
+
+    JsonStreamingParser parser;
+    MyJsonListener listener;
+    parser.setListener(&listener);
+
+    fetchAndParse(apiURL.c_str(), &parser);
+    
+    _currentTemp = listener._currentTemp;
+    _lowTemp = listener._lowTemp;
+    _highTemp = listener._highTemp;
+    _conditions = listener._conditions;
+
+	cout << F("Getting time feed...\n");
+
+	apiURL = "http://api.timezonedb.com";
+	apiURL += "/v2.1/get-time-zone?key=";
+	apiURL += TimeAPIKey;
+	apiURL +="&format=json&by=zone&zone=";
+	apiURL += listener._timeZone;
+
+    parser.reset();
+    fetchAndParse(apiURL.c_str(), &parser);
+
+    _currentTime = listener._currentTime;
 
 	// Check every hour
 	int32_t timeToNextCheck = 60 * 60 * 1000;
 	_ticker.once_ms(timeToNextCheck, [this]() { _handler(); });
 	
-	cout << F("Weather: conditions='") << _conditions << 
-	 			 F("', currentTemp=") << _currentTemp << 
+	cout << F("Epoch: " << _currentTime << "\nWeather: conditions='") << _conditions << 
+	 			 F("'\n    currentTemp=") << _currentTemp << 
 		 		 F("', lowTemp=") << _lowTemp << 
 				 F("', highTemp=") << _highTemp << 
 				 F("', next setting in ") << timeToNextCheck << 
 				 F(" seconds\n");
 	return !failed;
+}
+
+std::string TimeWeatherServer::strftime(const char* format, const struct tm& time)
+{
+	char s[100];
+	std::strftime(s, 99, format, &time);
+	return s;
+}
+
+std::string TimeWeatherServer::strftime(const char* format, uint64_t time)
+{
+    time_t t = time;
+	struct tm* timeinfo = gmtime(&t);
+	return strftime(format, *timeinfo);
+}
+
+std::string TimeWeatherServer::prettyDay(uint64_t time)
+{
+    time_t t = time;
+	struct tm* timeinfo = gmtime(&t);
+	int day = timeinfo->tm_mday;
+	std::string s = std::to_string(day);
+	switch(day) {
+		case 1:
+		case 21:
+		case 31: return s + "st";
+		case 2:
+		case 22: return s + "nd";
+		case 3:
+		case 23: return s + "rd";
+		default: return s + "th";
+	}
 }

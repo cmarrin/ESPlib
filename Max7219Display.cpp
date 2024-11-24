@@ -151,7 +151,7 @@ void Max7219Display::showTime(uint32_t currentTime, bool force)
 	bool pm = false;
 	String string;
 
-	struct tm* timeinfo = localtime(reinterpret_cast<time_t*>(&currentTime));
+	struct tm* timeinfo = gmtime(reinterpret_cast<time_t*>(&currentTime));
         
 	uint8_t hours = timeinfo->tm_hour;
 	if (hours == 0) {
