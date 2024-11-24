@@ -63,6 +63,29 @@ static inline bool digitalRead(uint8_t) { return 1; } // digital pins are active
 
 static constexpr uint8_t INPUT = 0;
 static constexpr uint8_t INPUT_PULLUP = 0;
+static constexpr uint8_t LED_BUILTIN = 0;
+
+class DSP7S04B
+{
+public:
+  	void setDot(uint8_t pos, bool on) { if (on) { cout << "Dot set\n"; } }
+  	void setColon(bool on) { _colon = on; }
+  	void clearDisplay(void) { }
+  	void setBrightness(uint8_t b) { cout << "*** Brightness set to " << b << "\n"; }
+
+  	void print(const char* str)
+    {
+        if (_colon) {
+            cout << str[0] << str[1] << ":" << str[2] << str[3] << "\n";
+        } else {
+            cout << str << "\n";
+        }
+    }
+      
+private: 
+ 	 bool _colon = false;
+ 
+};
 
 class Ticker
 {
