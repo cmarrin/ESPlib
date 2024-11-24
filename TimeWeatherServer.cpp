@@ -256,9 +256,9 @@ bool TimeWeatherServer::update()
 	
 	cout << F("Epoch: ") << _currentTime << F("\nWeather: conditions='") << _conditions.c_str() << 
 	 			 F("'\n    currentTemp=") << _currentTemp << 
-		 		 F("', lowTemp=") << _lowTemp << 
-				 F("', highTemp=") << _highTemp << 
-				 F("', next setting in ") << timeToNextCheck << 
+		 		 F(", lowTemp=") << _lowTemp << 
+				 F(", highTemp=") << _highTemp << 
+				 F(", next setting in ") << timeToNextCheck << 
 				 F(" seconds\n");
 	return !failed;
 }
