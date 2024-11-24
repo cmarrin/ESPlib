@@ -31,6 +31,7 @@ All rights reserved.
 
 #include <cassert>
 #include <ctime>
+#include <string>
 
 #include "mil.h"
 #include "StateMachine.h"

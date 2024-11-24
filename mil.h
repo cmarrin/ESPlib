@@ -188,28 +188,6 @@ enum ErrorType {
 
 static constexpr const char* endl = "\n";
 
-#ifdef ARDUINO
-class OutputStream
-{
-public:
-	OutputStream& operator << (const char* s) { Serial.print(s); return *this; }
-	OutputStream& operator << (const Printable& p) { p.printTo(Serial); return *this; }
-	OutputStream& operator << (const __FlashStringHelper* s) { Serial.print(s); return *this; }
-	OutputStream& operator << (const String& s) { Serial.print(s); return *this; }
-	OutputStream& operator << (int32_t v) { Serial.print(v); return *this; }
-	OutputStream& operator << (uint32_t v) { Serial.print(v); return *this; }
-	OutputStream& operator << (int16_t v) { Serial.print(v); return *this; }
-	OutputStream& operator << (uint16_t v) { Serial.print(v); return *this; }
-	OutputStream& operator << (int8_t v) { Serial.print(v); return *this; }
-	OutputStream& operator << (uint8_t v) { Serial.print(v); return *this; }
-	OutputStream& operator << (float v) { Serial.print(v); return *this; }
-	OutputStream& operator << (double v) { Serial.print(v); return *this; }
-	OutputStream& operator << (bool v) { Serial.print(v ? "true" : "false"); return *this; }
-};
-
-extern OutputStream cout;
-#endif
-
 void _showErrorCondition(char c, uint32_t code, enum ErrorCondition type);
 
 #define ASSERT(expr, code) if (!(expr)) FATAL(code)
@@ -226,4 +204,28 @@ inline void NOTE(uint8_t code1, uint8_t code2) { _showErrorCondition(0, makeuint
 inline void CNOTE(char c, uint8_t code) { _showErrorCondition(c, code, ErrorCondition::Note); }
 
 }
+
+#ifdef ARDUINO
+class OutputStream
+{
+public:
+	OutputStream& operator << (const char* s) { Serial.print(s); return *this; }
+	OutputStream& operator << (const Printable& p) { p.printTo(Serial); return *this; }
+	OutputStream& operator << (const __FlashStringHelper* s) { Serial.print(s); return *this; }
+	OutputStream& operator << (const String& s) { Serial.print(s); return *this; }
+	OutputStream& operator << (int64_t v) { Serial.print(v); return *this; }
+	OutputStream& operator << (uint64_t v) { Serial.print(v); return *this; }
+	OutputStream& operator << (int32_t v) { Serial.print(v); return *this; }
+	OutputStream& operator << (uint32_t v) { Serial.print(v); return *this; }
+	OutputStream& operator << (int16_t v) { Serial.print(v); return *this; }
+	OutputStream& operator << (uint16_t v) { Serial.print(v); return *this; }
+	OutputStream& operator << (int8_t v) { Serial.print(v); return *this; }
+	OutputStream& operator << (uint8_t v) { Serial.print(v); return *this; }
+	OutputStream& operator << (float v) { Serial.print(v); return *this; }
+	OutputStream& operator << (double v) { Serial.print(v); return *this; }
+	OutputStream& operator << (bool v) { Serial.print(v ? "true" : "false"); return *this; }
+};
+
+extern OutputStream cout;
+#endif
 

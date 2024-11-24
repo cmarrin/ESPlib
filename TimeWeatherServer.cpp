@@ -31,7 +31,11 @@ DAMAGE.
 #include "TimeWeatherServer.h"
 
 #ifdef ARDUINO
+#if defined(ESP8266)
+#include <ESP8266HTTPClient.h>
+#else
 #include <HTTPClient.h>
+#endif
 #else
 #include <curl/curl.h>
 #endif
@@ -152,9 +156,11 @@ static size_t httpCB(char* p, size_t size, size_t nmemb, void* parser)
 //http://api.timezonedb.com/v2.1/get-time-zone?key=OFTZYMX4MSPG&format=json&by=zone&zone=America/Los_Angeles
 //1732379310
 
-void
+bool
 TimeWeatherServer::fetchAndParse(const char* url, JsonStreamingParser* parser)
 {
+    bool success = true;
+    
 #ifdef ARDUINO
     WiFiClient client;
 	HTTPClient http;
@@ -163,18 +169,18 @@ TimeWeatherServer::fetchAndParse(const char* url, JsonStreamingParser* parser)
 	int httpCode = http.GET();
 
 	if (httpCode > 0) {
-		mil::cout << F("    got response: ") << int32_t(httpCode) << F("\n");
+		cout << F("    got response: ") << int32_t(httpCode) << F("\n");
 
 		if(httpCode == HTTP_CODE_OK) {
 			String payload = http.getString();
-			mil::cout << F("Got payload, parsing...\n");
+			cout << F("Got payload, parsing...\n");
 			for (int i = 0; i < payload.length(); ++i) {
 				parser->parse(payload.c_str()[i]);
 			}
 		}
 	} else {
-		mil::cout << F("[HTTP] GET... failed, error: ") << http.errorToString(httpCode) << F("(") << int32_t(httpCode) << F(")\n");
-		failed = true;
+		cout << F("[HTTP] GET... failed, error: ") << http.errorToString(httpCode) << F("(") << int32_t(httpCode) << F(")\n");
+		success = false;
 	}
 
 	http.end();
@@ -202,6 +208,7 @@ TimeWeatherServer::fetchAndParse(const char* url, JsonStreamingParser* parser)
         curl_easy_cleanup(curl);
     }
 #endif
+    return success;
 }
 
 bool TimeWeatherServer::update()
@@ -217,19 +224,19 @@ bool TimeWeatherServer::update()
 	apiURL += _zip;
 	apiURL +="&days=1";
 
-	cout << F("URL='") << apiURL << F("'\n");
+	cout << F("URL='") << apiURL.c_str() << F("'\n");
 
     JsonStreamingParser parser;
     MyJsonListener listener;
     parser.setListener(&listener);
 
-    fetchAndParse(apiURL.c_str(), &parser);
+    if (fetchAndParse(apiURL.c_str(), &parser)) {
+        _currentTemp = listener._currentTemp;
+        _lowTemp = listener._lowTemp;
+        _highTemp = listener._highTemp;
+        _conditions = listener._conditions;
+    }
     
-    _currentTemp = listener._currentTemp;
-    _lowTemp = listener._lowTemp;
-    _highTemp = listener._highTemp;
-    _conditions = listener._conditions;
-
 	cout << F("Getting time feed...\n");
 
 	apiURL = "http://api.timezonedb.com";
@@ -239,15 +246,15 @@ bool TimeWeatherServer::update()
 	apiURL += listener._timeZone;
 
     parser.reset();
-    fetchAndParse(apiURL.c_str(), &parser);
-
-    _currentTime = listener._currentTime;
-
+    if (fetchAndParse(apiURL.c_str(), &parser)) {
+        _currentTime = listener._currentTime;
+    }
+    
 	// Check every hour
 	int32_t timeToNextCheck = 60 * 60 * 1000;
 	_ticker.once_ms(timeToNextCheck, [this]() { _handler(); });
 	
-	cout << F("Epoch: " << _currentTime << "\nWeather: conditions='") << _conditions << 
+	cout << F("Epoch: ") << _currentTime << F("\nWeather: conditions='") << _conditions.c_str() << 
 	 			 F("'\n    currentTemp=") << _currentTemp << 
 		 		 F("', lowTemp=") << _lowTemp << 
 				 F("', highTemp=") << _highTemp << 

@@ -113,7 +113,7 @@ namespace mil {
 		static constexpr const char* WeatherAPIKey = "4a5c6eaf78d449f88d5182555210312";
 		static const constexpr char* TimeAPIKey = "OFTZYMX4MSPG";
 
-        void fetchAndParse(const char* url, JsonStreamingParser*);
+        bool fetchAndParse(const char* url, JsonStreamingParser*);
 
 		std::string _zip;
 		Ticker _ticker;
