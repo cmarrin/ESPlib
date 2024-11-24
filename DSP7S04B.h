@@ -62,12 +62,13 @@ public:
   	void print(const char* str);				// print a string on the display
   	void setRaw(uint8_t pos, uint16_t data);	// set segments directly
   	void setDot(uint8_t pos, bool on);			// turn a dot (0-3) on or off
-  	void setColon(bool on);						// turn colon on or off
+  	void setColon(bool on) { _colon = on; }		// turn colon on or off
   	void setTestMode(bool on);					// turn on or off test mode (pass MODE_ON or MODE_OFF)
   	void clearDisplay(void);					// clear entire display
   	void setBrightness(uint8_t level);			// set brightness 0-dull 255-bright
 
 private: 
- 	 uint8_t _addr;
+    uint8_t _addr;
+    bool _colon = false;   
  
 };

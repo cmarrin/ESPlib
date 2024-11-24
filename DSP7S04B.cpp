@@ -50,14 +50,6 @@ void DSP7S04B::setDot(uint8_t position, bool on)
     Wire.endTransmission();
 }
 
-void DSP7S04B::setColon(bool on) {
-    Wire.beginTransmission(_addr);
-    Wire.write(CMD_COLON);
-    Wire.write(on ? MODE_ON : MODE_OFF);
-    Wire.endTransmission();
-
-}	
-
 void DSP7S04B::print(const char* str)
 {
 	uint8_t count;
@@ -71,6 +63,13 @@ void DSP7S04B::print(const char* str)
       }
       Wire.write(str[count]);
     }
+    Wire.endTransmission();
+
+    // Set colon here rather than in the setColon function so
+    // we can print the time with a colon in it when we're simulating
+    Wire.beginTransmission(_addr);
+    Wire.write(CMD_COLON);
+    Wire.write(_colon ? MODE_ON : MODE_OFF);
     Wire.endTransmission();
 }
 	
