@@ -35,7 +35,7 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF S
 DAMAGE.
 */
 
-#include "mil/BrightnessManager.h"
+#include "BrightnessManager.h"
 
 //#define DEBUG_BRIGHTNESS
 

@@ -33,7 +33,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------*/
 
-#include "mil/Max7219Display.h"
+#include "Max7219Display.h"
 
 #include "Font_8x8_8pt.h"
 #include "Font_Compact_5pt.h"

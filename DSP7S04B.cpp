@@ -39,7 +39,7 @@ Contact us at source [at] embeddedadventures.com
 //
 
 #include <mil.h>
-#include "mil/DSP7S04B.h"
+#include "DSP7S04B.h"
 
 void DSP7S04B::setDot(uint8_t position, bool on)
 {
