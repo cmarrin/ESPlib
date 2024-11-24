@@ -49,7 +49,6 @@ namespace mil {
 // All rates in ms
 
 // BrightnessManager settings
-static constexpr uint32_t LightSensor = 0;
 static constexpr uint32_t NumberOfBrightnessLevels = 250;
 
 using BrightnessChangeCB = std::function<void(uint32_t brightness)>;
@@ -60,7 +59,7 @@ class Clock
 {
 public:
 	Clock(Application* app, const char* zipCode,
-		  bool invertAmbientLightLevel, uint32_t minBrightness, uint32_t maxBrightness,
+		  uint8_t lightSensor, bool invertAmbientLightLevel, uint32_t minBrightness, uint32_t maxBrightness,
 		  uint8_t button, BrightnessChangeCB);
 	
 	uint64_t currentTime() { return _currentTime; }

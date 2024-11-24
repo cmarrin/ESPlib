@@ -14,12 +14,12 @@ All rights reserved.
 using namespace mil;
 
 Clock::Clock(Application* app, const char* zipCode,
-            bool invertAmbientLightLevel, uint32_t minBrightness, uint32_t maxBrightness,
+            uint8_t lightSensor, bool invertAmbientLightLevel, uint32_t minBrightness, uint32_t maxBrightness,
             uint8_t button, BrightnessChangeCB brightnessChangeCB)
         : _app(app)
 		, _buttonManager([this](const mil::Button& b, mil::ButtonManager::Event e) { handleButtonEvent(b, e); })
 		, _timeWeatherServer(zipCode, [this]() { _needsUpdate = true; })
-		, _brightnessManager([this](uint32_t b) { handleBrightnessChange(b); }, LightSensor, 
+		, _brightnessManager([this](uint32_t b) { handleBrightnessChange(b); }, lightSensor, 
 							 invertAmbientLightLevel, minBrightness, maxBrightness, NumberOfBrightnessLevels)
         , _brightnessChangeCB(brightnessChangeCB)
 		, _button(button)
