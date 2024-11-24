@@ -71,6 +71,7 @@ public:
 	uint32_t highTemp() { return _timeWeatherServer.highTemp(); }
 	uint32_t lowTemp() { return _timeWeatherServer.lowTemp(); }
 
+    void setBrightness(uint8_t b) { _brightnessChangeCB(b); }
 	void setup();
 	void loop();
 	
