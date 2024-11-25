@@ -93,11 +93,6 @@ private:
 	void startNetwork();
 	void startStateMachine();
 	
-	static void showDoneTick(Application* self)
-	{
-		self->_stateMachine.sendInput(Input::ShowDone);
-	}
-
 	mil::StateMachine<State, Input> _stateMachine;
 	mil::Blinker _blinker;
 	Ticker _showDoneTimer;
