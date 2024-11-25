@@ -46,6 +46,9 @@ DAMAGE.
 #include <Arduino.h>
 #include <Printable.h>
 #include <Ticker.h>
+
+#define CPString String
+
 #else
 #include <cstdint>
 #include <unistd.h>
@@ -55,6 +58,7 @@ DAMAGE.
 
 #define cout std::cout
 #define F(s) s
+#define CPString std::string
 
 static inline void delay(uint32_t ms) { useconds_t us = useconds_t(ms) * 1000; usleep(us); }
 static inline void pinMode(uint8_t, uint8_t) { }
@@ -65,34 +69,66 @@ static constexpr uint8_t INPUT = 0;
 static constexpr uint8_t INPUT_PULLUP = 0;
 static constexpr uint8_t LED_BUILTIN = 0;
 
-class DSP7S04B
-{
-public:
-  	void setDot(uint8_t pos, bool on) { if (on) { cout << "Dot set\n"; } }
-  	void setColon(bool on) { _colon = on; }
-  	void clearDisplay(void) { }
-  	void setBrightness(uint8_t b) { cout << "*** Brightness set to " << b << "\n"; }
+namespace mil {
 
-  	void print(const char* str)
+    class DSP7S04B
     {
-        if (_colon) {
-            cout << str[0] << str[1] << ":" << str[2] << str[3] << "\n";
-        } else {
-            cout << str << "\n";
+    public:
+        void setDot(uint8_t pos, bool on) { if (on) { cout << "Dot set\n"; } }
+        void setColon(bool on) { _colon = on; }
+        void clearDisplay(void) { }
+        void setBrightness(uint8_t b) { cout << "*** Brightness set to " << b << "\n"; }
+
+        void print(const char* str)
+        {
+            if (_colon) {
+                cout << str[0] << str[1] << ":" << str[2] << str[3] << "\n";
+            } else {
+                cout << str << "\n";
+            }
         }
-    }
-      
-private: 
- 	 bool _colon = false;
- 
-};
+          
+    private: 
+         bool _colon = false;
+     
+    };
+
+    class Max7219Display
+    {
+    public:
+        Max7219Display(std::function<void()> scrollDone) : _scrollDone(scrollDone) { }
+
+        void clear() { }
+        void setBrightness(uint32_t b) { cout << "*** Brightness set to " << b << "\n"; }
+        
+        void showString(const char* str, uint32_t underscoreStart = 0, uint32_t underscoreLength = 0)
+        {
+            // String might start with \a or \v. Skip them
+            const char* s = str;
+            if (s[0] == '\a' || s[0] == '\v') {
+                s += 1;
+            }
+            cout << "\n[[ " << s << " ]]\n\n";
+            
+            // If we're scrolling we need to call _scrollDone
+            if (str[0] == '\v') {
+                _scrollDone();
+            }
+        }
+
+    private:
+        std::function<void()> _scrollDone;
+
+    };
+
+}
 
 class Ticker
 {
 public:
     using callback_t = std::function<void(void)>;
     
-    void once_ms(uint64_t ms, callback_t callback)
+    void once_ms(uint32_t ms, callback_t callback)
     {
         _ms = ms;
         _cb = callback;
@@ -103,7 +139,7 @@ public:
         }).detach();
     }
     
-    void attach_ms(uint64_t ms, callback_t callback)
+    void attach_ms(uint32_t ms, callback_t callback)
     {
         _ms = ms;
         _cb = callback;
@@ -118,7 +154,7 @@ public:
     }
 
 private:
-    uint64_t _ms = 0;
+    uint32_t _ms = 0;
     callback_t _cb;
 };
 
