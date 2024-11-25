@@ -82,7 +82,7 @@ namespace mil {
 		
 			State _state = State::None;
 		
-			uint64_t _currentTime = 0;
+			uint32_t _currentTime = 0;
 			int32_t _currentTemp = 0;
 			int32_t _lowTemp = 0;
 			int32_t _highTemp = 0;
@@ -96,11 +96,11 @@ namespace mil {
 		{
 		}
 		
-		uint64_t currentTime() const { return _currentTime; }
+		uint32_t currentTime() const { return _currentTime; }
 		
-		static std::string strftime(const char* format, uint64_t time);
+		static std::string strftime(const char* format, uint32_t time);
 		static std::string strftime(const char* format, const struct tm&);
-		static std::string prettyDay(uint64_t time);
+		static std::string prettyDay(uint32_t time);
 
 		uint32_t currentTemp() const { return _currentTemp; }
 		uint32_t lowTemp() const { return _lowTemp; }
@@ -118,7 +118,7 @@ namespace mil {
 		std::string _zip;
 		Ticker _ticker;
 				
-		uint64_t _currentTime = 0;
+		uint32_t _currentTime = 0;
 
 		int32_t _currentTemp = 0;
 		int32_t _lowTemp = 0;

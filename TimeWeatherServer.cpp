@@ -95,7 +95,7 @@ void TimeWeatherServer::MyJsonListener::value(const std::string& value)
 	switch(_state) {
         default: break;
         case State::Timestamp:
-        _currentTime = uint64_t(std::stol(value));
+        _currentTime = uint32_t(std::stol(value));
         _state = State::None;
         break;
         case State::TimeZone:
@@ -270,14 +270,14 @@ std::string TimeWeatherServer::strftime(const char* format, const struct tm& tim
 	return s;
 }
 
-std::string TimeWeatherServer::strftime(const char* format, uint64_t time)
+std::string TimeWeatherServer::strftime(const char* format, uint32_t time)
 {
     time_t t = time;
 	struct tm* timeinfo = gmtime(&t);
 	return strftime(format, *timeinfo);
 }
 
-std::string TimeWeatherServer::prettyDay(uint64_t time)
+std::string TimeWeatherServer::prettyDay(uint32_t time)
 {
     time_t t = time;
 	struct tm* timeinfo = gmtime(&t);
