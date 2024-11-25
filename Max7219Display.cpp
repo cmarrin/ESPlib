@@ -64,12 +64,14 @@ Max7219Display::Max7219Display(std::function<void()> scrollDone)
 	clear();
 }
 
-uint32_t Max7219Display::getControlChars(const String& s, bool& scroll)
+uint32_t Max7219Display::getControlChars(const char* s, bool& scroll)
 {
 	scroll = false;
 	
-	for (int i = 0; i < s.length(); ++i) {
-		if (s[i] == '\a') {
+	for (int i = 0; ; ++i) {
+        if (s[i] == '\0') {
+            break;
+        } else if (s[i] == '\a') {
 			_matrix.setFont(&Font_Compact_5pt);
 			_currentFont = &Font_Compact_5pt;
 		} else if (s[i] == '\v') {
@@ -95,8 +97,9 @@ void Max7219Display::setBrightness(uint32_t level)
 	_matrix.setIntensity(level);
 }
 	
-void Max7219Display::showString(const String& string, uint32_t underscoreStart, uint32_t underscoreLength)
+void Max7219Display::showString(const char* s, uint32_t underscoreStart, uint32_t underscoreLength)
 {
+    String string(s);
 	if (_scrollTimer.active()) {
 		_scrollTimer.detach();
 	}
@@ -105,7 +108,7 @@ void Max7219Display::showString(const String& string, uint32_t underscoreStart, 
 	_currentFont = &Font_8x8_8pt;
 
 	bool scroll;
-	uint32_t charStart = getControlChars(string, scroll);
+	uint32_t charStart = getControlChars(string.c_str(), scroll);
 	if (scroll) {
 		scrollString(string.c_str() + charStart, ScrollRate, ScrollType::Scroll);
 		return;
@@ -144,40 +147,6 @@ void Max7219Display::showString(const String& string, uint32_t underscoreStart, 
 	}
 	
 	_matrix.write(); // Send bitmap to display
-}
-
-void Max7219Display::showTime(uint32_t currentTime, bool force)
-{
-	bool pm = false;
-	String string;
-
-	struct tm* timeinfo = gmtime(reinterpret_cast<time_t*>(&currentTime));
-        
-	uint8_t hours = timeinfo->tm_hour;
-	if (hours == 0) {
-		hours = 12;
-	} else if (hours >= 12) {
-		pm = true;
-		if (hours > 12) {
-			hours -= 12;
-		}
-	}
-	string += String(hours);
-	string += ":";
-	if (timeinfo->tm_min < 10) {
-		string += "0";
-	}
-	string += String(timeinfo->tm_min);
-
-	// FIXME: Show AM/PM?
-
-	static String lastStringSent;
-	if (string == lastStringSent && !force) {
-		return;
-	}
-	lastStringSent = string;
-
-	showString(string);
 }
 
 void Max7219Display::scrollString(const char* s, uint32_t scrollRate, ScrollType scrollType)

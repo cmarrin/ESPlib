@@ -52,8 +52,7 @@ namespace mil {
 
 		void clear();
 		void setBrightness(uint32_t level);
-		void showString(const String& string, uint32_t underscoreStart = 0, uint32_t underscoreLength = 0);
-		void showTime(uint32_t currentTime, bool force = false);
+		void showString(const char* str, uint32_t underscoreStart = 0, uint32_t underscoreLength = 0);
 
 	private:
 		static constexpr uint32_t ScrollRate = 50;
@@ -68,7 +67,7 @@ namespace mil {
 	
 		// Look for control chars. \a means to use the compact font, \v means to scroll.
 		// Returns offset into string past control chars
-		uint32_t getControlChars(const String& s, bool& scroll);
+		uint32_t getControlChars(const char* s, bool& scroll);
 	
 		Max72xxPanel _matrix;
 		const GFXfont* _currentFont = nullptr;
