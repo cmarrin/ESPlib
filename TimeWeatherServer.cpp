@@ -273,15 +273,17 @@ std::string TimeWeatherServer::strftime(const char* format, const struct tm& tim
 std::string TimeWeatherServer::strftime(const char* format, uint32_t time)
 {
     time_t t = time;
-	struct tm* timeinfo = gmtime(&t);
-	return strftime(format, *timeinfo);
+	struct tm timeinfo;
+    gmtime_r(&t, &timeinfo);
+	return strftime(format, timeinfo);
 }
 
 std::string TimeWeatherServer::prettyDay(uint32_t time)
 {
     time_t t = time;
-	struct tm* timeinfo = gmtime(&t);
-	int day = timeinfo->tm_mday;
+	struct tm timeinfo;
+    gmtime_r(&t, &timeinfo);
+	int day = timeinfo.tm_mday;
 	std::string s = std::to_string(day);
 	switch(day) {
 		case 1:
