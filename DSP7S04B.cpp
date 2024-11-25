@@ -41,6 +41,8 @@ Contact us at source [at] embeddedadventures.com
 #include <mil.h>
 #include "DSP7S04B.h"
 
+using namespace mil;
+
 void DSP7S04B::setDot(uint8_t position, bool on)
 {
     Wire.beginTransmission(_addr);
