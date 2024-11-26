@@ -164,12 +164,16 @@ public:
     const char* localIP() { return "127.0.0.1"; }
 };
 
+extern WiFiClass WiFi;
+
 class MDNSClass
 {
 public:
     static bool begin(const char*) { return true; }
     static void update() { }
 };
+
+extern MDNSClass MDNS;
 
 class Preferences
 {
@@ -179,8 +183,19 @@ public:
     void putString(const char*, const char*) { }
 };
 
-extern WiFiClass WiFi;
-extern MDNSClass MDNS;
+class WiFiManagerParameter
+{
+public:
+    WiFiManagerParameter(const char *id, const char *label, const char *defaultValue, int length)
+        :_value(defaultValue)
+    { }
+    
+    const char* getValue() const { return _value.c_str(); }
+    void setValue(const char *defaultValue, int length) { _value = defaultValue; }
+
+private:
+    std::string _value;
+};
 
 class WiFiManager
 {
@@ -194,7 +209,8 @@ public:
     void setHostname(const char*) { }
     void process() { }
     void startWebPortal() { }
-
+    bool addParameter(WiFiManagerParameter* p) { return true; }
+    void setSaveParamsCallback(std::function<void()>) { }
 };
 #endif
 

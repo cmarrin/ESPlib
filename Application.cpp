@@ -21,12 +21,14 @@ using namespace mil;
 WiFiClass WiFi;
 #endif
 
+static constexpr int MaxHostnameLength = 40;
+
 Application::Application(uint8_t led, const char* hostname, const char* configPortalName)
-		: _stateMachine({ { Input::LongPress, State::AskRestart } })
-		, _blinker(led, BlinkSampleRate)
-        , _hostname(hostname)
-		, _configPortalName(configPortalName)
-	{ }
+    : _stateMachine({ { Input::LongPress, State::AskRestart } })
+    , _blinker(led, BlinkSampleRate)
+    , _configPortalName(configPortalName)
+    , _hostname("str", "Hostname", hostname,  MaxHostnameLength)
+{ }
 	
 void
 Application::setup()
@@ -34,11 +36,11 @@ Application::setup()
     prefs.begin("ESPLib");
     CPString savedHostname = prefs.getString("hostname");
     if (savedHostname.length() == 0) {
-        prefs.putString("hostname", _hostname.c_str());
-        cout << F("No hostname saved. Setting it to default: '") << _hostname.c_str() << "'\n";
+        prefs.putString("hostname", _hostname.getValue());
+        cout << F("No hostname saved. Setting it to default: '") << _hostname.getValue() << "'\n";
     } else {
-        _hostname = savedHostname.c_str();
-        cout << F("Setting hostname to saved hostname: '") << _hostname.c_str() << "'\n";
+        _hostname.setValue(savedHostname.c_str(), MaxHostnameLength);
+        cout << F("Setting hostname to saved hostname: '") << _hostname.getValue() << "'\n";
     }
 	startStateMachine();
 }
@@ -64,7 +66,9 @@ Application::startNetwork()
 {
 	_blinker.setRate(ConnectingRate);
 	
-    wifiManager.setHostname(_hostname.c_str());
+    wifiManager.addParameter(&_hostname);
+
+    wifiManager.setHostname(_hostname.getValue());
 	wifiManager.setDebugOutput(true);
 	wifiManager.setDarkMode(true);
  
@@ -99,12 +103,19 @@ Application::startNetwork()
 	_enableNetwork = true;
 	_blinker.setRate(ConnectedRate);
  
+    wifiManager.setSaveParamsCallback([this]()
+    {
+        prefs.putString("hostname", _hostname.getValue());
+        delay(2000);
+        restart();
+    });
+
     wifiManager.startWebPortal();
 
-    if (!MDNS.begin(_hostname.c_str()))  {             
+    if (!MDNS.begin(_hostname.getValue()))  {             
         cout << F("***** Error starting mDNS\n");
     } else {
-        cout << F("mDNS started, hostname=") << _hostname.c_str() << "\n";
+        cout << F("mDNS started, hostname=") << _hostname.getValue() << "\n";
     }
 
 	delay(500);

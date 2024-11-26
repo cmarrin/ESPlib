@@ -93,6 +93,9 @@ public:
 private:
 	void startNetwork();
 	void startStateMachine();
+ 
+    // This is a bit of hackery. WiFiManager sets the maximum length of the Hostname field to the current
+    // size of the 
 	
 	mil::StateMachine<State, Input> _stateMachine;
 	mil::Blinker _blinker;
@@ -103,10 +106,10 @@ private:
 	
 	bool _enableNetwork = false;
 	
-	std::string _hostname;
 	std::string _configPortalName;
 
     WiFiManager wifiManager;
+    WiFiManagerParameter _hostname;
     Preferences prefs;
 
 };
