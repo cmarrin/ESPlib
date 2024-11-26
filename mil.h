@@ -120,7 +120,6 @@ namespace mil {
         std::function<void()> _scrollDone;
 
     };
-
 }
 
 class Ticker
@@ -165,7 +164,23 @@ public:
     const char* localIP() { return "127.0.0.1"; }
 };
 
+class MDNSClass
+{
+public:
+    static bool begin(const char*) { return true; }
+    static void update() { }
+};
+
+class Preferences
+{
+public:
+    void begin(const char*) { }
+    std::string getString(const char*) { return ""; }
+    void putString(const char*, const char*) { }
+};
+
 extern WiFiClass WiFi;
+extern MDNSClass MDNS;
 
 class WiFiManager
 {
@@ -175,6 +190,10 @@ public:
     void setAPCallback( std::function<void(WiFiManager*)>) { }
     const char* getConfigPortalSSID() { return "127.0.0.1"; }
     bool autoConnect(char const *apName, char const *apPassword = NULL) { return true; }
+    void setDarkMode(bool) { }
+    void setHostname(const char*) { }
+    void process() { }
+    void startWebPortal() { }
 
 };
 #endif

@@ -38,6 +38,7 @@ All rights reserved.
 #include "Blinker.h"
 
 #ifdef ARDUINO
+#include <Preferences.h>
 #include <WiFiManager.h>
 #endif
 
@@ -65,7 +66,7 @@ enum class Message { Startup, Connecting, NetConfig, NetFail, UpdateFail, AskRes
 class Application
 {
 public:
-	Application(uint8_t led, const char* configPortalName);
+	Application(uint8_t led, const char* hostname, const char* configPortalName);
 	
 	virtual void setup();
 	virtual void loop();
@@ -102,7 +103,12 @@ private:
 	
 	bool _enableNetwork = false;
 	
+	std::string _hostname;
 	std::string _configPortalName;
+
+    WiFiManager wifiManager;
+    Preferences prefs;
+
 };
 
 }

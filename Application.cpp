@@ -11,19 +11,35 @@ All rights reserved.
 
 using namespace mil;
 
-#ifndef ARDUINO
+#ifdef ARDUINO
+#if defined(ESP8266)
+#include <ESP8266mDNS.h>
+#else
+#include <ESPmDNS.h>
+#endif
+#else
 WiFiClass WiFi;
 #endif
 
-Application::Application(uint8_t led, const char* configPortalName)
+Application::Application(uint8_t led, const char* hostname, const char* configPortalName)
 		: _stateMachine({ { Input::LongPress, State::AskRestart } })
 		, _blinker(led, BlinkSampleRate)
+        , _hostname(hostname)
 		, _configPortalName(configPortalName)
 	{ }
 	
 void
 Application::setup()
 {
+    prefs.begin("ESPLib");
+    CPString savedHostname = prefs.getString("hostname");
+    if (savedHostname.length() == 0) {
+        prefs.putString("hostname", _hostname.c_str());
+        cout << F("No hostname saved. Setting it to default: '") << _hostname.c_str() << "'\n";
+    } else {
+        _hostname = savedHostname.c_str();
+        cout << F("Setting hostname to saved hostname: '") << _hostname.c_str() << "'\n";
+    }
 	startStateMachine();
 }
 
@@ -33,6 +49,8 @@ Application::loop()
 	if (_needsNetworkReset) {
 		startNetwork();
 	}
+    MDNS.update();
+    wifiManager.process();
 }
 
 void
@@ -46,10 +64,10 @@ Application::startNetwork()
 {
 	_blinker.setRate(ConnectingRate);
 	
-	WiFiManager wifiManager;
-
-	wifiManager.setDebugOutput(false);
-
+    wifiManager.setHostname(_hostname.c_str());
+	wifiManager.setDebugOutput(true);
+	wifiManager.setDarkMode(true);
+ 
 	if (_needsNetworkReset) {
 		_needsNetworkReset = false;
 		wifiManager.resetSettings();			
@@ -80,6 +98,14 @@ Application::startNetwork()
 
 	_enableNetwork = true;
 	_blinker.setRate(ConnectedRate);
+ 
+    wifiManager.startWebPortal();
+
+    if (!MDNS.begin(_hostname.c_str()))  {             
+        cout << F("***** Error starting mDNS\n");
+    } else {
+        cout << F("mDNS started, hostname=") << _hostname.c_str() << "\n";
+    }
 
 	delay(500);
 	_stateMachine.sendInput(Input::Connected);
