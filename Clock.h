@@ -46,21 +46,12 @@ All rights reserved.
 
 namespace mil {
 
-// All rates in ms
-
-// BrightnessManager settings
-static constexpr uint32_t NumberOfBrightnessLevels = 250;
-
-using BrightnessChangeCB = std::function<void(uint32_t brightness)>;
-
 class Application;
 
 class Clock
 {
 public:
-	Clock(Application* app, const char* zipCode,
-		  uint8_t lightSensor, bool invertAmbientLightLevel, uint32_t minBrightness, uint32_t maxBrightness,
-		  uint8_t button, BrightnessChangeCB);
+	Clock(Application* app, const char* zipCode);
 	
 	uint32_t currentTime() { return _currentTime; }
 	std::string strftime(const char* format, uint32_t time) { return _timeWeatherServer.strftime(format, time); }
@@ -70,17 +61,11 @@ public:
 	uint32_t highTemp() { return _timeWeatherServer.highTemp(); }
 	uint32_t lowTemp() { return _timeWeatherServer.lowTemp(); }
 
-    void setBrightness(uint8_t b) { _brightnessChangeCB(b); }
 	void setup();
 	void loop();
 	
 private:
-	void handleButtonEvent(const mil::Button& button, mil::ButtonManager::Event event);
-	void handleBrightnessChange(uint32_t brightness);
-	
-	mil::ButtonManager _buttonManager;
 	mil::TimeWeatherServer _timeWeatherServer;
-	mil::BrightnessManager _brightnessManager;
 	Ticker _secondTimer;
 	
 	uint32_t _currentTime = 0;
@@ -89,10 +74,6 @@ private:
 	struct tm  _settingTime;
 	bool _settingTimeChanged = false;
 	
-	uint8_t _button = 1;
- 
-    BrightnessChangeCB _brightnessChangeCB;
-     
     Application* _app = nullptr;
 };
 
