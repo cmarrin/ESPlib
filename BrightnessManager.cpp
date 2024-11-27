@@ -66,7 +66,7 @@ void BrightnessManager::computeBrightness()
 {
 	uint32_t ambientLightLevel = analogRead(_lightSensor);
 #ifdef DEBUG_BRIGHTNESS
-	mil::cout << "**** Raw ambientLightLevel=" << ambientLightLevel << "\n";
+	cout << "**** Raw ambientLightLevel=" << ambientLightLevel << "\n";
 #endif
 
 	if (_invert) {
@@ -84,7 +84,7 @@ void BrightnessManager::computeBrightness()
 		_ambientLightSampleCount = 0;
 
 #ifdef DEBUG_BRIGHTNESS
-		mil::cout << "**** Average ambientLightLevel=" << averageAmbientLightLevel << "\n";
+		cout << "**** Average ambientLightLevel=" << averageAmbientLightLevel << "\n";
 #endif
 
 		// Use hysteresis to avoid throbbing the light level.
@@ -106,7 +106,7 @@ void BrightnessManager::computeBrightness()
 		}
 
 #ifdef DEBUG_BRIGHTNESS
-		mil::cout << "**** Sending brightnessLevel=" << brightnessLevel << "\n";
+		cout << "**** Sending brightnessLevel=" << brightnessLevel << "\n";
 #endif
 
 		_handler(brightnessLevel);
