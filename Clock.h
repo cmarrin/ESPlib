@@ -36,9 +36,6 @@ All rights reserved.
 //
 
 #include "mil.h"
-#include "Blinker.h"
-#include "BrightnessManager.h"
-#include "ButtonManager.h"
 #include "TimeWeatherServer.h"
 
 #include <assert.h>
