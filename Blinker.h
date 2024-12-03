@@ -59,26 +59,30 @@ namespace mil {
 			, _sampleRate(sampleRate)
 		{
 			pinMode(LED_BUILTIN, OUTPUT);
-			_ticker.attach_ms(sampleRate, blink, this);
+			_ticker.attach_ms(sampleRate, [this]() { blink(); });
 		}
 	
 		void setRate(uint32_t rate) { _rate = (rate + (_sampleRate / 2)) / _sampleRate; }
 	
 	private:
-		static void blink(Blinker* self)
+		void blink()
 		{
-			if (self->_count == 0) {
+            if (_rate == 0) {
+                return;
+            }
+            
+			if (_count == 0) {
 				digitalWrite(LED_BUILTIN, LOW);
-			} else if (self->_count == 1){
+			} else if (_count == 1){
 				digitalWrite(LED_BUILTIN, HIGH);
 			}
-			if (++self->_count >= self->_rate) {
-				self->_count = 0;
+			if (++_count >= _rate) {
+				_count = 0;
 			}
 		}
 	
 		Ticker _ticker;
-		uint32_t _rate = 10; // In 10 ms units
+		uint32_t _rate = 0;
 		uint32_t _count = 0;
 		uint8_t _led;
 		uint32_t _sampleRate;
