@@ -46,11 +46,11 @@ namespace mil {
 
 // All rates in ms
 
-// Number of ms Display stays off in each mode
-static constexpr uint32_t ConnectingRate = 400;
-static constexpr uint32_t ConfigRate = 100;
-static constexpr uint32_t ConnectedRate = 1900;
-static constexpr uint32_t BlinkSampleRate = 4;
+// rate light blinks in ms in each mode
+static constexpr uint32_t ConnectingRate = 500;
+static constexpr uint32_t ConfigRate = 200;
+static constexpr uint32_t ConnectedRate = 2000;
+static constexpr uint32_t BlinkSampleRate = 1;
 
 enum class State {
 	Connecting, NetConfig, NetFail, UpdateFail, 
