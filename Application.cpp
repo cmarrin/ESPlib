@@ -58,7 +58,7 @@ Application::loop()
 void
 Application::startShowDoneTimer(uint32_t ms)
 {
-	_showDoneTimer.once_ms(ms, [this]() { _stateMachine.sendInput(Input::ShowDone); });
+	_showDoneTimer.once_ms(ms, [this]() { sendInput(Input::ShowDone, true); });
 }
 
 void
@@ -82,7 +82,7 @@ Application::startNetwork()
 					 WiFi.softAPIP() << F(", ssid='") << 
 					 wifiManager->getConfigPortalSSID() << F("'\n");
 		_blinker.setRate(ConfigRate);
-		_stateMachine.sendInput(Input::NetConfig);
+		sendInput(Input::NetConfig, true);
 		_enteredConfigMode = true;
 	});
 
@@ -119,7 +119,7 @@ Application::startNetwork()
     }
 
 	delay(500);
-	_stateMachine.sendInput(Input::Connected);
+	sendInput(Input::Connected, false);
 }
 	
 void Application::startStateMachine()

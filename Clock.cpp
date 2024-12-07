@@ -26,7 +26,7 @@ void Clock::setup()
 {
 	_secondTimer.attach_ms(1000, [this]() {
         _currentTime++;
-        _app->sendInput(Input::Idle);
+        _app->sendInput(Input::Idle, true);
     });
 }
 
@@ -38,9 +38,9 @@ void Clock::loop()
 		if (_app && _app->isNetworkEnabled()) {
 			if (_timeWeatherServer.update()) {
 				_currentTime = _timeWeatherServer.currentTime();
-				_app->sendInput(Input::Idle);
+				_app->sendInput(Input::Idle, false);
 			} else {
-				_app->sendInput(Input::UpdateFail);
+				_app->sendInput(Input::UpdateFail, false);
 			}
 		}
 	}

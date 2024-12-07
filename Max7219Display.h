@@ -39,7 +39,6 @@ DAMAGE.
 
 #include <mil.h>
 #include <Adafruit_GFX.h>
-#include <Ticker.h>
 #include <Max72xxPanel.h>
 #include <time.h>
 

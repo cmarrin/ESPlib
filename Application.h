@@ -74,7 +74,15 @@ public:
 	virtual void showMain(bool force = false) = 0;
 	virtual void showSecondary() = 0;
  
-    void sendInput(Input input) { _stateMachine.sendInput(input); }
+    void sendInput(Input input, bool inCallback)
+    {
+        bool prevInCallback = _inCallback;
+        _inCallback = inCallback;
+        _stateMachine.sendInput(input);
+        _inCallback = prevInCallback;
+    }
+    
+    bool isInCallback() const { return _inCallback; }
     
     bool isNetworkEnabled() const { return _enableNetwork; }
 
@@ -111,6 +119,7 @@ private:
     WiFiManagerParameter _hostname;
     Preferences prefs;
 
+    bool _inCallback = false;
 };
 
 }
