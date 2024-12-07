@@ -48,6 +48,8 @@ DAMAGE.
 #include <Ticker.h>
 
 #define CPString String
+#define ToString(v) String(v)
+#define ToFloat(s) s.toFloat()
 
 #else
 #include <cstdint>
@@ -59,6 +61,8 @@ DAMAGE.
 #define cout std::cout
 #define F(s) s
 #define CPString std::string
+#define ToString(v) std::to_string(v)
+#define ToFloat(s) std::stof(s)
 #define PROGMEM
 
 static inline void delay(uint32_t ms) { useconds_t us = useconds_t(ms) * 1000; usleep(us); }

@@ -53,8 +53,8 @@ namespace mil {
 		public:
 			virtual ~MyJsonListener() { }
 	
-			virtual void key(const std::string& key) override;
-			virtual void value(const std::string& value) override;
+			virtual void key(const CPString& key) override;
+			virtual void value(const CPString& value) override;
 			virtual void whitespace(char c) override { }
 			virtual void startDocument() override { }
 			virtual void endArray() override { }
@@ -86,8 +86,8 @@ namespace mil {
 			int32_t _currentTemp = 0;
 			int32_t _lowTemp = 0;
 			int32_t _highTemp = 0;
-			std::string _conditions;
-            std::string _timeZone;
+			CPString _conditions;
+            CPString _timeZone;
 		};
 
 		TimeWeatherServer(const char* zip, std::function<void()> handler)
@@ -98,9 +98,9 @@ namespace mil {
 		
 		uint32_t currentTime() const { return _currentTime; }
 		
-		static std::string strftime(const char* format, uint32_t time);
-		static std::string strftime(const char* format, const struct tm&);
-		static std::string prettyDay(uint32_t time);
+		static CPString strftime(const char* format, uint32_t time);
+		static CPString strftime(const char* format, const struct tm&);
+		static CPString prettyDay(uint32_t time);
 
 		uint32_t currentTemp() const { return _currentTemp; }
 		uint32_t lowTemp() const { return _lowTemp; }
@@ -115,7 +115,7 @@ namespace mil {
 
         bool fetchAndParse(const char* url, JsonStreamingParser*);
 
-		std::string _zip;
+		CPString _zip;
 		Ticker _ticker;
 				
 		uint32_t _currentTime = 0;
@@ -123,7 +123,7 @@ namespace mil {
 		int32_t _currentTemp = 0;
 		int32_t _lowTemp = 0;
 		int32_t _highTemp = 0;
-		std::string _conditions;
+		CPString _conditions;
 
 		std::function<void()> _handler;
 	};

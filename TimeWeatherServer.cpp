@@ -44,7 +44,7 @@ DAMAGE.
 
 using namespace mil;
 
-void TimeWeatherServer::MyJsonListener::key(const std::string& key)
+void TimeWeatherServer::MyJsonListener::key(const CPString& key)
 {
 	switch(_state) {
         default: break;
@@ -90,12 +90,12 @@ void TimeWeatherServer::MyJsonListener::key(const std::string& key)
 	}
 }
 
-void TimeWeatherServer::MyJsonListener::value(const std::string& value)
+void TimeWeatherServer::MyJsonListener::value(const CPString& value)
 {
 	switch(_state) {
         default: break;
         case State::Timestamp:
-        _currentTime = uint32_t(std::stol(value));
+        _currentTime = uint32_t(atol(value.c_str()));
         _state = State::None;
         break;
         case State::TimeZone:
@@ -107,15 +107,15 @@ void TimeWeatherServer::MyJsonListener::value(const std::string& value)
 		_state = State::Current;
 		break;
 		case State::CurrentTemp: 
-		_currentTemp = int32_t(std::stof(value) + 0.5);
+		_currentTemp = int32_t(ToFloat(value) + 0.5);
 		_state = State::Current;
 		break;
 		case State::MinTemp:
-		_lowTemp = int32_t(std::stof(value) + 0.5);
+		_lowTemp = int32_t(ToFloat(value) + 0.5);
 		_state = State::Day;
 		break;
 		case State::MaxTemp: 
-		_highTemp = int32_t(std::stof(value) + 0.5);
+		_highTemp = int32_t(ToFloat(value) + 0.5);
 		_state = State::Day;
 		break;
 	}
@@ -217,7 +217,7 @@ bool TimeWeatherServer::update()
 
 	cout << F("Getting weather feed...\n");
 
-	std::string apiURL;
+	CPString apiURL;
 	apiURL = "http://api.weatherapi.com/v1/forecast.json?key=";
 	apiURL += WeatherAPIKey;
 	apiURL +="&q=";
@@ -263,14 +263,14 @@ bool TimeWeatherServer::update()
 	return !failed;
 }
 
-std::string TimeWeatherServer::strftime(const char* format, const struct tm& time)
+CPString TimeWeatherServer::strftime(const char* format, const struct tm& time)
 {
 	char s[100];
 	std::strftime(s, 99, format, &time);
 	return s;
 }
 
-std::string TimeWeatherServer::strftime(const char* format, uint32_t time)
+CPString TimeWeatherServer::strftime(const char* format, uint32_t time)
 {
     time_t t = time;
 	struct tm timeinfo;
@@ -278,13 +278,13 @@ std::string TimeWeatherServer::strftime(const char* format, uint32_t time)
 	return strftime(format, timeinfo);
 }
 
-std::string TimeWeatherServer::prettyDay(uint32_t time)
+CPString TimeWeatherServer::prettyDay(uint32_t time)
 {
     time_t t = time;
 	struct tm timeinfo;
     gmtime_r(&t, &timeinfo);
 	int day = timeinfo.tm_mday;
-	std::string s = std::to_string(day);
+	CPString s = ToString(day);
 	switch(day) {
 		case 1:
 		case 21:

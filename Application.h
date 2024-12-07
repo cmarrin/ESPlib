@@ -31,7 +31,6 @@ All rights reserved.
 
 #include <cassert>
 #include <ctime>
-#include <string>
 
 #include "mil.h"
 #include "StateMachine.h"
@@ -106,7 +105,7 @@ private:
 	
 	bool _enableNetwork = false;
 	
-	std::string _configPortalName;
+	CPString _configPortalName;
 
     WiFiManager wifiManager;
     WiFiManagerParameter _hostname;

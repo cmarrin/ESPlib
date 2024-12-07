@@ -52,7 +52,7 @@ namespace mil {
 	public:
 		using Action = std::function<void()>;
 		using NextStates = std::vector<std::pair<Input, State>>;
-		using ShowStringCallback = std::function<void(const std::string&)>;
+		using ShowStringCallback = std::function<void(const CPString&)>;
 		
 		struct StateEntry
 		{

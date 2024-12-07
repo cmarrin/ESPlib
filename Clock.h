@@ -51,8 +51,8 @@ public:
 	Clock(Application* app, const char* zipCode);
 	
 	uint32_t currentTime() { return _currentTime; }
-	std::string strftime(const char* format, uint32_t time) { return _timeWeatherServer.strftime(format, time); }
-	std::string prettyDay(uint32_t time) { return _timeWeatherServer.prettyDay(time); }
+	CPString strftime(const char* format, uint32_t time) { return _timeWeatherServer.strftime(format, time); }
+	CPString prettyDay(uint32_t time) { return _timeWeatherServer.prettyDay(time); }
 	const char* weatherConditions() { return _timeWeatherServer.conditions(); }
 	uint32_t currentTemp() { return _timeWeatherServer.currentTemp(); }
 	uint32_t highTemp() { return _timeWeatherServer.highTemp(); }
