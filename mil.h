@@ -74,12 +74,6 @@ static constexpr uint8_t INPUT = 0;
 static constexpr uint8_t INPUT_PULLUP = 0;
 static constexpr uint8_t LED_BUILTIN = 0;
 
-static constexpr uint8_t Font_8x8_8pt_yAdvance = 8;
-static constexpr uint8_t Font_Compact_5pt_yAdvance = 5;
-
-static uint8_t Font_8x8_8pt = 0;
-static uint8_t Font_Compact_5pt = 0;
-
 namespace mil {
 
     class DSP7S04B
