@@ -44,18 +44,19 @@ DAMAGE.
 // Periodically checks lightSensor port for a voltage and computes a brightness
 // from that, with hysteresis. Samples at sampleRate ms and accumulates numSamples.
 // Samples are clamped to maxLevels and then normalized to between 0 and numBrightness - 1.
+// Hysteresis is an integer value of percent of max - min. So a value of 5 is 5%.
 
 namespace mil {
-	static constexpr uint32_t Hysteresis = 20; // Number of steps before a change will happen
+	static constexpr uint32_t Hysteresis = 5; // Number of steps before a change will happen
 
 	class BrightnessManager
 	{
 	public:
 		BrightnessManager(std::function<void(uint32_t brightness)> handler, 
 						  uint8_t lightSensor, bool invert, uint32_t minLevel, uint32_t maxLevel, 
-						  uint32_t numBrightness, int32_t minBrightness = -1, int32_t maxBrightness = -1, uint8_t numSamples = 5);
+						  uint32_t numBrightness, int32_t minBrightness = -1, int32_t maxBrightness = -1, uint8_t numSamples = 20);
 						  
-		void start(uint32_t sampleRate = 100);
+		void start(uint32_t sampleRate = 25);
 			
 	private:
 		void computeBrightness();

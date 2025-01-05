@@ -83,14 +83,14 @@ void BrightnessManager::computeBrightness()
 		_ambientLightAccumulator = 0;
 		_ambientLightSampleCount = 0;
 
-#ifdef DEBUG_BRIGHTNESS
-		cout << "**** Average ambientLightLevel=" << averageAmbientLightLevel << "\n";
-#endif
-
 		// Use hysteresis to avoid throbbing the light level.
 		int32_t diff = _maxLevel - _minLevel;
-		int32_t ambientLightStepSize = diff / Hysteresis;
+		int32_t ambientLightStepSize = diff * Hysteresis / 100;
 		int32_t currentAmbientLightLevel = static_cast<int32_t>(_currentAmbientLightLevel);
+
+#ifdef DEBUG_BRIGHTNESS
+		cout << "**** New average ambientLightLevel=" << averageAmbientLightLevel << ", old level=" << currentAmbientLightLevel << "\n";
+#endif
 
 		if (averageAmbientLightLevel <= currentAmbientLightLevel + ambientLightStepSize &&
 			averageAmbientLightLevel >= currentAmbientLightLevel - ambientLightStepSize) {
