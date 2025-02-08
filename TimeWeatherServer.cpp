@@ -32,8 +32,10 @@ DAMAGE.
 
 #ifdef ARDUINO
 #if defined(ESP8266)
+#include <ESP8266HWiFi.h>
 #include <ESP8266HTTPClient.h>
 #else
+#include <WiFi.h>
 #include <HTTPClient.h>
 #endif
 #else

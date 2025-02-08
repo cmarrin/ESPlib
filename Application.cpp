@@ -51,7 +51,9 @@ Application::loop()
 	if (_needsNetworkReset) {
 		startNetwork();
 	}
+#if defined(ESP8266)
     MDNS.update();
+#endif
     wifiManager.process();
 }
 
