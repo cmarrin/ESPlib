@@ -114,13 +114,14 @@ namespace mil {
 					  uint32_t debounceTime = DefaultDebounceTime,
 					  uint32_t clickTime = DefaultClickTime,
 					  uint32_t longPressTime = DefaultLongPressTime);
-		
-		void addButton(const Button& button) { _buttons.push_back(button); }
+
+		void addButton(const Button&);
 		
 	private:
 		void fire();
 		
 		std::vector<Button> _buttons;
+        bool _needToStartTicker = true;
 		Ticker _ticker;
 		uint32_t _msPerTick = 0;
 		uint32_t _clickTime;
