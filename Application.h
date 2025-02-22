@@ -53,14 +53,18 @@ static constexpr uint32_t BlinkSampleRate = 1;
 
 enum class State {
 	Connecting, NetConfig, NetFail, UpdateFail, 
-	Startup, Idle, ShowMain, ForceShowMain, ShowSecondary, 
+	Startup, Idle, ShowMain, ForceShowMain, ShowSecondary,
+    AskPreUserQuestion, AnswerPreUserQuestion,
+	AskRestart, Restart,
 	AskResetNetwork, VerifyResetNetwork, ResetNetwork,
-	AskRestart, Restart
+    AskPostUserQuestion, AnswerPostUserQuestion,
 };
 
 enum class Input { Idle, Click, LongPress, ShowDone, Connected, NetConfig, NetFail, UpdateFail };
 
-enum class Message { Startup, Connecting, NetConfig, NetFail, UpdateFail, AskRestart, AskResetNetwork, VerifyResetNetwork };
+enum class Message { Startup, Connecting, NetConfig, NetFail, UpdateFail,
+                     AskPreUserQuestion, AskRestart, AskResetNetwork, VerifyResetNetwork, AskPostUserQuestion
+                   };
 
 class Application
 {
@@ -74,6 +78,11 @@ public:
 	virtual void showMain(bool force = false) = 0;
 	virtual void showSecondary() = 0;
  
+    virtual void preUserAnswer() { }
+    virtual void postUserAnswer() { }
+ 
+    void setHaveUserQuestions(bool pre, bool post) { _havePreUserQuestion = pre; _havePostUserQuestion = post; }
+
     void sendInput(Input input, bool inCallback)
     {
         bool prevInCallback = _inCallback;
@@ -120,6 +129,9 @@ private:
     Preferences prefs;
 
     bool _inCallback = false;
+    
+    bool _havePreUserQuestion = false;
+    bool _havePostUserQuestion = false;
 };
 
 }

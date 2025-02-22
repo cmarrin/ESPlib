@@ -24,7 +24,7 @@ WiFiClass WiFi;
 static constexpr int MaxHostnameLength = 40;
 
 Application::Application(uint8_t led, const char* hostname, const char* configPortalName)
-    : _stateMachine({ { Input::LongPress, State::AskRestart } })
+    : _stateMachine({ { Input::LongPress, State::AskPreUserQuestion } })
     , _blinker(led, BlinkSampleRate)
     , _configPortalName(configPortalName)
     , _hostname("str", "Hostname", hostname,  MaxHostnameLength)
@@ -176,6 +176,23 @@ void Application::startStateMachine()
 		}
 	);
 	
+	// PreUserQuestion
+	_stateMachine.addState(State::AskPreUserQuestion, [this]
+    {
+        if (_havePreUserQuestion) {
+            showString(Message::AskPreUserQuestion);
+        } else {
+        	_stateMachine.gotoState(State::AskRestart);
+        }
+    },
+		{
+		  	  { Input::ShowDone, State::AskPreUserQuestion }
+			, { Input::Click, State::AskRestart }
+			, { Input::LongPress, State::AnswerPreUserQuestion }
+		}
+	);
+	_stateMachine.addState(State::AnswerPreUserQuestion, [this] { preUserAnswer(); }, State::ForceShowMain);
+	
 	// Restart
 	_stateMachine.addState(State::AskRestart, [this] { showString(Message::AskRestart); },
 		{
@@ -202,6 +219,23 @@ void Application::startStateMachine()
 		}
 	);
 	_stateMachine.addState(State::ResetNetwork, [this] { _needsNetworkReset = true; }, State::NetConfig);
+	
+	// PostUserQuestion
+	_stateMachine.addState(State::AskPostUserQuestion, [this]
+    {
+        if (_havePostUserQuestion) {
+            showString(Message::AskPostUserQuestion);
+        } else {
+        	_stateMachine.gotoState(State::ForceShowMain);
+        }
+    },
+		{
+		  	  { Input::ShowDone, State::AskPostUserQuestion }
+			, { Input::Click, State::ForceShowMain }
+			, { Input::LongPress, State::AnswerPostUserQuestion }
+		}
+	);
+	_stateMachine.addState(State::AnswerPostUserQuestion, [this] { postUserAnswer(); }, State::ForceShowMain);
 	
 	// Start the state machine
 	_stateMachine.gotoState(State::Connecting);
