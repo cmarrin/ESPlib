@@ -53,7 +53,16 @@ ButtonManager::ButtonManager(std::function<void(const Button&, Event)> handler, 
 	, _handler(handler)
 {
 	_msPerTick = debounceTime / TickMultiplier;
-	_ticker.attach_ms(_msPerTick, [this]() { fire(); });
+}
+
+void
+ButtonManager::addButton(const Button& button)
+{
+    if (_needToStartTicker) {
+        _ticker.attach_ms(_msPerTick, [this]() { fire(); });
+        _needToStartTicker = false;
+    }
+    _buttons.push_back(button);
 }
 
 void ButtonManager::fire()
