@@ -68,6 +68,9 @@ Application::startNetwork()
 {
 	_blinker.setRate(ConnectingRate);
 	
+    std::vector<const char *> menu = { "wifi","info","restart","sep","update" };
+    wifiManager.setMenu(menu);
+
     wifiManager.addParameter(&_hostname);
 
     wifiManager.setHostname(_hostname.getValue());
