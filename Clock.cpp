@@ -24,7 +24,7 @@ Clock::Clock(Application* app, const char* zipCode)
 	
 void Clock::setup()
 {
-	_secondTimer.attach_ms(1000, [this]() {
+	_secondTimer.attach_ms(10000, [this]() {
         _currentTime++;
         _app->sendInput(Input::Idle, true);
     });
