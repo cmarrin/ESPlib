@@ -216,6 +216,8 @@ public:
     void startWebPortal() { }
     bool addParameter(WiFiManagerParameter* p) { return true; }
     void setSaveParamsCallback(std::function<void()>) { }
+    void setMenu(std::vector<const char*>& menu) { }
+
 };
 #endif
 
