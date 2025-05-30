@@ -106,13 +106,12 @@ public:
 #endif
     }
     
+    const char* zipCode() const { return _zipCode.getValue(); }
+    
 private:
 	void startNetwork();
 	void startStateMachine();
  
-    // This is a bit of hackery. WiFiManager sets the maximum length of the Hostname field to the current
-    // size of the 
-	
 	mil::StateMachine<State, Input> _stateMachine;
 	mil::Blinker _blinker;
 	Ticker _showDoneTimer;
@@ -125,6 +124,7 @@ private:
 	CPString _configPortalName;
 
     WiFiManager wifiManager;
+    WiFiManagerParameter _zipCode;
     WiFiManagerParameter _hostname;
     Preferences prefs;
 

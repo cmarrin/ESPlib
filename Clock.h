@@ -48,7 +48,7 @@ class Application;
 class Clock
 {
 public:
-	Clock(Application* app, const char* zipCode);
+	Clock(Application* app);
 	
 	uint32_t currentTime() { return _currentTime; }
 	CPString strftime(const char* format, uint32_t time) { return _timeWeatherServer.strftime(format, time); }

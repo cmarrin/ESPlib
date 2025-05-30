@@ -213,7 +213,7 @@ TimeWeatherServer::fetchAndParse(const char* url, JsonStreamingParser* parser)
     return success;
 }
 
-bool TimeWeatherServer::update()
+bool TimeWeatherServer::update(const char* zipCode)
 {
 	bool failed = false;
 
@@ -223,7 +223,7 @@ bool TimeWeatherServer::update()
 	apiURL = "http://api.weatherapi.com/v1/forecast.json?key=";
 	apiURL += WeatherAPIKey;
 	apiURL +="&q=";
-	apiURL += _zip;
+	apiURL += zipCode;
 	apiURL +="&days=1";
 
 	cout << F("URL='") << apiURL.c_str() << F("'\n");

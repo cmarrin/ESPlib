@@ -13,9 +13,9 @@ All rights reserved.
 
 using namespace mil;
 
-Clock::Clock(Application* app, const char* zipCode)
+Clock::Clock(Application* app)
         : _app(app)
-		, _timeWeatherServer(zipCode, [this]() { _needsUpdate = true; })
+		, _timeWeatherServer([this]() { _needsUpdate = true; })
 	{
 		memset(&_settingTime, 0, sizeof(_settingTime));
 		_settingTime.tm_mday = 1;
@@ -24,7 +24,7 @@ Clock::Clock(Application* app, const char* zipCode)
 	
 void Clock::setup()
 {
-	_secondTimer.attach_ms(10000, [this]() {
+	_secondTimer.attach_ms(1000, [this]() {
         _currentTime++;
         _app->sendInput(Input::Idle, true);
     });
@@ -36,7 +36,7 @@ void Clock::loop()
 		_needsUpdate = false;
 		
 		if (_app && _app->isNetworkEnabled()) {
-			if (_timeWeatherServer.update()) {
+			if (_timeWeatherServer.update(_app->zipCode())) {
 				_currentTime = _timeWeatherServer.currentTime();
 				_app->sendInput(Input::Idle, false);
 			} else {

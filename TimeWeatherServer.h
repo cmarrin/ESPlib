@@ -90,9 +90,8 @@ namespace mil {
             CPString _timeZone;
 		};
 
-		TimeWeatherServer(const char* zip, std::function<void()> handler)
-			: _zip(zip)
-			, _handler(handler)
+		TimeWeatherServer(std::function<void()> handler)
+			: _handler(handler)
 		{
 		}
 		
@@ -107,7 +106,7 @@ namespace mil {
 		uint32_t highTemp() const { return _highTemp; }
 		const char* conditions() const { return _conditions.c_str(); }
 		
-		bool update();
+		bool update(const char* zipCode);
 		
 	private:
 		static constexpr const char* WeatherAPIKey = "4a5c6eaf78d449f88d5182555210312";
@@ -115,7 +114,6 @@ namespace mil {
 
         bool fetchAndParse(const char* url, JsonStreamingParser*);
 
-		CPString _zip;
 		Ticker _ticker;
 				
 		uint32_t _currentTime = 0;

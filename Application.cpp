@@ -27,13 +27,24 @@ Application::Application(uint8_t led, const char* hostname, const char* configPo
     : _stateMachine({ { Input::LongPress, State::AskPreUserQuestion } })
     , _blinker(led, BlinkSampleRate)
     , _configPortalName(configPortalName)
-    , _hostname("str", "Hostname", hostname,  MaxHostnameLength)
+    , _zipCode("zipcode", "Zipcode/Postal Code, City Name, IP Address or Lat/Long (e.g., 54.851019,-8.140025)", "00000",  MaxHostnameLength)
+    , _hostname("hostname", "Hostname", hostname,  MaxHostnameLength)
 { }
 	
 void
 Application::setup()
 {
     prefs.begin("ESPLib");
+    
+    CPString savedZipCode = prefs.getString("zipCode");
+    if (savedZipCode.length() == 0) {
+        prefs.putString("zipCode", _zipCode.getValue());
+        cout << F("No zipcode saved. Setting it to default: '") << _zipCode.getValue() << "'\n";
+    } else {
+        _zipCode.setValue(savedZipCode.c_str(), MaxHostnameLength);
+        cout << F("Setting zipcode to saved zipcode: '") << _zipCode.getValue() << "'\n";
+    }
+    
     CPString savedHostname = prefs.getString("hostname");
     if (savedHostname.length() == 0) {
         prefs.putString("hostname", _hostname.getValue());
@@ -42,6 +53,7 @@ Application::setup()
         _hostname.setValue(savedHostname.c_str(), MaxHostnameLength);
         cout << F("Setting hostname to saved hostname: '") << _hostname.getValue() << "'\n";
     }
+    
 	startStateMachine();
 }
 
@@ -71,6 +83,7 @@ Application::startNetwork()
     std::vector<const char *> menu = { "wifi","info","restart","sep","update" };
     wifiManager.setMenu(menu);
 
+    wifiManager.addParameter(&_zipCode);
     wifiManager.addParameter(&_hostname);
 
     wifiManager.setHostname(_hostname.getValue());
@@ -110,6 +123,7 @@ Application::startNetwork()
  
     wifiManager.setSaveParamsCallback([this]()
     {
+        prefs.putString("zipCode", _zipCode.getValue());
         prefs.putString("hostname", _hostname.getValue());
         delay(2000);
         restart();
