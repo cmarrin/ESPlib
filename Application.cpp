@@ -86,6 +86,7 @@ Application::startNetwork()
     wifiManager.addParameter(&_zipCode);
     wifiManager.addParameter(&_hostname);
 
+    wifiManager.setTitle("MarrinTech Internet Connected Clock");
     wifiManager.setHostname(_hostname.getValue());
 	wifiManager.setDebugOutput(true);
 	wifiManager.setDarkMode(true);
