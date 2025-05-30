@@ -173,13 +173,16 @@ TimeWeatherServer::fetchAndParse(const char* url, JsonStreamingParser* parser)
 	if (httpCode > 0) {
 		cout << F("    got response: ") << int32_t(httpCode) << F("\n");
 
-		if(httpCode == HTTP_CODE_OK) {
+		if (httpCode == HTTP_CODE_OK) {
 			String payload = http.getString();
 			cout << F("Got payload, parsing...\n");
 			for (int i = 0; i < payload.length(); ++i) {
 				parser->parse(payload.c_str()[i]);
 			}
-		}
+		} else {
+            cout << F("[HTTP] GET code not ok\n");
+            success = false;
+        }
 	} else {
 		cout << F("[HTTP] GET... failed, error: ") << http.errorToString(httpCode) << F("(") << int32_t(httpCode) << F(")\n");
 		success = false;
@@ -232,11 +235,13 @@ bool TimeWeatherServer::update(const char* zipCode)
     MyJsonListener listener;
     parser.setListener(&listener);
 
-    if (fetchAndParse(apiURL.c_str(), &parser)) {
-        _currentTemp = listener._currentTemp;
-        _lowTemp = listener._lowTemp;
-        _highTemp = listener._highTemp;
-        _conditions = listener._conditions;
+    if (fetchAndParse(apiURL.c_str(), &parser) && listener.currentTemp() && listener.lowTemp() && listener.highTemp() && listener.conditions()) {
+        _currentTemp = *listener.currentTemp();
+        _lowTemp = *listener.lowTemp();
+        _highTemp = *listener.highTemp();
+        _conditions = *listener.conditions();
+    } else {
+        cout << F("**** Failed to get weather, using old values...\n");
     }
     
 	cout << F("Getting time feed...\n");
@@ -245,15 +250,20 @@ bool TimeWeatherServer::update(const char* zipCode)
 	apiURL += "/v2.1/get-time-zone?key=";
 	apiURL += TimeAPIKey;
 	apiURL +="&format=json&by=zone&zone=";
-	apiURL += listener._timeZone;
+ 
+	apiURL += listener.timeZone() ? *listener.timeZone() : "00000";
+
+	cout << F("URL='") << apiURL.c_str() << F("'\n");
 
     parser.reset();
-    if (fetchAndParse(apiURL.c_str(), &parser)) {
-        _currentTime = listener._currentTime;
+    if (fetchAndParse(apiURL.c_str(), &parser) && listener.currentTime() && listener.timeZone()) {
+        _currentTime = *listener.currentTime();
+    } else {
+        cout << F("**** Failed to get time, using old value...\n");
     }
     
-	// Check every hour
-	int32_t timeToNextCheck = 60 * 60 * 1000;
+	// Check at interval of UpdateFrequency seconds
+	int32_t timeToNextCheck = UpdateFrequency * 1000;
 	_ticker.once_ms(timeToNextCheck, [this]() { _handler(); });
 	
 	cout << F("Epoch: ") << _currentTime << F("\nWeather: conditions='") << _conditions.c_str() << 

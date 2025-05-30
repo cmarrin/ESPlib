@@ -39,6 +39,8 @@ DAMAGE.
 //
 // Get the local time and weather conditions
 
+static constexpr uint32_t UpdateFrequency = 4 * 60 * 60; // in seconds
+
 class JsonStreamingParser;
 
 namespace mil {
@@ -48,8 +50,6 @@ namespace mil {
 	public:
 		class MyJsonListener : public JsonListener
 		{
-			friend class TimeWeatherServer;
-		
 		public:
 			virtual ~MyJsonListener() { }
 	
@@ -62,7 +62,14 @@ namespace mil {
 			virtual void endDocument() override { }
 			virtual void startArray() override { }
 			virtual void startObject() override { }
-	
+   
+            std::optional<uint32_t> currentTime() const { return _currentTime; }
+            std::optional<int32_t> currentTemp() const { return _currentTemp; }
+			std::optional<int32_t> lowTemp() const { return _lowTemp; }
+			std::optional<int32_t> highTemp() const { return _highTemp; }
+			std::optional<CPString> conditions() const { return _conditions; }
+            std::optional<CPString> timeZone() const { return _timeZone; }
+
 		private:
 			enum class State {
 				None,
@@ -82,12 +89,12 @@ namespace mil {
 		
 			State _state = State::None;
 		
-			uint32_t _currentTime = 0;
-			int32_t _currentTemp = 0;
-			int32_t _lowTemp = 0;
-			int32_t _highTemp = 0;
-			CPString _conditions;
-            CPString _timeZone;
+			std::optional<uint32_t> _currentTime = std::nullopt;
+			std::optional<int32_t> _currentTemp = 0;
+			std::optional<int32_t> _lowTemp = 0;
+			std::optional<int32_t> _highTemp = 0;
+			std::optional<CPString> _conditions;
+            std::optional<CPString> _timeZone;
 		};
 
 		TimeWeatherServer(std::function<void()> handler)
