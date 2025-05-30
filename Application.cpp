@@ -80,7 +80,7 @@ Application::startNetwork()
 {
 	_blinker.setRate(ConnectingRate);
 	
-    std::vector<const char *> menu = { "wifi","info","restart","sep","update" };
+    std::vector<const char *> menu = { "wifi", "info", "restart", "sep", "update" };
     wifiManager.setMenu(menu);
 
     wifiManager.addParameter(&_zipCode);
@@ -112,6 +112,8 @@ Application::startNetwork()
 	
 	if (_enteredConfigMode) {
 		// If we've been in config mode, the network doesn't startup correctly, let's reboot
+        prefs.putString("zipCode", _zipCode.getValue());
+        prefs.putString("hostname", _hostname.getValue());
 		restart();
 		delay(1000);
 	}
@@ -123,6 +125,8 @@ Application::startNetwork()
  
     wifiManager.setSaveParamsCallback([this]()
     {
+		cout << F("Saving params: zipCode='") << _zipCode.getValue() << F("', hostname='") << _hostname.getValue() << F("'\n");
+        
         prefs.putString("zipCode", _zipCode.getValue());
         prefs.putString("hostname", _hostname.getValue());
         delay(2000);
