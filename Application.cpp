@@ -89,6 +89,7 @@ Application::startNetwork()
     wifiManager.setHostname(_hostname.getValue());
 	wifiManager.setDebugOutput(true);
 	wifiManager.setDarkMode(true);
+    wifiManager.setShowInfoErase(true);
  
 	if (_needsNetworkReset) {
 		_needsNetworkReset = false;
