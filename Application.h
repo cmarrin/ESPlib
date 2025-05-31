@@ -128,6 +128,8 @@ public:
         }
     }
     
+    void setCustomMenuHTML(const char* s) { _wifiManager.setCustomMenuHTML(s); }
+    
 private:
 	void startNetwork();
 	void startStateMachine();
