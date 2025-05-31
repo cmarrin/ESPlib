@@ -19,7 +19,7 @@ Clock::Clock(Application* app)
         : _app(app)
 		, _timeWeatherServer([this]() { _needsUpdate = true; })
 	{
-        app->addParam("zipcode", "Zipcode/Postal Code, City Name, IP Address or Lat/Long (e.g., 54.851019,-8.140025)", "00000",  MaxZipCodeLength);
+        app->addParam("zipcode", "Zipcode/Postal Code, City Name, IP Address or Lat/Long (e.g., 54.851019,-8.140025)", "93405",  MaxZipCodeLength);
 		memset(&_settingTime, 0, sizeof(_settingTime));
 		_settingTime.tm_mday = 1;
 		_settingTime.tm_year = 100;
