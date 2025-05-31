@@ -61,6 +61,10 @@ public:
 	void setup();
 	void loop();
 	
+    void setWeatherString(const char* v) { _weather = v; }
+    void setTimeString(const char* v) { _time = v; }
+    void setDate(const char* v) { _date = v; }
+    
 private:
 	mil::TimeWeatherServer _timeWeatherServer;
 	Ticker _secondTimer;
@@ -72,6 +76,10 @@ private:
 	bool _settingTimeChanged = false;
 	
     Application* _app = nullptr;
+    
+    CPString _weather;
+    CPString _time;
+    CPString _date;
 };
 
 }

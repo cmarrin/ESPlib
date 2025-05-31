@@ -192,14 +192,20 @@ class WiFiManagerParameter
 {
 public:
     WiFiManagerParameter(const char *id, const char *label, const char *defaultValue, int length)
-        :_value(defaultValue)
+        : _id(id)
+        , _value(defaultValue)
+        , _length(length)
     { }
     
+    const char* getID() const { return _id.c_str(); }
     const char* getValue() const { return _value.c_str(); }
     void setValue(const char *defaultValue, int length) { _value = defaultValue; }
+    int getValueLength() const { return _length; }
 
 private:
+    std::string _id;
     std::string _value;
+    int _length;
 };
 
 class WiFiManager
@@ -217,7 +223,9 @@ public:
     bool addParameter(WiFiManagerParameter* p) { return true; }
     void setSaveParamsCallback(std::function<void()>) { }
     void setMenu(std::vector<const char*>& menu) { }
-
+    void setTitle(CPString title) { }
+    void setShowInfoErase(bool enabled) { }
+    void setCustomMenuHTML(const char* html) { }
 };
 #endif
 

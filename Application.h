@@ -106,11 +106,33 @@ public:
 #endif
     }
     
-    const char* zipCode() const { return _zipCode.getValue(); }
+    void addParam(const char *id, const char *label, const char *defaultValue, int length)
+    {
+        _params.push_back(std::make_shared<WiFiManagerParameter>(id, label, defaultValue, length));
+    }
+    
+    const char* getParamValue(const char* id) const
+    {
+        for (auto& it : _params) {
+            if (strcmp(it->getID(), id) == 0) {
+                return it->getValue();
+            }
+        }
+        return nullptr;
+    }
+    
+    void saveParams()
+    {
+        for (auto& it : _params) {
+            prefs.putString(it->getID(), it->getValue());
+        }
+    }
     
 private:
 	void startNetwork();
 	void startStateMachine();
+ 
+    void initParams();
  
 	mil::StateMachine<State, Input> _stateMachine;
 	mil::Blinker _blinker;
@@ -124,9 +146,8 @@ private:
 	CPString _configPortalName;
 
     WiFiManager wifiManager;
-    WiFiManagerParameter _zipCode;
-    WiFiManagerParameter _hostname;
     Preferences prefs;
+    std::vector<std::shared_ptr<WiFiManagerParameter>> _params;
 
     bool _inCallback = false;
     

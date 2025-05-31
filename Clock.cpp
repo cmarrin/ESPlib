@@ -13,10 +13,13 @@ All rights reserved.
 
 using namespace mil;
 
+static constexpr int MaxZipCodeLength = 40;
+
 Clock::Clock(Application* app)
         : _app(app)
 		, _timeWeatherServer([this]() { _needsUpdate = true; })
 	{
+        app->addParam("zipcode", "Zipcode/Postal Code, City Name, IP Address or Lat/Long (e.g., 54.851019,-8.140025)", "00000",  MaxZipCodeLength);
 		memset(&_settingTime, 0, sizeof(_settingTime));
 		_settingTime.tm_mday = 1;
 		_settingTime.tm_year = 100;
@@ -36,7 +39,7 @@ void Clock::loop()
 		_needsUpdate = false;
 		
 		if (_app && _app->isNetworkEnabled()) {
-			if (_timeWeatherServer.update(_app->zipCode())) {
+			if (_timeWeatherServer.update(_app->getParamValue("zipcode"))) {
 				_currentTime = _timeWeatherServer.currentTime();
 				_app->sendInput(Input::Idle, false);
 			} else {

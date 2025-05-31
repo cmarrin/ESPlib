@@ -226,7 +226,7 @@ bool TimeWeatherServer::update(const char* zipCode)
 	apiURL = "http://api.weatherapi.com/v1/forecast.json?key=";
 	apiURL += WeatherAPIKey;
 	apiURL +="&q=";
-	apiURL += zipCode;
+	apiURL += zipCode ? zipCode : "00000";
 	apiURL +="&days=1";
 
 	cout << F("URL='") << apiURL.c_str() << F("'\n");

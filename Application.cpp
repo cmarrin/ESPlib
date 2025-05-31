@@ -9,6 +9,8 @@ All rights reserved.
 
 #include "Application.h"
 
+#include "Format.h"
+
 using namespace mil;
 
 #ifdef ARDUINO
@@ -27,33 +29,33 @@ Application::Application(uint8_t led, const char* hostname, const char* configPo
     : _stateMachine({ { Input::LongPress, State::AskPreUserQuestion } })
     , _blinker(led, BlinkSampleRate)
     , _configPortalName(configPortalName)
-    , _zipCode("zipcode", "Zipcode/Postal Code, City Name, IP Address or Lat/Long (e.g., 54.851019,-8.140025)", "00000",  MaxHostnameLength)
-    , _hostname("hostname", "Hostname", hostname,  MaxHostnameLength)
-{ }
+{
+    addParam("hostname", "Hostname", hostname,  MaxHostnameLength);
+}
+
+void
+Application::initParams()
+{
+    for (auto& it : _params) {
+        const char* id = it->getID();
+        CPString savedValue = prefs.getString(id);
+        if (savedValue.length() == 0) {
+            const char* value = it->getValue();
+            prefs.putString(id, value);
+            fmt::printf("No '%s' saved. Setting it to default: '%s'\n", id, value);
+        } else {
+            it->setValue(savedValue.c_str(), it->getValueLength());
+            fmt::printf("Settign '%s' to saved value: '%s'\n", id, savedValue.c_str());
+        }
+    } 
+}
 	
 void
 Application::setup()
 {
     prefs.begin("ESPLib");
     
-    CPString savedZipCode = prefs.getString("zipCode");
-    if (savedZipCode.length() == 0) {
-        prefs.putString("zipCode", _zipCode.getValue());
-        cout << F("No zipcode saved. Setting it to default: '") << _zipCode.getValue() << "'\n";
-    } else {
-        _zipCode.setValue(savedZipCode.c_str(), MaxHostnameLength);
-        cout << F("Setting zipcode to saved zipcode: '") << _zipCode.getValue() << "'\n";
-    }
-    
-    CPString savedHostname = prefs.getString("hostname");
-    if (savedHostname.length() == 0) {
-        prefs.putString("hostname", _hostname.getValue());
-        cout << F("No hostname saved. Setting it to default: '") << _hostname.getValue() << "'\n";
-    } else {
-        _hostname.setValue(savedHostname.c_str(), MaxHostnameLength);
-        cout << F("Setting hostname to saved hostname: '") << _hostname.getValue() << "'\n";
-    }
-    
+    initParams();
 	startStateMachine();
 }
 
@@ -80,17 +82,20 @@ Application::startNetwork()
 {
 	_blinker.setRate(ConnectingRate);
 	
-    std::vector<const char *> menu = { "wifi", "info", "restart", "sep", "update" };
+    std::vector<const char *> menu = { "custom", "wifi", "info", "restart", "sep", "update" };
     wifiManager.setMenu(menu);
-
-    wifiManager.addParameter(&_zipCode);
-    wifiManager.addParameter(&_hostname);
-
+    
+    for (auto& it : _params) {
+        wifiManager.addParameter(it.get());
+    }
+    
     wifiManager.setTitle("MarrinTech Internet Connected Clock");
-    wifiManager.setHostname(_hostname.getValue());
+    wifiManager.setHostname(getParamValue("hostname"));
 	wifiManager.setDebugOutput(true);
 	wifiManager.setDarkMode(true);
     wifiManager.setShowInfoErase(true);
+    
+    wifiManager.setCustomMenuHTML("FOOBAR");
  
 	if (_needsNetworkReset) {
 		_needsNetworkReset = false;
@@ -114,8 +119,7 @@ Application::startNetwork()
 	
 	if (_enteredConfigMode) {
 		// If we've been in config mode, the network doesn't startup correctly, let's reboot
-        prefs.putString("zipCode", _zipCode.getValue());
-        prefs.putString("hostname", _hostname.getValue());
+        saveParams();
 		restart();
 		delay(1000);
 	}
@@ -127,20 +131,17 @@ Application::startNetwork()
  
     wifiManager.setSaveParamsCallback([this]()
     {
-		cout << F("Saving params: zipCode='") << _zipCode.getValue() << F("', hostname='") << _hostname.getValue() << F("'\n");
-        
-        prefs.putString("zipCode", _zipCode.getValue());
-        prefs.putString("hostname", _hostname.getValue());
+        saveParams();
         delay(2000);
         restart();
     });
 
     wifiManager.startWebPortal();
 
-    if (!MDNS.begin(_hostname.getValue()))  {             
+    if (!MDNS.begin(getParamValue("hostname")))  {             
         cout << F("***** Error starting mDNS\n");
     } else {
-        cout << F("mDNS started, hostname=") << _hostname.getValue() << "\n";
+        cout << F("mDNS started, hostname=") << getParamValue("hostname") << "\n";
     }
 
 	delay(500);
