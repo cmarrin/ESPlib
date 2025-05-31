@@ -124,7 +124,7 @@ public:
     void saveParams()
     {
         for (auto& it : _params) {
-            prefs.putString(it->getID(), it->getValue());
+            _prefs.putString(it->getID(), it->getValue());
         }
     }
     
@@ -145,8 +145,8 @@ private:
 	
 	CPString _configPortalName;
 
-    WiFiManager wifiManager;
-    Preferences prefs;
+    WiFiManager _wifiManager;
+    Preferences _prefs;
     std::vector<std::shared_ptr<WiFiManagerParameter>> _params;
 
     bool _inCallback = false;

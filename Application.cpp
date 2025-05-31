@@ -38,10 +38,10 @@ Application::initParams()
 {
     for (auto& it : _params) {
         const char* id = it->getID();
-        CPString savedValue = prefs.getString(id);
+        CPString savedValue = _prefs.getString(id);
         if (savedValue.length() == 0) {
             const char* value = it->getValue();
-            prefs.putString(id, value);
+            _prefs.putString(id, value);
             fmt::printf("No '%s' saved. Setting it to default: '%s'\n", id, value);
         } else {
             it->setValue(savedValue.c_str(), it->getValueLength());
@@ -53,7 +53,7 @@ Application::initParams()
 void
 Application::setup()
 {
-    prefs.begin("ESPLib");
+    _prefs.begin("ESPLib");
     
     initParams();
 	startStateMachine();
@@ -68,7 +68,7 @@ Application::loop()
 #if defined(ESP8266)
     MDNS.update();
 #endif
-    wifiManager.process();
+    _wifiManager.process();
 }
 
 void
@@ -83,35 +83,35 @@ Application::startNetwork()
 	_blinker.setRate(ConnectingRate);
 	
     std::vector<const char *> menu = { "custom", "wifi", "info", "restart", "sep", "update" };
-    wifiManager.setMenu(menu);
+    _wifiManager.setMenu(menu);
     
     for (auto& it : _params) {
-        wifiManager.addParameter(it.get());
+        _wifiManager.addParameter(it.get());
     }
     
-    wifiManager.setTitle("MarrinTech Internet Connected Clock");
-    wifiManager.setHostname(getParamValue("hostname"));
-	wifiManager.setDebugOutput(true);
-	wifiManager.setDarkMode(true);
-    wifiManager.setShowInfoErase(true);
+    _wifiManager.setTitle("MarrinTech Internet Connected Clock");
+    _wifiManager.setHostname(getParamValue("hostname"));
+	_wifiManager.setDebugOutput(true);
+	_wifiManager.setDarkMode(true);
+    _wifiManager.setShowInfoErase(true);
     
-    wifiManager.setCustomMenuHTML("FOOBAR");
+    _wifiManager.setCustomMenuHTML("FOOBAR");
  
 	if (_needsNetworkReset) {
 		_needsNetworkReset = false;
-		wifiManager.resetSettings();			
+		_wifiManager.resetSettings();			
 	}
 	
-	wifiManager.setAPCallback([this](WiFiManager* wifiManager) {
+	_wifiManager.setAPCallback([this](WiFiManager* wifiManager) {
 		cout << F("Entered config mode:ip=") << 
 					 WiFi.softAPIP() << F(", ssid='") << 
-					 wifiManager->getConfigPortalSSID() << F("'\n");
+					 _wifiManager.getConfigPortalSSID() << F("'\n");
 		_blinker.setRate(ConfigRate);
 		sendInput(Input::NetConfig, true);
 		_enteredConfigMode = true;
 	});
 
-	if (!wifiManager.autoConnect(_configPortalName.c_str())) {
+	if (!_wifiManager.autoConnect(_configPortalName.c_str())) {
 		cout << F("*** Failed to connect and hit timeout\n");
 		restart();
 		delay(1000);
@@ -129,14 +129,14 @@ Application::startNetwork()
 	_enableNetwork = true;
 	_blinker.setRate(ConnectedRate);
  
-    wifiManager.setSaveParamsCallback([this]()
+    _wifiManager.setSaveParamsCallback([this]()
     {
         saveParams();
         delay(2000);
         restart();
     });
 
-    wifiManager.startWebPortal();
+    _wifiManager.startWebPortal();
 
     if (!MDNS.begin(getParamValue("hostname")))  {             
         cout << F("***** Error starting mDNS\n");
