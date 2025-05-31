@@ -42,6 +42,50 @@ void Clock::loop()
 			if (_timeWeatherServer.update(_app->getParamValue("zipcode"))) {
 				_currentTime = _timeWeatherServer.currentTime();
 				_app->sendInput(Input::Idle, false);
+    
+                // Update the status on the webpage
+                _customMenuHTML = F("<h3>Info from last request:</h3><p style=\"margin-left: 40px\"><b>Time/Date:</b> ");
+                _customMenuHTML += strftime("%a %b ", _currentTime);
+                _customMenuHTML += prettyDay(_currentTime);
+                _customMenuHTML += " ";
+
+                struct tm timeinfo;
+                time_t ct = _currentTime;
+                gmtime_r(&ct, &timeinfo);
+
+                bool pm = false;
+                uint8_t hour = timeinfo.tm_hour;
+
+                if (hour == 0) {
+                    hour = 12;
+                } else if (hour >= 12) {
+                    pm = true;
+                    if (hour > 12) {
+                        hour -= 12;
+                    }
+                }
+
+                _customMenuHTML += ToString(hour);
+                _customMenuHTML += ":";
+
+                uint8_t minute = timeinfo.tm_min;
+                if (minute < 10) {
+                    _customMenuHTML += "0";
+                }
+                _customMenuHTML += ToString(minute);
+                _customMenuHTML += pm ? "pm" : "am";
+
+                _customMenuHTML += F("</p><p style=\"margin-left: 40px\"><b>weather:</b> ");
+                _customMenuHTML += weatherConditions();
+                _customMenuHTML += F("  Cur:");
+                _customMenuHTML += ToString(currentTemp());
+                _customMenuHTML += F("°  Hi:");
+                _customMenuHTML += ToString(highTemp());
+                _customMenuHTML += F("°  Lo:");
+                _customMenuHTML += ToString(lowTemp());
+                _customMenuHTML += F("°</p><hr><br>");
+                
+                _app->setCustomMenuHTML(_customMenuHTML.c_str());
 			} else {
 				_app->sendInput(Input::UpdateFail, false);
 			}

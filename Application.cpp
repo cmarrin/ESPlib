@@ -95,8 +95,6 @@ Application::startNetwork()
 	_wifiManager.setDarkMode(true);
     _wifiManager.setShowInfoErase(true);
     
-    _wifiManager.setCustomMenuHTML("FOOBAR");
- 
 	if (_needsNetworkReset) {
 		_needsNetworkReset = false;
 		_wifiManager.resetSettings();			
