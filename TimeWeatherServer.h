@@ -34,6 +34,7 @@ DAMAGE.
 
 #include "JsonListener.h"
 #include <ctime>
+#include <optional>
 
 // TimeWeatherServer
 //
