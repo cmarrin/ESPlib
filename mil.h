@@ -208,6 +208,14 @@ private:
     int _length;
 };
 
+class DummyServer
+{
+  public:
+    void on(const char* page, std::function<void(void)> handler) { }
+    CPString arg(const char*) { return ""; }
+    void send(int, const char*, const CPString&) { }
+};
+
 class WiFiManager
 {
 public:
@@ -226,6 +234,8 @@ public:
     void setTitle(CPString title) { }
     void setShowInfoErase(bool enabled) { }
     void setCustomMenuHTML(const char* html) { }
+    
+    std::unique_ptr<DummyServer> server;
 };
 #endif
 

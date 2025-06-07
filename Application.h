@@ -127,15 +127,18 @@ public:
             _prefs.putString(it->getID(), it->getValue());
         }
     }
-    
+        
     void setCustomMenuHTML(const char* s) { _wifiManager.setCustomMenuHTML(s); }
-    
+    void addHTTPHandler(const char* page, std::function<void(void)> handler) { _wifiManager.server->on(page, handler); }
+    CPString getHTTPArg(const char* name) { return _wifiManager.server->arg(name); }
+    void sendHTTPPage(const char* page) { _wifiManager.server->send(200, "text/html", page); }
+
 private:
 	void startNetwork();
 	void startStateMachine();
  
     void initParams();
- 
+    
 	mil::StateMachine<State, Input> _stateMachine;
 	mil::Blinker _blinker;
 	Ticker _showDoneTimer;
