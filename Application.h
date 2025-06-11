@@ -74,9 +74,9 @@ public:
 	virtual void setup();
 	virtual void loop();
 	
-	virtual void showString(Message) = 0;
-	virtual void showMain(bool force = false) = 0;
-	virtual void showSecondary() = 0;
+	virtual void showString(Message) { }
+	virtual void showMain(bool force = false) { }
+	virtual void showSecondary() { }
  
     virtual void preUserAnswer() { }
     virtual void postUserAnswer() { }
