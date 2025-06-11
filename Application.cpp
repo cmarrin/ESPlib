@@ -23,12 +23,12 @@ WiFiClass WiFi;
 
 static constexpr int MaxHostnameLength = 40;
 
-Application::Application(uint8_t led, const char* hostname, const char* configPortalName)
+Application::Application(uint8_t led, const char* configPortalName)
     : _stateMachine({ { Input::LongPress, State::AskPreUserQuestion } })
     , _blinker(led, BlinkSampleRate)
     , _configPortalName(configPortalName)
 {
-    addParam("hostname", "Hostname", hostname,  MaxHostnameLength);
+    addParam("hostname", "Hostname", "set_new_hostname",  MaxHostnameLength);
 }
 
 void
