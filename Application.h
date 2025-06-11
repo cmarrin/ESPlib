@@ -127,12 +127,19 @@ public:
             _prefs.putString(it->getID(), it->getValue());
         }
     }
-        
-    void setCustomMenuHTML(const char* s) { _wifiManager.setCustomMenuHTML(s); }
-    void addHTTPHandler(const char* page, std::function<void(void)> handler) { _wifiManager.server->on(page, handler); }
-    CPString getHTTPArg(const char* name) { return _wifiManager.server->arg(name); }
-    void sendHTTPPage(const char* page) { _wifiManager.server->send(200, "text/html", page); }
 
+    void setTitle(const char* title) { _wifiManager.setTitle(title); }
+    void setCustomMenuHTML(const char* s) { _wifiManager.setCustomMenuHTML(s); }
+    CPString getHTTPArg(const char* name) { return _wifiManager.server->arg(name); }
+    int getHTTPArgCount() const { return _wifiManager.server->args(); }
+    void sendHTTPPage(const char* page) { _wifiManager.server->send(200, "text/html", page); }
+    void addHTTPHandler(const char* page, std::function<void(void)> h) { _wifiManager.server->on(page, h); }
+    void addHTTPHandler(const char* page, std::function<void(void)> h, std::function<void(void)> uh)
+    {
+        _wifiManager.server->on(page, HTTP_POST, h, uh);
+    }
+    const HTTPRaw& getHTTPRaw() { return _wifiManager.server->raw(); }
+    
 private:
 	void startNetwork();
 	void startStateMachine();
