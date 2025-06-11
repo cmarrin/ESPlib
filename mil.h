@@ -320,6 +320,19 @@ inline void NOTE(uint16_t code) { _showErrorCondition(0, code, ErrorCondition::N
 inline void NOTE(uint8_t code1, uint8_t code2) { _showErrorCondition(0, makeuint16(code1, code2), ErrorCondition::Note); }
 inline void CNOTE(char c, uint8_t code) { _showErrorCondition(c, code, ErrorCondition::Note); }
 
+inline uint8_t toHexNibble(uint8_t n)
+{
+    uint8_t nibble = (n & 0x0f) + '0';
+    return (nibble <= '9') ? nibble : (nibble - '0' - 10 + 'a');
+}
+
+// buf must have space for 2 characters. Result does not add a terminating '\0'
+inline void toHex(uint8_t n, char* buf)
+{
+    buf[0] = toHexNibble(n >> 4);
+    buf[1] = toHexNibble(n & 0xf);
+}
+
 }
 
 #ifdef ARDUINO
