@@ -208,12 +208,33 @@ private:
     int _length;
 };
 
+enum HTTPRawStatus {
+  RAW_START,
+  RAW_WRITE,
+  RAW_END,
+  RAW_ABORTED
+};
+
+typedef struct {
+  HTTPRawStatus status;
+  size_t totalSize;    // content size
+  size_t currentSize;  // size of data currently in buf
+  uint8_t buf[1];
+  void *data;  // additional data
+} HTTPRaw;
+
+#define HTTP_POST 0
+
 class DummyServer
 {
   public:
     void on(const char* page, std::function<void(void)> handler) { }
+    void on(const char* page, int method, std::function<void(void)> h, std::function<void(void)> uh) { }
     CPString arg(const char*) { return ""; }
+    int args() { return 0; }
     void send(int, const char*, const CPString&) { }
+    const HTTPRaw& raw() const { return _raw; }
+    HTTPRaw _raw;
 };
 
 class WiFiManager
