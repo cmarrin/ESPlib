@@ -51,6 +51,7 @@ DAMAGE.
 namespace mil {
 
 #ifdef ARDUINO
+    static constexpr uint32_t OnCounts = 5;
 	class Blinker
 	{
 	public:
@@ -82,7 +83,7 @@ namespace mil {
             
 			if (_count == 0) {
 				digitalWrite(LED_BUILTIN, LOW);
-			} else if (_count == 1){
+			} else if (_count == OnCounts){
 				digitalWrite(LED_BUILTIN, HIGH);
 			}
 			if (++_count >= _rate) {
