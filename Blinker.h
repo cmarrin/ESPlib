@@ -60,6 +60,7 @@ namespace mil {
 		{
 			pinMode(LED_BUILTIN, OUTPUT);
 			_ticker.attach_ms(sampleRate, [this]() { blink(); });
+            digitalWrite(LED_BUILTIN, HIGH);
 		}
 	
 		void setRate(uint32_t rate) { _rate = (rate + (_sampleRate / 2)) / _sampleRate; }
