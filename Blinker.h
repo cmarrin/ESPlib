@@ -59,11 +59,19 @@ namespace mil {
 			, _sampleRate(sampleRate)
 		{
 			pinMode(LED_BUILTIN, OUTPUT);
-			_ticker.attach_ms(sampleRate, [this]() { blink(); });
             digitalWrite(LED_BUILTIN, HIGH);
 		}
 	
-		void setRate(uint32_t rate) { _rate = (rate + (_sampleRate / 2)) / _sampleRate; }
+		void setRate(uint32_t rate)
+        {
+            if (!_isAttached) {
+                _ticker.attach_ms(_sampleRate, [this]() { blink(); });
+                _isAttached = true;
+            }
+            
+            _rate = (rate + (_sampleRate / 2)) / _sampleRate;
+            _count = 0;
+        }
 	
 	private:
 		void blink()
@@ -87,6 +95,7 @@ namespace mil {
 		uint32_t _count = 0;
 		uint8_t _led;
 		uint32_t _sampleRate;
+        bool _isAttached = false;
 	};
 #else
     // Dummy on Mac
