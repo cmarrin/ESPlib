@@ -74,58 +74,58 @@ static constexpr uint8_t INPUT = 0;
 static constexpr uint8_t INPUT_PULLUP = 0;
 static constexpr uint8_t LED_BUILTIN = 0;
 
-namespace mil {
+#define NEO_GRB 0
+#define NEO_KHZ800 0
 
-    class DSP7S04B
+class DSP7S04B
+{
+public:
+    void setDot(uint8_t pos, bool on) { if (on) { cout << "Dot set\n"; } }
+    void setColon(bool on) { _colon = on; }
+    void clearDisplay(void) { }
+    void setBrightness(uint8_t b) { cout << "*** Brightness set to " << b << "\n"; }
+
+    void print(const char* str)
     {
-    public:
-        void setDot(uint8_t pos, bool on) { if (on) { cout << "Dot set\n"; } }
-        void setColon(bool on) { _colon = on; }
-        void clearDisplay(void) { }
-        void setBrightness(uint8_t b) { cout << "*** Brightness set to " << b << "\n"; }
-
-        void print(const char* str)
-        {
-            if (_colon) {
-                cout << str[0] << str[1] << ":" << str[2] << str[3] << "\n";
-            } else {
-                cout << str << "\n";
-            }
+        if (_colon) {
+            cout << str[0] << str[1] << ":" << str[2] << str[3] << "\n";
+        } else {
+            cout << str << "\n";
         }
-          
-    private: 
-         bool _colon = false;
-     
-    };
+    }
+      
+private: 
+     bool _colon = false;
+ 
+};
 
-    class Max7219Display
+class Max7219Display
+{
+public:
+    Max7219Display(std::function<void()> scrollDone) : _scrollDone(scrollDone) { }
+
+    void clear() { }
+    void setBrightness(uint32_t b) { cout << "*** Brightness set to " << b << "\n"; }
+    
+    void showString(const char* str, uint32_t underscoreStart = 0, uint32_t underscoreLength = 0)
     {
-    public:
-        Max7219Display(std::function<void()> scrollDone) : _scrollDone(scrollDone) { }
-
-        void clear() { }
-        void setBrightness(uint32_t b) { cout << "*** Brightness set to " << b << "\n"; }
+        // String might start with \a or \v. Skip them
+        const char* s = str;
+        if (s[0] == '\a' || s[0] == '\v') {
+            s += 1;
+        }
+        cout << "\n[[ " << s << " ]]\n\n";
         
-        void showString(const char* str, uint32_t underscoreStart = 0, uint32_t underscoreLength = 0)
-        {
-            // String might start with \a or \v. Skip them
-            const char* s = str;
-            if (s[0] == '\a' || s[0] == '\v') {
-                s += 1;
-            }
-            cout << "\n[[ " << s << " ]]\n\n";
-            
-            // If we're scrolling we need to call _scrollDone
-            if (str[0] == '\v') {
-                _scrollDone();
-            }
+        // If we're scrolling we need to call _scrollDone
+        if (str[0] == '\v') {
+            _scrollDone();
         }
+    }
 
-    private:
-        std::function<void()> _scrollDone;
+private:
+    std::function<void()> _scrollDone;
 
-    };
-}
+};
 
 class Ticker
 {
