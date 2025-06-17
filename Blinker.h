@@ -59,8 +59,8 @@ namespace mil {
 			: _led(led)
 			, _sampleRate(sampleRate)
 		{
-			pinMode(LED_BUILTIN, OUTPUT);
-            digitalWrite(LED_BUILTIN, HIGH);
+			pinMode(_led, OUTPUT);
+            digitalWrite(_led, HIGH);
 		}
 	
 		void setRate(uint32_t rate)
@@ -82,9 +82,9 @@ namespace mil {
             }
             
 			if (_count == 0) {
-				digitalWrite(LED_BUILTIN, LOW);
+				digitalWrite(_led, LOW);
 			} else if (_count == OnCounts){
-				digitalWrite(LED_BUILTIN, HIGH);
+				digitalWrite(_led, HIGH);
 			}
 			if (++_count >= _rate) {
 				_count = 0;
