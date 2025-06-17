@@ -215,6 +215,8 @@ enum HTTPRawStatus {
   RAW_ABORTED
 };
 
+#define HTTP_UPLOAD_BUFLEN 1
+
 typedef struct {
   HTTPRawStatus status;
   size_t totalSize;    // content size
@@ -223,18 +225,44 @@ typedef struct {
   void *data;  // additional data
 } HTTPRaw;
 
-#define HTTP_POST 0
+enum HTTPMethod { HTTP_GET, HTTP_POST };
 
-class DummyServer
+enum HTTPUploadStatus {
+  UPLOAD_FILE_START,
+  UPLOAD_FILE_WRITE,
+  UPLOAD_FILE_END,
+  UPLOAD_FILE_ABORTED
+};
+
+typedef struct {
+  HTTPUploadStatus status;
+  CPString filename;
+  CPString name;
+  CPString type;
+  size_t totalSize;    // file size
+  size_t currentSize;  // size of data currently in buf
+  uint8_t buf[HTTP_UPLOAD_BUFLEN];
+} HTTPUpload;
+
+class RequestHandler;
+
+class WebServer
 {
   public:
     void on(const char* page, std::function<void(void)> handler) { }
     void on(const char* page, int method, std::function<void(void)> h, std::function<void(void)> uh) { }
     CPString arg(const char*) { return ""; }
     int args() { return 0; }
-    void send(int, const char*, const CPString&) { }
+    void send(int, const char* = nullptr, const CPString& = CPString()) { }
     const HTTPRaw& raw() const { return _raw; }
+    void addHandler(RequestHandler *handler) { }
     HTTPRaw _raw;
+};
+
+class RequestHandler {
+  public:
+    virtual bool canHandle(WebServer &server, HTTPMethod method, const CPString &uri) { return false; }
+    virtual bool canUpload(WebServer &server, const CPString &uri) { return false; }
 };
 
 class WiFiManager
@@ -256,7 +284,7 @@ public:
     void setShowInfoErase(bool enabled) { }
     void setCustomMenuHTML(const char* html) { }
     
-    std::unique_ptr<DummyServer> server;
+    std::unique_ptr<WebServer> server;
 };
 #endif
 

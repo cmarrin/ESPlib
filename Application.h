@@ -134,10 +134,7 @@ public:
     int getHTTPArgCount() const { return _wifiManager.server->args(); }
     void sendHTTPPage(const char* page) { _wifiManager.server->send(200, "text/html", page); }
     void addHTTPHandler(const char* page, std::function<void(void)> h) { _wifiManager.server->on(page, h); }
-    void addHTTPHandler(const char* page, std::function<void(void)> h, std::function<void(void)> uh)
-    {
-        _wifiManager.server->on(page, HTTP_POST, h, uh);
-    }
+    void addCustomHTTPHandler(RequestHandler* h) { _wifiManager.server->addHandler(h); }
     const HTTPRaw& getHTTPRaw() { return _wifiManager.server->raw(); }
     
 private:
