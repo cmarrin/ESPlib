@@ -36,7 +36,7 @@ Application::initParams()
 {
     for (auto& it : _params) {
         const char* id = it->getID();
-        CPString savedValue = _prefs.getString(id);
+        String savedValue = _prefs.getString(id);
         if (savedValue.length() == 0) {
             const char* value = it->getValue();
             _prefs.putString(id, value);

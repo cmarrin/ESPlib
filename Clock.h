@@ -51,8 +51,8 @@ public:
 	Clock(Application* app);
 	
 	uint32_t currentTime() { return _currentTime; }
-	CPString strftime(const char* format, uint32_t time) { return _timeWeatherServer.strftime(format, time); }
-	CPString prettyDay(uint32_t time) { return _timeWeatherServer.prettyDay(time); }
+	String strftime(const char* format, uint32_t time) { return _timeWeatherServer.strftime(format, time); }
+	String prettyDay(uint32_t time) { return _timeWeatherServer.prettyDay(time); }
 	const char* weatherConditions() { return _timeWeatherServer.conditions(); }
 	uint32_t currentTemp() { return _timeWeatherServer.currentTemp(); }
 	uint32_t highTemp() { return _timeWeatherServer.highTemp(); }
@@ -73,7 +73,7 @@ private:
 	
     Application* _app = nullptr;
     
-    CPString _customMenuHTML;
+    String _customMenuHTML;
 };
 
 }

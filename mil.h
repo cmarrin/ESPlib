@@ -47,7 +47,6 @@ DAMAGE.
 #include <Printable.h>
 #include <Ticker.h>
 
-#define CPString String
 #define ToString(v) String(v)
 #define ToFloat(s) s.toFloat()
 
@@ -60,10 +59,20 @@ DAMAGE.
 
 #define cout std::cout
 #define F(s) s
-#define CPString std::string
 #define ToString(v) std::to_string(v)
 #define ToFloat(s) std::stof(s)
 #define PROGMEM
+
+static inline uint32_t millis() { return uint32_t((double) clock() / CLOCKS_PER_SEC * 1000); }
+
+class String : public std::string
+{
+  public:
+    String() : std::string() { }
+    String(const char* s) : std::string(s) { }
+    
+    bool startsWith(String s) const { return s.starts_with(s); }
+};
 
 static inline void delay(uint32_t ms) { useconds_t us = useconds_t(ms) * 1000; usleep(us); }
 static inline void pinMode(uint8_t, uint8_t) { }
@@ -184,7 +193,7 @@ class Preferences
 {
 public:
     void begin(const char*) { }
-    std::string getString(const char*) { return ""; }
+    String getString(const char*) { return ""; }
     void putString(const char*, const char*) { }
 };
 
@@ -236,9 +245,9 @@ enum HTTPUploadStatus {
 
 typedef struct {
   HTTPUploadStatus status;
-  CPString filename;
-  CPString name;
-  CPString type;
+  String filename;
+  String name;
+  String type;
   size_t totalSize;    // file size
   size_t currentSize;  // size of data currently in buf
   uint8_t buf[HTTP_UPLOAD_BUFLEN];
@@ -251,9 +260,9 @@ class WebServer
   public:
     void on(const char* page, std::function<void(void)> handler) { }
     void on(const char* page, int method, std::function<void(void)> h, std::function<void(void)> uh) { }
-    CPString arg(const char*) { return ""; }
+    String arg(const char*) { return ""; }
     int args() { return 0; }
-    void send(int, const char* = nullptr, const CPString& = CPString()) { }
+    void send(int, const char* = nullptr, const String& = String()) { }
     const HTTPRaw& raw() const { return _raw; }
     void addHandler(RequestHandler *handler) { }
     HTTPRaw _raw;
@@ -261,8 +270,10 @@ class WebServer
 
 class RequestHandler {
   public:
-    virtual bool canHandle(WebServer &server, HTTPMethod method, const CPString &uri) { return false; }
-    virtual bool canUpload(WebServer &server, const CPString &uri) { return false; }
+    virtual bool canHandle(WebServer& server, HTTPMethod method, const String& uri) { return false; }
+    virtual bool canUpload(WebServer& server, const String& uri) { return false; }
+    virtual bool handle(WebServer& server, HTTPMethod method, const String& uri) { return false; }
+    virtual void upload(WebServer& server, const String &uri, HTTPUpload &upload) { }
 };
 
 class WiFiManager
@@ -280,7 +291,7 @@ public:
     bool addParameter(WiFiManagerParameter* p) { return true; }
     void setSaveParamsCallback(std::function<void()>) { }
     void setMenu(std::vector<const char*>& menu) { }
-    void setTitle(CPString title) { }
+    void setTitle(String title) { }
     void setShowInfoErase(bool enabled) { }
     void setCustomMenuHTML(const char* html) { }
     

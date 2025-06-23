@@ -46,7 +46,7 @@ DAMAGE.
 
 using namespace mil;
 
-void TimeWeatherServer::MyJsonListener::key(const CPString& key)
+void TimeWeatherServer::MyJsonListener::key(const String& key)
 {
 	switch(_state) {
         default: break;
@@ -92,7 +92,7 @@ void TimeWeatherServer::MyJsonListener::key(const CPString& key)
 	}
 }
 
-void TimeWeatherServer::MyJsonListener::value(const CPString& value)
+void TimeWeatherServer::MyJsonListener::value(const String& value)
 {
 	switch(_state) {
         default: break;
@@ -222,7 +222,7 @@ bool TimeWeatherServer::update(const char* zipCode)
 
 	cout << F("Getting weather feed...\n");
 
-	CPString apiURL;
+	String apiURL;
 	apiURL = "http://api.weatherapi.com/v1/forecast.json?key=";
 	apiURL += WeatherAPIKey;
 	apiURL +="&q=";
@@ -275,14 +275,14 @@ bool TimeWeatherServer::update(const char* zipCode)
 	return !failed;
 }
 
-CPString TimeWeatherServer::strftime(const char* format, const struct tm& time)
+String TimeWeatherServer::strftime(const char* format, const struct tm& time)
 {
 	char s[100];
 	std::strftime(s, 99, format, &time);
 	return s;
 }
 
-CPString TimeWeatherServer::strftime(const char* format, uint32_t time)
+String TimeWeatherServer::strftime(const char* format, uint32_t time)
 {
     time_t t = time;
 	struct tm timeinfo;
@@ -290,13 +290,13 @@ CPString TimeWeatherServer::strftime(const char* format, uint32_t time)
 	return strftime(format, timeinfo);
 }
 
-CPString TimeWeatherServer::prettyDay(uint32_t time)
+String TimeWeatherServer::prettyDay(uint32_t time)
 {
     time_t t = time;
 	struct tm timeinfo;
     gmtime_r(&t, &timeinfo);
 	int day = timeinfo.tm_mday;
-	CPString s = ToString(day);
+	String s = ToString(day);
 	switch(day) {
 		case 1:
 		case 21:

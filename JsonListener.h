@@ -36,9 +36,9 @@ class JsonListener {
   
     virtual void startDocument() = 0;
 
-    virtual void key(const CPString& key) = 0;
+    virtual void key(const String& key) = 0;
 
-    virtual void value(const CPString& value) = 0;
+    virtual void value(const String& value) = 0;
 
     virtual void endArray() = 0;
 
