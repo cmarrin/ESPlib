@@ -26,10 +26,18 @@ public:
     void begin() { _pixels.begin(); }
     void setBrightness(uint8_t b) { _pixels.setBrightness(b); }
     uint16_t numPixels() const { return _pixels.numPixels(); }
-    voif show() { _pixels.show(); }
-    void setPixelColor(uint16_t i, uint32_t color)
+    void show() { _pixels.show(); }
+    
+    void setLight(uint16_t i, uint32_t color)
     {
         _pixels.setPixelColor(i, color(h,s,v));
+    }
+    
+    void setAllLights(uint32_t color)
+    {
+        for (int i = 0; i < _pixels.numPixels(); ++i) {
+            _pixels.setPixelColor(i, color(h,s,v));
+        }
     }
     
     uint32_t color(uint8_t h, uint8_t s, uint8_t v) { return Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::ColorHSV(uint16_t(h) * 256, s, v)); }
@@ -53,7 +61,8 @@ public:
     void setBrightness(uint8_t b) { }
     uint16_t numPixels() const { return _numPixels; }
     void show() { }
-    void setPixelColor(uint16_t i, uint32_t color)
+    
+    void setLight(uint16_t i, uint32_t color)
     {
         char buf[3] = "00";
         cout << ("setLight(") << i << ", 0x";
@@ -65,7 +74,22 @@ public:
         cout << buf;
         mil::toHex(color, buf);
         cout << buf;
-        cout << "\n";
+        cout << ")\n";
+    }
+
+    void setAllLights(uint32_t color)
+    {
+        char buf[3] = "00";
+        cout << ("setAllLights(0x");
+        mil::toHex(color >> 24, buf);
+        cout << buf;
+        mil::toHex(color >> 16, buf);
+        cout << buf;
+        mil::toHex(color >> 8, buf);
+        cout << buf;
+        mil::toHex(color, buf);
+        cout << buf;
+        cout << ")\n";
     }
 
     uint32_t color(uint8_t h, uint8_t s, uint8_t v) { return (uint32_t(h) << 16) | (uint32_t(s) << 8) | uint32_t(v); }
