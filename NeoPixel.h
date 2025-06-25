@@ -47,11 +47,11 @@ namespace mil {
 class NeoPixel
 {
 public:
-    NeoPixel(uint16_t numPixels, uint8_t ledPin){ }
+    NeoPixel(uint16_t numPixels, uint8_t ledPin) : _numPixels(numPixels) { }
 
     void begin() { }
     void setBrightness(uint8_t b) { }
-    uint16_t numPixels() const { return 0; }
+    uint16_t numPixels() const { return _numPixels; }
     void show() { }
     void setPixelColor(uint16_t i, uint32_t color)
     {
@@ -69,6 +69,9 @@ public:
     }
 
     uint32_t color(uint8_t h, uint8_t s, uint8_t v) { return (uint32_t(h) << 16) | (uint32_t(s) << 8) | uint32_t(v); }
+
+  private:
+    uint16_t _numPixels = 0;
 };
 
 }
