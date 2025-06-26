@@ -30,20 +30,22 @@ public:
     
     void setLight(uint16_t i, uint32_t color)
     {
-        _pixels.setPixelColor(i, color(h,s,v));
+        _pixels.setPixelColor(i, color);
+        _pixels.show();
     }
     
     void setAllLights(uint32_t color)
     {
         for (int i = 0; i < _pixels.numPixels(); ++i) {
-            _pixels.setPixelColor(i, color(h,s,v));
+            _pixels.setPixelColor(i, color);
         }
+        _pixels.show();
     }
     
     uint32_t color(uint8_t h, uint8_t s, uint8_t v) { return Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::ColorHSV(uint16_t(h) * 256, s, v)); }
 
 private:
-    Adafruit_NeoPixel _pixels
+    Adafruit_NeoPixel _pixels;
 };
 
 }
