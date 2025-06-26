@@ -390,6 +390,7 @@ public:
 	OutputStream& operator << (uint16_t v) { Serial.print(v); return *this; }
 	OutputStream& operator << (int8_t v) { Serial.print(v); return *this; }
 	OutputStream& operator << (uint8_t v) { Serial.print(v); return *this; }
+	OutputStream& operator << (char v) { Serial.print(v); return *this; }
 	OutputStream& operator << (float v) { Serial.print(v); return *this; }
 	OutputStream& operator << (double v) { Serial.print(v); return *this; }
 	OutputStream& operator << (bool v) { Serial.print(v ? "true" : "false"); return *this; }
