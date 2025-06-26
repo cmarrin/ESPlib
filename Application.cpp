@@ -43,7 +43,7 @@ Application::initParams()
             cout << F("No '") << id << F("' saved. Setting it to default: '") << value << F("'\n");
         } else {
             it->setValue(savedValue.c_str(), it->getValueLength());
-            cout << F("Settign '") << id << F("' to saved value: '") << savedValue.c_str() << F("'\n");
+            cout << F("Setting '") << id << F("' to saved value: '") << savedValue.c_str() << F("'\n");
         }
     } 
 }
