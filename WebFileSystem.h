@@ -22,8 +22,9 @@ namespace mil {
 
 class WFS
 {
-  public:
+  public:    
     FS fs() { return _fs; }
+    
   private:
     FS _fs;
 };
