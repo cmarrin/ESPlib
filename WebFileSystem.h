@@ -7,19 +7,25 @@ Copyright (c) 2025, Chris Marrin
 All rights reserved.
 -------------------------------------------------------------------------*/
 
-// File System based on LittleFS. It can be integrated with WebServer
+#ifdef ARDUINO
+#include "LittleFS.h"
+#else
+#include "FSMac.h"
+#endif
+
+// Web based filesystem. It can be integrated with WebServer
 // so HTTP requests can be made to upload files, read existing
 // files, create directories, delete files and directories and do
 // directory listings.
 
 namespace mil {
 
-class WebFileSystem
+class WFS
 {
-public:
-	WebFileSystem() { }
-
-private:
+  public:
+    FS fs() { return _fs; }
+  private:
+    FS _fs;
 };
 
 }
