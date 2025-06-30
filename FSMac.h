@@ -14,8 +14,6 @@ All rights reserved.
 // File System classes for Mac that duplicate the functionality of the
 // LittleFS filesystem for ESP32
 
-namespace mil {
-
 static constexpr const char* FSPrefix = "fs";
 
 enum SeekMode {
@@ -64,13 +62,15 @@ class File
 class FS
 {
   public:
-	FS()
+    FS()
     {
-        _rootDir = std::filesystem::current_path() / FSPrefix;
-        if (!exists(_rootDir.c_str())) {
+        _rootDir = std::filesystem::current_path() / FSPrefix / "";
+        if (!exists("")) {
             mkdir(_rootDir.c_str());
         }
     }
+ 
+	bool begin(bool format) { return true; }
  
     File open(const char* path, const char* mode = "r", bool create = false);
     
@@ -86,5 +86,3 @@ class FS
     
     std::filesystem::path _rootDir;
 };
-
-}

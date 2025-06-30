@@ -7,9 +7,9 @@ Copyright (c) 2025, Chris Marrin
 All rights reserved.
 -------------------------------------------------------------------------*/
 
-#include "FSMac.h"
+#ifndef ARDUINO
 
-using namespace mil;
+#include "FSMac.h"
 
 File::File(const std::filesystem::path& path, const char* mode)
 {
@@ -253,5 +253,10 @@ FS::makePath(const char* path)
         return _rootDir;
     }
     
-    return _rootDir / path;
+    auto p = _rootDir;
+    p += path;
+    p = p.lexically_normal();
+    return p;
 }
+
+#endif
