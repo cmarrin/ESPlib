@@ -10,3 +10,7 @@ All rights reserved.
 #include "WebFileSystem.h"
 
 using namespace mil;
+
+#ifndef ARDUINO
+FS LittleFS;
+#endif

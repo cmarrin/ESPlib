@@ -11,6 +11,7 @@ All rights reserved.
 #include "LittleFS.h"
 #else
 #include "FSMac.h"
+extern FS LittleFS;
 #endif
 
 // Web based filesystem. It can be integrated with WebServer
@@ -22,11 +23,9 @@ namespace mil {
 
 class WFS
 {
-  public:    
-    FS fs() { return _fs; }
+  public:
     
   private:
-    FS _fs;
 };
 
 }
