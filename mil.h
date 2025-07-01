@@ -72,6 +72,11 @@ class String : public std::string
     String(const char* s) : std::string(s) { }
     
     bool startsWith(String s) const { return s.starts_with(s); }
+    int16_t indexOf(char val, uint16_t from = 0) const
+    {
+        int16_t r = find(val, from);
+        return (r == npos) ? -1 : r;
+    }
 };
 
 static inline void delay(uint32_t ms) { useconds_t us = useconds_t(ms) * 1000; usleep(us); }
