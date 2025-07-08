@@ -31,15 +31,13 @@ public:
     void setLight(uint16_t i, uint32_t color)
     {
         _pixels.setPixelColor(i, color);
-        _pixels.show();
     }
     
-    void setAllLights(uint32_t color)
+    void setLights(uint16_t from, uint16_t count, uint32_t color)
     {
-        for (int i = 0; i < _pixels.numPixels(); ++i) {
+        for (int i = 0; i < count; ++i) {
             _pixels.setPixelColor(i, color);
         }
-        _pixels.show();
     }
     
     uint32_t color(uint8_t h, uint8_t s, uint8_t v) { return Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::ColorHSV(uint16_t(h) * 256, s, v)); }
@@ -79,12 +77,10 @@ public:
         cout << ")\n";
     }
 
-    void setAllLights(uint32_t color)
+    void setLights(uint16_t from, uint16_t count, uint32_t color)
     {
         char buf[3] = "00";
-        cout << ("setAllLights(0x");
-        mil::toHex(color >> 24, buf);
-        cout << buf;
+        cout << F("setLights(") << from << F(",") << count << F(",0x");
         mil::toHex(color >> 16, buf);
         cout << buf;
         mil::toHex(color >> 8, buf);
