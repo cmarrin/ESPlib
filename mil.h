@@ -77,6 +77,8 @@ class String : public std::string
         int16_t r = find(val, from);
         return (r == npos) ? -1 : r;
     }
+    
+    String toString() { return *this; }
 };
 
 static inline void delay(uint32_t ms) { useconds_t us = useconds_t(ms) * 1000; usleep(us); }
@@ -180,7 +182,7 @@ class WiFiClass
 {
 public:
     const char* softAPIP() { return "127.0.0.1"; }
-    const char* localIP() { return "127.0.0.1"; }
+    String localIP() { return "127.0.0.1"; }
 };
 
 extern WiFiClass WiFi;

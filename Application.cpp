@@ -119,7 +119,7 @@ Application::startNetwork()
 		delay(1000);
 	}
 
-	cout << F("Wifi connected, IP=") << F(", IP=") << WiFi.localIP() << mil::endl;
+	cout << F("Wifi connected, IP=") << WiFi.localIP() << mil::endl;
 
 	_enableNetwork = true;
 	_blinker.setRate(ConnectedRate);
