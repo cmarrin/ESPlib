@@ -36,7 +36,7 @@ public:
     void setLights(uint16_t from, uint16_t count, uint32_t color)
     {
         for (int i = 0; i < count; ++i) {
-            _pixels.setPixelColor(i, color);
+            _pixels.setPixelColor(from + i, color);
         }
     }
     
