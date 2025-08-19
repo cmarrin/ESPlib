@@ -59,7 +59,7 @@ DAMAGE.
 
 #define cout std::cout
 #define F(s) s
-#define ToString(v) std::to_string(v)
+#define ToString(v) String(std::to_string(v).c_str())
 #define ToFloat(s) std::stof(s)
 #define PROGMEM
 
@@ -70,8 +70,17 @@ class String : public std::string
   public:
     String() : std::string() { }
     String(const char* s) : std::string(s) { }
+    String(std::string& s) : std::string(s) { }
     
-    bool startsWith(String s) const { return s.starts_with(s); }
+    String operator + (String& a) { return *this + a.c_str(); }    
+    String operator + (const char* a)
+    {
+        String result = *this;
+        result += a;
+        return result;
+    }
+
+    bool startsWith(String s) const { return starts_with(s); }
     int16_t indexOf(char val, uint16_t from = 0) const
     {
         int16_t r = find(val, from);
@@ -92,6 +101,8 @@ static constexpr uint8_t LED_BUILTIN = 0;
 
 #define NEO_GRB 0
 #define NEO_KHZ800 0
+
+namespace mil {
 
 class DSP7S04B
 {
@@ -142,6 +153,8 @@ private:
     std::function<void()> _scrollDone;
 
 };
+
+}
 
 class Ticker
 {
@@ -224,22 +237,7 @@ private:
     int _length;
 };
 
-enum HTTPRawStatus {
-  RAW_START,
-  RAW_WRITE,
-  RAW_END,
-  RAW_ABORTED
-};
-
 #define HTTP_UPLOAD_BUFLEN 1
-
-typedef struct {
-  HTTPRawStatus status;
-  size_t totalSize;    // content size
-  size_t currentSize;  // size of data currently in buf
-  uint8_t buf[1];
-  void *data;  // additional data
-} HTTPRaw;
 
 enum HTTPMethod { HTTP_GET, HTTP_POST };
 
@@ -270,9 +268,7 @@ class WebServer
     String arg(const char*) { return ""; }
     int args() { return 0; }
     void send(int, const char* = nullptr, const String& = String()) { }
-    const HTTPRaw& raw() const { return _raw; }
     void addHandler(RequestHandler *handler) { }
-    HTTPRaw _raw;
 };
 
 class RequestHandler {

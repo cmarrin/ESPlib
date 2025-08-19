@@ -135,7 +135,6 @@ public:
     void sendHTTPPage(const char* page) { _wifiManager.server->send(200, "text/html", page); }
     void addHTTPHandler(const char* page, std::function<void(void)> h) { _wifiManager.server->on(page, h); }
     void addCustomHTTPHandler(RequestHandler* h) { _wifiManager.server->addHandler(h); }
-    const HTTPRaw& getHTTPRaw() { return _wifiManager.server->raw(); }
     
 private:
 	void startNetwork();
