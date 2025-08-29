@@ -10,9 +10,10 @@ All rights reserved.
 #include "mil.h"
 
 #include <fstream>
+#include <filesystem>
 
-// File System classes for Mac that duplicate the functionality of the
-// LittleFS filesystem for ESP32
+// File System classes for Mac and esp-idf that duplicates the functionality 
+// of the LittleFS filesystem for Arduino ESP32
 
 static constexpr const char* FSPrefix = "fs";
 

@@ -9,7 +9,7 @@ All rights reserved.
 
 #ifndef ARDUINO
 
-#include "FSMac.h"
+#include "FS.h"
 
 File::File(const std::filesystem::path& path, const char* mode)
 {
