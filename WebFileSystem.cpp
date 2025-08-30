@@ -14,3 +14,15 @@ using namespace mil;
 #ifndef ARDUINO
 FS LittleFS;
 #endif
+
+bool
+WFS::begin(bool format)
+{
+    return LittleFS.begin(format);
+}
+    
+File
+WFS::open(const char* path, const char* mode, bool create)
+{
+    return LittleFS.open(path, mode);
+}

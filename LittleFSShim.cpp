@@ -11,6 +11,23 @@ All rights reserved.
 
 #include "LittleFSShim.h"
 
+#if defined ESP_PLATFORM
+#include "esp_err.h"
+#include "esp_log.h"
+#include "esp_system.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "sdkconfig.h"
+#include <sys/stat.h>
+#include <unistd.h>
+#include "esp_idf_version.h"
+#include "esp_flash.h"
+#include "esp_chip_info.h"
+#include "spi_flash_mmap.h"
+
+#include "esp_littlefs.h"
+#endif
+
 File::File(const std::filesystem::path& path, const char* mode)
 {
     _path = path;
@@ -203,6 +220,47 @@ File::rewindDirectory()
         return;
     }
     _dir = std::filesystem::directory_iterator(_path);
+}
+
+bool
+FS::begin(bool format)
+{
+#if defined ESP_PLATFORM
+    static const char *TAG = "LittleFSShim";
+
+    esp_vfs_littlefs_conf_t conf = {
+        .base_path = "/littlefs",
+        .partition_label = "littlefs",
+        .partition = nullptr,
+        .format_if_mount_failed = format,
+        .read_only = false,
+        .dont_mount = false,
+        .grow_on_mount = false,
+    };
+    
+    esp_err_t ret = esp_vfs_littlefs_register(&conf);
+    
+    switch (ret) {
+        case ESP_OK: break;
+        case ESP_FAIL: ESP_LOGE(TAG, "Failed to mount or format filesystem\n"); return false;
+        default: ESP_LOGE(TAG, "Failed to initialize LittleFS (%s)\n", esp_err_to_name(ret)); return false;
+    }
+
+    uint32_t flashSize;
+    esp_flash_get_size(nullptr, &flashSize);
+    ESP_LOGI(TAG, "Flash size = %u\n", (unsigned int) flashSize);
+    
+    size_t total = 0;
+    size_t used = 0;
+    ret = esp_littlefs_info("littlefs", &total, &used);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "***** Failed to get LittleFS partition information (%s)", esp_err_to_name(ret));
+    } else {
+        ESP_LOGI(TAG, "LittleFS partition size: total: %u, used: %u", (unsigned int) total, (unsigned int) used);
+    }
+    
+#endif
+    return true;
 }
 
 File

@@ -9,12 +9,8 @@ All rights reserved.
 
 #if defined ARDUINO
 #include "LittleFS.h"
-//#elif defined ESP_PLATFORM
-//#include "FSIDF.h"
-//extern FS LittleFS;
 #else
 #include "LittleFSShim.h"
-extern FS LittleFS;
 #endif
 
 // Web based filesystem. It can be integrated with WebServer
@@ -26,7 +22,9 @@ namespace mil {
 
 class WFS
 {
-  public:
+  public:    
+    bool begin(bool format);
+    File open(const char* path, const char* mode = "r", bool create = false);
     
   private:
 };

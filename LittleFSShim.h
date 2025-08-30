@@ -15,8 +15,6 @@ All rights reserved.
 // File System classes for Mac and esp-idf that duplicates the functionality 
 // of the LittleFS filesystem for Arduino ESP32
 
-static constexpr const char* FSPrefix = "fs";
-
 enum SeekMode {
     SeekSet = 0,
     SeekCur = 1,
@@ -65,13 +63,17 @@ class FS
   public:
     FS()
     {
-        _rootDir = std::filesystem::current_path() / FSPrefix / "";
+#if defined ESP_PLATFORM
+        _rootDir = "/littlefs/";
+#else
+        _rootDir = std::filesystem::current_path() / "littlefs" / "";
         if (!exists("")) {
             mkdir(_rootDir.c_str());
         }
+#endif
     }
  
-	bool begin(bool format) { return true; }
+	bool begin(bool format);
  
     File open(const char* path, const char* mode = "r", bool create = false);
     
@@ -80,7 +82,7 @@ class FS
     bool rename(const char* fromPath, const char* toPath);
     bool mkdir(const char* path);
     bool rmdir(const char* path);
-
+    
   private:
     // Create an absolute path starting with _cwd
     std::filesystem::path makePath(const char* path);
