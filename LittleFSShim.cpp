@@ -9,7 +9,7 @@ All rights reserved.
 
 #ifndef ARDUINO
 
-#include "FS.h"
+#include "LittleFSShim.h"
 
 File::File(const std::filesystem::path& path, const char* mode)
 {

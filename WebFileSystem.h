@@ -7,10 +7,13 @@ Copyright (c) 2025, Chris Marrin
 All rights reserved.
 -------------------------------------------------------------------------*/
 
-#ifdef ARDUINO
+#if defined ARDUINO
 #include "LittleFS.h"
+//#elif defined ESP_PLATFORM
+//#include "FSIDF.h"
+//extern FS LittleFS;
 #else
-#include "FSMac.h"
+#include "LittleFSShim.h"
 extern FS LittleFS;
 #endif
 
