@@ -11,7 +11,7 @@ All rights reserved.
 
 using namespace mil;
 
-#ifdef ARDUINO
+#if defined ARDUINO
 #if defined(ESP8266)
 #include <ESP8266mDNS.h>
 #else
@@ -40,10 +40,10 @@ Application::initParams()
         if (savedValue.length() == 0) {
             const char* value = it->getValue();
             _prefs.putString(id, value);
-            cout << F("No '") << id << F("' saved. Setting it to default: '") << value << F("'\n");
+            printf("No '%s' saved. Setting it to default: '%s'\n", id, value);
         } else {
             it->setValue(savedValue.c_str(), it->getValueLength());
-            cout << F("Setting '") << id << F("' to saved value: '") << savedValue.c_str() << F("'\n");
+            printf("Setting '%s' to saved value: '%s'\n", id, savedValue.c_str());
         }
     } 
 }
@@ -98,16 +98,14 @@ Application::startNetwork()
 	}
 	
 	_wifiManager.setAPCallback([this](WiFiManager* wifiManager) {
-		cout << F("Entered config mode:ip=") << 
-					 WiFi.softAPIP() << F(", ssid='") << 
-					 _wifiManager.getConfigPortalSSID() << F("'\n");
+		printf("Entered config mode:ip=%s, ssid='%s'\n", WiFi.softAPIP(), _wifiManager.getConfigPortalSSID());
 		_blinker.setRate(ConfigRate);
 		sendInput(Input::NetConfig, true);
 		_enteredConfigMode = true;
 	});
 
 	if (!_wifiManager.autoConnect(_configPortalName.c_str())) {
-		cout << F("*** Failed to connect and hit timeout\n");
+		printf("*** Failed to connect and hit timeout\n");
 		restart();
 		delay(1000);
 	}
@@ -119,7 +117,7 @@ Application::startNetwork()
 		delay(1000);
 	}
 
-	cout << F("Wifi connected, IP=") << WiFi.localIP() << mil::endl;
+	printf("Wifi connected, IP=%s\n", System::localIP().c_str());
 
 	_enableNetwork = true;
 	_blinker.setRate(ConnectedRate);
@@ -134,9 +132,9 @@ Application::startNetwork()
     _wifiManager.startWebPortal();
 
     if (!MDNS.begin(getParamValue("hostname")))  {             
-        cout << F("***** Error starting mDNS\n");
+        printf("***** Error starting mDNS\n");
     } else {
-        cout << F("mDNS started, hostname=") << getParamValue("hostname") << "\n";
+        printf("mDNS started, hostname=%s\b", getParamValue("hostname"));
     }
 
 	delay(500);

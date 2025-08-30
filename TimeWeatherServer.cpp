@@ -30,7 +30,7 @@ DAMAGE.
 
 #include "TimeWeatherServer.h"
 
-#ifdef ARDUINO
+#if defined ARDUINO
 #if defined(ESP8266)
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
@@ -38,6 +38,7 @@ DAMAGE.
 #include <WiFi.h>
 #include <HTTPClient.h>
 #endif
+#elif defined ESP_PLATFORM
 #else
 #include <curl/curl.h>
 #endif
@@ -65,30 +66,36 @@ void TimeWeatherServer::MyJsonListener::key(const String& key)
         if (key == "tz_id") {
             _state = State::TimeZone;
         }
+		break;
 		case State::Current:
 		if (key == "temp_f") {
 			_state = State::CurrentTemp;
 		} else if (key == "condition") {
 			_state = State::Condition;
 		}
+		break;
 		case State::Condition:
 		if (key == "text") {
 			_state = State::ConditionText;
 		}
+		break;
 		case State::Forecast:
 		if (key == "forecastday") {
 			_state = State::ForecastDay;
 		}
+		break;
 		case State::ForecastDay:
 		if (key == "day") {
 			_state = State::Day;
 		}
+		break;
 		case State::Day:
 		if (key == "maxtemp_f") {
 			_state = State::MaxTemp;
 		} else if (key == "mintemp_f") {
 			_state = State::MinTemp;
 		}
+		break;
 	}
 }
 
@@ -128,20 +135,6 @@ void TimeWeatherServer::MyJsonListener::endObject()
 	_state = State::None;
 }
 
-#ifndef ARDUINO
-// HTTP callback for Mac
-static size_t httpCB(char* p, size_t size, size_t nmemb, void* parser)
-{
-    size *= nmemb;
-    for (size_t i = 0; i < size; ++i) {
-        reinterpret_cast<JsonStreamingParser*>(parser)->parse(p[i]);
-    }
-    return size;
-}
-#endif
-
-
-
 //		static const constexpr char* TimeAPIKey = "OFTZYMX4MSPG";
 //
 //
@@ -158,12 +151,12 @@ static size_t httpCB(char* p, size_t size, size_t nmemb, void* parser)
 //http://api.timezonedb.com/v2.1/get-time-zone?key=OFTZYMX4MSPG&format=json&by=zone&zone=America/Los_Angeles
 //1732379310
 
+#if defined ARDUINO
 bool
 TimeWeatherServer::fetchAndParse(const char* url, JsonStreamingParser* parser)
 {
     bool success = true;
     
-#ifdef ARDUINO
     WiFiClient client;
 	HTTPClient http;
 
@@ -171,25 +164,48 @@ TimeWeatherServer::fetchAndParse(const char* url, JsonStreamingParser* parser)
 	int httpCode = http.GET();
 
 	if (httpCode > 0) {
-		cout << F("    got response: ") << int32_t(httpCode) << F("\n");
+		printf("    got response: %d\n", int32_t(httpCode));
 
 		if (httpCode == HTTP_CODE_OK) {
 			String payload = http.getString();
-			cout << F("Got payload, parsing...\n");
+			printf("Got payload, parsing...\n");
 			for (int i = 0; i < payload.length(); ++i) {
 				parser->parse(payload.c_str()[i]);
 			}
 		} else {
-            cout << F("[HTTP] GET code not ok\n");
+            printf("[HTTP] GET code not ok\n");
             success = false;
         }
 	} else {
-		cout << F("[HTTP] GET... failed, error: ") << http.errorToString(httpCode) << F("(") << int32_t(httpCode) << F(")\n");
+		printf("[HTTP] GET... failed, error: %s (%d)\n", http.errorToString(httpCode), int32_t(httpCode));
 		success = false;
 	}
 
 	http.end();
+    return success;
+}
+#elif defined ESP_PLATFORM
+bool
+TimeWeatherServer::fetchAndParse(const char* url, JsonStreamingParser* parser)
+{
+    return false;
+}
 #else
+// HTTP callback for Mac
+static size_t httpCB(char* p, size_t size, size_t nmemb, void* parser)
+{
+    size *= nmemb;
+    for (size_t i = 0; i < size; ++i) {
+        reinterpret_cast<JsonStreamingParser*>(parser)->parse(p[i]);
+    }
+    return size;
+}
+
+bool
+TimeWeatherServer::fetchAndParse(const char* url, JsonStreamingParser* parser)
+{
+    bool success = true;
+
     CURL* curl = curl_easy_init();
     
     if(curl) {
@@ -206,21 +222,21 @@ TimeWeatherServer::fetchAndParse(const char* url, JsonStreamingParser* parser)
         
         // Check for errors
         if(res != CURLE_OK) {
-            cout << "curl_easy_perform() failed: " << curl_easy_strerror(res) << "\n";
+            printf("curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
         }
         
         // always cleanup
         curl_easy_cleanup(curl);
     }
-#endif
     return success;
 }
+#endif
 
 bool TimeWeatherServer::update(const char* zipCode)
 {
 	bool failed = false;
 
-	cout << F("Getting weather feed...\n");
+	printf("Getting weather feed...\n");
 
 	String apiURL;
 	apiURL = "http://api.weatherapi.com/v1/forecast.json?key=";
@@ -229,7 +245,7 @@ bool TimeWeatherServer::update(const char* zipCode)
 	apiURL += zipCode ? zipCode : "00000";
 	apiURL +="&days=1";
 
-	cout << F("URL='") << apiURL.c_str() << F("'\n");
+	printf("URL='%s'\n", apiURL.c_str());
 
     JsonStreamingParser parser;
     MyJsonListener listener;
@@ -241,10 +257,10 @@ bool TimeWeatherServer::update(const char* zipCode)
         _highTemp = *listener.highTemp();
         _conditions = *listener.conditions();
     } else {
-        cout << F("**** Failed to get weather, using old values...\n");
+        printf("**** Failed to get weather, using old values...\n");
     }
     
-	cout << F("Getting time feed...\n");
+	printf("Getting time feed...\n");
 
 	apiURL = "http://api.timezonedb.com";
 	apiURL += "/v2.1/get-time-zone?key=";
@@ -253,25 +269,22 @@ bool TimeWeatherServer::update(const char* zipCode)
  
 	apiURL += listener.timeZone() ? *listener.timeZone() : "00000";
 
-	cout << F("URL='") << apiURL.c_str() << F("'\n");
+	printf("URL='%s'\n", apiURL.c_str());
 
     parser.reset();
     if (fetchAndParse(apiURL.c_str(), &parser) && listener.currentTime() && listener.timeZone()) {
         _currentTime = *listener.currentTime();
     } else {
-        cout << F("**** Failed to get time, using old value...\n");
+        printf("**** Failed to get time, using old value...\n");
     }
     
 	// Check at interval of UpdateFrequency seconds
 	int32_t timeToNextCheck = UpdateFrequency * 1000;
 	_ticker.once_ms(timeToNextCheck, [this]() { _handler(); });
-	
-	cout << F("Epoch: ") << _currentTime << F("\nWeather: conditions='") << _conditions.c_str() << 
-	 			 F("'\n    currentTemp=") << _currentTemp << 
-		 		 F(", lowTemp=") << _lowTemp << 
-				 F(", highTemp=") << _highTemp << 
-				 F(", next setting in ") << timeToNextCheck << 
-				 F(" seconds\n");
+ 
+    printf("Epoch: %u\n", (unsigned int) _currentTime);
+    printf("Weather: conditions='%s'\n", _conditions.c_str());
+    printf("    currentTemp=%d, lowTemp=%d, highTemp=%d, next setting in %d seconds\n", (int) _currentTemp, (int) _lowTemp, (int) _highTemp, (int) timeToNextCheck);
 	return !failed;
 }
 
