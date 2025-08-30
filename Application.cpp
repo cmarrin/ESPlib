@@ -134,7 +134,7 @@ Application::startNetwork()
     if (!MDNS.begin(getParamValue("hostname")))  {             
         printf("***** Error starting mDNS\n");
     } else {
-        printf("mDNS started, hostname=%s\b", getParamValue("hostname"));
+        printf("mDNS started, hostname=%s\n", getParamValue("hostname"));
     }
 
 	delay(500);
