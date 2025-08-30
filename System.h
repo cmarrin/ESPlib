@@ -41,13 +41,11 @@ class System
     
     // HTTP Upload (WebServer, RequestHandler...)
     
-    // Restart
-    static void restart() { ESP.restart(); }
-    
     // LED Blinker
     
     // NeoPixel
     
+    static void restart() { ESP.restart(); }    
 };
 
 #elif defined ESP_PLATFORM
@@ -87,14 +85,12 @@ class System
     // HTTP Client
     
     // HTTP Upload (WebServer, RequestHandler...)
-    
-    // Restart
-    static void restart() { esp_restart(); }
-    
+        
     // LED Blinker
     
     // NeoPixel
     
+    static void restart() { esp_restart(); }
 };
 
 class Ticker
@@ -132,13 +128,11 @@ class System
     
     // HTTP Upload (WebServer, RequestHandler...)
     
-    // Restart
-    static void restart() { printf("***** RESTART *****\n"); }
-    
     // LED Blinker
     
     // NeoPixel
     
+    static void restart() { printf("***** RESTART *****\n"); }
 };
 
 class Ticker
