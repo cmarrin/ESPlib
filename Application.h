@@ -140,6 +140,8 @@ private:
  
     void initParams();
     
+    System _system;
+    
 	mil::StateMachine<State, Input> _stateMachine;
 	mil::Blinker _blinker;
 	Ticker _showDoneTimer;

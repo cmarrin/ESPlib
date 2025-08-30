@@ -117,7 +117,7 @@ Application::startNetwork()
 		delay(1000);
 	}
 
-	printf("Wifi connected, IP=%s\n", System::localIP().c_str());
+	printf("Wifi connected, IP=%s\n", _system.localIP().c_str());
 
 	_enableNetwork = true;
 	_blinker.setRate(ConnectedRate);
