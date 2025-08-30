@@ -39,6 +39,8 @@ DAMAGE.
 
 #include "mil.h"
 
+#include "System.h"
+
 // BrightnessManager
 //
 // Periodically checks lightSensor port for a voltage and computes a brightness
@@ -69,9 +71,9 @@ namespace mil {
 		bool _invert;
 		uint32_t _minLevel;
 		uint32_t _maxLevel;
+		uint32_t _numBrightness;
 		uint32_t _minBrightness;
 		uint32_t _maxBrightness;
-		uint32_t _numBrightness;
 		uint8_t _numSamples;
 		std::function<void(uint8_t brightness)> _handler;
 	};

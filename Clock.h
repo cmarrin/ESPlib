@@ -36,7 +36,9 @@ All rights reserved.
 //
 
 #include "mil.h"
+
 #include "TimeWeatherServer.h"
+#include "System.h"
 
 #include <assert.h>
 #include <time.h>
@@ -62,6 +64,7 @@ public:
 	void loop();
 	
 private:
+    Application* _app = nullptr;
 	mil::TimeWeatherServer _timeWeatherServer;
 	Ticker _secondTimer;
 	
@@ -70,9 +73,7 @@ private:
 	
 	struct tm  _settingTime;
 	bool _settingTimeChanged = false;
-	
-    Application* _app = nullptr;
-    
+
     String _customMenuHTML;
 };
 

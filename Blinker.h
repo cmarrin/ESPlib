@@ -39,6 +39,8 @@ DAMAGE.
 
 #include "mil.h"
 
+#include "System.h"
+
 // Blinker class
 //
 // Blink the LED connected to the passed pin. SampleRate passed to
@@ -50,7 +52,7 @@ DAMAGE.
 
 namespace mil {
 
-#ifdef ARDUINO
+#if defined ARDUINO
     static constexpr uint32_t OnCounts = 5;
 	class Blinker
 	{
