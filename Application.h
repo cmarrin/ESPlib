@@ -31,12 +31,14 @@ All rights reserved.
 
 #include <cassert>
 #include <ctime>
+#include <cstring>
 
 #include "mil.h"
 #include "StateMachine.h"
 #include "Blinker.h"
+#include "System.h"
 
-#ifdef ARDUINO
+#if defined ARDUINO
 #include <Preferences.h>
 #include <WiFiManager.h>
 #endif
@@ -99,11 +101,7 @@ public:
 
     void restart()
     {
-#ifdef ARDUINO
-        ESP.restart();
-#else
-        cout << "***** RESTART *****\n";
-#endif
+        System::restart();
     }
     
     void addParam(const char *id, const char *label, const char *defaultValue, int length)
