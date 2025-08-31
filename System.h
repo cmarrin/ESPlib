@@ -56,6 +56,7 @@ class System
 #include "freertos/task.h"
 #include "esp_system.h"
 #include "esp_log.h"
+#include "esp_timer.h"
 
 #include "wifi_manager.h"
 
@@ -96,14 +97,30 @@ class System
 class Ticker
 {
 public:
-    using callback_t = std::function<void(void)>;
+    using callback_with_arg_t = void(*)(void*);
+    using callback_function_t = std::function<void(void)>;
     
-    void once_ms(uint32_t ms, callback_t callback);
-    void attach_ms(uint32_t ms, callback_t callback);
-    
+    void attach_ms(uint64_t ms, callback_function_t callback) {
+        _cb = std::move(callback);
+        _attach_us(1000ULL * ms, true, _static_callback, this);
+    }
+
+    void once_ms(uint32_t ms, callback_function_t callback)
+    {
+        _cb = std::move(callback);
+        _attach_us(1000ULL * ms, false, _static_callback, this);
+    }
+
     // These are functions used by the Max7219 scroll function, so we will not implement them yet
-    void detach() { }
-    bool active() const { return false; }
+    void detach();
+    bool active() const;
+
+private:
+    void _attach_us(uint64_t micros, bool repeat, callback_with_arg_t callback, void *arg);
+    static void _static_callback(void *arg);
+
+    callback_function_t _cb = nullptr;
+    esp_timer_handle_t _timer;
 };
 
 #else // Mac
@@ -171,7 +188,7 @@ public:
 
 private:
     uint32_t _ms = 0;
-    callback_t _cb;
+    callback_t _cb = nullptr;
 };
 
 #endif
