@@ -106,25 +106,11 @@ public:
     
     void addParam(const char *id, const char *label, const char *defaultValue, int length)
     {
-        _params.push_back(std::make_shared<WiFiManagerParameter>(id, label, defaultValue, length));
+        _system.addParam(id, label, defaultValue, length);
     }
     
-    const char* getParamValue(const char* id) const
-    {
-        for (auto& it : _params) {
-            if (strcmp(it->getID(), id) == 0) {
-                return it->getValue();
-            }
-        }
-        return nullptr;
-    }
-    
-    void saveParams()
-    {
-        for (auto& it : _params) {
-            _prefs.putString(it->getID(), it->getValue());
-        }
-    }
+    const char* getParamValue(const char* id) const { return _system.getParamValue(id); }
+    void saveParams() { _system.saveParams(); }
 
     void setTitle(const char* title) { _wifiManager.setTitle(title); }
     void setCustomMenuHTML(const char* s) { _wifiManager.setCustomMenuHTML(s); }
@@ -138,8 +124,6 @@ private:
 	void startNetwork();
 	void startStateMachine();
  
-    void initParams();
-    
     System _system;
     
 	mil::StateMachine<State, Input> _stateMachine;
@@ -154,8 +138,6 @@ private:
 	String _configPortalName;
 
     WiFiManager _wifiManager;
-    Preferences _prefs;
-    std::vector<std::shared_ptr<WiFiManagerParameter>> _params;
 
     bool _inCallback = false;
     

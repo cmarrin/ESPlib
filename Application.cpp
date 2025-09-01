@@ -32,28 +32,9 @@ Application::Application(uint8_t led, const char* configPortalName)
 }
 
 void
-Application::initParams()
-{
-    for (auto& it : _params) {
-        const char* id = it->getID();
-        String savedValue = _prefs.getString(id);
-        if (savedValue.length() == 0) {
-            const char* value = it->getValue();
-            _prefs.putString(id, value);
-            printf("No '%s' saved. Setting it to default: '%s'\n", id, value);
-        } else {
-            it->setValue(savedValue.c_str(), it->getValueLength());
-            printf("Setting '%s' to saved value: '%s'\n", id, savedValue.c_str());
-        }
-    } 
-}
-	
-void
 Application::setup()
 {
-    _prefs.begin("ESPLib");
-    
-    initParams();
+    _system.initParams();
 	startStateMachine();
 }
 
@@ -83,9 +64,9 @@ Application::startNetwork()
     std::vector<const char *> menu = { "custom", "wifi", "info", "restart", "sep", "update" };
     _wifiManager.setMenu(menu);
     
-    for (auto& it : _params) {
-        _wifiManager.addParameter(it.get());
-    }
+//    for (auto& it : _params) {
+//        _wifiManager.addParameter(it.get());
+//    }
     
     _wifiManager.setHostname(getParamValue("hostname"));
 	_wifiManager.setDebugOutput(true);

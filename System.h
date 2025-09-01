@@ -15,40 +15,11 @@ All rights reserved.
 
 #if defined ARDUINO
 #include <Ticker.h>
-
-#if defined(ESP8266)
-#include <ESP8266WiFi.h>
-#include <ESP8266HTTPClient.h>
-#else
-#include <WiFi.h>
-#include <HTTPClient.h>
-#endif
-
-class System
-{
-  public:
-    static String localIP() { return WiFi.localIP().toString(); }
-    
-    // WiFi Setup
-    
-    // MDNS
-    
-    // WiFi Manager
-    
-    // Preferences
-    
-    // HTTP Client
-    
-    // HTTP Upload (WebServer, RequestHandler...)
-    
-    // LED Blinker
-    
-    // NeoPixel
-    
-    static void restart() { ESP.restart(); }    
-};
-
 #elif defined ESP_PLATFORM
+
+//**************************************************************************
+//                                   esp-idf
+//**************************************************************************
 
 #include <esp_wifi.h>
 #include <esp_netif.h>
@@ -62,45 +33,16 @@ class System
 
 #include <functional>
 
-class System
-{
-  public:
-    static String localIP()
-    {
-//        esp_netif_ip_info_t ip_info;
-//        esp_netif_get_ip_info(IP_EVENT_STA_GOT_IP,&ip_info);
-//        char buf[20];
-//        sprintf("IPSTR", IP2STR(&ip_info.ip));
-//        return buf;
-        return "";
-    }
-
-    // WiFi Setup
-    
-    // MDNS
-    
-    // WiFi Manager
-    
-    // Preferences
-    
-    // HTTP Client
-    
-    // HTTP Upload (WebServer, RequestHandler...)
-        
-    // LED Blinker
-    
-    // NeoPixel
-    
-    static void restart() { esp_restart(); }
-};
-
 class Ticker
 {
 public:
     using callback_with_arg_t = void(*)(void*);
     using callback_function_t = std::function<void(void)>;
     
-    void attach_ms(uint64_t ms, callback_function_t callback) {
+    ~Ticker();
+    
+    void attach_ms(uint64_t ms, callback_function_t callback)
+    {
         _cb = std::move(callback);
         _attach_us(1000ULL * ms, true, _static_callback, this);
     }
@@ -125,32 +67,12 @@ private:
 
 #else // Mac
 
+//**************************************************************************
+//                                   Mac
+//**************************************************************************
+
 #include <functional>
 #include <thread>
-
-class System
-{
-  public:
-    static String localIP() { return ""; }
-
-    // WiFi Setup
-    
-    // MDNS
-    
-    // WiFi Manager
-    
-    // Preferences
-    
-    // HTTP Client
-    
-    // HTTP Upload (WebServer, RequestHandler...)
-    
-    // LED Blinker
-    
-    // NeoPixel
-    
-    static void restart() { printf("***** RESTART *****\n"); }
-};
 
 class Ticker
 {
@@ -192,3 +114,71 @@ private:
 };
 
 #endif
+
+//**************************************************************************
+//                            Generic System Class
+//**************************************************************************
+
+class System
+{
+  public:
+    void begin();
+    
+    static String localIP();
+
+    void startNetwork();
+    
+    // MDNS
+    
+    // WiFi Manager
+    // Preferences
+    
+    // HTTP Client
+    
+    // HTTP Upload (WebServer, RequestHandler...)
+    
+    // LED Blinker
+    
+    // NeoPixel
+    
+    // The parameter system allows storage and retrieval of string key value pairs. They are
+    // persistant, stored in the nvs section of flash.
+    void addParam(const char *id, const char *label, const char *defaultValue, uint32_t length)
+    {
+        _params.push_back({ id, label, defaultValue, length });
+    }
+
+    void initParams();
+	
+    const char* getParamValue(const char* id) const
+    {
+        for (auto& it : _params) {
+            if (strcmp(it.id.c_str(), id) == 0) {
+                return it.value.c_str();
+            }
+        }
+        return nullptr;
+    }
+    
+    void saveParams()
+    {
+        for (auto& it : _params) {
+            putPrefString(it.id.c_str(), it.value.c_str());
+        }
+    }
+    static void restart();
+    
+private:
+    String getPrefString(const char* id);
+    void putPrefString(const char* id, const char* value);
+    
+    struct Param
+    {
+        String id;
+        String label;
+        String value;
+        uint32_t length;
+    };
+
+    std::vector<Param> _params;
+};
