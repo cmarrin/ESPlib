@@ -64,7 +64,7 @@ void BrightnessManager::start(uint32_t sampleRate)
 
 void BrightnessManager::computeBrightness()
 {
-	uint32_t ambientLightLevel = analogRead(_lightSensor);
+	uint32_t ambientLightLevel = System::gpioReadAnalog(_lightSensor);
 #ifdef DEBUG_BRIGHTNESS
 	printf("**** Raw ambientLightLevel=%d\n", ambientLightLevel);
 #endif

@@ -52,6 +52,34 @@ System::localIP()
 }
 
 void
+System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode)
+{
+    switch(mode) {
+        case GPIOPinMode::Output: pinMode(pin, OUTPUT); return;
+        case GPIOPinMode::Input: pinMode(pin, INPUT); return;
+        case GPIOPinMode::InputWithPullup: pinMode(pin, INPUT_PULLUP); return;
+    }
+}
+
+void
+System::gpioWritePin(uint8_t pin, bool state)
+{
+    digitalWrite(pin, state ? HIGH : LOW);
+}
+
+bool
+System::gpioReadPin(uint8_t pin)
+{
+    return digitalRead(pin) != 0;
+}
+
+uint32_t
+System::gpioReadAnalog(uint8_t pin)
+{
+	return analogRead(pin);
+}
+
+void
 System::restart()
 {
     ESP.restart();
@@ -65,6 +93,7 @@ System::restart()
 
 #include "nvs_flash.h"
 #include "nvs.h"
+#include "driver/gpio.h"
 
 void
 System::begin()
@@ -99,6 +128,32 @@ System::localIP()
 //    sprintf("IPSTR", IP2STR(&ip_info.ip));
 //    return buf;
     return "";
+}
+
+void
+System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode)
+{
+    gpio_reset_pin(gpio_num_t(pin));
+    gpio_set_direction(gpio_num_t(pin), (mode == GPIOPinMode::Output) ? GPIO_MODE_OUTPUT : GPIO_MODE_INPUT);
+}
+
+void
+System::gpioWritePin(uint8_t pin, bool state)
+{
+    gpio_set_level(gpio_num_t(pin), state);
+}
+
+bool
+System::gpioReadPin(uint8_t pin)
+{
+    return gpio_get_level(gpio_num_t(pin)) != 0;
+}
+
+uint32_t
+System::gpioReadAnalog(uint8_t pin)
+{
+    // FIXME: Implement
+	return 0;
 }
 
 void
@@ -187,6 +242,28 @@ String
 System::localIP()
 {
     return "0.0.0.0";
+}
+
+void
+System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode)
+{
+}
+
+void
+System::gpioWritePin(uint8_t pin, bool state)
+{
+}
+
+bool
+System::gpioReadPin(uint8_t pin)
+{
+    return 0;
+}
+
+uint32_t
+System::gpioReadAnalog(uint8_t pin)
+{
+	return 0;
 }
 
 void

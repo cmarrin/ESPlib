@@ -140,6 +140,12 @@ class System
     
     // NeoPixel
     
+    enum class GPIOPinMode { Output, Input, InputWithPullup };
+    static void gpioSetPinMode(uint8_t pin, GPIOPinMode mode);
+    static void gpioWritePin(uint8_t pin, bool state);
+    static bool gpioReadPin(uint8_t pin);
+    static uint32_t gpioReadAnalog(uint8_t pin);
+    
     // The parameter system allows storage and retrieval of string key value pairs. They are
     // persistant, stored in the nvs section of flash.
     void addParam(const char *id, const char *label, const char *defaultValue, uint32_t length)

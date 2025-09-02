@@ -39,12 +39,12 @@ DAMAGE.
 
 using namespace mil;
 
-Button::Button(uint8_t pin, uint32_t id, bool activeHigh, PinMode mode)
+Button::Button(uint8_t pin, uint32_t id, bool activeHigh, System::GPIOPinMode mode)
 	: _pin(pin)
 	, _id(id)
 	, _activeHigh(activeHigh)
 {
-	pinMode(_pin, (mode == PinMode::Float) ? INPUT : INPUT_PULLUP);
+	System::gpioSetPinMode(_pin, mode);
 }
 
 ButtonManager::ButtonManager(std::function<void(const Button&, Event)> handler, uint32_t debounceTime, uint32_t clickTime, uint32_t longPressTime)
@@ -76,7 +76,7 @@ void ButtonManager::fire()
 			}
 		}
 		
-		bool pressed = digitalRead(it._pin) ^ !it._activeHigh;
+		bool pressed = System::gpioReadPin(it._pin) ^ !it._activeHigh;
 		if (pressed != it._pressed) {
 			it._pressed = pressed;
 			it._ticks = 0;

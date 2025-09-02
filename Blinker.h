@@ -52,63 +52,52 @@ DAMAGE.
 
 namespace mil {
 
-#if defined ARDUINO
-    static constexpr uint32_t OnCounts = 5;
-	class Blinker
-	{
-	public:
-		Blinker(uint8_t led, uint32_t sampleRate)
-			: _led(led)
-			, _sampleRate(sampleRate)
-		{
-			pinMode(_led, OUTPUT);
-            digitalWrite(_led, HIGH);
-		}
-	
-		void setRate(uint32_t rate)
-        {
-            if (!_isAttached) {
-                _ticker.attach_ms(_sampleRate, [this]() { blink(); });
-                _isAttached = true;
-            }
-            
-            _rate = (rate + (_sampleRate / 2)) / _sampleRate;
+static constexpr uint32_t OnCounts = 5;
+class Blinker
+{
+public:
+    Blinker(uint8_t led, uint32_t sampleRate)
+        : _led(led)
+        , _sampleRate(sampleRate)
+    {
+        System::gpioSetPinMode(_led, System::GPIOPinMode::Output);
+        System::gpioWritePin(_led, true);
+    }
+
+    void setRate(uint32_t rate)
+    {
+        if (!_isAttached) {
+            _ticker.attach_ms(_sampleRate, [this]() { blink(); });
+            _isAttached = true;
+        }
+        
+        _rate = (rate + (_sampleRate / 2)) / _sampleRate;
+        _count = 0;
+    }
+
+private:
+    void blink()
+    {
+        if (_rate == 0) {
+            return;
+        }
+        
+        if (_count == 0) {
+            System::gpioWritePin(_led, false);
+        } else if (_count == OnCounts){
+            System::gpioWritePin(_led, true);
+        }
+        if (++_count >= _rate) {
             _count = 0;
         }
-	
-	private:
-		void blink()
-		{
-            if (_rate == 0) {
-                return;
-            }
-            
-			if (_count == 0) {
-				digitalWrite(_led, LOW);
-			} else if (_count == OnCounts){
-				digitalWrite(_led, HIGH);
-			}
-			if (++_count >= _rate) {
-				_count = 0;
-			}
-		}
-	
-		Ticker _ticker;
-		uint32_t _rate = 0;
-		uint32_t _count = 0;
-		uint8_t _led;
-		uint32_t _sampleRate;
-        bool _isAttached = false;
-	};
-#else
-    // Dummy on Mac
-	class Blinker
-	{
-	public:
-		Blinker(uint8_t led, uint32_t sampleRate) { }
+    }
 
-		void setRate(uint32_t rate) { }
-    };
-#endif
+    Ticker _ticker;
+    uint32_t _rate = 0;
+    uint32_t _count = 0;
+    uint8_t _led;
+    uint32_t _sampleRate;
+    bool _isAttached = false;
+};
 
 }
