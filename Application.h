@@ -39,7 +39,6 @@ All rights reserved.
 #include "System.h"
 
 #if defined ARDUINO
-#include <Preferences.h>
 #include <WiFiManager.h>
 #endif
 

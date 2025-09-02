@@ -204,8 +204,6 @@ System::restart()
 void
 System::initParams()
 {
-    // ****** Initialize nvs storage here (Preferences on Arduino)
-
     for (auto& it : _params) {
         const char* id = it.id.c_str();
         String savedValue = getPrefString(id);

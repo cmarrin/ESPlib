@@ -34,6 +34,7 @@ Application::Application(uint8_t led, const char* configPortalName)
 void
 Application::setup()
 {
+    _system.begin();
     _system.initParams();
 	startStateMachine();
 }
