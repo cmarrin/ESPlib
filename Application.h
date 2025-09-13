@@ -106,7 +106,6 @@ public:
     }
     
     const char* getParamValue(const char* id) const { return _portal->getParamValue(id); }
-    void saveParams() { _portal->saveParams(); }
 
     void setTitle(const char* title) { _portal->setTitle(title); }
     void setCustomMenuHTML(const char* s) { _portal->setCustomMenuHTML(s); }

@@ -24,7 +24,6 @@ public:
     void putPrefString(const char* id, const char* value);
     void setCustomMenuHTML(const char* html);
     void setHostname(const char*);
-    void setSaveParamsCallback(std::function<void(WiFiPortal*)>);
     void setConfigHandler(std::function<void(WiFiPortal*)>);
     void setShowInfoErase(bool enabled);
     void addHTTPHandler(const char* page, std::function<void(WiFiPortal*)> handler);

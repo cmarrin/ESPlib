@@ -9,9 +9,6 @@ All rights reserved.
 
 #include "ESPWiFiPortal.h"
 
-#include <WiFiManager.h>
-#include "Preferences.h"
-
 #if defined(ESP8266)
 #include <ESP8266mDNS.h>
 #else
@@ -86,12 +83,6 @@ ESPWiFiPortal::setHostname(const char* name)
 }
 
 void
-ESPWiFiPortal::setSaveParamsCallback(HandlerCB f)
-{
-    _wifiManager.setSaveParamsCallback([this, f]() { f(this); });
-}
-
-void
 ESPWiFiPortal::setConfigHandler(HandlerCB f)
 {
     _wifiManager.setAPCallback([this, f](WiFiManager*) { f(this); });
@@ -113,6 +104,38 @@ ESPWiFiPortal::addHTTPHandler(const char* endpoint, HandleRequestCB f)
 bool
 ESPWiFiPortal::autoConnect(char const *apName, char const *apPassword)
 {
+    _wifiManager.setSaveParamsCallback([this]()
+    {
+        // WiFiManager has had a param saved through the web page.
+        // Grab all values from the WiFiManagerParameters list and
+        // put them in _params
+        WiFiManagerParameter** params = _wifiManager.getParameters();
+        int paramCount = _wifiManager.getParametersCount();
+
+        for (int i = 0; i < paramCount; ++i) {
+            const char* id = params[i]->getID();
+            const char* value = params[i]->getValue();
+            _params[id].value = value;
+            putPrefString(id, value);
+        }
+        
+        // Restart so the new settings take effect
+        ESP.restart();
+        delay(1000);
+    });
+    
+    // We need to introduce the params to WiFiManager. That requires us to
+    // make a list of WiFiManagerParameter entries to match the Param list.
+    //
+    // FIXME: WiFiManager can't delete old params and it keeps a pointer
+    // to the params in this list. So once we introduce the params to 
+    // WiFiManager we can't add any more params. We need to add checks
+    // for this.
+    for (const auto& it : _params) {
+        WiFiManagerParameter* param = new WiFiManagerParameter(it.first.c_str(), it.second.label.c_str(), it.second.value.c_str(), it.second.length);
+        _wifiManager.addParameter(param);
+    }
+    
     return _wifiManager.autoConnect(apName, apPassword);
 }
 

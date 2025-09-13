@@ -11,6 +11,7 @@ All rights reserved.
 
 #include "mil.h"
 
+#include <map>
 #include <memory>
 
 // WiFiPortal is a generic class for handling connecting to WiFi. If
@@ -93,9 +94,6 @@ public:
     // Set the hostname to use for MDNS
     virtual void setHostname(const char*) { }
     
-    // This function is called when a param is saved on the web page
-    virtual void setSaveParamsCallback(HandlerCB) { }
-
     // Set the callback that will be called when the system enters the captive portal
     virtual void setConfigHandler(HandlerCB) { }
 
@@ -164,61 +162,47 @@ public:
     // Param handling
     //
     // These are generic and store values in a runtime list. They are backed by the 
-    // persistent storageprefs system which is specialized for each platform. At the
-    // start addParam is called for each param to be saved. Then initParams is called
-    // to fill in the values from any stored in prefs. The setSaveParamsCallback
-    // must be set and saveParams called when it fires in order for any changed 
-    // params to be saved to prefs.
-    
-    // Add a value to the list of saved parameters. These are saved in permanent storage (e.g.,
-    // nvs on the ESP). They show on the WiFi config page as settable files with the passed 
-    // label and a text field.
-    void addParam(const char *id, const char *label, const char *defaultValue, uint32_t length)
+    // persistent storage prefs system which is specialized for each platform. At the
+    // start addParam is called for each param to be saved. If there is already a
+    // prefs value saved it is used in place of the passed defaultValue.
+    //
+    // Params show on the WiFi config page as settable fields with the passed label and 
+    // a text field with maxLength.
+    bool addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength)
     {
-        _params.push_back({ id, label, defaultValue, length });
+        // See if we have a duplicate
+        if (_params.contains(id)) {
+            printf("***** Error: addParam, id '%s' already exists\n", id);
+           return false;
+        }
+        
+        // Save param in prefs
+        String savedValue = getPrefString(id);
+        if (savedValue.length() == 0) {
+            putPrefString(id, defaultValue);
+            printf("No '%s' saved. Setting it to default: '%s'\n", id, defaultValue);
+        } else {
+            defaultValue = savedValue.c_str();
+            printf("Setting '%s' to saved value: '%s'\n", id, savedValue.c_str());
+        }
+
+        _params.insert({ id, { label, defaultValue, maxLength } });
+        return true;
     }
 
-    void initParams()
-    {
-        for (auto& it : _params) {
-            const char* id = it.id.c_str();
-            String savedValue = getPrefString(id);
-            if (savedValue.length() == 0) {
-                const char* value = it.value.c_str();
-                putPrefString(id, value);
-                printf("No '%s' saved. Setting it to default: '%s'\n", id, value);
-            } else {
-                it.value = savedValue;
-                printf("Setting '%s' to saved value: '%s'\n", id, savedValue.c_str());
-            }
-        } 
-    }
-	
     const char* getParamValue(const char* id) const
     {
-        for (auto& it : _params) {
-            if (strcmp(it.id.c_str(), id) == 0) {
-                return it.value.c_str();
-            }
-        }
-        return nullptr;
+        const auto& p = _params.find(id);
+        return p == _params.end() ? nullptr : p->second.value.c_str();
     }
     
-    void saveParams()
-    {
-        for (auto& it : _params) {
-            putPrefString(it.id.c_str(), it.value.c_str());
-        }
-    }
-    
-private:
+protected:
     struct Param
     {
-        String id;
         String label;
         String value;
         uint32_t length;
     };
 
-    std::vector<Param> _params;
+    std::map<String, Param> _params;
 };

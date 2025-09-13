@@ -19,14 +19,12 @@ Application::Application(WiFiPortal* portal, uint8_t led, const char* configPort
     , _blinker(led, BlinkSampleRate)
     , _configPortalName(configPortalName)
 {
-    addParam("hostname", "Hostname", "set_new_hostname",  MaxHostnameLength);
 }
 
 void
 Application::setup()
 {
     _portal->begin();
-    _portal->initParams();
 	startStateMachine();
 }
 
@@ -49,7 +47,8 @@ void
 Application::startNetwork()
 {
 	_blinker.setRate(ConnectingRate);
-	
+    addParam("hostname", "Hostname", "set_new_hostname",  MaxHostnameLength);
+
     std::vector<const char *> menu = { "custom", "wifi", "info", "restart", "sep", "update" };
     _portal->setMenu(menu);
     
@@ -81,7 +80,6 @@ Application::startNetwork()
 	
 	if (_enteredConfigMode) {
 		// If we've been in config mode, the network doesn't startup correctly, let's reboot
-        saveParams();
 		restart();
 		delay(1000);
 	}
@@ -91,13 +89,6 @@ Application::startNetwork()
 	_enableNetwork = true;
 	_blinker.setRate(ConnectedRate);
  
-    _portal->setSaveParamsCallback([this](WiFiPortal*)
-    {
-        saveParams();
-        delay(2000);
-        restart();
-    });
-
     _portal->startWebPortal();
 	delay(500);
 	sendInput(Input::Connected, false);

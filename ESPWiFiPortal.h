@@ -11,6 +11,7 @@ All rights reserved.
 
 #include "WiFiPortal.h"
 
+#include <WiFiManager.h>
 #include "Preferences.h"
 
 class ESPWiFiPortal : public WiFiPortal
@@ -26,7 +27,6 @@ public:
     virtual void putPrefString(const char* id, const char* value) override;
     virtual void setCustomMenuHTML(const char* html) override;
     virtual void setHostname(const char*) override;
-    virtual void setSaveParamsCallback(HandlerCB) override;
     virtual void setConfigHandler(HandlerCB) override;
     virtual void setShowInfoErase(bool enabled) override;
     virtual int32_t addHTTPHandler(const char* endpoint, HandleRequestCB) override;
