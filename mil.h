@@ -87,6 +87,9 @@ class String : public std::string
         return (r == npos) ? -1 : r;
     }
     
+    String substring(int32_t from) const { return String(substr(from).c_str()); }
+    String substring(int32_t from, int32_t to) const { return String(substr(from, size() - to + 1).c_str()); } 
+    
     String toString() { return *this; }
 };
 
@@ -151,106 +154,5 @@ private:
 
 }
 
-class WiFiClass
-{
-public:
-    const char* softAPIP() { return "127.0.0.1"; }
-    String localIP() { return "127.0.0.1"; }
-};
-
-extern WiFiClass WiFi;
-
-class MDNSClass
-{
-public:
-    static bool begin(const char*) { return true; }
-    static void update() { }
-};
-
-extern MDNSClass MDNS;
-
-class WiFiManagerParameter
-{
-public:
-    WiFiManagerParameter(const char *id, const char *label, const char *defaultValue, int length)
-        : _id(id)
-        , _value(defaultValue)
-        , _length(length)
-    { }
-    
-    const char* getID() const { return _id.c_str(); }
-    const char* getValue() const { return _value.c_str(); }
-    void setValue(const char *defaultValue, int length) { _value = defaultValue; }
-    int getValueLength() const { return _length; }
-
-private:
-    std::string _id;
-    std::string _value;
-    int _length;
-};
-
-#define HTTP_UPLOAD_BUFLEN 1
-
-enum HTTPMethod { HTTP_GET, HTTP_POST };
-
-enum HTTPUploadStatus {
-  UPLOAD_FILE_START,
-  UPLOAD_FILE_WRITE,
-  UPLOAD_FILE_END,
-  UPLOAD_FILE_ABORTED
-};
-
-typedef struct {
-  HTTPUploadStatus status;
-  String filename;
-  String name;
-  String type;
-  size_t totalSize;    // file size
-  size_t currentSize;  // size of data currently in buf
-  uint8_t buf[HTTP_UPLOAD_BUFLEN];
-} HTTPUpload;
-
-class RequestHandler;
-
-class WebServer
-{
-  public:
-    void on(const char* page, std::function<void(void)> handler) { }
-    void on(const char* page, int method, std::function<void(void)> h, std::function<void(void)> uh) { }
-    String arg(const char*) { return ""; }
-    int args() { return 0; }
-    void send(int, const char* = nullptr, const String& = String()) { }
-    void addHandler(RequestHandler *handler) { }
-};
-
-class RequestHandler {
-  public:
-    virtual bool canHandle(WebServer& server, HTTPMethod method, const String& uri) { return false; }
-    virtual bool canUpload(WebServer& server, const String& uri) { return false; }
-    virtual bool handle(WebServer& server, HTTPMethod method, const String& uri) { return false; }
-    virtual void upload(WebServer& server, const String &uri, HTTPUpload &upload) { }
-};
-
-class WiFiManager
-{
-public:
-    void setDebugOutput(bool) { }
-    void resetSettings() { }
-    void setAPCallback( std::function<void(WiFiManager*)>) { }
-    const char* getConfigPortalSSID() { return "127.0.0.1"; }
-    bool autoConnect(char const *apName, char const *apPassword = NULL) { return true; }
-    void setDarkMode(bool) { }
-    void setHostname(const char*) { }
-    void process() { }
-    void startWebPortal() { }
-    bool addParameter(WiFiManagerParameter* p) { return true; }
-    void setSaveParamsCallback(std::function<void()>) { }
-    void setMenu(std::vector<const char*>& menu) { }
-    void setTitle(String title) { }
-    void setShowInfoErase(bool enabled) { }
-    void setCustomMenuHTML(const char* html) { }
-    
-    std::unique_ptr<WebServer> server;
-};
 #endif
 

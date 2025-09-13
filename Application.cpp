@@ -11,20 +11,11 @@ All rights reserved.
 
 using namespace mil;
 
-#if defined ARDUINO
-#if defined(ESP8266)
-#include <ESP8266mDNS.h>
-#else
-#include <ESPmDNS.h>
-#endif
-#else
-WiFiClass WiFi;
-#endif
-
 static constexpr int MaxHostnameLength = 40;
 
-Application::Application(uint8_t led, const char* configPortalName)
-    : _stateMachine({ { Input::LongPress, State::AskPreUserQuestion } })
+Application::Application(WiFiPortal* portal, uint8_t led, const char* configPortalName)
+    : _portal(portal)
+    , _stateMachine({ { Input::LongPress, State::AskPreUserQuestion } })
     , _blinker(led, BlinkSampleRate)
     , _configPortalName(configPortalName)
 {
@@ -34,8 +25,8 @@ Application::Application(uint8_t led, const char* configPortalName)
 void
 Application::setup()
 {
-    _system.begin();
-    _system.initParams();
+    _portal->begin();
+    _portal->initParams();
 	startStateMachine();
 }
 
@@ -45,10 +36,7 @@ Application::loop()
 	if (_needsNetworkReset) {
 		startNetwork();
 	}
-#if defined(ESP8266)
-    MDNS.update();
-#endif
-    _wifiManager.process();
+    _portal->process();
 }
 
 void
@@ -63,30 +51,29 @@ Application::startNetwork()
 	_blinker.setRate(ConnectingRate);
 	
     std::vector<const char *> menu = { "custom", "wifi", "info", "restart", "sep", "update" };
-    _wifiManager.setMenu(menu);
+    _portal->setMenu(menu);
     
 //    for (auto& it : _params) {
 //        _wifiManager.addParameter(it.get());
 //    }
     
-    _wifiManager.setHostname(getParamValue("hostname"));
-	_wifiManager.setDebugOutput(true);
-	_wifiManager.setDarkMode(true);
-    _wifiManager.setShowInfoErase(true);
+    _portal->setHostname(getParamValue("hostname"));
+	_portal->setDarkMode(true);
+    _portal->setShowInfoErase(true);
     
 	if (_needsNetworkReset) {
 		_needsNetworkReset = false;
-		_wifiManager.resetSettings();			
+		_portal->resetSettings();			
 	}
 	
-	_wifiManager.setAPCallback([this](WiFiManager* wifiManager) {
-		printf("Entered config mode:ip=%s, ssid='%s'\n", WiFi.softAPIP(), _wifiManager.getConfigPortalSSID());
+	_portal->setConfigHandler([this](WiFiPortal* portal) {
+		printf("Entered config mode:ip=%s, ssid='%s'\n", portal->localIP().c_str(), portal->getSSID());
 		_blinker.setRate(ConfigRate);
 		sendInput(Input::NetConfig, true);
 		_enteredConfigMode = true;
 	});
 
-	if (!_wifiManager.autoConnect(_configPortalName.c_str())) {
+	if (!_portal->autoConnect(_configPortalName.c_str())) {
 		printf("*** Failed to connect and hit timeout\n");
 		restart();
 		delay(1000);
@@ -99,26 +86,19 @@ Application::startNetwork()
 		delay(1000);
 	}
 
-	printf("Wifi connected, IP=%s\n", _system.localIP().c_str());
+	printf("Wifi connected, IP=%s\n", _portal->localIP().c_str());
 
 	_enableNetwork = true;
 	_blinker.setRate(ConnectedRate);
  
-    _wifiManager.setSaveParamsCallback([this]()
+    _portal->setSaveParamsCallback([this](WiFiPortal*)
     {
         saveParams();
         delay(2000);
         restart();
     });
 
-    _wifiManager.startWebPortal();
-
-    if (!MDNS.begin(getParamValue("hostname")))  {             
-        printf("***** Error starting mDNS\n");
-    } else {
-        printf("mDNS started, hostname=%s\n", getParamValue("hostname"));
-    }
-
+    _portal->startWebPortal();
 	delay(500);
 	sendInput(Input::Connected, false);
 }

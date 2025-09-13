@@ -122,22 +122,6 @@ private:
 class System
 {
   public:
-    void begin();
-    
-    static String localIP();
-
-    void startNetwork();
-    
-    // MDNS
-    
-    // WiFi Manager
-    
-    // HTTP Client
-    
-    // HTTP Upload (WebServer, RequestHandler...)
-    
-    // LED Blinker
-    
     // NeoPixel
     
     enum class GPIOPinMode { Output, Input, InputWithPullup };
@@ -146,44 +130,8 @@ class System
     static bool gpioReadPin(uint8_t pin);
     static uint32_t gpioReadAnalog(uint8_t pin);
     
-    // The parameter system allows storage and retrieval of string key value pairs. They are
-    // persistant, stored in the nvs section of flash.
-    void addParam(const char *id, const char *label, const char *defaultValue, uint32_t length)
-    {
-        _params.push_back({ id, label, defaultValue, length });
-    }
-
-    void initParams();
-	
-    const char* getParamValue(const char* id) const
-    {
-        for (auto& it : _params) {
-            if (strcmp(it.id.c_str(), id) == 0) {
-                return it.value.c_str();
-            }
-        }
-        return nullptr;
-    }
-    
-    void saveParams()
-    {
-        for (auto& it : _params) {
-            putPrefString(it.id.c_str(), it.value.c_str());
-        }
-    }
     static void restart();
     
 private:
-    String getPrefString(const char* id);
-    void putPrefString(const char* id, const char* value);
-    
-    struct Param
-    {
-        String id;
-        String label;
-        String value;
-        uint32_t length;
-    };
 
-    std::vector<Param> _params;
 };

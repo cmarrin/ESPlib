@@ -37,10 +37,7 @@ All rights reserved.
 #include "StateMachine.h"
 #include "Blinker.h"
 #include "System.h"
-
-#if defined ARDUINO
-#include <WiFiManager.h>
-#endif
+#include "WiFiPortal.h"
 
 namespace mil {
 
@@ -70,7 +67,7 @@ enum class Message { Startup, Connecting, NetConfig, NetFail, UpdateFail,
 class Application
 {
 public:
-	Application(uint8_t led, const char* configPortalName);
+	Application(WiFiPortal* portal, uint8_t led, const char* configPortalName);
 	
 	virtual void setup();
 	virtual void loop();
@@ -105,25 +102,27 @@ public:
     
     void addParam(const char *id, const char *label, const char *defaultValue, int length)
     {
-        _system.addParam(id, label, defaultValue, length);
+        _portal->addParam(id, label, defaultValue, length);
     }
     
-    const char* getParamValue(const char* id) const { return _system.getParamValue(id); }
-    void saveParams() { _system.saveParams(); }
+    const char* getParamValue(const char* id) const { return _portal->getParamValue(id); }
+    void saveParams() { _portal->saveParams(); }
 
-    void setTitle(const char* title) { _wifiManager.setTitle(title); }
-    void setCustomMenuHTML(const char* s) { _wifiManager.setCustomMenuHTML(s); }
-    String getHTTPArg(const char* name) { return _wifiManager.server->arg(name); }
-    int getHTTPArgCount() const { return _wifiManager.server->args(); }
-    void sendHTTPPage(const char* page) { _wifiManager.server->send(200, "text/html", page); }
-    void addHTTPHandler(const char* page, std::function<void(void)> h) { _wifiManager.server->on(page, h); }
-    void addCustomHTTPHandler(RequestHandler* h) { _wifiManager.server->addHandler(h); }
+    void setTitle(const char* title) { _portal->setTitle(title); }
+    void setCustomMenuHTML(const char* s) { _portal->setCustomMenuHTML(s); }
+    void sendHTTPResponse(const char* page) { _portal->sendHTTPResponse(200, "text/html", page); }
+    void addHTTPHandler(const char* endpoint, WiFiPortal::HandleRequestCB h) { _portal->addHTTPHandler(endpoint, h); }
+
+    int readHTTPContent(uint8_t* buf, size_t bufSize) { return _portal->readHTTPContent(buf, bufSize); }
+    size_t httpContentLength() const { return _portal->httpContentLength(); }
     
 private:
 	void startNetwork();
 	void startStateMachine();
  
     System _system;
+    
+    WiFiPortal* _portal;
     
 	mil::StateMachine<State, Input> _stateMachine;
 	mil::Blinker _blinker;
@@ -135,8 +134,6 @@ private:
 	bool _enableNetwork = false;
 	
 	String _configPortalName;
-
-    WiFiManager _wifiManager;
 
     bool _inCallback = false;
     
