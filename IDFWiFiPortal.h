@@ -14,26 +14,27 @@ All rights reserved.
 class IDFWiFiPortal : public WiFiPortal
 {
 public:
-    void begin();
+    virtual void begin();
 
-    void resetSettings();
-    void setTitle(String title);
-    void setMenu(std::vector<const char*>& menu);
-    void setDarkMode(bool);
-    String getPrefString(const char* id);
-    void putPrefString(const char* id, const char* value);
-    void setCustomMenuHTML(const char* html);
-    void setHostname(const char*);
-    void setConfigHandler(std::function<void(WiFiPortal*)>);
-    void setShowInfoErase(bool enabled);
-    void addHTTPHandler(const char* page, std::function<void(WiFiPortal*)> handler);
-    void addHTTPHandler(HTTPRequest*);
-    bool autoConnect(char const *apName, char const *apPassword = NULL);
-    void process();
-    void startWebPortal();
-    String localIP();
-    const char* getSSID();
-    String getHTTPArg(const char*);
-    void sendHTTPResponse(int code, const char* mimetype = nullptr, const String& data = String());
+    virtual void resetSettings() override;
+    virtual void setTitle(String title) override;
+    virtual void setMenu(std::vector<const char*>& menu) override;
+    virtual void setDarkMode(bool) override;
+    virtual String getPrefString(const char* id) override;
+    virtual void putPrefString(const char* id, const char* value) override;
+    virtual void setCustomMenuHTML(const char* html) override;
+    virtual void setHostname(const char*) override;
+    virtual void setConfigHandler(std::function<void(WiFiPortal*)>) override;
+    virtual void setShowInfoErase(bool enabled) override;
+    virtual void addHTTPHandler(const char* endpoint, HandleRequestCB handler) override;
+    virtual bool autoConnect(char const *apName, char const *apPassword = NULL) override;
+    virtual void process() override;
+    virtual void startWebPortal() override;
+    virtual String localIP() override;
+    virtual const char* getSSID() override;
+    virtual String getHTTPArg(const char*) override;
+    virtual void sendHTTPResponse(int code, const char* mimetype = nullptr, const String& data = String()) override;
+    virtual int readHTTPContent(uint8_t* buf, size_t bufSize) override;
+    virtual size_t httpContentLength() override;
 };
 

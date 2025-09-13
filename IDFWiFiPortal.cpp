@@ -15,7 +15,7 @@ All rights reserved.
 #include "nvs.h"
 
 void
-WiFiPortal::begin()
+IDFWiFiPortal::begin()
 {
     esp_err_t err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
@@ -27,26 +27,100 @@ WiFiPortal::begin()
     ESP_ERROR_CHECK( err );
 }
 
+void
+IDFWiFiPortal::resetSettings()
+{
+}
+
+void
+IDFWiFiPortal::setTitle(String title)
+{
+}
+
+void
+IDFWiFiPortal::setMenu(std::vector<const char*>& menu)
+{
+}
+
+void
+IDFWiFiPortal::setDarkMode(bool)
+{
+}
+
 String
-WiFiPortal::getPrefString(const char* id)
+IDFWiFiPortal::getPrefString(const char* id)
 {
     return "";
 }
 
 void
-WiFiPortal::putPrefString(const char* id, const char* value)
+IDFWiFiPortal::putPrefString(const char* id, const char* value)
+{
+}
+
+void
+IDFWiFiPortal::setCustomMenuHTML(const char* html)
+{
+}
+
+void
+IDFWiFiPortal::setConfigHandler(HandlerCB)
+{
+}
+
+void
+IDFWiFiPortal::setShowInfoErase(bool enabled)
+{
+}
+
+int32_t
+IDFWiFiPortal::addHTTPHandler(const char* endpoint, HandleRequestCB)
+{
+    return -1;
+}
+
+bool
+IDFWiFiPortal::autoConnect(char const *apName, char const *apPassword = NULL)
+{
+    return true;
+}
+
+void
+IDFWiFiPortal::process()
+{
+}
+
+void
+IDFWiFiPortal::startWebPortal()
 {
 }
 
 String
-WiFiPortal::localIP()
+IDFWiFiPortal::localIP()
 {
-//    esp_netif_ip_info_t ip_info;
-//    esp_netif_get_ip_info(IP_EVENT_STA_GOT_IP,&ip_info);
-//    char buf[20];
-//    sprintf("IPSTR", IP2STR(&ip_info.ip));
-//    return buf;
-    return String();
+    esp_netif_ip_info_t ip_info;
+    esp_netif_get_ip_info(IP_EVENT_STA_GOT_IP,&ip_info);
+    char buf[20];
+    sprintf("IPSTR", IP2STR(&ip_info.ip));
+    return buf;
+}
+
+const char*
+IDFWiFiPortal::getSSID()
+{
+    return "";
+}
+
+int
+IDFWiFiPortal::readHTTPContent(uint8_t* buf, size_t bufSize)
+{
+    return -1;
+}
+
+size_t
+IDFWiFiPortal::httpContentLength()
+{
+    return 0;
 }
 
 #endif
