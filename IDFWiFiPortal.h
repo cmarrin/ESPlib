@@ -26,13 +26,12 @@ public:
     virtual void setHostname(const char*) override;
     virtual void setConfigHandler(std::function<void(WiFiPortal*)>) override;
     virtual void setShowInfoErase(bool enabled) override;
-    virtual void addHTTPHandler(const char* endpoint, HandleRequestCB handler) override;
+    virtual int32_t addHTTPHandler(const char* endpoint, HandleRequestCB handler) override;
     virtual bool autoConnect(char const *apName, char const *apPassword = NULL) override;
     virtual void process() override;
     virtual void startWebPortal() override;
     virtual String localIP() override;
     virtual const char* getSSID() override;
-    virtual String getHTTPArg(const char*) override;
     virtual void sendHTTPResponse(int code, const char* mimetype = nullptr, const String& data = String()) override;
     virtual int readHTTPContent(uint8_t* buf, size_t bufSize) override;
     virtual size_t httpContentLength() override;
