@@ -45,8 +45,8 @@ class File
     const char* name() const;
     
     bool isDirectory();
-    String getNextFileName();
-    String getNextFileName(bool* isDir);
+    std::string getNextFileName();
+    std::string getNextFileName(bool* isDir);
     void rewindDirectory();
     
     operator bool() const { return _good; }

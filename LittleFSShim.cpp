@@ -193,14 +193,14 @@ File::isDirectory()
     return _isDir;
 }
 
-String
+std::string
 File::getNextFileName()
 {
     bool b;
     return getNextFileName(&b);
 }
 
-String
+std::string
 File::getNextFileName(bool* isDir)
 {
     if (!_isDir) {

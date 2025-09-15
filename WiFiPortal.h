@@ -47,7 +47,7 @@ public:
     enum class HTTPMethod { Get, Post, Any };
 
     using HandlerCB = std::function<void(WiFiPortal*)>;
-    using HandleRequestCB = std::function<bool(WiFiPortal*, HTTPMethod method, const String& uri)>;
+    using HandleRequestCB = std::function<bool(WiFiPortal*, HTTPMethod method, const std::string& uri)>;
     
     WiFiPortal() { }
     virtual ~WiFiPortal() { }
@@ -59,7 +59,7 @@ public:
     virtual void resetSettings() { }
     
     // Set the title to be shown at the top of the front web page
-    virtual void setTitle(String title) { }
+    virtual void setTitle(const char* title) { }
 
     // This sets a list of info to be shown on the front page of the web portal, Some 
     // values show buttons to other pages, some show custom information. Currently
@@ -123,13 +123,13 @@ public:
     virtual void startWebPortal() { }
     
     // Return the IP address. In config mode, this is the soft AP IP address.
-    virtual String localIP() { return String(); }
+    virtual std::string localIP() { return ""; }
 
     // Get the SSID of the captive portal if in config mode. Otherwise get the SSID of the network currently connected to
     virtual const char* getSSID() { return "unknown"; }
     
     // Send a response to the requestor
-    virtual void sendHTTPResponse(int code, const char* mimetype = nullptr, const String& data = String()) { }
+    virtual void sendHTTPResponse(int code, const char* mimetype = nullptr, const std::string& data = "") { }
     
     // Read content from an incoming HTTP request. Must be called from inside a HandleRequestCB. A buffer no larger
     // than bufSize will be returned, but it could be smaller. If data was returned the return value will
@@ -142,15 +142,15 @@ public:
 
     // Extract the value for the passed name from the passed uri. Arguments start after the first '?' and are of the form
     // <name>=<value>. Args are separated with '&'.
-    static String getHTTPArg(const String& uri, const char* name)
+    static std::string getHTTPArg(const std::string& uri, const char* name)
     {
-        int16_t start = uri.indexOf('?');
-        if (start < 0) {
-            return String();
+        int16_t start = uri.find('?');
+        if (start == std::string::npos) {
+            return "";
         }
         
         // TODO: Implement
-        return String();
+        return "";
     }
     
     // Param handling

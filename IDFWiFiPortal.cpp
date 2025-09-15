@@ -43,7 +43,7 @@ IDFWiFiPortal::resetSettings()
 }
 
 void
-IDFWiFiPortal::setTitle(String title)
+IDFWiFiPortal::setTitle(const char* title)
 {
 }
 
@@ -100,7 +100,7 @@ IDFWiFiPortal::startWebPortal()
 {
 }
 
-String
+std::string
 IDFWiFiPortal::localIP()
 {
     esp_netif_t *intf = esp_netif_get_default_netif();
@@ -123,7 +123,7 @@ IDFWiFiPortal::getSSID()
 }
 
 void
-IDFWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const String& data)
+IDFWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const std::string& data)
 {
 }
 

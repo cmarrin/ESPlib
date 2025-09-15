@@ -20,7 +20,7 @@ public:
     virtual void begin() override;
 
     virtual void resetSettings() override;
-    virtual void setTitle(String title) override;
+    virtual void setTitle(const char* title) override;
     virtual void setMenu(std::vector<const char*>& menu) override;
     virtual void setDarkMode(bool) override;
     virtual void setCustomMenuHTML(const char* html) override;
@@ -31,9 +31,9 @@ public:
     virtual bool autoConnect(char const *apName, char const *apPassword = NULL) override;
     virtual void process() override;
     virtual void startWebPortal() override;
-    virtual String localIP() override;
+    virtual std::string localIP() override;
     virtual const char* getSSID() override;
-    virtual void sendHTTPResponse(int code, const char* mimetype = nullptr, const String& data = String()) override;
+    virtual void sendHTTPResponse(int code, const char* mimetype = nullptr, const std::string& data = "") override;
     virtual int readHTTPContent(uint8_t* buf, size_t bufSize) override;
     virtual size_t httpContentLength() override;
     virtual bool addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength) override;

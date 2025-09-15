@@ -47,7 +47,7 @@ DAMAGE.
 
 using namespace mil;
 
-void TimeWeatherServer::MyJsonListener::key(const String& key)
+void TimeWeatherServer::MyJsonListener::key(const std::string& key)
 {
 	switch(_state) {
         default: break;
@@ -99,7 +99,7 @@ void TimeWeatherServer::MyJsonListener::key(const String& key)
 	}
 }
 
-void TimeWeatherServer::MyJsonListener::value(const String& value)
+void TimeWeatherServer::MyJsonListener::value(const std::string& value)
 {
 	switch(_state) {
         default: break;
@@ -116,15 +116,15 @@ void TimeWeatherServer::MyJsonListener::value(const String& value)
 		_state = State::Current;
 		break;
 		case State::CurrentTemp: 
-		_currentTemp = int32_t(ToFloat(value) + 0.5);
+		_currentTemp = int32_t(std::stof(value) + 0.5);
 		_state = State::Current;
 		break;
 		case State::MinTemp:
-		_lowTemp = int32_t(ToFloat(value) + 0.5);
+		_lowTemp = int32_t(std::stof(value) + 0.5);
 		_state = State::Day;
 		break;
 		case State::MaxTemp: 
-		_highTemp = int32_t(ToFloat(value) + 0.5);
+		_highTemp = int32_t(std::stof(value) + 0.5);
 		_state = State::Day;
 		break;
 	}
@@ -138,7 +138,7 @@ void TimeWeatherServer::MyJsonListener::endObject()
 //		static const constexpr char* TimeAPIKey = "OFTZYMX4MSPG";
 //
 //
-//	String apiURL;
+//	std::string apiURL;
 //	apiURL += "http://api.timezonedb.com";
 //	apiURL += "/v2.1/get-time-zone?key=";
 //	apiURL += TimeAPIKey;
@@ -167,7 +167,7 @@ TimeWeatherServer::fetchAndParse(const char* url, JsonStreamingParser* parser)
 		printf("    got response: %d\n", int32_t(httpCode));
 
 		if (httpCode == HTTP_CODE_OK) {
-			String payload = http.getString();
+			std::string payload = http.getString().c_str();
 			printf("Got payload, parsing...\n");
 			for (int i = 0; i < payload.length(); ++i) {
 				parser->parse(payload.c_str()[i]);
@@ -238,7 +238,7 @@ bool TimeWeatherServer::update(const char* zipCode)
 
 	printf("Getting weather feed...\n");
 
-	String apiURL;
+	std::string apiURL;
 	apiURL = "http://api.weatherapi.com/v1/forecast.json?key=";
 	apiURL += WeatherAPIKey;
 	apiURL +="&q=";
@@ -288,14 +288,14 @@ bool TimeWeatherServer::update(const char* zipCode)
 	return !failed;
 }
 
-String TimeWeatherServer::strftime(const char* format, const struct tm& time)
+std::string TimeWeatherServer::strftime(const char* format, const struct tm& time)
 {
 	char s[100];
 	std::strftime(s, 99, format, &time);
 	return s;
 }
 
-String TimeWeatherServer::strftime(const char* format, uint32_t time)
+std::string TimeWeatherServer::strftime(const char* format, uint32_t time)
 {
     time_t t = time;
 	struct tm timeinfo;
@@ -303,13 +303,13 @@ String TimeWeatherServer::strftime(const char* format, uint32_t time)
 	return strftime(format, timeinfo);
 }
 
-String TimeWeatherServer::prettyDay(uint32_t time)
+std::string TimeWeatherServer::prettyDay(uint32_t time)
 {
     time_t t = time;
 	struct tm timeinfo;
     gmtime_r(&t, &timeinfo);
 	int day = timeinfo.tm_mday;
-	String s = ToString(day);
+	std::string s = std::to_string(day);
 	switch(day) {
 		case 1:
 		case 21:

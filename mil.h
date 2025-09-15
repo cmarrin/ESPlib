@@ -42,12 +42,11 @@ DAMAGE.
     or implement the interfaces
 */
 
+#include <string>
+
 #if defined ARDUINO
 #include <Arduino.h>
 #include <Printable.h>
-
-#define ToString(v) String(v)
-#define ToFloat(s) s.toFloat()
 
 #else
 #include <cstdint>
@@ -57,41 +56,7 @@ DAMAGE.
 #include <chrono>
 #include <functional>
 
-#define cout std::cout
-#define F(s) s
-#define ToString(v) String(std::to_string(v).c_str())
-#define ToFloat(s) std::stof(s)
-#define PROGMEM
-
 static inline uint32_t millis() { return uint32_t((double) clock() / CLOCKS_PER_SEC * 1000); }
-
-class String : public std::string
-{
-  public:
-    String() : std::string() { }
-    String(const char* s) : std::string(s) { }
-    String(std::string& s) : std::string(s) { }
-    
-    String operator + (String& a) { return *this + a.c_str(); }    
-    String operator + (const char* a)
-    {
-        String result = *this;
-        result += a;
-        return result;
-    }
-
-    bool startsWith(String s) const { return starts_with(s); }
-    int16_t indexOf(char val, uint16_t from = 0) const
-    {
-        int16_t r = find(val, from);
-        return (r == npos) ? -1 : r;
-    }
-    
-    String substring(int32_t from) const { return String(substr(from).c_str()); }
-    String substring(int32_t from, int32_t to) const { return String(substr(from, size() - to + 1).c_str()); } 
-    
-    String toString() { return *this; }
-};
 
 static inline void delay(uint32_t ms) { useconds_t us = useconds_t(ms) * 1000; usleep(us); }
 

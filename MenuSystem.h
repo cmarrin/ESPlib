@@ -57,7 +57,7 @@ namespace mil {
 	public:
 		enum class Move { Up, Down, In, Out };
 
-		MenuItem(const String& s) : _string(s) { }
+		MenuItem(const std::string& s) : _string(s) { }
 		
 		enum class Action { None, Activate };
 		
@@ -75,17 +75,17 @@ namespace mil {
 			show(menuSystem);
 		}
 		
-		const String& string() const { return _string; }
+		const std::string& string() const { return _string; }
 				
 	protected:
-		String _string;
+		std::string _string;
 		bool _active = false;
 	};
 	
 	class Menu : public MenuItem
 	{
 	public:
-		Menu(const String& s) : MenuItem(s) { }
+		Menu(const std::string& s) : MenuItem(s) { }
 		
 		void addMenuItem(std::shared_ptr<MenuItem>&);
 		

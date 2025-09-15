@@ -38,7 +38,7 @@ ESPWiFiPortal::resetSettings()
 }
 
 void
-ESPWiFiPortal::setTitle(String title)
+ESPWiFiPortal::setTitle(const char* title)
 {
     _wifiManager.setTitle(title);
 }
@@ -82,7 +82,7 @@ ESPWiFiPortal::setShowInfoErase(bool enabled)
 int32_t
 ESPWiFiPortal::addHTTPHandler(const char* endpoint, HandleRequestCB f)
 {
-    _wifiManager.server->on(endpoint, [this, f]() { f(this, arduinoToPortalHTTPMethod(_wifiManager.server->method()), _wifiManager.server->uri()); });
+    _wifiManager.server->on(endpoint, [this, f]() { f(this, arduinoToPortalHTTPMethod(_wifiManager.server->method()), _wifiManager.server->uri().c_str()); });
     return 0;
 }
 
@@ -129,10 +129,10 @@ ESPWiFiPortal::startWebPortal()
     }
 }
 
-String
+std::string
 ESPWiFiPortal::localIP()
 {
-    return WiFi.localIP().toString();
+    return WiFi.localIP().toString().c_str();
 }
 
 const char*
@@ -142,7 +142,7 @@ ESPWiFiPortal::getSSID()
 }
 
 void
-ESPWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const String& data)
+ESPWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const std::string& data)
 {
 }
 
@@ -162,7 +162,7 @@ bool
 ESPWiFiPortal::addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength)
 {
     // First we have to see if there is a saved value for this id. If so use it in place of the defaultValue
-    String value = _prefs.getString(id);
+    std::string value = _prefs.getString(id).c_str();
     if (value.length() == 0) {
         value = defaultValue;
         printf("No '%s' saved. Setting it to default: '%s'\n", id, defaultValue);

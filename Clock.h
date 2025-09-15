@@ -53,8 +53,8 @@ public:
 	Clock(Application* app);
 	
 	uint32_t currentTime() { return _currentTime; }
-	String strftime(const char* format, uint32_t time) { return _timeWeatherServer.strftime(format, time); }
-	String prettyDay(uint32_t time) { return _timeWeatherServer.prettyDay(time); }
+	std::string strftime(const char* format, uint32_t time) { return _timeWeatherServer.strftime(format, time); }
+	std::string prettyDay(uint32_t time) { return _timeWeatherServer.prettyDay(time); }
 	const char* weatherConditions() { return _timeWeatherServer.conditions(); }
 	uint32_t currentTemp() { return _timeWeatherServer.currentTemp(); }
 	uint32_t highTemp() { return _timeWeatherServer.highTemp(); }
@@ -74,7 +74,7 @@ private:
 	struct tm  _settingTime;
 	bool _settingTimeChanged = false;
 
-    String _customMenuHTML;
+    std::string _customMenuHTML;
 };
 
 }

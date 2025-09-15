@@ -46,7 +46,7 @@ private:
     Max72xxPanel _matrix;
     const GFXfont* _currentFont = nullptr;
     Ticker _scrollTimer;
-    String _scrollString;
+    std::string _scrollString;
     int32_t _scrollOffset;
     int16_t _scrollY;
     int32_t _scrollW;

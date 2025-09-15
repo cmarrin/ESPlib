@@ -132,7 +132,7 @@ private:
 	
 	bool _enableNetwork = false;
 	
-	String _configPortalName;
+	std::string _configPortalName;
 
     bool _inCallback = false;
     

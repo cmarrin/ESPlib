@@ -44,7 +44,7 @@ void Clock::loop()
 				_app->sendInput(Input::Idle, false);
     
                 // Update the status on the webpage
-                _customMenuHTML = F("<h3>Info from last request:</h3><p style=\"margin-left: 40px\"><b>Time/Date:</b> ");
+                _customMenuHTML = "<h3>Info from last request:</h3><p style=\"margin-left: 40px\"><b>Time/Date:</b> ";
                 _customMenuHTML += strftime("%a %b ", _currentTime);
                 _customMenuHTML += prettyDay(_currentTime);
                 _customMenuHTML += " ";
@@ -65,25 +65,25 @@ void Clock::loop()
                     }
                 }
 
-                _customMenuHTML += ToString(hour);
+                _customMenuHTML += std::to_string(hour);
                 _customMenuHTML += ":";
 
                 uint8_t minute = timeinfo.tm_min;
                 if (minute < 10) {
                     _customMenuHTML += "0";
                 }
-                _customMenuHTML += ToString(minute);
+                _customMenuHTML += std::to_string(minute);
                 _customMenuHTML += pm ? "pm" : "am";
 
-                _customMenuHTML += F("</p><p style=\"margin-left: 40px\"><b>weather:</b> ");
+                _customMenuHTML += "</p><p style=\"margin-left: 40px\"><b>weather:</b> ";
                 _customMenuHTML += weatherConditions();
-                _customMenuHTML += F("  Cur:");
-                _customMenuHTML += ToString(currentTemp());
-                _customMenuHTML += F("°  Hi:");
-                _customMenuHTML += ToString(highTemp());
-                _customMenuHTML += F("°  Lo:");
-                _customMenuHTML += ToString(lowTemp());
-                _customMenuHTML += F("°</p><hr><br>");
+                _customMenuHTML += "  Cur:";
+                _customMenuHTML += std::to_string(currentTemp());
+                _customMenuHTML += "°  Hi:";
+                _customMenuHTML += std::to_string(highTemp());
+                _customMenuHTML += "°  Lo:";
+                _customMenuHTML += std::to_string(lowTemp());
+                _customMenuHTML += "°</p><hr><br>";
                 
                 _app->setCustomMenuHTML(_customMenuHTML.c_str());
 			} else {

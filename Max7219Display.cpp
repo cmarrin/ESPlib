@@ -73,7 +73,7 @@ void Max7219Display::setBrightness(uint32_t level)
 	
 void Max7219Display::showString(const char* s, uint32_t underscoreStart, uint32_t underscoreLength)
 {
-    String string(s);
+    std::string string(s);
 	if (_scrollTimer.active()) {
 		_scrollTimer.detach();
 	}
