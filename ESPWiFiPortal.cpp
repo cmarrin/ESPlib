@@ -15,9 +15,6 @@ All rights reserved.
 #include <ESPmDNS.h>
 #endif
 
-WiFiManager _wifiManager;
-Preferences _prefs;
-
 static WiFiPortal::HTTPMethod arduinoToPortalHTTPMethod(HTTPMethod method)
 {
     switch(method) {
@@ -58,18 +55,6 @@ ESPWiFiPortal::setDarkMode(bool b)
     _wifiManager.setDarkMode(b);
 }
 
-String
-ESPWiFiPortal::getPrefString(const char* id)
-{
-    return _prefs.getString(id);
-}
-
-void
-ESPWiFiPortal::putPrefString(const char* id, const char* value)
-{
-    _prefs.putString(id, value);
-}
-
 void
 ESPWiFiPortal::setCustomMenuHTML(const char* html)
 {
@@ -104,39 +89,23 @@ ESPWiFiPortal::addHTTPHandler(const char* endpoint, HandleRequestCB f)
 bool
 ESPWiFiPortal::autoConnect(char const *apName, char const *apPassword)
 {
+    bool result = _wifiManager.autoConnect(apName, apPassword);
+
     _wifiManager.setSaveParamsCallback([this]()
     {
-        // WiFiManager has had a param saved through the web page.
-        // Grab all values from the WiFiManagerParameters list and
-        // put them in _params
         WiFiManagerParameter** params = _wifiManager.getParameters();
-        int paramCount = _wifiManager.getParametersCount();
-
-        for (int i = 0; i < paramCount; ++i) {
-            const char* id = params[i]->getID();
-            const char* value = params[i]->getValue();
-            _params[id].value = value;
-            putPrefString(id, value);
+        int count = _wifiManager.getParametersCount();
+        
+        for (int i = 0; i < count; ++i) {
+            _prefs.putString(params[i]->getID(), params[i]->getValue());
         }
         
         // Restart so the new settings take effect
         ESP.restart();
         delay(1000);
     });
-    
-    // We need to introduce the params to WiFiManager. That requires us to
-    // make a list of WiFiManagerParameter entries to match the Param list.
-    //
-    // FIXME: WiFiManager can't delete old params and it keeps a pointer
-    // to the params in this list. So once we introduce the params to 
-    // WiFiManager we can't add any more params. We need to add checks
-    // for this.
-    for (const auto& it : _params) {
-        WiFiManagerParameter* param = new WiFiManagerParameter(it.first.c_str(), it.second.label.c_str(), it.second.value.c_str(), it.second.length);
-        _wifiManager.addParameter(param);
-    }
-    
-    return _wifiManager.autoConnect(apName, apPassword);
+
+    return result;
 }
 
 void
@@ -187,4 +156,36 @@ size_t
 ESPWiFiPortal::httpContentLength()
 {
     return 0;
+}
+
+bool
+ESPWiFiPortal::addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength)
+{
+    // First we have to see if there is a saved value for this id. If so use it in place of the defaultValue
+    String value = _prefs.getString(id);
+    if (value.length() == 0) {
+        value = defaultValue;
+        printf("No '%s' saved. Setting it to default: '%s'\n", id, defaultValue);
+    } else {
+        printf("Setting '%s' to saved value: '%s'\n", id, value.c_str());
+    }
+
+    _prefs.putString(id, value.c_str());
+
+    _wifiManager.addParameter(new WiFiManagerParameter(id, label, value.c_str(), maxLength));
+    return true;
+}
+
+const char*
+ESPWiFiPortal::getParamValue(const char* id)
+{
+    WiFiManagerParameter** params = _wifiManager.getParameters();
+    int count = _wifiManager.getParametersCount();
+    
+    for (int i = 0; i < count; ++i) {
+        if (strcmp(params[i]->getID(), id) == 0) {
+            return params[i]->getValue();
+        }
+    }
+    return nullptr;
 }

@@ -52,10 +52,6 @@ Application::startNetwork()
     std::vector<const char *> menu = { "custom", "wifi", "info", "restart", "sep", "update" };
     _portal->setMenu(menu);
     
-//    for (auto& it : _params) {
-//        _wifiManager.addParameter(it.get());
-//    }
-    
     _portal->setHostname(getParamValue("hostname"));
 	_portal->setDarkMode(true);
     _portal->setShowInfoErase(true);
@@ -80,6 +76,7 @@ Application::startNetwork()
 	
 	if (_enteredConfigMode) {
 		// If we've been in config mode, the network doesn't startup correctly, let's reboot
+		printf("*** Network didn't start up correctly, restart\n");
 		restart();
 		delay(1000);
 	}

@@ -20,8 +20,6 @@ public:
     virtual void setTitle(String title) override;
     virtual void setMenu(std::vector<const char*>& menu) override;
     virtual void setDarkMode(bool) override;
-    virtual String getPrefString(const char* id) override;
-    virtual void putPrefString(const char* id, const char* value) override;
     virtual void setCustomMenuHTML(const char* html) override;
     virtual void setHostname(const char*) override;
     virtual void setConfigHandler(std::function<void(WiFiPortal*)>) override;

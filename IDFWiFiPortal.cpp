@@ -57,17 +57,6 @@ IDFWiFiPortal::setDarkMode(bool)
 {
 }
 
-String
-IDFWiFiPortal::getPrefString(const char* id)
-{
-    return "";
-}
-
-void
-IDFWiFiPortal::putPrefString(const char* id, const char* value)
-{
-}
-
 void
 IDFWiFiPortal::setCustomMenuHTML(const char* html)
 {
@@ -114,7 +103,6 @@ IDFWiFiPortal::startWebPortal()
 String
 IDFWiFiPortal::localIP()
 {
-printf("********* localIP enter\n");
     esp_netif_t *intf = esp_netif_get_default_netif();
     if (!intf) {
         printf("Error: no interface to get IP Address\n");
@@ -125,7 +113,6 @@ printf("********* localIP enter\n");
     esp_netif_get_ip_info(intf, &ip_info);
     char buf[20];
     sprintf(buf, "%d.%d.%d.%d", IP2STR(&ip_info.ip));
-printf("********* localIP str='%s'\n", buf);
     return buf;
 }
 

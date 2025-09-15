@@ -81,12 +81,6 @@ public:
     // Select the dark or light mode style sheet for the web pages
     virtual void setDarkMode(bool) { }
     
-    // Get the value with the passed id saved to persistent storage
-    virtual String getPrefString(const char* id) { return String(); }
-    
-    // Save the passed string at the passed id in persistent storage
-    virtual void putPrefString(const char* id, const char* value) { }
-
     // Sets a string of static HTML that will be inserted into the front page at the
     // "custom" menu item
     virtual void setCustomMenuHTML(const char* html) { }
@@ -160,49 +154,6 @@ public:
     }
     
     // Param handling
-    //
-    // These are generic and store values in a runtime list. They are backed by the 
-    // persistent storage prefs system which is specialized for each platform. At the
-    // start addParam is called for each param to be saved. If there is already a
-    // prefs value saved it is used in place of the passed defaultValue.
-    //
-    // Params show on the WiFi config page as settable fields with the passed label and 
-    // a text field with maxLength.
-    bool addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength)
-    {
-        // See if we have a duplicate
-        if (_params.contains(id)) {
-            printf("***** Error: addParam, id '%s' already exists\n", id);
-           return false;
-        }
-        
-        // Save param in prefs
-        String savedValue = getPrefString(id);
-        if (savedValue.length() == 0) {
-            putPrefString(id, defaultValue);
-            printf("No '%s' saved. Setting it to default: '%s'\n", id, defaultValue);
-        } else {
-            defaultValue = savedValue.c_str();
-            printf("Setting '%s' to saved value: '%s'\n", id, savedValue.c_str());
-        }
-
-        _params.insert({ id, { label, defaultValue, maxLength } });
-        return true;
-    }
-
-    const char* getParamValue(const char* id) const
-    {
-        const auto& p = _params.find(id);
-        return p == _params.end() ? nullptr : p->second.value.c_str();
-    }
-    
-protected:
-    struct Param
-    {
-        String label;
-        String value;
-        uint32_t length;
-    };
-
-    std::map<String, Param> _params;
+    virtual bool addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength) { return true; }
+    virtual const char* getParamValue(const char* id) { return ""; }
 };

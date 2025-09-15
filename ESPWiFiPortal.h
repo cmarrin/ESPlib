@@ -23,8 +23,6 @@ public:
     virtual void setTitle(String title) override;
     virtual void setMenu(std::vector<const char*>& menu) override;
     virtual void setDarkMode(bool) override;
-    virtual String getPrefString(const char* id) override;
-    virtual void putPrefString(const char* id, const char* value) override;
     virtual void setCustomMenuHTML(const char* html) override;
     virtual void setHostname(const char*) override;
     virtual void setConfigHandler(HandlerCB) override;
@@ -38,7 +36,13 @@ public:
     virtual void sendHTTPResponse(int code, const char* mimetype = nullptr, const String& data = String()) override;
     virtual int readHTTPContent(uint8_t* buf, size_t bufSize) override;
     virtual size_t httpContentLength() override;
+    virtual bool addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength) override;
+    virtual const char* getParamValue(const char* id) override;
 
 private:
+    WiFiManager _wifiManager;
+    Preferences _prefs;
+
+
 };
 
