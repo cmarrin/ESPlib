@@ -36,6 +36,7 @@ public:
     virtual void sendHTTPResponse(int code, const char* mimetype = nullptr, const std::string& data = "") override;
     virtual int readHTTPContent(uint8_t* buf, size_t bufSize) override;
     virtual size_t httpContentLength() override;
+    virtual std::string getHTTPArg(const std::string& uri, const char* name) override;
     virtual bool addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength) override;
     virtual const char* getParamValue(const char* id) override;
 

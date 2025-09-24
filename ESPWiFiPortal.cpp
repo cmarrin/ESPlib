@@ -158,6 +158,12 @@ ESPWiFiPortal::httpContentLength()
     return 0;
 }
 
+std::string
+ESPWiFiPortal::getHTTPArg(const std::string& uri, const char* name)
+{
+    return _wifiManager.server->arg(name).c_str();
+}
+
 bool
 ESPWiFiPortal::addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength)
 {
