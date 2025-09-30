@@ -33,7 +33,8 @@ public:
     virtual void startWebPortal() override;
     virtual std::string localIP() override;
     virtual const char* getSSID() override;
-    virtual void sendHTTPResponse(int code, const char* mimetype = nullptr, const std::string& data = "") override;
+    virtual void sendHTTPResponse(int code, const char* mimetype = nullptr, const char* data = "") override;
+    virtual void sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip) override;
     virtual int readHTTPContent(uint8_t* buf, size_t bufSize) override;
     virtual size_t httpContentLength() override;
     virtual std::string getHTTPArg(const std::string& uri, const char* name) override;

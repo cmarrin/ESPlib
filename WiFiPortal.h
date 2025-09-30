@@ -128,8 +128,9 @@ public:
     // Get the SSID of the captive portal if in config mode. Otherwise get the SSID of the network currently connected to
     virtual const char* getSSID() { return "unknown"; }
     
-    // Send a response to the requestor
-    virtual void sendHTTPResponse(int code, const char* mimetype = nullptr, const std::string& data = "") { }
+    // Send a response to the requestor. The second form allows sending of binary data, possibly in GZIP format
+    virtual void sendHTTPResponse(int code, const char* mimetype = nullptr, const char* data = "") { }
+    virtual void sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip) { }
     
     // Read content from an incoming HTTP request. Must be called from inside a HandleRequestCB. A buffer no larger
     // than bufSize will be returned, but it could be smaller. If data was returned the return value will

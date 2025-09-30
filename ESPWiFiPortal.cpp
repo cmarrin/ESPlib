@@ -142,9 +142,22 @@ ESPWiFiPortal::getSSID()
 }
 
 void
-ESPWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const std::string& data)
+ESPWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const char* data)
 {
+    _wifiManager.server->send(code, mimetype, data);
 }
+
+void
+ESPWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip)
+{
+    if (gzip) {
+        _wifiManager.server->sendHeader("Content-Encoding", "gzip", true);
+    }
+    
+    _wifiManager.server->setContentLength(length);
+    _wifiManager.server->send(code, mimetype);
+    _wifiManager.server->sendContent(data, length);
+}    
 
 int
 ESPWiFiPortal::readHTTPContent(uint8_t* buf, size_t bufSize)
