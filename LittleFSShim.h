@@ -7,6 +7,8 @@ Copyright (c) 2025, Chris Marrin
 All rights reserved.
 -------------------------------------------------------------------------*/
 
+#pragma once
+
 #include "mil.h"
 
 #include <fstream>
@@ -25,6 +27,14 @@ class File
 {
   public:
     File(const std::filesystem::path& path, const char* mode = "r");
+    File() { }
+    File(const File& file)
+        : _file(file._file)
+        , _dir(file._dir)
+        , _isDir(file._isDir)
+        , _path(file._path)
+    {
+    }
 
     ~File() { close(); }
     
@@ -45,17 +55,16 @@ class File
     const char* name() const;
     
     bool isDirectory();
-    std::string getNextFileName();
-    std::string getNextFileName(bool* isDir);
+    File openNextFile();
     void rewindDirectory();
     
-    operator bool() const { return _good; }
+    operator bool() const { return _isDir || (_file && _file->good()); }
+    
   private:
-    std::fstream _file;
+    std::fstream* _file = nullptr;
     std::filesystem::directory_iterator _dir;
     bool _isDir = false;
     std::filesystem::path _path;
-    bool _good = false;
 };
     
 class FS

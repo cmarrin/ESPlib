@@ -30,11 +30,12 @@ All rights reserved.
 
 File::File(const std::filesystem::path& path, const char* mode)
 {
+    close();
+    
     _path = path;
     if (std::filesystem::is_directory(_path)) {
         _isDir = true;
         _dir = std::filesystem::directory_iterator(_path);
-        _good = true;
     } else {
         _isDir = false;
 
@@ -56,8 +57,7 @@ File::File(const std::filesystem::path& path, const char* mode)
         
         iosMode |=  std::ios::binary;
         
-        _file = std::fstream(_path, iosMode);
-        _good = _file.good();
+        _file = new std::fstream(_path, iosMode);
     }
 }
 
@@ -68,8 +68,8 @@ File::write(const uint8_t* buf, size_t size)
         return -1;
     }
     
-    _file.write(reinterpret_cast<const char*>(buf), size);
-    return _file.good() ? size : -1;
+    _file->write(reinterpret_cast<const char*>(buf), size);
+    return _file->good() ? size : -1;
 }
 
 size_t
@@ -79,8 +79,8 @@ File::write(uint8_t c)
         return -1;
     }
     
-    _file.write(reinterpret_cast<const char*>(&c), 1);
-    return _file.good() ? 1 : -1;
+    _file->write(reinterpret_cast<const char*>(&c), 1);
+    return _file->good() ? 1 : -1;
 }
 
 size_t
@@ -90,8 +90,8 @@ File::read(uint8_t* buf, size_t size)
         return -1;
     }
     
-    _file.read(reinterpret_cast<char*>(buf), size);
-    return _file.good() ? size : -1;
+    _file->read(reinterpret_cast<char*>(buf), size);
+    return _file->good() ? size : -1;
 }
 
 int
@@ -102,8 +102,8 @@ File::read()
     }
     
     uint8_t c;
-    _file.read(reinterpret_cast<char*>(&c), 1);
-    return _file.good() ? c : -1;
+    _file->read(reinterpret_cast<char*>(&c), 1);
+    return _file->good() ? c : -1;
 }
 
 int
@@ -113,8 +113,8 @@ File::peek()
         return -1;
     }
     
-    int c = _file.peek();
-    return _file.good() ? c : -1;
+    int c = _file->peek();
+    return _file->good() ? c : -1;
 }
 
 void
@@ -124,7 +124,7 @@ File::flush()
         return;
     }
     
-    _file.flush();
+    _file->flush();
 }
 
 bool
@@ -140,8 +140,8 @@ File::seek(uint32_t pos, SeekMode mode)
         case SeekCur: dir = std::ios_base::cur; break;
         case SeekEnd: dir = std::ios_base::end; break;
     }
-    _file.seekp(pos, dir);
-    return _file.good();
+    _file->seekp(pos, dir);
+    return _file->good();
 }
 
 size_t
@@ -151,7 +151,7 @@ File::position() const
         return -1;
     }
     
-    return const_cast<File*>(this)->_file.tellp();
+    return const_cast<File*>(this)->_file->tellp();
 }
 
 size_t
@@ -172,7 +172,8 @@ File::size() const
 void
 File::close()
 {
-    _file.close();
+    _file->close();
+    _file = nullptr;
 }
 
 const char*
@@ -193,24 +194,16 @@ File::isDirectory()
     return _isDir;
 }
 
-std::string
-File::getNextFileName()
-{
-    bool b;
-    return getNextFileName(&b);
-}
-
-std::string
-File::getNextFileName(bool* isDir)
+File
+File::openNextFile()
 {
     if (!_isDir) {
-        return "";
+        return File();
     }
     
     std::filesystem::path path = _dir->path();
-    *isDir = _dir->is_directory();
     _dir++;
-    return path.filename().c_str();
+    return File(path);
 }
 
 void
