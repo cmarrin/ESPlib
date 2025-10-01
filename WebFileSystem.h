@@ -7,6 +7,8 @@ Copyright (c) 2025, Chris Marrin
 All rights reserved.
 -------------------------------------------------------------------------*/
 
+#pragma once
+
 #if defined ARDUINO
 #include "LittleFS.h"
 #else
@@ -20,13 +22,16 @@ All rights reserved.
 
 namespace mil {
 
-class WFS
+class Application;
+
+class WebFileSystem
 {
   public:    
-    bool begin(bool format);
+    bool begin(Application*, bool format);
     File open(const char* path, const char* mode = "r", bool create = false);
     
   private:
+    std::string listDir(const char* dirname, uint8_t levels);
 };
 
 }

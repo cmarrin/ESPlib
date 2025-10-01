@@ -9,19 +9,6 @@ All rights reserved.
 
 #include "Application.h"
 
-#define USE_GZIP_FILEMGR
-#ifdef USE_GZIP_FILEMGR
-#include "filemgr.gz.h"
-#define FILEMGR_NAME filemgr_html_gz
-#define FILEMGR_LEN_NAME filemgr_html_gz_len
-#define FILEMGR_IS_GZIP true
-#else
-#include "filemgr.h"
-#define FILEMGR_NAME filemgr_html
-#define FILEMGR_LEN_NAME filemgr_html_len
-#define FILEMGR_IS_GZIP false
-#endif
-
 using namespace mil;
 
 static constexpr int MaxHostnameLength = 40;
@@ -62,8 +49,6 @@ Application::startNetwork()
 	_blinker.setRate(ConnectingRate);
     addParam("hostname", "Hostname", "set_new_hostname",  MaxHostnameLength);
     
-    setCustomMenuHTML("<form action='/fs' method='get'><button>File Manager</button></form><br/>\n");
-
     std::vector<const char *> menu = { "custom", "wifi", "info", "restart", "sep", "update" };
     _portal->setMenu(menu);
     
@@ -104,13 +89,13 @@ Application::startNetwork()
     _portal->startWebPortal();
 	delay(500);
 
-    addHTTPHandler("/fs", [this](WiFiPortal* p, WiFiPortal::HTTPMethod m, const std::string& uri) -> bool
-    {
-    printf("****** Got fs request, responding with %d bytes\n", FILEMGR_LEN_NAME);
-        p->sendHTTPResponse(200, "text/html", reinterpret_cast<const char*>(FILEMGR_NAME), FILEMGR_LEN_NAME, FILEMGR_IS_GZIP);
-        return true;
-    });
+    // Start the web file system. We can't start it any earlier because this is as 
+    // early as we can add http handlers.
+    if (!_wfs.begin(this, true)) {
+        printf("***** file system initialization failed\n");
+    }
 
+    
 	sendInput(Input::Connected, false);
 }
 	

@@ -37,6 +37,7 @@ All rights reserved.
 #include "StateMachine.h"
 #include "Blinker.h"
 #include "System.h"
+#include "WebFileSystem.h"
 #include "WiFiPortal.h"
 
 namespace mil {
@@ -117,6 +118,7 @@ public:
 protected:
     System _system;
     WiFiPortal* _portal;
+    WebFileSystem _wfs;
     
 private:
 	void startNetwork();
