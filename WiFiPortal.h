@@ -143,7 +143,7 @@ public:
 
     // Extract the value for the passed name from the passed uri. Arguments start after the first '?' and are of the form
     // <name>=<value>. Args are separated with '&'.
-    virtual std::string getHTTPArg(const std::string& uri, const char* name) { return ""; }
+    virtual std::string getHTTPArg(const char* name) { return ""; }
     
     // Param handling
     virtual bool addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength) { return true; }
