@@ -14,6 +14,8 @@ All rights reserved.
 #include <WiFiManager.h>
 #include "Preferences.h"
 
+namespace mil {
+
 class ESPWiFiPortal : public WiFiPortal
 {
 public:
@@ -49,3 +51,4 @@ private:
 
 };
 
+}

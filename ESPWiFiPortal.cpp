@@ -23,6 +23,7 @@ static WiFiPortal::HTTPMethod arduinoToPortalHTTPMethod(HTTPMethod method)
         default: return WiFiPortal::HTTPMethod::Any;
     }
 }
+using namespace mil;
 
 void
 ESPWiFiPortal::begin()

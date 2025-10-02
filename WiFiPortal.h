@@ -41,6 +41,8 @@ All rights reserved.
 // whatever filesystem is available, whether in flash, sd card or
 // any other persistent storage.
 
+namespace mil {
+
 class WiFiPortal
 {
 public:
@@ -152,3 +154,5 @@ public:
     virtual bool addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength) { return true; }
     virtual const char* getParamValue(const char* id) { return ""; }
 };
+
+}
