@@ -39,12 +39,12 @@ WebFileSystem::listDir(const char* dirname, uint8_t levels)
 
     File root = open(dirname);
     if (!root){
-        printf("Failed to open directory");
+        printf("Failed to open directory\n");
         return "";
     }
     
     if (!root.isDirectory()){
-        printf("Not a directory");
+        printf("Not a directory\n");
         return "";
     }
 
@@ -100,46 +100,78 @@ WebFileSystem::begin(Application* app, bool format)
         return true;
     });
 
-    app->addHTTPHandler("/upload", [this](WiFiPortal* p, WiFiPortal::HTTPMethod m, const std::string& uri) -> bool
-    {
-        if (m == WiFiPortal::HTTPMethod::Post) {
-            std::string filename = p->httpUploadFilename();
-            
-            // Prepend a '/' if it doesn't have one
-            if (filename[0] != '/') {
-                filename = "/" + filename;
-            }
-            
-            size_t size = p->httpUploadLength();
-            uint8_t* buf = new uint8_t[size + 1];
-            p->readHTTPContent(buf, size);
- 
-            printf("Uploading file '%s', size=%u...\n", filename.c_str(), (unsigned int) size);
-            File f = open(filename.c_str(), "w");
-            if (!f) {
-                printf("***** failed to open '%s' for write\n", filename.c_str());
-            } else {
-                size_t r = f.write(buf, size);
-                if (r != size) {
-                    printf("***** failed to write '%s', error=%u\n", filename.c_str(), (unsigned int) r);
-                } else {
-                    printf("    upload complete.\n");
-                }
-            }
-            f.close();
-
-            delete [ ] buf;
-            printf("Received file '%s'\n", uri.c_str());
-            
-            p->sendHTTPResponse(200, "application/json", "{\"status\":\"success\",\"message\":\"File upload complete\"}");
-            return true;
-        }
-         return false;
-    });
+    app->addHTTPHandler("/upload", [this](WiFiPortal* p) { handleUploadFinished(p); }, [this](WiFiPortal* p) { handleUpload(p); });
 
     return LittleFS.begin(format);
 }
+
+void
+WebFileSystem::handleUpload(WiFiPortal* p)
+{
+    if (p->httpUploadStatus() == WiFiPortal::HTTPUploadStatus::Start) {
+        std::string filename = p->httpUploadFilename();
+        if (filename[0] != '/') {
+            filename = "/" + filename; // Prepend slash for SPIFFS path
+        }
+        printf("handleUpload: START, filename='%s'\n", filename.c_str());
     
+        // Open file for writing
+        _uploadFile = open(filename.c_str(), "w");
+        if (!_uploadFile) {
+            printf("Failed to open file for writing\n");
+            return;
+        }
+    } else if (p->httpUploadStatus() == WiFiPortal::HTTPUploadStatus::Write) {
+        // Write the received chunk to the file
+        if (_uploadFile) {
+            size_t currentSize = p->httpUploadCurrentSize();
+            size_t bytesWritten = _uploadFile.write(p->httpUploadBuffer(), currentSize);
+            
+            if (bytesWritten != currentSize) {
+                printf("Error writing chunk to file\n");
+                
+                // Delete the file
+                std::string filename = _uploadFile.name();
+                _uploadFile.close();
+                remove(filename.c_str());
+                return;
+            }
+            printf("handleUpload: WRITE, Bytes: %d\n", int(currentSize));
+        }
+    } else if (p->httpUploadStatus() == WiFiPortal::HTTPUploadStatus::End) {
+        if (_uploadFile) {
+            printf("handleUpload: END, Size: %d\n", int(p->httpUploadTotalSize()));
+            _uploadFile.close();
+        } else {
+            printf("handleUpload: END received but file not open.\n");
+        }
+    } else if (p->httpUploadStatus() == WiFiPortal::HTTPUploadStatus::Aborted) {
+        printf("handleUpload: Upload Aborted\n");
+        if (_uploadFile) {
+           // Delete the file
+            std::string filename = _uploadFile.name();
+            _uploadFile.close();
+            remove(filename.c_str());
+        }
+    }
+}
+
+void
+WebFileSystem::handleUploadFinished(WiFiPortal* p)
+{
+    if (p->httpUploadStatus() == WiFiPortal::HTTPUploadStatus::Aborted) {
+        p->sendHTTPResponse(500, "text/plain", "Upload Aborted");
+        printf("Reply sent: Upload Aborted\n");
+    } else if (p->httpUploadTotalSize() > 0) { // Check if any bytes were received
+        p->sendHTTPResponse(200, "text/plain", "Upload Successful!");
+        printf("Reply sent: Upload Successful\n");
+    } else {
+        // This might happen if the file was empty or write failed early
+        p->sendHTTPResponse(500, "text/plain", "Upload Failed or Empty File");
+        printf("Reply sent: Upload Failed/Empty\n");
+    }
+}
+
 File
 WebFileSystem::open(const char* path, const char* mode, bool create)
 {
