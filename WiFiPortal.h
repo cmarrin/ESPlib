@@ -49,7 +49,6 @@ public:
     enum class HTTPMethod { Get, Post, Any };
 
     using HandlerCB = std::function<void(WiFiPortal*)>;
-    using HandleRequestCB = std::function<bool(WiFiPortal*, HTTPMethod method, const std::string& uri)>;
     
     WiFiPortal() { }
     virtual ~WiFiPortal() { }
@@ -100,7 +99,7 @@ public:
     // Call the passed handler function when a request is made to the endpoint with the passed name.
     // Returns an id of the request for later use in deleting the request (not yet implemented).
     // The callback return true if it handled the request and false if not.
-    virtual int32_t addHTTPHandler(const char* endpoint, HandleRequestCB) { return -1; }
+    virtual int32_t addHTTPHandler(const char* endpoint, HandlerCB requestCB, HandlerCB uploadCB = nullptr) { return -1; }
     
     ///
     /// These next calls are used to either start the web portal or are called after
@@ -134,7 +133,7 @@ public:
     virtual void sendHTTPResponse(int code, const char* mimetype = nullptr, const char* data = "") { }
     virtual void sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip) { }
     
-    // Read content from an incoming HTTP request. Must be called from inside a HandleRequestCB. A buffer no larger
+    // Read content from an incoming HTTP request. Must be called from inside a HandlerCB. A buffer no larger
     // than bufSize will be returned, but it could be smaller. If data was returned the return value will
     // be the positive number of bytes returned. A value of 0 mean there is no more data to return and a 
     // negative value means there was an error.

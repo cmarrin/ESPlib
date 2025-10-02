@@ -78,7 +78,7 @@ IDFWiFiPortal::setShowInfoErase(bool enabled)
 }
 
 int32_t
-IDFWiFiPortal::addHTTPHandler(const char* endpoint, HandleRequestCB)
+IDFWiFiPortal::addHTTPHandler(const char* endpoint, HandlerCB)
 {
     return -1;
 }

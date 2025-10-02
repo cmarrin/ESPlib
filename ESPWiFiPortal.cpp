@@ -15,14 +15,6 @@ All rights reserved.
 #include <ESPmDNS.h>
 #endif
 
-static WiFiPortal::HTTPMethod arduinoToPortalHTTPMethod(HTTPMethod method)
-{
-    switch(method) {
-        case HTTP_GET: return WiFiPortal::HTTPMethod::Get;
-        case HTTP_POST: return WiFiPortal::HTTPMethod::Post;
-        default: return WiFiPortal::HTTPMethod::Any;
-    }
-}
 using namespace mil;
 
 void
@@ -81,9 +73,9 @@ ESPWiFiPortal::setShowInfoErase(bool enabled)
 }
 
 int32_t
-ESPWiFiPortal::addHTTPHandler(const char* endpoint, HandleRequestCB f)
+ESPWiFiPortal::addHTTPHandler(const char* endpoint, HandlerCB requestCB, HandlerCB uploadCB)
 {
-    _wifiManager.server->on(endpoint, [this, f]() { f(this, arduinoToPortalHTTPMethod(_wifiManager.server->method()), _wifiManager.server->uri().c_str()); });
+    _wifiManager.server->on(endpoint, HTTP_ANY, [this, requestCB]() { requestCB(this); }, [this, uploadCB]() { uploadCB(this); });
     return 0;
 }
 

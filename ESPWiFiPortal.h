@@ -29,7 +29,7 @@ public:
     virtual void setHostname(const char*) override;
     virtual void setConfigHandler(HandlerCB) override;
     virtual void setShowInfoErase(bool enabled) override;
-    virtual int32_t addHTTPHandler(const char* endpoint, HandleRequestCB) override;
+    virtual int32_t addHTTPHandler(const char* endpoint, HandlerCB requestCB, HandlerCB uploadCB = nullptr) override;
     virtual bool autoConnect(char const *apName, char const *apPassword = NULL) override;
     virtual void process() override;
     virtual void startWebPortal() override;

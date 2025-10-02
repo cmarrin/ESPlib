@@ -23,6 +23,7 @@ All rights reserved.
 namespace mil {
 
 class Application;
+class WiFiPortal;
 
 class WebFileSystem
 {
@@ -32,6 +33,11 @@ class WebFileSystem
     
   private:
     std::string listDir(const char* dirname, uint8_t levels);
+    
+    void handleUpload(WiFiPortal*);
+    void handleUploadFinished(WiFiPortal*);
+    
+    File _uploadFile;
 };
 
 }
