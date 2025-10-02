@@ -138,8 +138,11 @@ public:
     // negative value means there was an error.
     virtual int readHTTPContent(uint8_t* buf, size_t bufSize) { return -1; }
     
-    // Get the content-length passed in the request. Must be called inside a HandleRequestCB
-    virtual size_t httpContentLength() { return 0; }
+    // Get the content-length of the upload. Must be called inside a HandleRequestCB
+    virtual size_t httpUploadLength() { return 0; }
+    
+    // Get the content-length of the upload. Must be called inside a HandleRequestCB
+    virtual std::string httpUploadFilename() { return ""; }
 
     // Extract the value for the passed name from the passed uri. Arguments start after the first '?' and are of the form
     // <name>=<value>. Args are separated with '&'.

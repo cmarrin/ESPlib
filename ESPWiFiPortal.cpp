@@ -166,9 +166,15 @@ ESPWiFiPortal::readHTTPContent(uint8_t* buf, size_t bufSize)
 }
 
 size_t
-ESPWiFiPortal::httpContentLength()
+ESPWiFiPortal::httpUploadLength()
 {
-    return 0;
+    return _wifiManager.server->upload().totalSize;
+}
+
+std::string
+ESPWiFiPortal::httpUploadFilename()
+{
+    return _wifiManager.server->upload().filename.c_str();
 }
 
 std::string
