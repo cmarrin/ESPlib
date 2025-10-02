@@ -110,7 +110,7 @@ public:
 
     void setTitle(const char* title) { _portal->setTitle(title); }
     void setCustomMenuHTML(const char* s) { _portal->setCustomMenuHTML(s); }
-    void addHTTPHandler(const char* endpoint, WiFiPortal::HandleRequestCB h) { _portal->addHTTPHandler(endpoint, h); }
+    void addHTTPHandler(const char* endpoint, WiFiPortal::HandlerCB h, WiFiPortal::HandlerCB upl = nullptr) { _portal->addHTTPHandler(endpoint, h, upl); }
 
 protected:
     System _system;
