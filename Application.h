@@ -112,9 +112,6 @@ public:
     void setCustomMenuHTML(const char* s) { _portal->setCustomMenuHTML(s); }
     void addHTTPHandler(const char* endpoint, WiFiPortal::HandleRequestCB h) { _portal->addHTTPHandler(endpoint, h); }
 
-    int readHTTPContent(uint8_t* buf, size_t bufSize) { return _portal->readHTTPContent(buf, bufSize); }
-    size_t httpContentLength() const { return _portal->httpContentLength(); }
-    
 protected:
     System _system;
     WiFiPortal* _portal;
