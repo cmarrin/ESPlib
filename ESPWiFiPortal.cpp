@@ -152,6 +152,17 @@ ESPWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const char* data
     _wifiManager.server->sendContent(data, length);
 }    
 
+void
+ESPWiFiPortal::streamHTTPResponse(File& file, const char* mimetype)
+{
+    // For now assume this is a file download. So set Content-Disposition
+    std::string disp = "attachment; filename=\"";
+    disp += file.name();
+    disp += "\"";
+    _wifiManager.server->sendHeader("Content-Disposition", disp.c_str(), true);
+    _wifiManager.server->streamFile(file, mimetype);
+}
+
 int
 ESPWiFiPortal::readHTTPContent(uint8_t* buf, size_t bufSize)
 {
