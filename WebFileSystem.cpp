@@ -100,6 +100,43 @@ WebFileSystem::begin(Application* app, bool format)
         return true;
     });
 
+    app->addHTTPHandler("/upload", [this](WiFiPortal* p, WiFiPortal::HTTPMethod m, const std::string& uri) -> bool
+    {
+        if (m == WiFiPortal::HTTPMethod::Post) {
+            std::string filename = p->httpUploadFilename();
+            
+            // Prepend a '/' if it doesn't have one
+            if (filename[0] != '/') {
+                filename = "/" + filename;
+            }
+            
+            size_t size = p->httpUploadLength();
+            uint8_t* buf = new uint8_t[size + 1];
+            p->readHTTPContent(buf, size);
+ 
+            printf("Uploading file '%s', size=%u...\n", filename.c_str(), (unsigned int) size);
+            File f = open(filename.c_str(), "w");
+            if (!f) {
+                printf("***** failed to open '%s' for write\n", filename.c_str());
+            } else {
+                size_t r = f.write(buf, size);
+                if (r != size) {
+                    printf("***** failed to write '%s', error=%u\n", filename.c_str(), (unsigned int) r);
+                } else {
+                    printf("    upload complete.\n");
+                }
+            }
+            f.close();
+
+            delete [ ] buf;
+            printf("Received file '%s'\n", uri.c_str());
+            
+            p->sendHTTPResponse(200, "application/json", "{\"status\":\"success\",\"message\":\"File upload complete\"}");
+            return true;
+        }
+         return false;
+    });
+
     return LittleFS.begin(format);
 }
     
