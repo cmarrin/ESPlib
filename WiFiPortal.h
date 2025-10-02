@@ -11,8 +11,11 @@ All rights reserved.
 
 #include "mil.h"
 
-#include <map>
-#include <memory>
+#if defined ARDUINO
+#include "LittleFS.h"
+#else
+#include "LittleFSShim.h"
+#endif
 
 // WiFiPortal is a generic class for handling connecting to WiFi. If
 // there are saved WiFi credentials an attempt will be made to connect
@@ -132,6 +135,9 @@ public:
     // Send a response to the requestor. The second form allows sending of binary data, possibly in GZIP format
     virtual void sendHTTPResponse(int code, const char* mimetype = nullptr, const char* data = "") { }
     virtual void sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip) { }
+    
+    // Send a response with the contents of the passed File
+    virtual void streamHTTPResponse(File& file, const char* mimetype) { }
     
     // Read content from an incoming HTTP request. Must be called from inside a HandlerCB. A buffer no larger
     // than bufSize will be returned, but it could be smaller. If data was returned the return value will
