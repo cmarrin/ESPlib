@@ -100,7 +100,22 @@ WebFileSystem::begin(Application* app, bool format)
         return true;
     });
 
+    app->addHTTPHandler("/delete", [this](WiFiPortal* p)
+    {
+        std::string path = p->getHTTPArg("path");
+        if (path.empty()) {
+            p->sendHTTPResponse(400, "application/json", "{\"status\":\"error\",\"message\":\"Path not provided\"}");
+        } else if (!LittleFS.exists(path.c_str())) {
+            p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"File not found\"}");
+        } else {
+            LittleFS.remove(path.c_str());
+            p->sendHTTPResponse(200, "application/json", "{\"status\":\"success\",\"message\":\"File deleted successfully\"}");
+        }
+        return true;
+    });
+
     app->addHTTPHandler("/upload", [this](WiFiPortal* p) { handleUploadFinished(p); }, [this](WiFiPortal* p) { handleUpload(p); });
+
 
     return LittleFS.begin(format);
 }
