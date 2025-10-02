@@ -38,8 +38,13 @@ public:
     virtual void sendHTTPResponse(int code, const char* mimetype = nullptr, const char* data = "") override;
     virtual void sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip) override;
     virtual int readHTTPContent(uint8_t* buf, size_t bufSize) override;
-    virtual size_t httpUploadLength() override;
-    virtual std::string httpUploadFilename() override;
+    virtual HTTPUploadStatus httpUploadStatus() const override;
+    virtual std::string httpUploadFilename() const override;
+    virtual std::string httpUploadName() const override;
+    virtual std::string httpUploadType() const override;
+    virtual size_t httpUploadTotalSize() const override;
+    virtual size_t httpUploadCurrentSize() const override;
+    virtual const uint8_t* httpUploadBuffer() const override;
     virtual std::string getHTTPArg(const char* name) override;
     virtual bool addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength) override;
     virtual const char* getParamValue(const char* id) override;

@@ -46,7 +46,7 @@ namespace mil {
 class WiFiPortal
 {
 public:
-    enum class HTTPMethod { Get, Post, Any };
+    enum class HTTPUploadStatus { None, Start, Write, End, Aborted };
 
     using HandlerCB = std::function<void(WiFiPortal*)>;
     
@@ -139,11 +139,14 @@ public:
     // negative value means there was an error.
     virtual int readHTTPContent(uint8_t* buf, size_t bufSize) { return -1; }
     
-    // Get the content-length of the upload. Must be called inside a HandleRequestCB
-    virtual size_t httpUploadLength() { return 0; }
-    
-    // Get the content-length of the upload. Must be called inside a HandleRequestCB
-    virtual std::string httpUploadFilename() { return ""; }
+    // These methods get values for the current upload. Must be called inside a HandlerCB
+    virtual HTTPUploadStatus httpUploadStatus() const { return HTTPUploadStatus::None; }
+    virtual std::string httpUploadFilename() const { return ""; }
+    virtual std::string httpUploadName() const { return ""; }
+    virtual std::string httpUploadType() const { return ""; }
+    virtual size_t httpUploadTotalSize() const { return 0; }
+    virtual size_t httpUploadCurrentSize() const { return 0; }
+    virtual const uint8_t* httpUploadBuffer() const { return nullptr; }
 
     // Extract the value for the passed name from the passed uri. Arguments start after the first '?' and are of the form
     // <name>=<value>. Args are separated with '&'.

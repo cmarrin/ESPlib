@@ -158,16 +158,52 @@ ESPWiFiPortal::readHTTPContent(uint8_t* buf, size_t bufSize)
     return -1;
 }
 
+WiFiPortal::HTTPUploadStatus
+ESPWiFiPortal::httpUploadStatus() const
+{
+    switch(_wifiManager.server->upload().status) {
+        default: return HTTPUploadStatus::None;
+        case UPLOAD_FILE_START: return HTTPUploadStatus::Start;
+        case UPLOAD_FILE_WRITE: return HTTPUploadStatus::Write;
+        case UPLOAD_FILE_END: return HTTPUploadStatus::End;
+        case UPLOAD_FILE_ABORTED: return HTTPUploadStatus::Aborted;
+    }
+}
+
+std::string
+ESPWiFiPortal::httpUploadFilename() const
+{
+    return _wifiManager.server->upload().filename.c_str();
+}
+
+std::string
+ESPWiFiPortal::httpUploadName() const
+{
+    return _wifiManager.server->upload().name.c_str();
+}
+
+std::string
+ESPWiFiPortal::httpUploadType() const
+{
+    return _wifiManager.server->upload().type.c_str();
+}
+
 size_t
-ESPWiFiPortal::httpUploadLength()
+ESPWiFiPortal::httpUploadTotalSize() const
 {
     return _wifiManager.server->upload().totalSize;
 }
 
-std::string
-ESPWiFiPortal::httpUploadFilename()
+size_t
+ESPWiFiPortal::httpUploadCurrentSize() const
 {
-    return _wifiManager.server->upload().filename.c_str();
+    return _wifiManager.server->upload().currentSize;
+}
+
+const uint8_t*
+ESPWiFiPortal::httpUploadBuffer() const
+{
+    return _wifiManager.server->upload().buf;
 }
 
 std::string
