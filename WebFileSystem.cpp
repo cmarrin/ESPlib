@@ -71,6 +71,8 @@ WebFileSystem::listDir(const char* dirname, uint8_t levels)
             // DEBUGL(file.size());
             s += "0,";
             s += file.name();
+            s += ",";
+            s += std::to_string(file.size());
         }
         
         file = root.openNextFile();

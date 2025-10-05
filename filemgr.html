@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Manager</title>
+    <title>File Manag er</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -31,14 +31,17 @@
         }
 
         .menu-bar {
-            width: 50%;
+            display:grid;
+            justify-content:center;
+            align-content:center;
             height: auto;
-            margin:auto;
+            padding:10px;
         }
 
         .menu-bar button {
+            width: 100px;
             height: auto;
-            padding: 10px 20px;
+            padding: 10px;
             background-color: #007acc;
             border: none;
             border-radius: 5px;
@@ -46,6 +49,7 @@
             cursor: pointer;
             font-size: 14px;
             margin-left:5px;
+            text-align:center;
         }
 
         .menu-bar button:hover {
@@ -57,50 +61,33 @@
             background-color: #606060;
             color:#a0a0a0;
         }
+        
+        .menu-bar-row {
+            display:inline-block;
+            height: auto;
+            width: auto;
+            text-align:center;
+        }
 
         .menu-bar-item {
             display:inline-block;
             height: auto;
             width: auto;
-            padding:7px;
+            padding:4px;
             text-align:center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
-        .upload-box {
-            width:390px;
-            height:auto;
-            border: 1px solid white;
-            border-radius: 5px;
-            padding-top:10px;
-            padding-bottom:10px;
-        }
-        
-		input[type=file] {
-            width: 250px;
-            color: #666;
-            padding: 5px;
-            margin:auto;
-            font-size:14px;
+ 		.file-upload-input {
+            display:none;
 		}
 		
-		input[type=file]::file-selector-button {
-		  margin-right: 20px;
-		  border: none;
-		  background: #007acc;
-		  padding: 10px 20px;
-		  border-radius: 5px;
-		  color: #fff;
-		  cursor: pointer;
-		  transition: background .2s ease-in-out;
-		}
-
-		input[type=file]::file-selector-button:hover {
-		  background: #0d45a5;
-		}
-
         .container {
-            padding: 20px;
-            max-width: 1000px;
+            justify-content:center;
+            align-content:center;
+            display:flex;
             margin: 0 auto;
         }
 
@@ -123,15 +110,15 @@
         .file-manager {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            margin-top: 20px;
+            margin-top: 10px;
+            width:auto;
         }
 
         .item {
-            display: flex;
+            width:auto;
+            display:inline-block;
             justify-content: flex-start;
             align-items: center;
-            padding: 10px;
             background-color: #ffffff;
             border-radius: 5px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -139,25 +126,24 @@
 
         .icon {
             margin-right: 10px;
+            display:inline-block;
+            vertical-align:middle;
         }
-
-        .actions {
-            margin-left: auto;
+        
+        .name {
+            margin:10px;
+            width:300px;
+            display:inline-block;
+            text-overflow:ellipsis;
+            overflow:hidden;
+            white-space:nowrap;
+            vertical-align:middle;
         }
-
-        .actions button {
-            padding: 5px 10px;
-            background-color: #007acc;
-            border: none;
-            border-radius: 5px;
-            color: #ffffff;
-            cursor: pointer;
-            font-size: 12px;
-            margin-left: 5px;
-        }
-
-        .actions button:hover {
-            background-color: #005f99;
+        
+        .size {
+            margin:10px;
+            display:inline-block;
+            vertical-align:middle;
         }
 
         .upload-modal {
@@ -213,18 +199,18 @@
 <body class="invert">
     <h1>Esp File Manager</h1>
 
+    <input type="file" class="file-upload-input" id="file-upload" multiple>
     <div class="menu-bar">
-        <div class="menu-bar-item">
-            <div class="upload-box">
-                <input type="file" id="file-upload" multiple>
-                <button id="upload-button">Upload</button>
-            </div>
+        <div class="menu-bar-row">
+            <div class="menu-bar-item"><button id="upload-button">Upload</button></div>
+            <div class="menu-bar-item"><button id="new-folder-button">New Folder</button></div>
         </div>
-        <div class="menu-bar-item"><button id="new-folder-button">New Folder</button></div>
+        <div class="menu-bar-row">
+            <div class="menu-bar-item"><button id="download-button">Download</button></div>
+            <div class="menu-bar-item"><button id="delete-button">Delete</button></div>
+            <div class="menu-bar-item"><button id="view-button">View</button></div>
+        </div>
     </div>
-
-
-
 
     <div class="container">
         <button id="back-button" style="display: none;">Back</button>
@@ -261,8 +247,8 @@
 
         function parseData(data) {
             const items = data.split(':').map(item => {
-                const [type, name] = item.split(',');
-                return { type: type == '1' ? 'folder' : 'file', name };
+                const [type, name, size] = item.split(',');
+                return { type: type == '1' ? 'folder' : 'file', name, size };
             });
             return items;
         }
@@ -284,25 +270,11 @@
             itemElement.appendChild(nameElement);
 
             if (item.type === 'file') {
-                const actionsElement = document.createElement('span');
-                actionsElement.classList.add('actions');
+                const sizeElement = document.createElement('span');
+                sizeElement.classList.add('size');
+                sizeElement.textContent = item.size;
 
-                const downloadButton = document.createElement('button');
-                downloadButton.textContent = 'Download';
-                downloadButton.addEventListener('click', () => downloadFile(item.name));
-                actionsElement.appendChild(downloadButton);
-
-                
-                const deleteButton = document.createElement('button');
-                deleteButton.textContent = 'Delete';
-                deleteButton.addEventListener('click', () => deleteFile(item.name));
-                actionsElement.appendChild(deleteButton);
-                
-
-                itemElement.appendChild(actionsElement);
-            } else if (item.type === 'folder') {
-                nameElement.style.cursor = 'pointer';
-                nameElement.addEventListener('click', () => openFolder(item.name));
+                itemElement.appendChild(sizeElement);
             }
 
             return itemElement;
