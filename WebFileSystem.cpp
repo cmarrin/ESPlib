@@ -30,6 +30,19 @@ using namespace mil;
 FS LittleFS;
 #endif
 
+static std::string prettyFileSize(size_t size)
+{
+    char buf[20];
+    if (size <= 9999) {
+        snprintf(buf, 19, "%dB", int(size));
+    } else if (size <= 999999) {
+        snprintf(buf, 19, "%.1fKB", float(size) / 1000);
+    } else {
+        snprintf(buf, 19, "%.1fMB", float(size) / 1000000);
+    }
+    return buf;
+}
+
 std::string
 WebFileSystem::listDir(const char* dirname, uint8_t levels)
 {
@@ -72,7 +85,7 @@ WebFileSystem::listDir(const char* dirname, uint8_t levels)
             s += "0,";
             s += file.name();
             s += ",";
-            s += std::to_string(file.size());
+            s += prettyFileSize(file.size());
         }
         
         file = root.openNextFile();
