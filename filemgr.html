@@ -115,6 +115,7 @@
         }
 
         .item {
+            margin-bottom:8px;
             width:auto;
             display:inline-block;
             justify-content: flex-start;
@@ -125,23 +126,22 @@
         }
 
         .icon {
-            margin-right: 10px;
+            margin-right:5px;
             display:inline-block;
             vertical-align:middle;
         }
         
         .name {
-            margin:10px;
-            width:300px;
+            margin-right:5px;
+            width:250px;
             display:inline-block;
+            vertical-align:middle;
             text-overflow:ellipsis;
             overflow:hidden;
             white-space:nowrap;
-            vertical-align:middle;
         }
         
         .size {
-            margin:10px;
             display:inline-block;
             vertical-align:middle;
         }
@@ -214,7 +214,28 @@
 
     <div class="container">
         <button id="back-button" style="display: none;">Back</button>
-        <div id="file-manager" class="file-manager"></div>
+        <div id="file-manager" class="file-manager">
+            <div class="item">
+                <div class="icon file">📄</div>
+                <div class="name">Cincinnati Zoo Tickets.pdf</div>
+                <div class="size">127.5kb</div>
+            </div>
+            <div class="item">
+                <div class="icon file">📄</div>
+                <div class="name">A Short One.pdf</div>
+                <div class="size">256.5kb</div>
+            </div>
+            <div class="item">
+                <div class="icon file">📄</div>
+                <div class="name">A Really Really Really Really Really Long One.pdf</div>
+                <div class="size">256.5kb</div>
+            </div>
+            <div class="item">
+                <div class="icon file">📄</div>
+                <div class="name">Another File.pdf</div>
+                <div class="size">1573b</div>
+            </div>
+        </div>
     </div>
     <div id="upload-modal" class="upload-modal">
         <div class="progress-container">
