@@ -266,7 +266,12 @@
         const progressCircle = document.querySelector('.progress-circle');
         const progressText = document.getElementById('progress-text');
 
-        let currentPath = ['/'];
+        let currentPath = [ ];
+        
+        function makePathString(path)
+        {
+            return "/" + path.join('/');
+        }
 
         function deselectAllItems()
         {
@@ -287,7 +292,7 @@
         
         function fetchFolderContents(path)
         {
-            fetch(`/get-folder-contents?path=${path.join('/')}`)
+            fetch(`/get-folder-contents?path=${makePathString(path)}`)
                 .then(response => response.text())
                 .then(data => {
                     const items = parseData(data);
@@ -332,7 +337,7 @@
             if (item.isFolder) {
                 openFolder(item.name);
             } else {
-                const filePath = currentPath.concat(item.name).join('/');
+                const filePath = makePathString(currentPath.concat(item.name));
                 window.location.href = `/file?path=${filePath}`;
             }
         }
@@ -410,15 +415,18 @@
         {
             const name = prompt("New Folder Name");
             
+            // Make sure it doesn't contain a slash
             // Validate
-            if (name != null && name != "") {
-                const filePath = currentPath.concat(name).join('/');
+            if (name != null && name != "" && name.indexOf("/") == -1) {
+                const filePath = makePathString(currentPath.concat(name));
                 fetch(`/newfolder?path=${filePath}`, { method: 'GET' })
                 .then(() => {
                     alert('Folder created successfully!');
                     fetchFolderContents(currentPath);
                 })
                 .catch(error => console.error('Error creating folder:', error));
+            } else {
+                alert('Invalid folder name');
             }
         }
 
@@ -439,7 +447,7 @@
                 return;
             }
             
-            const filePath = currentPath.concat(item.name).join('/');
+            const filePath = makePathString(currentPath.concat(item.name));
             window.location.href = `/download?path=${filePath}`;
         }
 
@@ -450,7 +458,7 @@
                 return;
             }
             
-            const filePath = currentPath.concat(item.name).join('/');
+            const filePath = makePathString(currentPath.concat(item.name));
             fetch(`/delete?path=${filePath}`, { method: 'GET' })
                 .then(() => {
                     alert('File deleted successfully!');
