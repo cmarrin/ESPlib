@@ -257,6 +257,9 @@
         const fileManager = document.getElementById('file-manager');
         const fileUploadInput = document.getElementById('file-upload');
         const backButton = document.getElementById('back-button');
+        const viewButton = document.getElementById('view-button');
+        const deleteButton = document.getElementById('delete-button');
+        const downloadButton = document.getElementById('download-button');
         const uploadButton = document.getElementById('upload-button');
         const newFolderButton = document.getElementById('new-folder-button');
         const uploadModal = document.getElementById('upload-modal');
@@ -302,23 +305,34 @@
             return items;
         }
         
+        function updateButtons()
+        {
+            const item = getSelectedItem();
+
+            viewButton.disabled = item == null;
+            deleteButton.disabled = item == null;
+            downloadButton.disabled = item == null || item.isFolder;
+        }
+        
         function selectItem(item)
         {
             // If we clicked on the selected item, deselect it
-            const selectedItem = getSelectedItem();
+            const previouslySelectedItem = getSelectedItem();
             deselectAllItems();
-            if (selectedItem  != item) {
+            const isSelected = previouslySelectedItem != item;
+            if (isSelected) {
                 item.classList.add("selected");
             }
+            
+            updateButtons();
         }
         
-        // Item is the file item that was clicked on, itemData is the parsed data from the file list fetch
-        function viewItem(item, itemData)
+        function viewItem(item)
         {
-            if (itemData.type === 'folder') {
-                openFolder(itemData.name);
+            if (item.isFolder) {
+                openFolder(item.name);
             } else {
-                const filePath = currentPath.concat(itemData.name).join('/');
+                const filePath = currentPath.concat(item.name).join('/');
                 window.location.href = `/file?path=${filePath}`;
             }
         }
@@ -326,11 +340,16 @@
         function createItemElement(item)
         {
             const itemElement = document.createElement('div');
+
+            // Save item data in div
+            itemElement.isFolder = item.type === 'folder';
+            itemElement.name = item.name;
+            
             itemElement.classList.add('item');
 
             itemElement.style.cursor = 'pointer';
             itemElement.addEventListener('click', (event) => selectItem(event.currentTarget));
-            itemElement.addEventListener('dblclick', (event) => viewItem(event.currentTarget, item));
+            itemElement.addEventListener('dblclick', (event) => viewItem(event.currentTarget));
 
             const iconElement = document.createElement('span');
             iconElement.classList.add('icon');
@@ -383,6 +402,8 @@
             });
 
             backButton.disabled = currentPath.length <= 1;
+
+            updateButtons();
         }
 
         function createNewFolder()
@@ -401,15 +422,35 @@
             }
         }
 
-        function downloadFile(fileName)
+        function viewSelectedItem()
         {
-            const filePath = currentPath.concat(fileName).join('/');
+            const item = getSelectedItem();
+            if (item == null) {
+                return;
+            }
+            
+            viewItem(item);
+        }
+        
+        function downloadSelectedItem()
+        {
+            const item = getSelectedItem();
+            if (item == null) {
+                return;
+            }
+            
+            const filePath = currentPath.concat(item.name).join('/');
             window.location.href = `/download?path=${filePath}`;
         }
 
-        function deleteFile(fileName)
+        function deleteSelectedItem()
         {
-            const filePath = currentPath.concat(fileName).join('/');
+            const item = getSelectedItem();
+            if (item == null) {
+                return;
+            }
+            
+            const filePath = currentPath.concat(item.name).join('/');
             fetch(`/delete?path=${filePath}`, { method: 'GET' })
                 .then(() => {
                     alert('File deleted successfully!');
@@ -432,6 +473,11 @@
                 uploadFiles(files);
             }
         });
+
+        backButton.addEventListener('click', goBack);
+        viewButton.addEventListener('click', viewSelectedItem);
+        deleteButton.addEventListener('click', deleteSelectedItem);
+        downloadButton.addEventListener('click', downloadSelectedItem);
 
         function uploadFiles(files)
         {
@@ -476,7 +522,7 @@
             uploadModal.style.display = 'block';
             xhr.send(formData);
         }
-        backButton.addEventListener('click', goBack);
+                
         fetchFolderContents(currentPath);
     </script>
 </body>
