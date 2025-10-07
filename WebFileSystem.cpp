@@ -71,18 +71,9 @@ WebFileSystem::listDir(const char* dirname, uint8_t levels)
             s += ":";
 
         if (file.isDirectory()) {
-            // DEBUGF("  DIR : ");
-            // DEBUGL(file.name());
             s += "1,";
             s += file.name();
-            // if(levels){
-            //     listDir(file.path(), levels -1);
-            // }
         } else {
-            // DEBUG("  FILE: ");
-            // DEBUG(file.name());
-            // DEBUG("  SIZE: ");
-            // DEBUGL(file.size());
             s += "0,";
             s += file.name();
             s += ",";
@@ -93,7 +84,6 @@ WebFileSystem::listDir(const char* dirname, uint8_t levels)
     }
 
     file.close();
-    // DEBUGL2("Folder string ", s);
     
     return s;
 }
