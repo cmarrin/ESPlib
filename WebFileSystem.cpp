@@ -147,6 +147,25 @@ WebFileSystem::begin(Application* app, bool format)
         return true;
     });
 
+    app->addHTTPHandler("/newfolder", [this](WiFiPortal* p)
+    {
+        std::string path = p->getHTTPArg("path");
+        
+        printf("***** creating foldeer at '%s'\n", path.c_str());
+        
+        if (path.empty()) {
+            p->sendHTTPResponse(400, "application/json", "{\"status\":\"error\",\"message\":\"Path not provided\"}");
+        } else if (path.find('/') != std::string::npos) {
+            p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"Folder name cannot contain '/'\"}");
+        } else if (LittleFS.exists(path.c_str())) {
+            p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"Folder already exists\"}");
+        } else {
+            LittleFS.mkdir(path.c_str());
+            p->sendHTTPResponse(200, "application/json", "{\"status\":\"success\",\"message\":\"Folder created successfully\"}");
+        }
+        return true;
+    });
+
     app->addHTTPHandler("/delete", [this](WiFiPortal* p)
     {
         std::string path = p->getHTTPArg("path");

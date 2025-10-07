@@ -234,6 +234,7 @@
         const fileUploadInput = document.getElementById('file-upload');
         const backButton = document.getElementById('back-button');
         const uploadButton = document.getElementById('upload-button');
+        const newFolderButton = document.getElementById('new-folder-button');
         const uploadModal = document.getElementById('upload-modal');
         const progressCircle = document.querySelector('.progress-circle');
         const progressText = document.getElementById('progress-text');
@@ -326,6 +327,20 @@
             });
 
             backButton.disabled = currentPath.length <= 1;
+       }
+
+        function createNewFolder() {
+            const name = prompt("New Folder Name");
+            
+            // Validate
+            if (name != null && name != "") {
+                const filePath = currentPath.concat(name).join('/');
+                fetch(`/newfolder?path=${filePath}`, { method: 'GET' })
+                .then(() => {
+                    alert('Folder created successfully!');
+                    fetchFolderContents(currentPath);
+                })
+                .catch(error => console.error('Error creating folder:', error));
             }
         }
 
@@ -346,6 +361,10 @@
 
         uploadButton.addEventListener('click', () => {
             fileUploadInput.click();
+        });
+
+        newFolderButton.addEventListener('click', () => {
+            createNewFolder();
         });
 
         fileUploadInput.addEventListener('change', () => {
