@@ -10,6 +10,7 @@ All rights reserved.
 #include "WebFileSystem.h"
 
 #include "Application.h"
+#include <filesystem>
 
 using namespace mil;
 
@@ -97,6 +98,37 @@ WebFileSystem::listDir(const char* dirname, uint8_t levels)
     return s;
 }
 
+// Returns null if file is not a source file (cannot be displayed in web browser)
+static std::string suffixToMimeType(const std::string& filename)
+{
+    std::string suffix = std::filesystem::path(filename).extension();
+    for_each(suffix.begin(), suffix.end(), [](char& c) {
+        c = std::tolower(c);
+    });
+
+    printf("***** suffixToMimeType: suffix='%s'\n", suffix.c_str());
+
+    if (suffix == ".htm" || suffix == ".html") {
+        return "text/html";
+    } else if (suffix == ".css") {
+        return "text/css";
+    } else if (suffix == ".js") {
+        return "text/javascript";
+    } else if (suffix == ".png") {
+        return "image/png";
+    } else if (suffix == ".gif") {
+        return "image/gif";
+    } else if (suffix == ".jpg" || suffix == ".jpeg") {
+        return "image/jpeg";
+    } else if (suffix == ".pdf") {
+        return "application/pdf";
+    } else if (suffix == ".txt" || suffix == ".c" || suffix == ".h" || suffix == ".cpp" || suffix == ".hpp") {
+        return "text/plain";
+    } else {
+        return "";
+    }
+}
+
 bool
 WebFileSystem::begin(Application* app, bool format)
 {
@@ -146,6 +178,33 @@ WebFileSystem::begin(Application* app, bool format)
             } else {
                 printf("***** Download: path='%s', name='%s'\n", file.path(), file.name());
                 p->streamHTTPResponse(file, "application/octet-stream", true);
+            }
+        }
+        return true;
+    });
+
+    // Open file (downloads with "inline" disposition)
+    app->addHTTPHandler("/file", [this](WiFiPortal* p)
+    {
+        std::string path = p->getHTTPArg("path");
+        
+        if (path.empty()) {
+            p->sendHTTPResponse(400, "application/json", "{\"status\":\"error\",\"message\":\"Path not provided\"}");
+        } else if (!LittleFS.exists(path.c_str())) {
+            p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"File not found\"}");
+        } else {
+            File file = open(path.c_str(), "r");
+            if (!file) {
+                p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"File not found\"}");
+            } else {
+                std::string mime = suffixToMimeType(path);
+                printf("***** File: path='%s', mime-type='%s'\n", path.c_str(), mime.c_str());
+                
+                if (mime.empty()) {
+                    p->sendHTTPResponse(404, "text/html", "<center><h1>File cannot be displayed</h1><h2>Use Download</h2></center>");
+                } else {
+                    p->streamHTTPResponse(file, mime.c_str(), false);
+                }
             }
         }
         return true;

@@ -257,10 +257,26 @@
             });
             return items;
         }
+        
+        function selectItem(item) {
+        }
+        
+        function viewItem(item) {
+            if (item.type == "folder") {
+                openFolder(item.name);
+            } else {
+                const filePath = currentPath.concat(item.name).join('/');
+                window.location.href = `/file?path=${filePath}`;
+            }
+        }
 
         function createItemElement(item) {
             const itemElement = document.createElement('div');
             itemElement.classList.add('item');
+
+            itemElement.style.cursor = 'pointer';
+            itemElement.addEventListener('click', () => selectItem(item));
+            itemElement.addEventListener('dblclick', () => viewItem(item));
 
             const iconElement = document.createElement('span');
             iconElement.classList.add('icon');
