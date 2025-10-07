@@ -99,7 +99,7 @@
         }
 
         .item {
-            margin-bottom:8px;
+            margin-bottom:2px;
             width:auto;
             display:inline-block;
             justify-content: flex-start;
@@ -107,6 +107,16 @@
             background-color: #ffffff;
             border-radius: 5px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding:5px;
+        }
+        
+        .item:hover {
+            background-color: #005f99;
+            transition: background .2s ease-in-out;
+        }
+        
+        .selected {
+            background-color: #007acc;
         }
 
         .icon {
@@ -177,6 +187,19 @@
             background-color:#060606;
             color:#fff;
         }
+        body.invert .item:hover {
+            background-color: #203f55;
+            transition: background .2s ease-in-out;
+        }
+        body.invert .selected {
+            background-color:#007acc;
+            color:#fff;
+        }
+        body.invert .selected:hover {
+            background-color:#006abb;
+            color:#fff;
+        }
+
     </style>
 </head>
 
@@ -199,12 +222,13 @@
 
     <div class="container">
         <div id="file-manager" class="file-manager">
-            <div class="item">
+            <!-- these are dummy items used for testing. They will be replaced -->
+            <div class="item selected">
                 <div class="icon file">📄</div>
                 <div class="name">Cincinnati Zoo Tickets.pdf</div>
                 <div class="size">127.5kb</div>
             </div>
-            <div class="item">
+            <div class="item" style="background-color: #203f55">
                 <div class="icon file">📄</div>
                 <div class="name">A Short One.pdf</div>
                 <div class="size">256.5kb</div>
@@ -241,7 +265,25 @@
 
         let currentPath = ['/'];
 
-        function fetchFolderContents(path) {
+        function deselectAllItems()
+        {
+            for (const item of fileManager.children) {
+                item.classList.remove("selected");
+            }
+        }
+        
+        function getSelectedItem()
+        {
+            for (const item of fileManager.children) {
+                if (item.classList.contains("selected")) {
+                    return item;
+                }
+            }
+            return null;
+        }
+        
+        function fetchFolderContents(path)
+        {
             fetch(`/get-folder-contents?path=${path.join('/')}`)
                 .then(response => response.text())
                 .then(data => {
@@ -259,14 +301,23 @@
             return items;
         }
         
-        function selectItem(item) {
+        function selectItem(item)
+        {
+            // If we clicked on the selected item, deselect it
+            const selectedItem = getSelectedItem();
+            deselectAllItems();
+            if (selectedItem  != item) {
+                item.classList.add("selected");
+            }
         }
         
-        function viewItem(item) {
-            if (item.type == "folder") {
-                openFolder(item.name);
+        // Item is the file item that was clicked on, itemData is the parsed data from the file list fetch
+        function viewItem(item, itemData)
+        {
+            if (itemData.type === 'folder') {
+                openFolder(itemData.name);
             } else {
-                const filePath = currentPath.concat(item.name).join('/');
+                const filePath = currentPath.concat(itemData.name).join('/');
                 window.location.href = `/file?path=${filePath}`;
             }
         }
@@ -276,8 +327,8 @@
             itemElement.classList.add('item');
 
             itemElement.style.cursor = 'pointer';
-            itemElement.addEventListener('click', () => selectItem(item));
-            itemElement.addEventListener('dblclick', () => viewItem(item));
+            itemElement.addEventListener('click', (event) => selectItem(event.currentTarget));
+            itemElement.addEventListener('dblclick', (event) => viewItem(event.currentTarget, item));
 
             const iconElement = document.createElement('span');
             iconElement.classList.add('icon');
