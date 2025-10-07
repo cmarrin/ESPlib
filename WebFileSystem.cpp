@@ -141,7 +141,7 @@ WebFileSystem::begin(Application* app, bool format)
     {
         std::string path = p->getHTTPArg("path");
         
-        printf("***** creating foldeer at '%s'\n", path.c_str());
+        printf("***** creating folder at '%s'\n", path.c_str());
         
         if (path.empty()) {
             p->sendHTTPResponse(400, "application/json", "{\"status\":\"error\",\"message\":\"Path not provided\"}");
