@@ -130,6 +130,7 @@ WebFileSystem::begin(Application* app, bool format)
         return true;
     });
 
+    // Open file (downloads with "attachment" disposition)
     app->addHTTPHandler("/download", [this](WiFiPortal* p)
     {
         std::string path = p->getHTTPArg("path");
@@ -144,7 +145,7 @@ WebFileSystem::begin(Application* app, bool format)
                 p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"File not found\"}");
             } else {
                 printf("***** Download: path='%s', name='%s'\n", file.path(), file.name());
-                p->streamHTTPResponse(file, "application/octet-stream");
+                p->streamHTTPResponse(file, "application/octet-stream", true);
             }
         }
         return true;
