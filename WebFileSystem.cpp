@@ -59,6 +59,7 @@ WebFileSystem::listDir(const char* dirname, uint8_t levels)
     
     if (!root.isDirectory()){
         printf("Not a directory\n");
+        root.close();
         return "";
     }
 
@@ -148,8 +149,11 @@ WebFileSystem::begin(Application* app, bool format)
         } else if (LittleFS.exists(path.c_str())) {
             p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"Folder already exists\"}");
         } else {
-            LittleFS.mkdir(path.c_str());
-            p->sendHTTPResponse(200, "application/json", "{\"status\":\"success\",\"message\":\"Folder created successfully\"}");
+            if (LittleFS.mkdir(path.c_str())) {
+                p->sendHTTPResponse(200, "application/json", "{\"status\":\"success\",\"message\":\"Folder created successfully\"}");
+            } else {
+                p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"Could not create folder\"}");
+            }
         }
         return true;
     });
@@ -161,7 +165,7 @@ WebFileSystem::begin(Application* app, bool format)
         if (path.empty()) {
             p->sendHTTPResponse(400, "application/json", "{\"status\":\"error\",\"message\":\"Path not provided\"}");
         } else if (!LittleFS.exists(path.c_str())) {
-            p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"File not found\"}");
+            p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"Not found\"}");
         } else {
             LittleFS.remove(path.c_str());
             p->sendHTTPResponse(200, "application/json", "{\"status\":\"success\",\"message\":\"File deleted successfully\"}");
@@ -220,7 +224,12 @@ WebFileSystem::begin(Application* app, bool format)
     app->addHTTPHandler("/upload", [this](WiFiPortal* p) { handleUploadFinished(p); }, [this](WiFiPortal* p) { handleUpload(p); });
 
 
-    return LittleFS.begin(format);
+    bool retval = LittleFS.begin(format);
+    if (!retval) {
+        printf("***** error mounting littlefs\n");
+    }
+    
+    return retval;
 }
 
 void
