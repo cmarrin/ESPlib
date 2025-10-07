@@ -91,22 +91,6 @@
             margin: 0 auto;
         }
 
-        #back-button {
-            padding: 10px 20px;
-            background-color: #007acc;
-            border: none;
-            border-radius: 5px;
-            color: #ffffff;
-            cursor: pointer;
-            font-size: 14px;
-            margin-bottom: 10px;
-            display:inline-block;
-        }
-
-        #back-button:hover {
-            background-color: #005f99;
-        }
-
         .file-manager {
             display: flex;
             flex-direction: column;
@@ -203,17 +187,17 @@
     <div class="menu-bar">
         <div class="menu-bar-row">
             <div class="menu-bar-item"><button id="upload-button">Upload</button></div>
+            <div class="menu-bar-item"><button id="view-button" disabled>View</button></div>
             <div class="menu-bar-item"><button id="new-folder-button">New Folder</button></div>
         </div>
         <div class="menu-bar-row">
-            <div class="menu-bar-item"><button id="download-button">Download</button></div>
-            <div class="menu-bar-item"><button id="delete-button">Delete</button></div>
-            <div class="menu-bar-item"><button id="view-button">View</button></div>
+            <div class="menu-bar-item"><button id="back-button" disabled>Back</button></div>
+            <div class="menu-bar-item"><button id="download-button" disabled>Download</button></div>
+            <div class="menu-bar-item"><button id="delete-button" disabled>Delete</button></div>
         </div>
     </div>
 
     <div class="container">
-        <button id="back-button" style="display: none;">Back</button>
         <div id="file-manager" class="file-manager">
             <div class="item">
                 <div class="icon file">📄</div>
@@ -325,10 +309,7 @@
                 fileManager.appendChild(itemElement);
             });
 
-            if (currentPath.length > 1) {
-                backButton.style.display = 'block';
-            } else {
-                backButton.style.display = 'none';
+            backButton.disabled = currentPath.length <= 1;
             }
         }
 
