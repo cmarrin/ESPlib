@@ -293,7 +293,8 @@
                 .catch(error => console.error('Error fetching folder contents:', error));
         }
 
-        function parseData(data) {
+        function parseData(data)
+        {
             const items = data.split(':').map(item => {
                 const [type, name, size] = item.split(',');
                 return { type: type == '1' ? 'folder' : 'file', name, size };
@@ -322,7 +323,8 @@
             }
         }
 
-        function createItemElement(item) {
+        function createItemElement(item)
+        {
             const itemElement = document.createElement('div');
             itemElement.classList.add('item');
 
@@ -353,17 +355,20 @@
             return itemElement;
         }
 
-        function openFolder(folderName) {
+        function openFolder(folderName)
+        {
             currentPath.push(folderName);
             fetchFolderContents(currentPath);
         }
 
-        function goBack() {
+        function goBack()
+        {
             currentPath.pop();
             fetchFolderContents(currentPath);
         }
 
-        function displayItems(items) {
+        function displayItems(items)
+        {
             fileManager.innerHTML = '';
             items.sort((a, b) => {
                 if (a.type === b.type) {
@@ -378,9 +383,10 @@
             });
 
             backButton.disabled = currentPath.length <= 1;
-       }
+        }
 
-        function createNewFolder() {
+        function createNewFolder()
+        {
             const name = prompt("New Folder Name");
             
             // Validate
@@ -395,12 +401,14 @@
             }
         }
 
-        function downloadFile(fileName) {
+        function downloadFile(fileName)
+        {
             const filePath = currentPath.concat(fileName).join('/');
             window.location.href = `/download?path=${filePath}`;
         }
 
-        function deleteFile(fileName) {
+        function deleteFile(fileName)
+        {
             const filePath = currentPath.concat(fileName).join('/');
             fetch(`/delete?path=${filePath}`, { method: 'GET' })
                 .then(() => {
@@ -425,7 +433,8 @@
             }
         });
 
-        function uploadFiles(files) {
+        function uploadFiles(files)
+        {
             const formData = new FormData();
             Array.from(files).forEach(file => {
                 formData.append('files[]', file);
