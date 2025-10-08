@@ -35,7 +35,7 @@
             justify-content:center;
             align-content:center;
             height: auto;
-            padding:10px;
+            padding:5px;
         }
 
         .menu-bar button {
@@ -175,6 +175,42 @@
             font-size: 18px;
             color: #ffffff;
         }
+        
+        #storage {
+            margin-top:4px;
+            text-align:center;
+        }
+        
+        #storage-text {
+            font-size:14px;
+            color:#ace;
+            display:inline-block;
+        }
+        
+        #storage-box {
+            border:1px solid #ace;
+            border-radius:4px;
+            height:10px;
+            width:80px;
+            display:inline-block;
+        }
+        
+        #storage-bar {
+            height:10px;
+        }
+        
+        #storage-bar.storage-normal {
+            background-color:#0b0;
+        }
+        
+        #storage-bar.storage-warning {
+            background-color:#bb0;
+        }
+        
+        #storage-bar.storage-critical {
+            background-color:#b00;
+        }
+        
         body.invert,body.invert a,body.invert h1 {
             background-color:#060606;
             color:#fff;
@@ -205,7 +241,19 @@
 
 <body class="invert">
     <h1>Esp File Manager</h1>
-
+    <div id="storage">
+        <div id="storage-text">
+            <span><b>Storage - </b></span>
+            <span>total:</span>
+            <span id="storage-total">1.27MB</span>
+            <span> | used:</span>
+            <span id="storage-used">123.5KB</span>
+        </div>
+        <div id="storage-box">
+            <div id="storage-bar" class="storage-normal" style="width:40px"></div>
+        </div>
+    </div>
+    
     <input type="file" class="file-upload-input" id="file-upload" multiple>
     <div class="menu-bar">
         <div class="menu-bar-row">
@@ -265,9 +313,24 @@
         const uploadModal = document.getElementById('upload-modal');
         const progressCircle = document.querySelector('.progress-circle');
         const progressText = document.getElementById('progress-text');
+        const storageTotal = document.getElementById('storage-total');
+        const storageUsed = document.getElementById('storage-used');
+        const storageBar = document.getElementById('storage-bar');
 
         let currentPath = [ ];
         
+        function prettySize(size)
+        {
+            if (size <= 9999) {
+                return size.toFixed(0) + "B";
+            } else if (size <= 999999) {
+                return (size / 1000).toFixed(1) + "KB";
+            } else {
+                return (size / 1000000).toFixed(1) + "MB";
+            }
+            return buf;
+        }
+
         function makePathString(path)
         {
             return "/" + path.join('/');
@@ -374,7 +437,7 @@
             if (item.type === 'file') {
                 const sizeElement = document.createElement('span');
                 sizeElement.classList.add('size');
-                sizeElement.textContent = item.size;
+                sizeElement.textContent = prettySize(Number(item.size));
 
                 itemElement.appendChild(sizeElement);
             }
@@ -396,6 +459,20 @@
 
         function displayItems(items)
         {
+            // First item is the size (type -> totalSize, name -> usedSize)
+            const totalSize = items[0].name;
+            const usedSize = items[0].size;
+            storageTotal.innerHTML = prettySize(Number(totalSize));
+            storageUsed.innerHTML = prettySize(Number(usedSize));
+            var width = usedSize / totalSize * 80;
+            if (usedSize == 0) {
+                width = 0;
+            } else if (width < 4) {
+                width = 4;
+            }
+            storageBar.style.width = String(width) + "px";
+            items.shift();
+            
             fileManager.innerHTML = '';
             items.sort((a, b) => {
                 if (a.type === b.type) {

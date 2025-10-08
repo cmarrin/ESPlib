@@ -31,19 +31,6 @@ using namespace mil;
 FS LittleFS;
 #endif
 
-static std::string prettyFileSize(size_t size)
-{
-    char buf[20];
-    if (size <= 9999) {
-        snprintf(buf, 19, "%dB", int(size));
-    } else if (size <= 999999) {
-        snprintf(buf, 19, "%.1fKB", float(size) / 1000);
-    } else {
-        snprintf(buf, 19, "%.1fMB", float(size) / 1000000);
-    }
-    return buf;
-}
-
 std::string
 WebFileSystem::listDir(const char* dirname, uint8_t levels)
 {
@@ -78,7 +65,7 @@ WebFileSystem::listDir(const char* dirname, uint8_t levels)
             s += "0,";
             s += file.name();
             s += ",";
-            s += prettyFileSize(file.size());
+            s += std::to_string(file.size());
         }
         
         file = root.openNextFile();
@@ -133,7 +120,9 @@ WebFileSystem::begin(Application* app, bool format)
 
     app->addHTTPHandler("/get-folder-contents", [this](WiFiPortal* p)
     {
-        std::string s = listDir(p->getHTTPArg("path").c_str(), 0);
+        std::string s = "0,";
+        s += std::to_string(LittleFS.totalBytes()) + "," + std::to_string(LittleFS.usedBytes()) + ":";
+        s += listDir(p->getHTTPArg("path").c_str(), 0);
         p->sendHTTPResponse(200, "text/html", s.c_str());
         return true;
     });
