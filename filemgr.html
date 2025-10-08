@@ -303,6 +303,9 @@
 
         function parseData(data)
         {
+            if (data.length == 0) {
+                return [ ];
+            }
             const items = data.split(':').map(item => {
                 const [type, name, size] = item.split(',');
                 return { type: type == '1' ? 'folder' : 'file', name, size };
@@ -401,12 +404,19 @@
                 return a.type === 'folder' ? -1 : 1;
             });
 
-            items.forEach(item => {
-                const itemElement = createItemElement(item);
+            if (items.length == 0) {
+                // folder is empty, show a message
+                const itemElement = document.createElement('div');
+                itemElement.classList.add('item');
+                itemElement.textContent = "Folder is empty";
                 fileManager.appendChild(itemElement);
-            });
-
-            backButton.disabled = currentPath.length <= 1;
+            } else {
+                items.forEach(item => {
+                    const itemElement = createItemElement(item);
+                    fileManager.appendChild(itemElement);
+                });
+            }
+            backButton.disabled = currentPath.length == 0;
 
             updateButtons();
         }
