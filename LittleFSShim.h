@@ -84,6 +84,9 @@ class FS
  
 	bool begin(bool format);
  
+    size_t totalBytes();
+    size_t usedBytes();
+
     File open(const char* path, const char* mode = "r", bool create = false);
     
     bool exists(const char* path);

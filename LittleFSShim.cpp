@@ -256,6 +256,18 @@ FS::begin(bool format)
     return true;
 }
 
+size_t
+FS::totalBytes()
+{
+    return 1024 * 1024;
+}
+
+size_t
+FS::usedBytes()
+{
+    return 50000;
+}
+
 File
 FS::open(const char* path, const char* mode, bool create)
 {
