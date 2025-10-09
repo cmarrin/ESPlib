@@ -239,14 +239,15 @@ void
 WebFileSystem::handleUpload(WiFiPortal* p)
 {
     if (p->httpUploadStatus() == WiFiPortal::HTTPUploadStatus::Start) {
-        std::string filename = p->httpUploadFilename();
-        if (filename[0] != '/') {
-            filename = "/" + filename; // Prepend slash for SPIFFS path
+        _uploadFilename = p->httpUploadFilename();
+        _uploadAborted = false;
+        if (_uploadFilename[0] != '/') {
+            _uploadFilename = "/" + _uploadFilename; // Prepend slash for SPIFFS path
         }
-        printf("handleUpload: START, filename='%s'\n", filename.c_str());
+        printf("handleUpload: START, filename='%s'\n", _uploadFilename.c_str());
     
         // Open file for writing
-        _uploadFile = open(filename.c_str(), "w");
+        _uploadFile = open(_uploadFilename.c_str(), "w");
         if (!_uploadFile) {
             printf("Failed to open file for writing\n");
             return;
@@ -258,12 +259,12 @@ WebFileSystem::handleUpload(WiFiPortal* p)
             size_t bytesWritten = _uploadFile.write(p->httpUploadBuffer(), currentSize);
             
             if (bytesWritten != currentSize) {
-                printf("Error writing chunk to file\n");
+                printf("Error writing chunk to file. Deleting '%s'\n", _uploadFilename.c_str());
                 
                 // Delete the file
-                std::string filename = _uploadFile.name();
                 _uploadFile.close();
-                remove(filename.c_str());
+                remove(_uploadFilename.c_str());
+                _uploadAborted = true;
                 return;
             }
             printf("handleUpload: WRITE, Bytes: %d\n", int(currentSize));
@@ -289,7 +290,7 @@ WebFileSystem::handleUpload(WiFiPortal* p)
 void
 WebFileSystem::handleUploadFinished(WiFiPortal* p)
 {
-    if (p->httpUploadStatus() == WiFiPortal::HTTPUploadStatus::Aborted) {
+    if (p->httpUploadStatus() == WiFiPortal::HTTPUploadStatus::Aborted || _uploadAborted) {
         p->sendHTTPResponse(500, "text/plain", "Upload Aborted");
         printf("Reply sent: Upload Aborted\n");
     } else if (p->httpUploadTotalSize() > 0) { // Check if any bytes were received

@@ -38,6 +38,8 @@ class WebFileSystem
     void handleUploadFinished(WiFiPortal*);
     
     File _uploadFile;
+    bool _uploadAborted = false;
+    std::string _uploadFilename;
 };
 
 }
