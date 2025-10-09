@@ -84,8 +84,6 @@ static std::string suffixToMimeType(const std::string& filename)
         c = std::tolower(c);
     });
 
-    printf("***** suffixToMimeType: suffix='%s'\n", suffix.c_str());
-
     if (suffix == ".htm" || suffix == ".html") {
         return "text/html";
     } else if (suffix == ".css") {
@@ -134,8 +132,6 @@ WebFileSystem::begin(Application* app, bool format)
     app->addHTTPHandler("/newfolder", [this](WiFiPortal* p)
     {
         std::string path = p->getHTTPArg("path");
-        
-        printf("***** creating folder at '%s'\n", path.c_str());
         
         if (path.empty()) {
             p->sendHTTPResponse(400, "application/json", "{\"status\":\"error\",\"message\":\"Path not provided\"}");
@@ -248,7 +244,6 @@ WebFileSystem::handleUpload(WiFiPortal* p)
         if (_uploadFilename[0] != '/') {
             _uploadFilename = "/" + _uploadFilename; // Prepend slash for SPIFFS path
         }
-        printf("handleUpload: START, filename='%s'\n", _uploadFilename.c_str());
     
         // Open file for writing
         _uploadFile = open(_uploadFilename.c_str(), "w");
@@ -271,11 +266,9 @@ WebFileSystem::handleUpload(WiFiPortal* p)
                 _uploadAborted = true;
                 return;
             }
-            printf("handleUpload: WRITE, Bytes: %d\n", int(currentSize));
         }
     } else if (p->httpUploadStatus() == WiFiPortal::HTTPUploadStatus::End) {
         if (_uploadFile) {
-            printf("handleUpload: END, Size: %d\n", int(p->httpUploadTotalSize()));
             _uploadFile.close();
         } else {
             printf("handleUpload: END received but file not open.\n");

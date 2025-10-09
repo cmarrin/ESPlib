@@ -161,8 +161,6 @@ ESPWiFiPortal::streamHTTPResponse(File& file, const char* mimetype, bool attach)
     disp += file.name();
     disp += "\"";
     _wifiManager.server->sendHeader("Content-Disposition", disp.c_str(), true);
-    
-    printf("***** streamHTTPResponse: header=Content-Disposition: %s\n", disp.c_str());
     _wifiManager.server->streamFile(file, mimetype);
 }
 
