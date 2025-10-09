@@ -462,8 +462,12 @@
             // First item is the size (type -> totalSize, name -> usedSize)
             const totalSize = items[0].name;
             const usedSize = items[0].size;
+            
+            // Set sizes
             storageTotal.innerHTML = prettySize(Number(totalSize));
             storageUsed.innerHTML = prettySize(Number(usedSize));
+            
+            // Set bar graph
             var width = usedSize / totalSize * 80;
             if (usedSize == 0) {
                 width = 0;
@@ -471,6 +475,16 @@
                 width = 4;
             }
             storageBar.style.width = String(width) + "px";
+            
+            // Set the bar graph color
+            if (width < 65) {
+                storageBar.className = "storage-normal";
+            } else if (width < 72) {
+                storageBar.className = "storage-warning";
+            } else {
+                storageBar.className = "storage-critical";
+            }
+            
             items.shift();
             
             fileManager.innerHTML = '';
