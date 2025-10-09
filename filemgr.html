@@ -589,6 +589,7 @@
         function uploadFiles(files)
         {
             const formData = new FormData();
+            formData.append('path', makePathString(currentPath));
             Array.from(files).forEach(file => {
                 formData.append('files[]', file);
             });

@@ -239,11 +239,8 @@ void
 WebFileSystem::handleUpload(WiFiPortal* p)
 {
     if (p->httpUploadStatus() == WiFiPortal::HTTPUploadStatus::Start) {
-        _uploadFilename = p->httpUploadFilename();
+        _uploadFilename = p->getHTTPArg("path") + "/" + p->httpUploadFilename();
         _uploadAborted = false;
-        if (_uploadFilename[0] != '/') {
-            _uploadFilename = "/" + _uploadFilename; // Prepend slash for SPIFFS path
-        }
     
         // Open file for writing
         _uploadFile = open(_uploadFilename.c_str(), "w");
