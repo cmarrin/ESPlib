@@ -522,7 +522,6 @@
                 const filePath = makePathString(currentPath.concat(name));
                 fetch(`/newfolder?path=${filePath}`, { method: 'GET' })
                 .then(() => {
-                    alert('Folder created successfully!');
                     fetchFolderContents(currentPath);
                 })
                 .catch(error => console.error('Error creating folder:', error));
@@ -562,7 +561,6 @@
             const filePath = makePathString(currentPath.concat(item.name));
             fetch(`/delete?path=${filePath}`, { method: 'GET' })
                 .then(() => {
-                    alert('File deleted successfully!');
                     fetchFolderContents(currentPath);
                 })
                 .catch(error => console.error('Error deleting file:', error));
@@ -613,13 +611,13 @@
 
             xhr.onload = () => {
                 if (xhr.status === 200) {
-                    alert('File uploaded successfully!');
                     progressText.textContent = 'Upload complete!';
                     setTimeout(() => {
                         uploadModal.style.display = 'none';
                         fetchFolderContents(currentPath);
                     }, 500);
                 } else {
+                    alert('File upload failed');
                     console.error('Upload failed:', xhr.responseText);
                 }
             };
