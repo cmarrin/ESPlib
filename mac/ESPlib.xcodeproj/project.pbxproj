@@ -10,23 +10,22 @@
 		49E65B902E9C3A7600D3C6C5 /* Font_8x8_8pt.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B742E9C3A7600D3C6C5 /* Font_8x8_8pt.h */; };
 		49E65B912E9C3A7600D3C6C5 /* Font_Compact_5pt.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B752E9C3A7600D3C6C5 /* Font_Compact_5pt.h */; };
 		49E65B922E9C3A7600D3C6C5 /* filemgr.gz.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B722E9C3A7600D3C6C5 /* filemgr.gz.h */; };
-		49E65B932E9C3A7600D3C6C5 /* Blinker.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B652E9C3A7600D3C6C5 /* Blinker.h */; };
-		49E65B942E9C3A7600D3C6C5 /* mil.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B822E9C3A7600D3C6C5 /* mil.h */; };
-		49E65B962E9C3A7600D3C6C5 /* WebShell.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B8C2E9C3A7600D3C6C5 /* WebShell.h */; };
-		49E65B982E9C3A7600D3C6C5 /* WiFiPortal.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B8E2E9C3A7600D3C6C5 /* WiFiPortal.h */; };
-		49E65B992E9C3A7600D3C6C5 /* Clock.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B6A2E9C3A7600D3C6C5 /* Clock.h */; };
-		49E65B9B2E9C3A7600D3C6C5 /* StateMachine.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B842E9C3A7600D3C6C5 /* StateMachine.h */; };
-		49E65B9C2E9C3A7600D3C6C5 /* TimeWeatherServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B882E9C3A7600D3C6C5 /* TimeWeatherServer.h */; };
-		49E65B9D2E9C3A7600D3C6C5 /* NeoPixel.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B832E9C3A7600D3C6C5 /* NeoPixel.h */; };
-		49E65B9E2E9C3A7600D3C6C5 /* BrightnessManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B662E9C3A7600D3C6C5 /* BrightnessManager.h */; };
-		49E65B9F2E9C3A7600D3C6C5 /* filemgr.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B702E9C3A7600D3C6C5 /* filemgr.h */; };
-		49E65BA02E9C3A7600D3C6C5 /* ButtonManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B682E9C3A7600D3C6C5 /* ButtonManager.h */; };
-		49E65BA12E9C3A7600D3C6C5 /* Application.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B632E9C3A7600D3C6C5 /* Application.h */; };
+		49E65B932E9C3A7600D3C6C5 /* Blinker.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B652E9C3A7600D3C6C5 /* Blinker.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		49E65B942E9C3A7600D3C6C5 /* mil.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B822E9C3A7600D3C6C5 /* mil.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		49E65B962E9C3A7600D3C6C5 /* WebShell.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B8C2E9C3A7600D3C6C5 /* WebShell.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		49E65B982E9C3A7600D3C6C5 /* WiFiPortal.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B8E2E9C3A7600D3C6C5 /* WiFiPortal.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		49E65B992E9C3A7600D3C6C5 /* Clock.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B6A2E9C3A7600D3C6C5 /* Clock.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		49E65B9B2E9C3A7600D3C6C5 /* StateMachine.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B842E9C3A7600D3C6C5 /* StateMachine.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		49E65B9C2E9C3A7600D3C6C5 /* TimeWeatherServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B882E9C3A7600D3C6C5 /* TimeWeatherServer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		49E65B9E2E9C3A7600D3C6C5 /* BrightnessManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B662E9C3A7600D3C6C5 /* BrightnessManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		49E65B9F2E9C3A7600D3C6C5 /* filemgr.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B702E9C3A7600D3C6C5 /* filemgr.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		49E65BA02E9C3A7600D3C6C5 /* ButtonManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B682E9C3A7600D3C6C5 /* ButtonManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		49E65BA12E9C3A7600D3C6C5 /* Application.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B632E9C3A7600D3C6C5 /* Application.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		49E65BA22E9C3A7600D3C6C5 /* JsonStreamingParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B792E9C3A7600D3C6C5 /* JsonStreamingParser.h */; };
-		49E65BA32E9C3A7600D3C6C5 /* System.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B862E9C3A7600D3C6C5 /* System.h */; };
+		49E65BA32E9C3A7600D3C6C5 /* System.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B862E9C3A7600D3C6C5 /* System.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		49E65BA42E9C3A7600D3C6C5 /* JsonListener.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B782E9C3A7600D3C6C5 /* JsonListener.h */; };
-		49E65BA52E9C3A7600D3C6C5 /* LittleFSShim.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B7C2E9C3A7600D3C6C5 /* LittleFSShim.h */; };
-		49E65BA72E9C3A7600D3C6C5 /* WebFileSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B8A2E9C3A7600D3C6C5 /* WebFileSystem.h */; };
+		49E65BA52E9C3A7600D3C6C5 /* LittleFSShim.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B7C2E9C3A7600D3C6C5 /* LittleFSShim.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		49E65BA72E9C3A7600D3C6C5 /* WebFileSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B8A2E9C3A7600D3C6C5 /* WebFileSystem.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		49E65BA82E9C3A7600D3C6C5 /* WebShell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B8D2E9C3A7600D3C6C5 /* WebShell.cpp */; };
 		49E65BAA2E9C3A7600D3C6C5 /* TimeWeatherServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B892E9C3A7600D3C6C5 /* TimeWeatherServer.cpp */; };
 		49E65BAD2E9C3A7600D3C6C5 /* LittleFSShim.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B7D2E9C3A7600D3C6C5 /* LittleFSShim.cpp */; };
@@ -72,7 +71,6 @@
 		49E65B802E9C3A7600D3C6C5 /* MenuSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MenuSystem.h; path = ../MenuSystem.h; sourceTree = SOURCE_ROOT; };
 		49E65B812E9C3A7600D3C6C5 /* MenuSystem.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MenuSystem.cpp; path = ../MenuSystem.cpp; sourceTree = SOURCE_ROOT; };
 		49E65B822E9C3A7600D3C6C5 /* mil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mil.h; path = ../mil.h; sourceTree = SOURCE_ROOT; };
-		49E65B832E9C3A7600D3C6C5 /* NeoPixel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NeoPixel.h; path = ../NeoPixel.h; sourceTree = SOURCE_ROOT; };
 		49E65B842E9C3A7600D3C6C5 /* StateMachine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = StateMachine.h; path = ../StateMachine.h; sourceTree = SOURCE_ROOT; };
 		49E65B852E9C3A7600D3C6C5 /* system.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = system.html; path = ../system.html; sourceTree = SOURCE_ROOT; };
 		49E65B862E9C3A7600D3C6C5 /* System.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = System.h; path = ../System.h; sourceTree = SOURCE_ROOT; };
@@ -131,7 +129,6 @@
 				49E65B802E9C3A7600D3C6C5 /* MenuSystem.h */,
 				49E65B812E9C3A7600D3C6C5 /* MenuSystem.cpp */,
 				49E65B822E9C3A7600D3C6C5 /* mil.h */,
-				49E65B832E9C3A7600D3C6C5 /* NeoPixel.h */,
 				49E65B842E9C3A7600D3C6C5 /* StateMachine.h */,
 				49E65B852E9C3A7600D3C6C5 /* system.html */,
 				49E65B862E9C3A7600D3C6C5 /* System.h */,
@@ -172,7 +169,6 @@
 				49E65B992E9C3A7600D3C6C5 /* Clock.h in Headers */,
 				49E65B9B2E9C3A7600D3C6C5 /* StateMachine.h in Headers */,
 				49E65B9C2E9C3A7600D3C6C5 /* TimeWeatherServer.h in Headers */,
-				49E65B9D2E9C3A7600D3C6C5 /* NeoPixel.h in Headers */,
 				49E65B9E2E9C3A7600D3C6C5 /* BrightnessManager.h in Headers */,
 				49E65B9F2E9C3A7600D3C6C5 /* filemgr.h in Headers */,
 				49E65BA02E9C3A7600D3C6C5 /* ButtonManager.h in Headers */,
@@ -195,6 +191,7 @@
 				49E65AFD2E9C36F800D3C6C5 /* Headers */,
 				49E65AFE2E9C36F800D3C6C5 /* Sources */,
 				49E65AFF2E9C36F800D3C6C5 /* Frameworks */,
+				495AB4522E9C5B8900C4C2C4 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -239,6 +236,27 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		495AB4522E9C5B8900C4C2C4 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path\necho hello\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		49E65AFE2E9C36F800D3C6C5 /* Sources */ = {
