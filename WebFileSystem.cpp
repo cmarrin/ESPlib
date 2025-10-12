@@ -63,9 +63,7 @@ static std::string suffixToMimeType(const std::string& filename)
 bool
 WebFileSystem::begin(Application* app, bool format)
 {
-    app->setCustomMenuHTML("<form action='/fs' method='get'><button>File Manager</button></form><br/>\n");
-
-    app->addHTTPHandler("/fs", [this](WiFiPortal* p)
+    app->addHTTPHandler("/filemgr", [this](WiFiPortal* p)
     {
         p->sendHTTPResponse(200, "text/html", reinterpret_cast<const char*>(FILEMGR_NAME), FILEMGR_LEN_NAME, FILEMGR_IS_GZIP);
         return true;
