@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #007acc;
+            text-align:center;
+        }
+
+        .menu-bar {
+            display:grid;
+            justify-content:center;
+            align-content:center;
+            height: auto;
+            padding:5px;
+        }
+
+        .menu-bar a {
+            width: 100px;
+            height: auto;
+            padding: 10px;
+            background-color: #007acc;
+            border: none;
+            border-radius: 5px;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left:5px;
+            text-align:center;
+            text-decoration: none;
+        }
+
+        .menu-bar a:hover {
+            background-color: #005f99;
+            transition: background .2s ease-in-out;
+        }
+
+        .menu-bar-row {
+            display:inline-block;
+            height: auto;
+            width: auto;
+            text-align:center;
+        }
+
+        .menu-bar-item {
+            display:inline-block;
+            height: auto;
+            width: auto;
+            padding:4px;
+            text-align:center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        body.invert,body.invert h1 {
+            background-color:#060606;
+            color:#fff;
+        }
+    </style>
+</head>
+
+<body class="invert">
+    <h1>Esp System</h1>
+    <div class="menu-bar">
+        <div class="menu-bar-row">
+            <a class="menu-bar-item" href="/filemgr">File Manager</a>
+            <a class="menu-bar-item" href="/shell">Shell</a>
+        </div>
+    </div>
+</body>
+
+</html>
