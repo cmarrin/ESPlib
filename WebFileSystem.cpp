@@ -31,51 +31,6 @@ using namespace mil;
 FS LittleFS;
 #endif
 
-std::string
-WebFileSystem::listDir(const char* dirname, uint8_t levels)
-{
-    std::string s;
-    
-    printf("Listing directory: %s\n", dirname);
-
-    File root = open(dirname);
-    if (!root){
-        printf("Failed to open directory\n");
-        return "";
-    }
-    
-    if (!root.isDirectory()){
-        printf("Not a directory\n");
-        root.close();
-        return "";
-    }
-
-    bool first_files = true;
-    File file = root.openNextFile();
-    while(file){
-        if (first_files)
-            first_files = false;
-        else 
-            s += ":";
-
-        if (file.isDirectory()) {
-            s += "1,";
-            s += file.name();
-        } else {
-            s += "0,";
-            s += file.name();
-            s += ",";
-            s += std::to_string(file.size());
-        }
-        
-        file = root.openNextFile();
-    }
-
-    file.close();
-    
-    return s;
-}
-
 // Returns null if file is not a source file (cannot be displayed in web browser)
 static std::string suffixToMimeType(const std::string& filename)
 {
@@ -233,6 +188,51 @@ WebFileSystem::begin(Application* app, bool format)
     }
     
     return retval;
+}
+
+std::string
+WebFileSystem::listDir(const char* dirname, uint8_t levels)
+{
+    std::string s;
+    
+    printf("Listing directory: %s\n", dirname);
+
+    File root = open(dirname);
+    if (!root){
+        printf("Failed to open directory\n");
+        return "";
+    }
+    
+    if (!root.isDirectory()){
+        printf("Not a directory\n");
+        root.close();
+        return "";
+    }
+
+    bool first_files = true;
+    File file = root.openNextFile();
+    while(file){
+        if (first_files)
+            first_files = false;
+        else 
+            s += ":";
+
+        if (file.isDirectory()) {
+            s += "1,";
+            s += file.name();
+        } else {
+            s += "0,";
+            s += file.name();
+            s += ",";
+            s += std::to_string(file.size());
+        }
+        
+        file = root.openNextFile();
+    }
+
+    file.close();
+    
+    return s;
 }
 
 void
