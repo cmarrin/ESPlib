@@ -1,0 +1,423 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		49E65B902E9C3A7600D3C6C5 /* Font_8x8_8pt.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B742E9C3A7600D3C6C5 /* Font_8x8_8pt.h */; };
+		49E65B912E9C3A7600D3C6C5 /* Font_Compact_5pt.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B752E9C3A7600D3C6C5 /* Font_Compact_5pt.h */; };
+		49E65B922E9C3A7600D3C6C5 /* filemgr.gz.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B722E9C3A7600D3C6C5 /* filemgr.gz.h */; };
+		49E65B932E9C3A7600D3C6C5 /* Blinker.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B652E9C3A7600D3C6C5 /* Blinker.h */; };
+		49E65B942E9C3A7600D3C6C5 /* mil.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B822E9C3A7600D3C6C5 /* mil.h */; };
+		49E65B962E9C3A7600D3C6C5 /* WebShell.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B8C2E9C3A7600D3C6C5 /* WebShell.h */; };
+		49E65B982E9C3A7600D3C6C5 /* WiFiPortal.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B8E2E9C3A7600D3C6C5 /* WiFiPortal.h */; };
+		49E65B992E9C3A7600D3C6C5 /* Clock.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B6A2E9C3A7600D3C6C5 /* Clock.h */; };
+		49E65B9B2E9C3A7600D3C6C5 /* StateMachine.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B842E9C3A7600D3C6C5 /* StateMachine.h */; };
+		49E65B9C2E9C3A7600D3C6C5 /* TimeWeatherServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B882E9C3A7600D3C6C5 /* TimeWeatherServer.h */; };
+		49E65B9D2E9C3A7600D3C6C5 /* NeoPixel.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B832E9C3A7600D3C6C5 /* NeoPixel.h */; };
+		49E65B9E2E9C3A7600D3C6C5 /* BrightnessManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B662E9C3A7600D3C6C5 /* BrightnessManager.h */; };
+		49E65B9F2E9C3A7600D3C6C5 /* filemgr.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B702E9C3A7600D3C6C5 /* filemgr.h */; };
+		49E65BA02E9C3A7600D3C6C5 /* ButtonManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B682E9C3A7600D3C6C5 /* ButtonManager.h */; };
+		49E65BA12E9C3A7600D3C6C5 /* Application.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B632E9C3A7600D3C6C5 /* Application.h */; };
+		49E65BA22E9C3A7600D3C6C5 /* JsonStreamingParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B792E9C3A7600D3C6C5 /* JsonStreamingParser.h */; };
+		49E65BA32E9C3A7600D3C6C5 /* System.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B862E9C3A7600D3C6C5 /* System.h */; };
+		49E65BA42E9C3A7600D3C6C5 /* JsonListener.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B782E9C3A7600D3C6C5 /* JsonListener.h */; };
+		49E65BA52E9C3A7600D3C6C5 /* LittleFSShim.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B7C2E9C3A7600D3C6C5 /* LittleFSShim.h */; };
+		49E65BA72E9C3A7600D3C6C5 /* WebFileSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B8A2E9C3A7600D3C6C5 /* WebFileSystem.h */; };
+		49E65BA82E9C3A7600D3C6C5 /* WebShell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B8D2E9C3A7600D3C6C5 /* WebShell.cpp */; };
+		49E65BAA2E9C3A7600D3C6C5 /* TimeWeatherServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B892E9C3A7600D3C6C5 /* TimeWeatherServer.cpp */; };
+		49E65BAD2E9C3A7600D3C6C5 /* LittleFSShim.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B7D2E9C3A7600D3C6C5 /* LittleFSShim.cpp */; };
+		49E65BAE2E9C3A7600D3C6C5 /* BrightnessManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B672E9C3A7600D3C6C5 /* BrightnessManager.cpp */; };
+		49E65BAF2E9C3A7600D3C6C5 /* WebFileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B8B2E9C3A7600D3C6C5 /* WebFileSystem.cpp */; };
+		49E65BB02E9C3A7600D3C6C5 /* ButtonManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B692E9C3A7600D3C6C5 /* ButtonManager.cpp */; };
+		49E65BB12E9C3A7600D3C6C5 /* Clock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B6B2E9C3A7600D3C6C5 /* Clock.cpp */; };
+		49E65BB22E9C3A7600D3C6C5 /* System.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B872E9C3A7600D3C6C5 /* System.cpp */; };
+		49E65BB32E9C3A7600D3C6C5 /* Application.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B642E9C3A7600D3C6C5 /* Application.cpp */; };
+		49E65BB42E9C3A7600D3C6C5 /* JsonStreamingParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B7A2E9C3A7600D3C6C5 /* JsonStreamingParser.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		49E65B012E9C36F800D3C6C5 /* libESPlib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libESPlib.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		49E65B632E9C3A7600D3C6C5 /* Application.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Application.h; path = ../Application.h; sourceTree = SOURCE_ROOT; };
+		49E65B642E9C3A7600D3C6C5 /* Application.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Application.cpp; path = ../Application.cpp; sourceTree = SOURCE_ROOT; };
+		49E65B652E9C3A7600D3C6C5 /* Blinker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Blinker.h; path = ../Blinker.h; sourceTree = SOURCE_ROOT; };
+		49E65B662E9C3A7600D3C6C5 /* BrightnessManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BrightnessManager.h; path = ../BrightnessManager.h; sourceTree = SOURCE_ROOT; };
+		49E65B672E9C3A7600D3C6C5 /* BrightnessManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = BrightnessManager.cpp; path = ../BrightnessManager.cpp; sourceTree = SOURCE_ROOT; };
+		49E65B682E9C3A7600D3C6C5 /* ButtonManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ButtonManager.h; path = ../ButtonManager.h; sourceTree = SOURCE_ROOT; };
+		49E65B692E9C3A7600D3C6C5 /* ButtonManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ButtonManager.cpp; path = ../ButtonManager.cpp; sourceTree = SOURCE_ROOT; };
+		49E65B6A2E9C3A7600D3C6C5 /* Clock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Clock.h; path = ../Clock.h; sourceTree = SOURCE_ROOT; };
+		49E65B6B2E9C3A7600D3C6C5 /* Clock.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Clock.cpp; path = ../Clock.cpp; sourceTree = SOURCE_ROOT; };
+		49E65B6C2E9C3A7600D3C6C5 /* DSP7S04B.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DSP7S04B.h; path = ../DSP7S04B.h; sourceTree = SOURCE_ROOT; };
+		49E65B6D2E9C3A7600D3C6C5 /* DSP7S04B.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = DSP7S04B.cpp; path = ../DSP7S04B.cpp; sourceTree = SOURCE_ROOT; };
+		49E65B6E2E9C3A7600D3C6C5 /* ESPWiFiPortal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ESPWiFiPortal.h; path = ../ESPWiFiPortal.h; sourceTree = SOURCE_ROOT; };
+		49E65B6F2E9C3A7600D3C6C5 /* ESPWiFiPortal.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ESPWiFiPortal.cpp; path = ../ESPWiFiPortal.cpp; sourceTree = SOURCE_ROOT; };
+		49E65B702E9C3A7600D3C6C5 /* filemgr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = filemgr.h; path = ../filemgr.h; sourceTree = SOURCE_ROOT; };
+		49E65B712E9C3A7600D3C6C5 /* filemgr.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = filemgr.html; path = ../filemgr.html; sourceTree = SOURCE_ROOT; };
+		49E65B722E9C3A7600D3C6C5 /* filemgr.gz.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = filemgr.gz.h; path = ../filemgr.gz.h; sourceTree = SOURCE_ROOT; };
+		49E65B732E9C3A7600D3C6C5 /* filemgr.html.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; name = filemgr.html.gz; path = ../filemgr.html.gz; sourceTree = SOURCE_ROOT; };
+		49E65B742E9C3A7600D3C6C5 /* Font_8x8_8pt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Font_8x8_8pt.h; path = ../Font_8x8_8pt.h; sourceTree = SOURCE_ROOT; };
+		49E65B752E9C3A7600D3C6C5 /* Font_Compact_5pt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Font_Compact_5pt.h; path = ../Font_Compact_5pt.h; sourceTree = SOURCE_ROOT; };
+		49E65B762E9C3A7600D3C6C5 /* IDFWiFiPortal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IDFWiFiPortal.h; path = ../IDFWiFiPortal.h; sourceTree = SOURCE_ROOT; };
+		49E65B772E9C3A7600D3C6C5 /* IDFWiFiPortal.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = IDFWiFiPortal.cpp; path = ../IDFWiFiPortal.cpp; sourceTree = SOURCE_ROOT; };
+		49E65B782E9C3A7600D3C6C5 /* JsonListener.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JsonListener.h; path = ../JsonListener.h; sourceTree = SOURCE_ROOT; };
+		49E65B792E9C3A7600D3C6C5 /* JsonStreamingParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JsonStreamingParser.h; path = ../JsonStreamingParser.h; sourceTree = SOURCE_ROOT; };
+		49E65B7A2E9C3A7600D3C6C5 /* JsonStreamingParser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = JsonStreamingParser.cpp; path = ../JsonStreamingParser.cpp; sourceTree = SOURCE_ROOT; };
+		49E65B7C2E9C3A7600D3C6C5 /* LittleFSShim.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LittleFSShim.h; path = ../LittleFSShim.h; sourceTree = SOURCE_ROOT; };
+		49E65B7D2E9C3A7600D3C6C5 /* LittleFSShim.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = LittleFSShim.cpp; path = ../LittleFSShim.cpp; sourceTree = SOURCE_ROOT; };
+		49E65B7E2E9C3A7600D3C6C5 /* Max7219Display.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Max7219Display.h; path = ../Max7219Display.h; sourceTree = SOURCE_ROOT; };
+		49E65B7F2E9C3A7600D3C6C5 /* Max7219Display.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Max7219Display.cpp; path = ../Max7219Display.cpp; sourceTree = SOURCE_ROOT; };
+		49E65B802E9C3A7600D3C6C5 /* MenuSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MenuSystem.h; path = ../MenuSystem.h; sourceTree = SOURCE_ROOT; };
+		49E65B812E9C3A7600D3C6C5 /* MenuSystem.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MenuSystem.cpp; path = ../MenuSystem.cpp; sourceTree = SOURCE_ROOT; };
+		49E65B822E9C3A7600D3C6C5 /* mil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mil.h; path = ../mil.h; sourceTree = SOURCE_ROOT; };
+		49E65B832E9C3A7600D3C6C5 /* NeoPixel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NeoPixel.h; path = ../NeoPixel.h; sourceTree = SOURCE_ROOT; };
+		49E65B842E9C3A7600D3C6C5 /* StateMachine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = StateMachine.h; path = ../StateMachine.h; sourceTree = SOURCE_ROOT; };
+		49E65B852E9C3A7600D3C6C5 /* system.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = system.html; path = ../system.html; sourceTree = SOURCE_ROOT; };
+		49E65B862E9C3A7600D3C6C5 /* System.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = System.h; path = ../System.h; sourceTree = SOURCE_ROOT; };
+		49E65B872E9C3A7600D3C6C5 /* System.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = System.cpp; path = ../System.cpp; sourceTree = SOURCE_ROOT; };
+		49E65B882E9C3A7600D3C6C5 /* TimeWeatherServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TimeWeatherServer.h; path = ../TimeWeatherServer.h; sourceTree = SOURCE_ROOT; };
+		49E65B892E9C3A7600D3C6C5 /* TimeWeatherServer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TimeWeatherServer.cpp; path = ../TimeWeatherServer.cpp; sourceTree = SOURCE_ROOT; };
+		49E65B8A2E9C3A7600D3C6C5 /* WebFileSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WebFileSystem.h; path = ../WebFileSystem.h; sourceTree = SOURCE_ROOT; };
+		49E65B8B2E9C3A7600D3C6C5 /* WebFileSystem.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = WebFileSystem.cpp; path = ../WebFileSystem.cpp; sourceTree = SOURCE_ROOT; };
+		49E65B8C2E9C3A7600D3C6C5 /* WebShell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WebShell.h; path = ../WebShell.h; sourceTree = SOURCE_ROOT; };
+		49E65B8D2E9C3A7600D3C6C5 /* WebShell.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = WebShell.cpp; path = ../WebShell.cpp; sourceTree = SOURCE_ROOT; };
+		49E65B8E2E9C3A7600D3C6C5 /* WiFiPortal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WiFiPortal.h; path = ../WiFiPortal.h; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		49E65AFF2E9C36F800D3C6C5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		49E65AF82E9C36F800D3C6C5 = {
+			isa = PBXGroup;
+			children = (
+				49E65B632E9C3A7600D3C6C5 /* Application.h */,
+				49E65B642E9C3A7600D3C6C5 /* Application.cpp */,
+				49E65B652E9C3A7600D3C6C5 /* Blinker.h */,
+				49E65B662E9C3A7600D3C6C5 /* BrightnessManager.h */,
+				49E65B672E9C3A7600D3C6C5 /* BrightnessManager.cpp */,
+				49E65B682E9C3A7600D3C6C5 /* ButtonManager.h */,
+				49E65B692E9C3A7600D3C6C5 /* ButtonManager.cpp */,
+				49E65B6A2E9C3A7600D3C6C5 /* Clock.h */,
+				49E65B6B2E9C3A7600D3C6C5 /* Clock.cpp */,
+				49E65B6C2E9C3A7600D3C6C5 /* DSP7S04B.h */,
+				49E65B6D2E9C3A7600D3C6C5 /* DSP7S04B.cpp */,
+				49E65B6E2E9C3A7600D3C6C5 /* ESPWiFiPortal.h */,
+				49E65B6F2E9C3A7600D3C6C5 /* ESPWiFiPortal.cpp */,
+				49E65B702E9C3A7600D3C6C5 /* filemgr.h */,
+				49E65B712E9C3A7600D3C6C5 /* filemgr.html */,
+				49E65B722E9C3A7600D3C6C5 /* filemgr.gz.h */,
+				49E65B732E9C3A7600D3C6C5 /* filemgr.html.gz */,
+				49E65B742E9C3A7600D3C6C5 /* Font_8x8_8pt.h */,
+				49E65B752E9C3A7600D3C6C5 /* Font_Compact_5pt.h */,
+				49E65B762E9C3A7600D3C6C5 /* IDFWiFiPortal.h */,
+				49E65B772E9C3A7600D3C6C5 /* IDFWiFiPortal.cpp */,
+				49E65B782E9C3A7600D3C6C5 /* JsonListener.h */,
+				49E65B792E9C3A7600D3C6C5 /* JsonStreamingParser.h */,
+				49E65B7A2E9C3A7600D3C6C5 /* JsonStreamingParser.cpp */,
+				49E65B7C2E9C3A7600D3C6C5 /* LittleFSShim.h */,
+				49E65B7D2E9C3A7600D3C6C5 /* LittleFSShim.cpp */,
+				49E65B7E2E9C3A7600D3C6C5 /* Max7219Display.h */,
+				49E65B7F2E9C3A7600D3C6C5 /* Max7219Display.cpp */,
+				49E65B802E9C3A7600D3C6C5 /* MenuSystem.h */,
+				49E65B812E9C3A7600D3C6C5 /* MenuSystem.cpp */,
+				49E65B822E9C3A7600D3C6C5 /* mil.h */,
+				49E65B832E9C3A7600D3C6C5 /* NeoPixel.h */,
+				49E65B842E9C3A7600D3C6C5 /* StateMachine.h */,
+				49E65B852E9C3A7600D3C6C5 /* system.html */,
+				49E65B862E9C3A7600D3C6C5 /* System.h */,
+				49E65B872E9C3A7600D3C6C5 /* System.cpp */,
+				49E65B882E9C3A7600D3C6C5 /* TimeWeatherServer.h */,
+				49E65B892E9C3A7600D3C6C5 /* TimeWeatherServer.cpp */,
+				49E65B8A2E9C3A7600D3C6C5 /* WebFileSystem.h */,
+				49E65B8B2E9C3A7600D3C6C5 /* WebFileSystem.cpp */,
+				49E65B8C2E9C3A7600D3C6C5 /* WebShell.h */,
+				49E65B8D2E9C3A7600D3C6C5 /* WebShell.cpp */,
+				49E65B8E2E9C3A7600D3C6C5 /* WiFiPortal.h */,
+				49E65B022E9C36F800D3C6C5 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		49E65B022E9C36F800D3C6C5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				49E65B012E9C36F800D3C6C5 /* libESPlib.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		49E65AFD2E9C36F800D3C6C5 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				49E65B902E9C3A7600D3C6C5 /* Font_8x8_8pt.h in Headers */,
+				49E65B912E9C3A7600D3C6C5 /* Font_Compact_5pt.h in Headers */,
+				49E65B922E9C3A7600D3C6C5 /* filemgr.gz.h in Headers */,
+				49E65B932E9C3A7600D3C6C5 /* Blinker.h in Headers */,
+				49E65B942E9C3A7600D3C6C5 /* mil.h in Headers */,
+				49E65B962E9C3A7600D3C6C5 /* WebShell.h in Headers */,
+				49E65B982E9C3A7600D3C6C5 /* WiFiPortal.h in Headers */,
+				49E65B992E9C3A7600D3C6C5 /* Clock.h in Headers */,
+				49E65B9B2E9C3A7600D3C6C5 /* StateMachine.h in Headers */,
+				49E65B9C2E9C3A7600D3C6C5 /* TimeWeatherServer.h in Headers */,
+				49E65B9D2E9C3A7600D3C6C5 /* NeoPixel.h in Headers */,
+				49E65B9E2E9C3A7600D3C6C5 /* BrightnessManager.h in Headers */,
+				49E65B9F2E9C3A7600D3C6C5 /* filemgr.h in Headers */,
+				49E65BA02E9C3A7600D3C6C5 /* ButtonManager.h in Headers */,
+				49E65BA12E9C3A7600D3C6C5 /* Application.h in Headers */,
+				49E65BA22E9C3A7600D3C6C5 /* JsonStreamingParser.h in Headers */,
+				49E65BA32E9C3A7600D3C6C5 /* System.h in Headers */,
+				49E65BA42E9C3A7600D3C6C5 /* JsonListener.h in Headers */,
+				49E65BA52E9C3A7600D3C6C5 /* LittleFSShim.h in Headers */,
+				49E65BA72E9C3A7600D3C6C5 /* WebFileSystem.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		49E65B002E9C36F800D3C6C5 /* ESPlib */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 49E65B052E9C36F800D3C6C5 /* Build configuration list for PBXNativeTarget "ESPlib" */;
+			buildPhases = (
+				49E65AFD2E9C36F800D3C6C5 /* Headers */,
+				49E65AFE2E9C36F800D3C6C5 /* Sources */,
+				49E65AFF2E9C36F800D3C6C5 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ESPlib;
+			packageProductDependencies = (
+			);
+			productName = ESPlib;
+			productReference = 49E65B012E9C36F800D3C6C5 /* libESPlib.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		49E65AF92E9C36F800D3C6C5 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					49E65B002E9C36F800D3C6C5 = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
+				};
+			};
+			buildConfigurationList = 49E65AFC2E9C36F800D3C6C5 /* Build configuration list for PBXProject "ESPlib" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 49E65AF82E9C36F800D3C6C5;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 49E65B022E9C36F800D3C6C5 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				49E65B002E9C36F800D3C6C5 /* ESPlib */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		49E65AFE2E9C36F800D3C6C5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				49E65BA82E9C3A7600D3C6C5 /* WebShell.cpp in Sources */,
+				49E65BAA2E9C3A7600D3C6C5 /* TimeWeatherServer.cpp in Sources */,
+				49E65BAD2E9C3A7600D3C6C5 /* LittleFSShim.cpp in Sources */,
+				49E65BAE2E9C3A7600D3C6C5 /* BrightnessManager.cpp in Sources */,
+				49E65BAF2E9C3A7600D3C6C5 /* WebFileSystem.cpp in Sources */,
+				49E65BB02E9C3A7600D3C6C5 /* ButtonManager.cpp in Sources */,
+				49E65BB12E9C3A7600D3C6C5 /* Clock.cpp in Sources */,
+				49E65BB22E9C3A7600D3C6C5 /* System.cpp in Sources */,
+				49E65BB32E9C3A7600D3C6C5 /* Application.cpp in Sources */,
+				49E65BB42E9C3A7600D3C6C5 /* JsonStreamingParser.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		49E65B032E9C36F800D3C6C5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		49E65B042E9C36F800D3C6C5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		49E65B062E9C36F800D3C6C5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		49E65B072E9C36F800D3C6C5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		49E65AFC2E9C36F800D3C6C5 /* Build configuration list for PBXProject "ESPlib" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				49E65B032E9C36F800D3C6C5 /* Debug */,
+				49E65B042E9C36F800D3C6C5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		49E65B052E9C36F800D3C6C5 /* Build configuration list for PBXNativeTarget "ESPlib" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				49E65B062E9C36F800D3C6C5 /* Debug */,
+				49E65B072E9C36F800D3C6C5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 49E65AF92E9C36F800D3C6C5 /* Project object */;
+}
