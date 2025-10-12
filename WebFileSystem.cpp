@@ -190,6 +190,48 @@ WebFileSystem::begin(Application* app, bool format)
     return retval;
 }
 
+size_t
+WebFileSystem::totalBytes()
+{
+    return LittleFS.totalBytes();
+}
+
+size_t
+WebFileSystem::usedBytes()
+{
+    return LittleFS.usedBytes();
+}
+
+bool
+WebFileSystem::exists(const char* path)
+{
+    return LittleFS.exists(path);
+}
+
+bool
+WebFileSystem::remove(const char* path)
+{
+    return LittleFS.remove(path);
+}
+
+bool
+WebFileSystem::rename(const char* fromPath, const char* toPath)
+{
+    return LittleFS.rename(fromPath, toPath);
+}
+
+bool
+WebFileSystem::mkdir(const char* path)
+{
+    return LittleFS.mkdir(path);
+}
+
+bool
+WebFileSystem::rmdir(const char* path)
+{
+    return LittleFS.rmdir(path);
+}
+
 std::string
 WebFileSystem::listDir(const char* dirname, uint8_t levels)
 {

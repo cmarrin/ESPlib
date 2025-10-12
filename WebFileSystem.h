@@ -31,6 +31,15 @@ class WebFileSystem
     bool begin(Application*, bool format);
     File open(const char* path, const char* mode = "r", bool create = false);
     
+    size_t totalBytes();
+    size_t usedBytes();
+    
+    bool exists(const char* path);
+    bool remove(const char* path);
+    bool rename(const char* fromPath, const char* toPath);
+    bool mkdir(const char* path);
+    bool rmdir(const char* path);
+
   private:
     std::string listDir(const char* dirname, uint8_t levels);
     
