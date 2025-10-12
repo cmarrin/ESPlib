@@ -79,6 +79,12 @@ ESPWiFiPortal::addHTTPHandler(const char* endpoint, HandlerCB requestCB, Handler
     return 0;
 }
 
+void
+ESPWiFiPortal::serveStatic(const char *uri, const char *path)
+{
+    _wifiManager.server->serveStatic(uri, LittleFS, path);
+}
+
 bool
 ESPWiFiPortal::autoConnect(char const *apName, char const *apPassword)
 {
