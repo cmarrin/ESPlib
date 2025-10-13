@@ -7,8 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		492744262E9D910700AF8FA1 /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 492744172E9D851E00AF8FA1 /* liblua.a */; };
 		492744442E9DBF6F00AF8FA1 /* MacWebServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492744432E9DBF6F00AF8FA1 /* MacWebServer.cpp */; };
 		492744462E9DBFA100AF8FA1 /* MacWebServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 492744452E9DBF9900AF8FA1 /* MacWebServer.h */; };
+		492744492E9DC41800AF8FA1 /* libESPlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49E65B012E9C36F800D3C6C5 /* libESPlib.a */; };
+		495AB4662E9C753400C4C2C4 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 495AB4652E9C753400C4C2C4 /* main.cpp */; };
+		495AB46D2E9C77FE00C4C2C4 /* Vesper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 495AB46C2E9C77FE00C4C2C4 /* Vesper.cpp */; };
+		495AB4712E9C7BE800C4C2C4 /* libESPlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49E65B012E9C36F800D3C6C5 /* libESPlib.a */; };
 		49E65B902E9C3A7600D3C6C5 /* Font_8x8_8pt.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B742E9C3A7600D3C6C5 /* Font_8x8_8pt.h */; };
 		49E65B912E9C3A7600D3C6C5 /* Font_Compact_5pt.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B752E9C3A7600D3C6C5 /* Font_Compact_5pt.h */; };
 		49E65B922E9C3A7600D3C6C5 /* filemgr.gz.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B722E9C3A7600D3C6C5 /* filemgr.gz.h */; };
@@ -40,9 +45,69 @@
 		49E65BB42E9C3A7600D3C6C5 /* JsonStreamingParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B7A2E9C3A7600D3C6C5 /* JsonStreamingParser.cpp */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		492744162E9D851E00AF8FA1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 492744102E9D851E00AF8FA1 /* lua.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 495AB47C2E9D6BBF00C4C2C4;
+			remoteInfo = lua;
+		};
+		492744242E9D90FD00AF8FA1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 492744102E9D851E00AF8FA1 /* lua.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 495AB47B2E9D6BBF00C4C2C4;
+			remoteInfo = lua;
+		};
+		492744472E9DC40F00AF8FA1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 49E65AF92E9C36F800D3C6C5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 49E65B002E9C36F800D3C6C5;
+			remoteInfo = ESPlib;
+		};
+		495AB4672E9C753D00C4C2C4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 49E65AF92E9C36F800D3C6C5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 49E65B002E9C36F800D3C6C5;
+			remoteInfo = ESPlib;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		492744292E9D94D000AF8FA1 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		495AB4552E9C730A00C4C2C4 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		492744102E9D851E00AF8FA1 /* lua.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = lua.xcodeproj; path = "/Users/cmarrin/Projects/git/lua/lua-5.4.8/mac/lua.xcodeproj"; sourceTree = "<absolute>"; };
+		4927442B2E9D94D000AF8FA1 /* webby */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = webby; sourceTree = BUILT_PRODUCTS_DIR; };
 		492744432E9DBF6F00AF8FA1 /* MacWebServer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MacWebServer.cpp; sourceTree = "<group>"; };
 		492744452E9DBF9900AF8FA1 /* MacWebServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MacWebServer.h; sourceTree = "<group>"; };
+		495AB4572E9C730A00C4C2C4 /* Vesper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Vesper; sourceTree = BUILT_PRODUCTS_DIR; };
+		495AB4652E9C753400C4C2C4 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		495AB46A2E9C777C00C4C2C4 /* Vesper.ino */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; name = Vesper.ino; path = ../Vesper/Vesper.ino; sourceTree = "<group>"; };
+		495AB46B2E9C77FE00C4C2C4 /* Vesper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Vesper.h; path = ../Vesper/Vesper.h; sourceTree = SOURCE_ROOT; };
+		495AB46C2E9C77FE00C4C2C4 /* Vesper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Vesper.cpp; path = ../Vesper/Vesper.cpp; sourceTree = SOURCE_ROOT; };
+		495AB4722E9C7D1800C4C2C4 /* partitions.csv */ = {isa = PBXFileReference; lastKnownFileType = text; name = partitions.csv; path = ../Vesper/partitions.csv; sourceTree = SOURCE_ROOT; };
 		49E65B012E9C36F800D3C6C5 /* libESPlib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libESPlib.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		49E65B632E9C3A7600D3C6C5 /* Application.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Application.h; path = ../Application.h; sourceTree = SOURCE_ROOT; };
 		49E65B642E9C3A7600D3C6C5 /* Application.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Application.cpp; path = ../Application.cpp; sourceTree = SOURCE_ROOT; };
@@ -88,20 +153,73 @@
 		49E65B8E2E9C3A7600D3C6C5 /* WiFiPortal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WiFiPortal.h; path = ../WiFiPortal.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		4927442C2E9D94D000AF8FA1 /* webby */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = webby;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
+		492744282E9D94D000AF8FA1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				492744492E9DC41800AF8FA1 /* libESPlib.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		495AB4542E9C730A00C4C2C4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				495AB4712E9C7BE800C4C2C4 /* libESPlib.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		49E65AFF2E9C36F800D3C6C5 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				492744262E9D910700AF8FA1 /* liblua.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		492744132E9D851E00AF8FA1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				492744172E9D851E00AF8FA1 /* liblua.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		495AB4692E9C756400C4C2C4 /* Vesper */ = {
+			isa = PBXGroup;
+			children = (
+				495AB4722E9C7D1800C4C2C4 /* partitions.csv */,
+				495AB46B2E9C77FE00C4C2C4 /* Vesper.h */,
+				495AB46C2E9C77FE00C4C2C4 /* Vesper.cpp */,
+				495AB46A2E9C777C00C4C2C4 /* Vesper.ino */,
+				495AB4652E9C753400C4C2C4 /* main.cpp */,
+			);
+			name = Vesper;
+			sourceTree = "<group>";
+		};
+		495AB4702E9C7BE800C4C2C4 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		49E65AF82E9C36F800D3C6C5 = {
 			isa = PBXGroup;
 			children = (
+				492744102E9D851E00AF8FA1 /* lua.xcodeproj */,
 				49E65B632E9C3A7600D3C6C5 /* Application.h */,
 				49E65B642E9C3A7600D3C6C5 /* Application.cpp */,
 				49E65B652E9C3A7600D3C6C5 /* Blinker.h */,
@@ -146,6 +264,9 @@
 				49E65B772E9C3A7600D3C6C5 /* MacWiFiPortal.cpp */,
 				49E65B6E2E9C3A7600D3C6C5 /* ESPWiFiPortal.h */,
 				49E65B6F2E9C3A7600D3C6C5 /* ESPWiFiPortal.cpp */,
+				495AB4692E9C756400C4C2C4 /* Vesper */,
+				4927442C2E9D94D000AF8FA1 /* webby */,
+				495AB4702E9C7BE800C4C2C4 /* Frameworks */,
 				49E65B022E9C36F800D3C6C5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -154,6 +275,8 @@
 			isa = PBXGroup;
 			children = (
 				49E65B012E9C36F800D3C6C5 /* libESPlib.a */,
+				495AB4572E9C730A00C4C2C4 /* Vesper */,
+				4927442B2E9D94D000AF8FA1 /* webby */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -191,6 +314,49 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		4927442A2E9D94D000AF8FA1 /* webby */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4927442F2E9D94D000AF8FA1 /* Build configuration list for PBXNativeTarget "webby" */;
+			buildPhases = (
+				492744272E9D94D000AF8FA1 /* Sources */,
+				492744282E9D94D000AF8FA1 /* Frameworks */,
+				492744292E9D94D000AF8FA1 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				492744482E9DC40F00AF8FA1 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				4927442C2E9D94D000AF8FA1 /* webby */,
+			);
+			name = webby;
+			packageProductDependencies = (
+			);
+			productName = webby;
+			productReference = 4927442B2E9D94D000AF8FA1 /* webby */;
+			productType = "com.apple.product-type.tool";
+		};
+		495AB4562E9C730A00C4C2C4 /* Vesper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 495AB45D2E9C730A00C4C2C4 /* Build configuration list for PBXNativeTarget "Vesper" */;
+			buildPhases = (
+				495AB4532E9C730A00C4C2C4 /* Sources */,
+				495AB4542E9C730A00C4C2C4 /* Frameworks */,
+				495AB4552E9C730A00C4C2C4 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				495AB4682E9C753D00C4C2C4 /* PBXTargetDependency */,
+			);
+			name = Vesper;
+			packageProductDependencies = (
+			);
+			productName = Vesper;
+			productReference = 495AB4572E9C730A00C4C2C4 /* Vesper */;
+			productType = "com.apple.product-type.tool";
+		};
 		49E65B002E9C36F800D3C6C5 /* ESPlib */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 49E65B052E9C36F800D3C6C5 /* Build configuration list for PBXNativeTarget "ESPlib" */;
@@ -198,11 +364,11 @@
 				49E65AFD2E9C36F800D3C6C5 /* Headers */,
 				49E65AFE2E9C36F800D3C6C5 /* Sources */,
 				49E65AFF2E9C36F800D3C6C5 /* Frameworks */,
-				495AB4522E9C5B8900C4C2C4 /* ShellScript */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				492744252E9D90FD00AF8FA1 /* PBXTargetDependency */,
 			);
 			name = ESPlib;
 			packageProductDependencies = (
@@ -220,6 +386,12 @@
 				BuildIndependentTargetsInParallel = 1;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
+					4927442A2E9D94D000AF8FA1 = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
+					495AB4562E9C730A00C4C2C4 = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
 					49E65B002E9C36F800D3C6C5 = {
 						CreatedOnToolsVersion = 26.0.1;
 					};
@@ -237,35 +409,48 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 49E65B022E9C36F800D3C6C5 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 492744132E9D851E00AF8FA1 /* Products */;
+					ProjectRef = 492744102E9D851E00AF8FA1 /* lua.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
+				495AB4562E9C730A00C4C2C4 /* Vesper */,
 				49E65B002E9C36F800D3C6C5 /* ESPlib */,
+				4927442A2E9D94D000AF8FA1 /* webby */,
 			);
 		};
 /* End PBXProject section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		495AB4522E9C5B8900C4C2C4 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
+/* Begin PBXReferenceProxy section */
+		492744172E9D851E00AF8FA1 /* liblua.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblua.a;
+			remoteRef = 492744162E9D851E00AF8FA1 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXSourcesBuildPhase section */
+		492744272E9D94D000AF8FA1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		495AB4532E9C730A00C4C2C4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				495AB46D2E9C77FE00C4C2C4 /* Vesper.cpp in Sources */,
+				495AB4662E9C753400C4C2C4 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path\necho hello\n";
 		};
-/* End PBXShellScriptBuildPhase section */
-
-/* Begin PBXSourcesBuildPhase section */
 		49E65AFE2E9C36F800D3C6C5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -286,7 +471,59 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		492744252E9D90FD00AF8FA1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = lua;
+			targetProxy = 492744242E9D90FD00AF8FA1 /* PBXContainerItemProxy */;
+		};
+		492744482E9DC40F00AF8FA1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 49E65B002E9C36F800D3C6C5 /* ESPlib */;
+			targetProxy = 492744472E9DC40F00AF8FA1 /* PBXContainerItemProxy */;
+		};
+		495AB4682E9C753D00C4C2C4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 49E65B002E9C36F800D3C6C5 /* ESPlib */;
+			targetProxy = 495AB4672E9C753D00C4C2C4 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		492744302E9D94D000AF8FA1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		492744312E9D94D000AF8FA1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		495AB45B2E9C730A00C4C2C4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = "$(CONFIGURATION_BUILD_DIR)/usr/local/include";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		495AB45C2E9C730A00C4C2C4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = "$(CONFIGURATION_BUILD_DIR)/usr/local/include";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		49E65B032E9C36F800D3C6C5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -407,6 +644,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				EXECUTABLE_PREFIX = lib;
+				HEADER_SEARCH_PATHS = "$(CONFIGURATION_BUILD_DIR)/usr/local/include";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -417,6 +655,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				EXECUTABLE_PREFIX = lib;
+				HEADER_SEARCH_PATHS = "$(CONFIGURATION_BUILD_DIR)/usr/local/include";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -425,6 +664,24 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		4927442F2E9D94D000AF8FA1 /* Build configuration list for PBXNativeTarget "webby" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				492744302E9D94D000AF8FA1 /* Debug */,
+				492744312E9D94D000AF8FA1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		495AB45D2E9C730A00C4C2C4 /* Build configuration list for PBXNativeTarget "Vesper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				495AB45B2E9C730A00C4C2C4 /* Debug */,
+				495AB45C2E9C730A00C4C2C4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		49E65AFC2E9C36F800D3C6C5 /* Build configuration list for PBXProject "ESPlib" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
