@@ -7,6 +7,13 @@ Copyright (c) 2025, Chris Marrin
 All rights reserved.
 -------------------------------------------------------------------------*/
 
+// MacWebServer
+//
+// A simple web server for mac
+//
+// Adapted from https://github.com/Aryandev12/webby-http-server/
+//
+
 #pragma once
 
 #include <map>
