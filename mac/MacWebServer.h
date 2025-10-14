@@ -16,6 +16,8 @@ All rights reserved.
 
 #pragma once
 
+#include "WiFiPortal.h"
+
 #include <map>
 #include <string>
 
@@ -54,13 +56,36 @@ class HttpResponse{
 class Server
 {
 public:
-    Server(std::string port) : _port(port) { }
+    Server() { }
     ~Server() { stop(); }
 
-    int start();
+    int start(int port);
     void stop() { }
     
+    int32_t addHTTPHandler(const char* endpoint, WiFiPortal::HandlerCB requestCB, WiFiPortal::HandlerCB uploadCB)
+    {
+        _handlers.emplace_back(endpoint, "", requestCB, uploadCB, false);
+        return int32_t(_handlers.size());
+    }
+
+    void serveStatic(const char* uri, const char* path)
+    {
+        _handlers.emplace_back(uri, path, nullptr, nullptr, true);
+    }
+
 private:
+    void handleClient(int fdClient);
+    void handleServer(int fdServer);
+
+    struct HTTPHandler
+    {
+        std::string endpoint, path;
+        WiFiPortal::HandlerCB requestCB, uploadCB;
+        bool isStatic;
+    };
+    
+    std::vector<HTTPHandler> _handlers;
+
     std::string _port;
 };
 

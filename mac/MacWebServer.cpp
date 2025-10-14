@@ -14,6 +14,7 @@ All rights reserved.
 #include<sstream>
 #include<arpa/inet.h>
 #include<unistd.h>
+#include <thread>
 
 using namespace mil;
 
@@ -39,6 +40,9 @@ HttpRequest::parseRequest(const std::string& rawRequest)
         currindex++;
     }
    
+    if (_path.empty() || _path == "/") {
+        _path = "/index.html";
+    }
     _headers["path"] = _path;
 }
 
@@ -46,11 +50,8 @@ std::string
 HttpRequest::readHtmlFile(const std::string &path)
 {
     std::string filename = path.substr(1,path.length());
-    if (filename.empty()) {
-        filename = "index.html";
-    }
    
-    std::ifstream file(filename); //ifstream used for reading file if exists.
+    std::ifstream file(filename);
     int flag = 0;
     if (!file) {
         flag=1;
@@ -101,36 +102,83 @@ HttpResponse::frameHttpResponse(std::string statuscode,
     return buffer.str();
 }
 
-int
-Server::start()
+void
+Server::handleClient(int fdClient)
 {
-    int server_socket_fd;
-    struct sockaddr_in server_addr;
+    char clientReqBuffer[1024];
     
-    server_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_socket_fd < 0) {
+    read(fdClient, clientReqBuffer, 1024);
+    mil::HttpRequest req;
+    
+    req.parseRequest(clientReqBuffer);
+    std::string mimetype = req.getMimeType(req.path());
+    
+    mil::HttpResponse res;
+    
+    std::string body = req.readHtmlFile(req.path());
+    std::string response = res.frameHttpResponse("200", "OK", req.headers(), body, mimetype);
+
+    write(fdClient, response.c_str(), response.length());
+    
+    close(fdClient);
+}
+
+void
+Server::handleServer(int fdServer)
+{
+    struct sockaddr_in clientAddr;
+    socklen_t clientAddrSize = sizeof(struct sockaddr_in); 
+
+    while (1) {
+        int fdClient = accept(fdServer, (struct sockaddr*)&clientAddr, &clientAddrSize);
+        if (fdClient < 0) {
+            printf("Failed to accept client request.\n");
+            return;
+        }
+       
+        // Create a new thread to handle the client
+        std::thread clientThread([this, fdClient]() { handleClient(fdClient); });
+        clientThread.detach();
+    }
+}
+
+int
+Server::start(int port)
+{
+    int fdServer = socket(AF_INET, SOCK_STREAM, 0);
+    if (fdServer < 0) {
         printf("Failed to create server socket.\n");
         return -1;
     }
 
-    //config server socket.
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(std::stoi(_port));
-    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    int opt = 1;
+    if (setsockopt(fdServer, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+        printf("setsockopt(SO_REUSEADDR) failed\n");
+        return -1;
+    }
+    
+    struct sockaddr_in serverAddr;
+    
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_port = htons(port);
+    serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     
     //bind  socket to port.
-    if (bind(server_socket_fd, (struct sockaddr*)& server_addr, sizeof(server_addr)) < 0) {
+    if (bind(fdServer, (struct sockaddr*)& serverAddr, sizeof(serverAddr)) < 0) {
         printf("Failed to bind server socket.\n");
         return -1;
     }
 
     //listens on socket.
-    if (listen(server_socket_fd, 5) < 0) {
+    if (listen(fdServer, 5) < 0) {
         printf("Failed to listen on server socket.\n");
         return -1;
     }
     
-    printf("Server started on port : %s\n", _port.c_str());
+    printf("Server started on port : %d\n", port);
 
-    return server_socket_fd;
+    std::thread serverThread([this, fdServer]() { handleServer(fdServer); });
+    serverThread.detach();
+    
+    return fdServer;
 };
