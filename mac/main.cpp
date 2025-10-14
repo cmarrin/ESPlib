@@ -9,13 +9,13 @@
 
 #include "Vesper.h"
 
-#include "WiFiPortal.h"
+#include "MacWiFiPortal.h"
 
 int main(int argc, char * const argv[])
 {
     printf("Vesper Simulator\n\n");
 
-    mil::WiFiPortal portal;
+    mil::MacWiFiPortal portal;
     Vesper controller(&portal);
     
     controller.setup();

@@ -11,6 +11,7 @@
 		492744442E9DBF6F00AF8FA1 /* MacWebServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492744432E9DBF6F00AF8FA1 /* MacWebServer.cpp */; };
 		492744462E9DBFA100AF8FA1 /* MacWebServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 492744452E9DBF9900AF8FA1 /* MacWebServer.h */; };
 		492744492E9DC41800AF8FA1 /* libESPlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49E65B012E9C36F800D3C6C5 /* libESPlib.a */; };
+		492744602E9E929500AF8FA1 /* MacWiFiPortal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B772E9C3A7600D3C6C5 /* MacWiFiPortal.cpp */; };
 		495AB4662E9C753400C4C2C4 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 495AB4652E9C753400C4C2C4 /* main.cpp */; };
 		495AB46D2E9C77FE00C4C2C4 /* Vesper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 495AB46C2E9C77FE00C4C2C4 /* Vesper.cpp */; };
 		495AB4712E9C7BE800C4C2C4 /* libESPlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49E65B012E9C36F800D3C6C5 /* libESPlib.a */; };
@@ -455,6 +456,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				492744602E9E929500AF8FA1 /* MacWiFiPortal.cpp in Sources */,
 				49E65BA82E9C3A7600D3C6C5 /* WebShell.cpp in Sources */,
 				49E65BAA2E9C3A7600D3C6C5 /* TimeWeatherServer.cpp in Sources */,
 				49E65BAD2E9C3A7600D3C6C5 /* LittleFSShim.cpp in Sources */,
