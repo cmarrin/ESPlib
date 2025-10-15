@@ -24,7 +24,7 @@ Application::Application(WiFiPortal* portal, uint8_t led, const char* configPort
 void
 Application::setup()
 {
-    _portal->begin();
+    _portal->begin(&_wfs);
 	startStateMachine();
 }
 
