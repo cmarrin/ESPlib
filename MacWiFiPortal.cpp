@@ -14,9 +14,9 @@ All rights reserved.
 using namespace mil;
 
 void
-MacWiFiPortal::begin()
+MacWiFiPortal::begin(WebFileSystem* wfs)
 {
-    _server.start(80);
+    _server.start(wfs, 80);
 }
 
 void
@@ -62,7 +62,7 @@ MacWiFiPortal::setShowInfoErase(bool enabled)
 int32_t
 MacWiFiPortal::addHTTPHandler(const char* endpoint, HandlerCB requestCB, HandlerCB uploadCB)
 {
-    _server.addHTTPHandler(endpoint, requestCB, uploadCB);
+   _server.addHTTPHandler(endpoint, [this, requestCB]() { requestCB(this); }, [this, uploadCB]() { uploadCB(this); });
     return 0;
 }
 

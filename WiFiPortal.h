@@ -11,12 +11,6 @@ All rights reserved.
 
 #include "mil.h"
 
-#if defined ARDUINO
-#include "LittleFS.h"
-#else
-#include "LittleFSShim.h"
-#endif
-
 // WiFiPortal is a generic class for handling connecting to WiFi. If
 // there are saved WiFi credentials an attempt will be made to connect
 // to that network. If that fails a captive portal will be created with
@@ -44,7 +38,11 @@ All rights reserved.
 // whatever filesystem is available, whether in flash, sd card or
 // any other persistent storage.
 
+class File;
+
 namespace mil {
+
+class WebFileSystem;
 
 class WiFiPortal
 {
@@ -56,7 +54,7 @@ public:
     WiFiPortal() { }
     virtual ~WiFiPortal() { }
     
-    virtual void begin() { }
+    virtual void begin(WebFileSystem*) { }
 
     // Reset the saved SSID and password. On the next reboot or when autoConnect is called
     // the captive portal will be started

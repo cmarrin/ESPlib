@@ -19,7 +19,7 @@ namespace mil {
 class ESPWiFiPortal : public WiFiPortal
 {
 public:
-    virtual void begin() override;
+    virtual void begin(WebFileSystem*) override;
 
     virtual void resetSettings() override;
     virtual void setTitle(const char* title) override;

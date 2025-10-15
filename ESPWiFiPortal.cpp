@@ -18,7 +18,7 @@ All rights reserved.
 using namespace mil;
 
 void
-ESPWiFiPortal::begin()
+ESPWiFiPortal::begin(WebFileSystem*)
 {
     _prefs.begin("ESPLib");
     _wifiManager.setDebugOutput(true);

@@ -18,7 +18,10 @@ namespace mil {
 class MacWiFiPortal : public WiFiPortal
 {
 public:
-    virtual void begin() override;
+    MacWiFiPortal() { }
+    virtual ~MacWiFiPortal() { }
+    
+    virtual void begin(WebFileSystem*) override;
 
     virtual void resetSettings() override;
     virtual void setTitle(const char* title) override;
@@ -51,7 +54,7 @@ public:
     virtual const char* getParamValue(const char* id) override;
     
 private:
-    Server _server;
+    WebServer _server;
 };
 
 }
