@@ -23,7 +23,7 @@ using namespace mil;
 thread_local int _fdClient;
 
 void
-WebServer::parseRequest(const std::string& rawRequest, HeaderMap& headers)
+WebServer::parseRequest(const std::string& rawRequest, ArgMap& headers, ArgMap& args)
 {
     std::string method;
     std::string path;
@@ -97,9 +97,8 @@ static const char* responseCodeToString(int code)
     }
 }
 
-
 std::string
-WebServer::buildHTTPHeader(int statuscode, size_t contentLength, std::string mimetype, const HeaderMap& extraHeaders)
+WebServer::buildHTTPHeader(int statuscode, size_t contentLength, std::string mimetype, const ArgMap& extraHeaders)
 {
     std::ostringstream buffer;
     buffer << "HTTP/1.1 " << statuscode << " " << responseCodeToString(statuscode) << "\r\n";
@@ -115,7 +114,7 @@ WebServer::buildHTTPHeader(int statuscode, size_t contentLength, std::string mim
 }
 
 void
-WebServer::sendHTTPResponse(int code, const char* mimetype, const char* data, const HeaderMap& extraHeaders)
+WebServer::sendHTTPResponse(int code, const char* mimetype, const char* data, const ArgMap& extraHeaders)
 {
     std::string body(data);
     std::string response = buildHTTPHeader(code, body.size(), mimetype, extraHeaders);
@@ -124,9 +123,9 @@ WebServer::sendHTTPResponse(int code, const char* mimetype, const char* data, co
 }
 
 void
-WebServer::sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip, const HeaderMap& extraHeaders)
+WebServer::sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip, const ArgMap& extraHeaders)
 {
-    HeaderMap headers = extraHeaders;
+    ArgMap headers = extraHeaders;
     
     if (gzip) {
         headers["Content-Encoding"] = "gzip";
@@ -138,9 +137,9 @@ WebServer::sendHTTPResponse(int code, const char* mimetype, const char* data, si
 }
 
 void
-WebServer::streamHTTPResponse(File& file, const char* mimetype, bool attach, const HeaderMap& extraHeaders)
+WebServer::streamHTTPResponse(File& file, const char* mimetype, bool attach, const ArgMap& extraHeaders)
 {
-    HeaderMap headers = extraHeaders;
+    ArgMap headers = extraHeaders;
 
     // For now assume this is a file download. So set Content-Disposition
     std::string disp = attach ? "attachment" : "inline";

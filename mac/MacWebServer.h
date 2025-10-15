@@ -29,7 +29,7 @@ class WebServer
 {
 public:
     using HandlerCB = std::function<void()>;
-    using HeaderMap = std::map<std::string, std::string>;
+    using ArgMap = std::map<std::string, std::string>;
 
     WebServer() { }
     ~WebServer() { stop(); }
@@ -48,9 +48,9 @@ public:
         _handlers.emplace_back(uri, path, nullptr, nullptr, true);
     }
 
-    void sendHTTPResponse(int code, const char* mimetype = nullptr, const char* data = "", const HeaderMap& extraHeaders = HeaderMap());
-    void sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip, const HeaderMap& extraHeaders = HeaderMap());
-    void streamHTTPResponse(File& file, const char* mimetype, bool attach, const HeaderMap& extraHeaders = HeaderMap());
+    void sendHTTPResponse(int code, const char* mimetype = nullptr, const char* data = "", const ArgMap& extraHeaders = ArgMap());
+    void sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip, const ArgMap& extraHeaders = ArgMap());
+    void streamHTTPResponse(File& file, const char* mimetype, bool attach, const ArgMap& extraHeaders = ArgMap());
     
 private:
     void handleClient(int fdClient);
