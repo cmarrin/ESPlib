@@ -160,15 +160,10 @@ size_t
 File::size() const
 {
     if (_isDir) {
-        return -1;
+        return 0;
     }
     
-    File* self = const_cast<File*>(this);
-    uint32_t pos = uint32_t(position());
-    self->seek(0, SeekEnd);
-    size_t size = position();
-    self->seek(pos, SeekSet);
-    return size;
+    return std::filesystem::file_size(path());
 }
 
 void
