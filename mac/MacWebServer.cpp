@@ -16,7 +16,11 @@ All rights reserved.
 #include<unistd.h>
 #include <thread>
 
+#include "WebFileSystem.h"
+
 using namespace mil;
+    
+thread_local int _fdClient;
 
 void
 HttpRequest::parseRequest(const std::string& rawRequest)
@@ -40,9 +44,6 @@ HttpRequest::parseRequest(const std::string& rawRequest)
         currindex++;
     }
    
-    if (_path.empty() || _path == "/") {
-        _path = "/index.html";
-    }
     _headers["path"] = _path;
 }
 
@@ -83,48 +84,119 @@ HttpRequest::getMimeType(const std::string &path)
 }
 
 std::string
-HttpResponse::frameHttpResponse(std::string statuscode,
-                                std::string statusmsg, 
-                                std::map<std::string, std::string> headers, 
-                                std::string body,
-                                std::string mimetype)
+WebServer::buildHTTPHeader(int statuscode, std::string statusmsg, size_t contentLength, std::string mimetype)
 {
-    headers["content-type"] = mimetype;
-    headers["content-length"] = std::to_string(body.length());
     std::ostringstream buffer;
     buffer << "HTTP/1.1 " << statuscode << " " << statusmsg << "\r\n";
-    
-    for(auto x : headers) {
-        buffer << x.first << ": " << x.second << "\r\n";
-    }
-    
-    buffer << "\r\n" << body;
+    buffer << "content-type" << ": " << mimetype << "\r\n";
+    buffer << "content-length" << ": " << std::to_string(contentLength) << "\r\n";    
+    buffer << "\r\n";
     return buffer.str();
 }
 
 void
-Server::handleClient(int fdClient)
+WebServer::sendHTTPResponse(int code, const char* mimetype, const char* data)
 {
-    char clientReqBuffer[1024];
-    
-    read(fdClient, clientReqBuffer, 1024);
-    mil::HttpRequest req;
-    
-    req.parseRequest(clientReqBuffer);
-    std::string mimetype = req.getMimeType(req.path());
-    
     mil::HttpResponse res;
     
-    std::string body = req.readHtmlFile(req.path());
-    std::string response = res.frameHttpResponse("200", "OK", req.headers(), body, mimetype);
-
-    write(fdClient, response.c_str(), response.length());
-    
-    close(fdClient);
+    std::string body(data);
+    std::string response = buildHTTPHeader(200, "OK", body.size(), "text/html");
+    response += body;
+    write(_fdClient, response.c_str(), response.length());
 }
 
 void
-Server::handleServer(int fdServer)
+WebServer::sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip)
+{
+}
+
+void
+WebServer::streamHTTPResponse(File& file, const char* mimetype, bool attach)
+{
+    std::string response = buildHTTPHeader(200, "OK", file.size(), mimetype);
+    write(_fdClient, response.c_str(), response.length());
+    
+    while (true) {
+        uint8_t buf[1024];
+        int size = file.read(buf, 1024);
+        if (size < 0) {
+            printf("**** Error reading file\n");
+            sendHTTPResponse(404, "text/plain", "Error reading file");
+            break;
+        }
+        
+        write(_fdClient, buf, size);
+        if (size < 1024) {
+            break;
+        }
+    }
+}
+
+void
+WebServer::sendStaticFile(const char* filename, const char* path)
+{
+    std::string f(path);
+    f += filename;
+    
+    if (!_wfs || !_wfs->exists(f.c_str())) {
+        printf("File not found.\n");
+        sendHTTPResponse(404);
+    } else {
+        File file = _wfs->open(f.c_str(), "r");
+        streamHTTPResponse(file, WebFileSystem::suffixToMimeType(f).c_str(), false);
+        file.close();
+    }
+}
+
+void
+WebServer::handleClient(int fdClient)
+{
+    // Thread local variable
+    _fdClient = fdClient;
+    
+    char clientReqBuffer[1024];
+    
+    read(_fdClient, clientReqBuffer, 1024);
+    mil::HttpRequest req;
+    
+    req.parseRequest(clientReqBuffer);
+    
+    // If we have the root path, return index.html
+    if (req.path().empty() || req.path() == "/") {
+        sendStaticFile("index.html", "/");
+    } else {
+        // Go through all the handlers
+        // FIXME: For now the endpoint is the string up to the 
+        // first slash.
+        std::string path = req.path();
+        if (path[0] != '/') {
+            path = "/" + path;
+        }
+        
+        size_t slash = path.substr(1).find('/');
+        if (slash != std::string::npos) {        
+            std::string endpoint = path.substr(0, slash + 1);
+            path = path.substr(slash + 2);
+            for (const auto& it : _handlers) {
+                if (it.endpoint == endpoint) {
+                    if (it.isStatic) {
+                        sendStaticFile(path.c_str(), it.path.c_str());
+                    } else {
+                        // Let handler deal with it
+                        if (it.requestCB) {
+                            it.requestCB();
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    close(_fdClient);
+}
+
+void
+WebServer::handleServer(int fdServer)
 {
     struct sockaddr_in clientAddr;
     socklen_t clientAddrSize = sizeof(struct sockaddr_in); 
@@ -143,8 +215,10 @@ Server::handleServer(int fdServer)
 }
 
 int
-Server::start(int port)
+WebServer::start(WebFileSystem* wfs, int port)
 {
+    _wfs = wfs;
+    
     int fdServer = socket(AF_INET, SOCK_STREAM, 0);
     if (fdServer < 0) {
         printf("Failed to create server socket.\n");

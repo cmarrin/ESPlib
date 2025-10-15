@@ -103,6 +103,7 @@
 		4927442B2E9D94D000AF8FA1 /* webby */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = webby; sourceTree = BUILT_PRODUCTS_DIR; };
 		492744432E9DBF6F00AF8FA1 /* MacWebServer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MacWebServer.cpp; sourceTree = "<group>"; };
 		492744452E9DBF9900AF8FA1 /* MacWebServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MacWebServer.h; sourceTree = "<group>"; };
+		492744632E9F185D00AF8FA1 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = index.html; path = ../littlefs/index.html; sourceTree = "<group>"; };
 		495AB4572E9C730A00C4C2C4 /* Vesper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Vesper; sourceTree = BUILT_PRODUCTS_DIR; };
 		495AB4652E9C753400C4C2C4 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		495AB46A2E9C777C00C4C2C4 /* Vesper.ino */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; name = Vesper.ino; path = ../Vesper/Vesper.ino; sourceTree = "<group>"; };
@@ -142,7 +143,7 @@
 		49E65B812E9C3A7600D3C6C5 /* MenuSystem.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MenuSystem.cpp; path = ../MenuSystem.cpp; sourceTree = SOURCE_ROOT; };
 		49E65B822E9C3A7600D3C6C5 /* mil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mil.h; path = ../mil.h; sourceTree = SOURCE_ROOT; };
 		49E65B842E9C3A7600D3C6C5 /* StateMachine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = StateMachine.h; path = ../StateMachine.h; sourceTree = SOURCE_ROOT; };
-		49E65B852E9C3A7600D3C6C5 /* system.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = system.html; path = ../system.html; sourceTree = SOURCE_ROOT; };
+		49E65B852E9C3A7600D3C6C5 /* system.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = system.html; path = ../littlefs/system.html; sourceTree = SOURCE_ROOT; };
 		49E65B862E9C3A7600D3C6C5 /* System.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = System.h; path = ../System.h; sourceTree = SOURCE_ROOT; };
 		49E65B872E9C3A7600D3C6C5 /* System.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = System.cpp; path = ../System.cpp; sourceTree = SOURCE_ROOT; };
 		49E65B882E9C3A7600D3C6C5 /* TimeWeatherServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TimeWeatherServer.h; path = ../TimeWeatherServer.h; sourceTree = SOURCE_ROOT; };
@@ -201,6 +202,7 @@
 		495AB4692E9C756400C4C2C4 /* Vesper */ = {
 			isa = PBXGroup;
 			children = (
+				492744632E9F185D00AF8FA1 /* index.html */,
 				495AB4722E9C7D1800C4C2C4 /* partitions.csv */,
 				495AB46B2E9C77FE00C4C2C4 /* Vesper.h */,
 				495AB46C2E9C77FE00C4C2C4 /* Vesper.cpp */,
