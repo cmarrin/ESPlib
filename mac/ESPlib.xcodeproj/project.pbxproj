@@ -367,6 +367,7 @@
 				49E65AFD2E9C36F800D3C6C5 /* Headers */,
 				49E65AFE2E9C36F800D3C6C5 /* Sources */,
 				49E65AFF2E9C36F800D3C6C5 /* Frameworks */,
+				492744652EA03A4300AF8FA1 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -436,6 +437,27 @@
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		492744652EA03A4300AF8FA1 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "rm ../../ESPlib/filemgr.html.gz ../../ESPlib/filemgr.h ../../ESPlib/filemgr.gz.h\ngzip -k ../../ESPlib/filemgr.html\nxxd -n filemgr_html -i ../../ESPlib/filemgr.html ../../ESPlib/filemgr.h\nxxd -n filemgr_html_gz -i ../../ESPlib/filemgr.html.gz ../../ESPlib/filemgr.gz.h\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		492744272E9D94D000AF8FA1 /* Sources */ = {
