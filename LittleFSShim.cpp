@@ -201,7 +201,7 @@ File::isDirectory()
 File
 File::openNextFile()
 {
-    if (!_isDir) {
+    if (!_isDir || _dir == std::filesystem::end(_dir)) {
         return File();
     }
     
