@@ -40,6 +40,8 @@ class WebFileSystem
     bool mkdir(const char* path);
     bool rmdir(const char* path);
 
+    static std::string suffixToMimeType(const std::string& filename);
+
   private:
     std::string listDir(const char* dirname, uint8_t levels);
     

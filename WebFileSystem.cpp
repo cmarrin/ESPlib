@@ -32,7 +32,8 @@ FS LittleFS;
 #endif
 
 // Returns null if file is not a source file (cannot be displayed in web browser)
-static std::string suffixToMimeType(const std::string& filename)
+std::string
+WebFileSystem::suffixToMimeType(const std::string& filename)
 {
     std::string suffix = std::filesystem::path(filename).extension();
     for_each(suffix.begin(), suffix.end(), [](char& c) {
