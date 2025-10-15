@@ -33,6 +33,7 @@ class File
         , _dir(file._dir)
         , _isDir(file._isDir)
         , _path(file._path)
+        , _name(file._name)
     {
     }
 
@@ -65,6 +66,7 @@ class File
     std::filesystem::directory_iterator _dir;
     bool _isDir = false;
     std::filesystem::path _path;
+    std::string _name; // We need to keep this so we can return it as a const char*
 };
     
 class FS

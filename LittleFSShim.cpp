@@ -33,6 +33,8 @@ File::File(const std::filesystem::path& path, const char* mode)
     close();
     
     _path = path;
+    _name = _path.filename();
+
     if (std::filesystem::is_directory(_path)) {
         _isDir = true;
         _dir = std::filesystem::directory_iterator(_path);
@@ -187,7 +189,7 @@ File::path() const
 const char*
 File::name() const
 {
-    return _path.filename().c_str();
+    return _name.c_str();
 }
 
 bool
