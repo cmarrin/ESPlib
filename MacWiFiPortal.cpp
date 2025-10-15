@@ -189,8 +189,7 @@ MacWiFiPortal::httpUploadBuffer() const
 std::string
 MacWiFiPortal::getHTTPArg(const char* name)
 {
-//    return _wifiManager.server->arg(name).c_str();
-    return "";
+    return _server.getHTTPArg(name);
 }
 
 bool
