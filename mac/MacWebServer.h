@@ -23,36 +23,13 @@ class File;
 
 namespace mil {
 
-class HttpRequest
-{
-public:
-    void parseRequest(const std::string& rawRequest);
-  
-    std::string readHtmlFile(const std::string &path);
-    std::string getMimeType(const std::string &path);
-
-    const std::string& path() const { return _path; }
-    const std::map<std::string, std::string>& headers() const { return _headers; }
-    
-private:
-    std::string _method;
-    std:: string _path;
-    std::map<std::string, std::string> _headers;
-};
-
-class HttpResponse{ 
-    std::string statuscode;
-    std::string statusmsg;
-    std::map<std::string, std::string> headers;
-    std::string body;
-};
-
 class WebFileSystem;
 
 class WebServer
 {
 public:
     using HandlerCB = std::function<void()>;
+    using HeaderMap = std::map<std::string, std::string>;
 
     WebServer() { }
     ~WebServer() { stop(); }
@@ -71,9 +48,9 @@ public:
         _handlers.emplace_back(uri, path, nullptr, nullptr, true);
     }
 
-    void sendHTTPResponse(int code, const char* mimetype = nullptr, const char* data = "");
-    void sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip);
-    void streamHTTPResponse(File& file, const char* mimetype, bool attach);
+    void sendHTTPResponse(int code, const char* mimetype = nullptr, const char* data = "", const HeaderMap& extraHeaders = HeaderMap());
+    void sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip, const HeaderMap& extraHeaders = HeaderMap());
+    void streamHTTPResponse(File& file, const char* mimetype, bool attach, const HeaderMap& extraHeaders = HeaderMap());
     
 private:
     void handleClient(int fdClient);
@@ -81,7 +58,8 @@ private:
 
     void sendStaticFile(const char* filename, const char* path);
     
-    std::string buildHTTPHeader(int statuscode, std::string statusmsg, size_t contentLength, std::string mimetype);
+    void parseRequest(const std::string& rawRequest, HeaderMap& headers);
+    std::string buildHTTPHeader(int statuscode, size_t contentLength, std::string mimetype, const HeaderMap& extraHeaders = HeaderMap());
     
     struct HTTPHandler
     {
