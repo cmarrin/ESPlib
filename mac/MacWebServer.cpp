@@ -173,22 +173,27 @@ WebServer::handleClient(int fdClient)
             path = "/" + path;
         }
         
+        std::string endpoint;
         size_t slash = path.substr(1).find('/');
-        if (slash != std::string::npos) {        
-            std::string endpoint = path.substr(0, slash + 1);
+        if (slash == std::string::npos) {
+            endpoint = path;
+            path = "";
+        } else {
+            endpoint = path.substr(0, slash + 1);
             path = path.substr(slash + 2);
-            for (const auto& it : _handlers) {
-                if (it.endpoint == endpoint) {
-                    if (it.isStatic) {
-                        sendStaticFile(path.c_str(), it.path.c_str());
-                    } else {
-                        // Let handler deal with it
-                        if (it.requestCB) {
-                            it.requestCB();
-                        }
+        }
+        
+        for (const auto& it : _handlers) {
+            if (it.endpoint == endpoint) {
+                if (it.isStatic) {
+                    sendStaticFile(path.c_str(), it.path.c_str());
+                } else {
+                    // Let handler deal with it
+                    if (it.requestCB) {
+                        it.requestCB();
                     }
-                    break;
                 }
+                break;
             }
         }
     }
