@@ -103,19 +103,13 @@ MacWiFiPortal::getSSID()
 void
 MacWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const char* data)
 {
-//    _wifiManager.server->send(code, mimetype, data);
+    _server.sendHTTPResponse(code, mimetype, data);
 }
 
 void
 MacWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip)
 {
-//    if (gzip) {
-//        _wifiManager.server->sendHeader("Content-Encoding", "gzip", true);
-//    }
-//    
-//    _wifiManager.server->setContentLength(length);
-//    _wifiManager.server->send(code, mimetype);
-//    _wifiManager.server->sendContent(data, length);
+    _server.sendHTTPResponse(code, mimetype, data, length, gzip);
 }    
 
 void

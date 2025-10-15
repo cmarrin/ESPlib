@@ -23,97 +23,134 @@ using namespace mil;
 thread_local int _fdClient;
 
 void
-HttpRequest::parseRequest(const std::string& rawRequest)
+WebServer::parseRequest(const std::string& rawRequest, HeaderMap& headers)
 {
-    int currindex=0;
+    std::string method;
+    std::string path;
+    
+    int currindex = 0;
     while(currindex < rawRequest.length()) {
         if(rawRequest[currindex] == ' ') {
             break;
         }
-        _method += rawRequest[currindex];
+        method += rawRequest[currindex];
         currindex++;
     }
-    _headers["method"] = _method;
+    headers["method"] = method;
 
     currindex++;
     while(currindex < rawRequest.length()){
         if(rawRequest[currindex] == ' '){
             break;
         }
-        _path += rawRequest[currindex];
+        path += rawRequest[currindex];
         currindex++;
     }
    
-    _headers["path"] = _path;
+    headers["path"] = path;
 }
 
-std::string
-HttpRequest::readHtmlFile(const std::string &path)
+static const char* responseCodeToString(int code)
 {
-    std::string filename = path.substr(1,path.length());
-   
-    std::ifstream file(filename);
-    int flag = 0;
-    if (!file) {
-        flag=1;
-        printf("File not found.\n");
+    switch (code) {
+        case 100: return "Continue";
+        case 101: return "Switching Protocols";
+        case 200: return "OK";
+        case 201: return "Created";
+        case 202: return "Accepted";
+        case 203: return "Non-Authoritative Information";
+        case 204: return "No Content";
+        case 205: return "Reset Content";
+        case 206: return "Partial Content";
+        case 300: return "Multiple Choices";
+        case 301: return "Moved Permanently";
+        case 302: return "Found";
+        case 303: return "See Other";
+        case 304: return "Not Modified";
+        case 305: return "Use Proxy";
+        case 307: return "Temporary Redirect";
+        case 400: return "Bad Request";
+        case 401: return "Unauthorized";
+        case 402: return "Payment Required";
+        case 403: return "Forbidden";
+        case 404: return "Not Found";
+        case 405: return "Method Not Allowed";
+        case 406: return "Not Acceptable";
+        case 407: return "Proxy Authentication Required";
+        case 408: return "Request Time-out";
+        case 409: return "Conflict";
+        case 410: return "Gone";
+        case 411: return "Length Required";
+        case 412: return "Precondition Failed";
+        case 413: return "Request Entity Too Large";
+        case 414: return "Request-URI Too Large";
+        case 415: return "Unsupported Media Type";
+        case 416: return "Requested range not satisfiable";
+        case 417: return "Expectation Failed";
+        case 500: return "Internal Server Error";
+        case 501: return "Not Implemented";
+        case 502: return "Bad Gateway";
+        case 503: return "Service Unavailable";
+        case 504: return "Gateway Time-out";
+        case 505: return "HTTP Version not supported";
+        default:  return "";
     }
-
-    if (flag == 0) {
-        std::stringstream buffer;
-        buffer << file.rdbuf();
-        return buffer.str();
-    }
-
-    return "";
 }
 
-std::string
-HttpRequest::getMimeType(const std::string &path)
-{
-    std::map<std::string, std::string> mimeTypes = {
-        {"html","text/html"},
-        {"css","text/css"},
-        {"js","text/javascript"},
-        {"jpg","image/jpeg"},
-        {"png","image/png"}
-    };
-    
-    std::string fileExtension = path.substr(path.find_last_of(".") + 1);
-    return mimeTypes[fileExtension];
-}
 
 std::string
-WebServer::buildHTTPHeader(int statuscode, std::string statusmsg, size_t contentLength, std::string mimetype)
+WebServer::buildHTTPHeader(int statuscode, size_t contentLength, std::string mimetype, const HeaderMap& extraHeaders)
 {
     std::ostringstream buffer;
-    buffer << "HTTP/1.1 " << statuscode << " " << statusmsg << "\r\n";
+    buffer << "HTTP/1.1 " << statuscode << " " << responseCodeToString(statuscode) << "\r\n";
     buffer << "content-type" << ": " << mimetype << "\r\n";
-    buffer << "content-length" << ": " << std::to_string(contentLength) << "\r\n";    
+    buffer << "content-length" << ": " << std::to_string(contentLength) << "\r\n";
+    
+    for (const auto& it : extraHeaders) {
+        buffer << it.first << ": " << it.second << "\r\n";
+    }
+    
     buffer << "\r\n";
     return buffer.str();
 }
 
 void
-WebServer::sendHTTPResponse(int code, const char* mimetype, const char* data)
+WebServer::sendHTTPResponse(int code, const char* mimetype, const char* data, const HeaderMap& extraHeaders)
 {
-    mil::HttpResponse res;
-    
     std::string body(data);
-    std::string response = buildHTTPHeader(200, "OK", body.size(), "text/html");
+    std::string response = buildHTTPHeader(code, body.size(), mimetype, extraHeaders);
     response += body;
     write(_fdClient, response.c_str(), response.length());
 }
 
 void
-WebServer::sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip)
+WebServer::sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip, const HeaderMap& extraHeaders)
 {
+    HeaderMap headers = extraHeaders;
+    
+    if (gzip) {
+        headers["Content-Encoding"] = "gzip";
+    }
+
+    std::string response = buildHTTPHeader(code, length, mimetype, headers);
+    write(_fdClient, response.c_str(), response.length());    
+    write(_fdClient, data, length);    
 }
 
 void
-WebServer::streamHTTPResponse(File& file, const char* mimetype, bool attach)
+WebServer::streamHTTPResponse(File& file, const char* mimetype, bool attach, const HeaderMap& extraHeaders)
 {
-    std::string response = buildHTTPHeader(200, "OK", file.size(), mimetype);
+    HeaderMap headers = extraHeaders;
+
+    // For now assume this is a file download. So set Content-Disposition
+    std::string disp = attach ? "attachment" : "inline";
+    disp += "; filename=\"";
+    disp += file.name();
+    disp += "\"";
+    
+    headers["Content-Disposition"] = disp;
+
+    std::string response = buildHTTPHeader(200, file.size(), mimetype, extraHeaders);
     write(_fdClient, response.c_str(), response.length());
     
     while (true) {
@@ -157,18 +194,18 @@ WebServer::handleClient(int fdClient)
     char clientReqBuffer[1024];
     
     read(_fdClient, clientReqBuffer, 1024);
-    mil::HttpRequest req;
     
-    req.parseRequest(clientReqBuffer);
+    HeaderMap headers;    
+    parseRequest(clientReqBuffer, headers);
+    std::string path = headers["path"];
     
     // If we have the root path, return index.html
-    if (req.path().empty() || req.path() == "/") {
+    if (path.empty() || path == "/") {
         sendStaticFile("index.html", "/");
     } else {
         // Go through all the handlers
         // FIXME: For now the endpoint is the string up to the 
         // first slash.
-        std::string path = req.path();
         if (path[0] != '/') {
             path = "/" + path;
         }
