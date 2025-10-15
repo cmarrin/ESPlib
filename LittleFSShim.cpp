@@ -61,7 +61,7 @@ File::File(const std::filesystem::path& path, const char* mode)
     }
 }
 
-size_t
+int
 File::write(const uint8_t* buf, size_t size)
 {
     if (_isDir) {
@@ -69,10 +69,10 @@ File::write(const uint8_t* buf, size_t size)
     }
     
     _file->write(reinterpret_cast<const char*>(buf), size);
-    return _file->good() ? size : -1;
+    return _file ? int(_file->gcount()) : -1;
 }
 
-size_t
+int
 File::write(uint8_t c)
 {
     if (_isDir) {
@@ -80,10 +80,10 @@ File::write(uint8_t c)
     }
     
     _file->write(reinterpret_cast<const char*>(&c), 1);
-    return _file->good() ? 1 : -1;
+    return _file ? 1 : -1;
 }
 
-size_t
+int
 File::read(uint8_t* buf, size_t size)
 {
     if (_isDir) {
@@ -91,7 +91,7 @@ File::read(uint8_t* buf, size_t size)
     }
     
     _file->read(reinterpret_cast<char*>(buf), size);
-    return _file->good() ? size : -1;
+    return _file ? int(_file->gcount()) : -1;
 }
 
 int
@@ -103,7 +103,7 @@ File::read()
     
     uint8_t c;
     _file->read(reinterpret_cast<char*>(&c), 1);
-    return _file->good() ? c : -1;
+    return _file ? c : -1;
 }
 
 int
@@ -114,7 +114,7 @@ File::peek()
     }
     
     int c = _file->peek();
-    return _file->good() ? c : -1;
+    return _file ? c : -1;
 }
 
 void
@@ -141,7 +141,7 @@ File::seek(uint32_t pos, SeekMode mode)
         case SeekEnd: dir = std::ios_base::end; break;
     }
     _file->seekp(pos, dir);
-    return _file->good();
+    return _file;
 }
 
 size_t
@@ -172,8 +172,10 @@ File::size() const
 void
 File::close()
 {
-    _file->close();
-    _file = nullptr;
+    if (_file) {
+        _file->close();
+        _file = nullptr;
+    }
 }
 
 const char*

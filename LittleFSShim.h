@@ -38,12 +38,12 @@ class File
 
     ~File() { close(); }
     
-    size_t write(uint8_t);
-    size_t write(const uint8_t* buf, size_t size);
+    int write(uint8_t);
+    int write(const uint8_t* buf, size_t size);
     int read();
     int peek();
     void flush();
-    size_t read(uint8_t* buf, size_t size);
+    int read(uint8_t* buf, size_t size);
 
     bool seek(uint32_t pos, SeekMode mode = SeekSet);
     size_t position() const;
@@ -58,7 +58,7 @@ class File
     File openNextFile();
     void rewindDirectory();
     
-    operator bool() const { return _isDir || (_file && _file->good()); }
+    operator bool() const { return _isDir || (_file && !_file->fail()); }
     
   private:
     std::fstream* _file = nullptr;
