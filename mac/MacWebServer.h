@@ -51,6 +51,8 @@ public:
     void sendHTTPResponse(int code, const char* mimetype = nullptr, const char* data = "", const ArgMap& extraHeaders = ArgMap());
     void sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip, const ArgMap& extraHeaders = ArgMap());
     void streamHTTPResponse(File& file, const char* mimetype, bool attach, const ArgMap& extraHeaders = ArgMap());
+
+    std::string getHTTPArg(const char* name) { return _argMap[name]; }
     
 private:
     void handleClient(int fdClient);
@@ -58,8 +60,8 @@ private:
 
     void sendStaticFile(const char* filename, const char* path);
     
-    void parseRequest(const std::string& rawRequest, HeaderMap& headers);
-    std::string buildHTTPHeader(int statuscode, size_t contentLength, std::string mimetype, const HeaderMap& extraHeaders = HeaderMap());
+    void parseRequest(const std::string& rawRequest, ArgMap& headers, ArgMap& args);
+    std::string buildHTTPHeader(int statuscode, size_t contentLength, std::string mimetype, const ArgMap& extraHeaders = ArgMap());
     
     struct HTTPHandler
     {
@@ -69,6 +71,8 @@ private:
     };
     
     std::vector<HTTPHandler> _handlers;
+    
+    ArgMap _argMap;
 
     WebFileSystem* _wfs = nullptr;
 };

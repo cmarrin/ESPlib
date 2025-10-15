@@ -15,12 +15,27 @@ All rights reserved.
 #include<arpa/inet.h>
 #include<unistd.h>
 #include <thread>
+#include <regex>
 
 #include "WebFileSystem.h"
 
 using namespace mil;
     
 thread_local int _fdClient;
+
+// Function to parse query string into a map
+static WebServer::ArgMap parseQuery(const std::string& query)
+{
+    WebServer::ArgMap result;
+    std::regex paramRegex("([^&=]+)=([^&]*)");
+    auto begin = std::sregex_iterator(query.begin() + 1, query.end(), paramRegex);
+    auto end = std::sregex_iterator();
+    for (std::sregex_iterator i = begin; i != end; ++i) {
+        std::smatch match = *i;
+        result[match[1]] = match[2];
+    }
+    return result;
+}
 
 void
 WebServer::parseRequest(const std::string& rawRequest, ArgMap& headers, ArgMap& args)
@@ -48,6 +63,17 @@ WebServer::parseRequest(const std::string& rawRequest, ArgMap& headers, ArgMap& 
     }
    
     headers["path"] = path;
+
+    // Pick out args
+    size_t firstArg = path.find('?');
+    if (firstArg == std::string::npos) {
+        return;
+    }
+    
+    std::string argList = path.substr(firstArg);
+    headers["path"] = path.substr(0, firstArg);
+
+    args = parseQuery(argList);
 }
 
 static const char* responseCodeToString(int code)
@@ -194,8 +220,10 @@ WebServer::handleClient(int fdClient)
     
     read(_fdClient, clientReqBuffer, 1024);
     
-    HeaderMap headers;    
-    parseRequest(clientReqBuffer, headers);
+    ArgMap headers;
+    _argMap.clear();
+    
+    parseRequest(clientReqBuffer, headers, _argMap);
     std::string path = headers["path"];
     
     // If we have the root path, return index.html
