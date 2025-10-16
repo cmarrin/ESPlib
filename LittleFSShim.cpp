@@ -296,7 +296,7 @@ FS::rename(const char* fromPath, const char* toPath)
 bool
 FS::mkdir(const char* path)
 {
-    return std::filesystem::create_directory(std::filesystem::path(path));
+    return std::filesystem::create_directory(makePath(path));
 }
 
 bool
