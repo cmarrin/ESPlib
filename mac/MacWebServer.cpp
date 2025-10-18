@@ -9,6 +9,7 @@ All rights reserved.
 
 #include "MacWebServer.h"
 
+#include<cassert>
 #include<fstream>
 #include<iostream>
 #include<sstream>
@@ -22,6 +23,111 @@ All rights reserved.
 using namespace mil;
     
 thread_local int _fdClient;
+
+// String split function
+static std::vector<std::string> split(const std::string& str, char sep)
+{
+    std::vector<std::string> strings;
+    
+    int startIndex = 0;
+    int endIndex = 0;
+    
+    for (int i = 0; i <= str.size(); i++) {
+        if (str[i] == sep || i == str.size()) {
+            endIndex = i;
+            std::string temp;
+            temp.append(str, startIndex, endIndex - startIndex);
+            strings.push_back(temp);
+            startIndex = endIndex + 1;
+        }
+    }
+    return strings;
+}
+
+static std::string& trimWhitespace(std::string& s)
+{
+    s.erase(0, s.find_first_not_of(" \t"));
+    s.erase(s.find_last_not_of(" \t") + 1);
+    return s;
+}
+
+static std::string getLine(int fd)
+{
+    char buf[4096];
+    
+    // Get a line
+    int index = 0;
+    bool needNewLine = false;
+    
+    while (true) {
+        ssize_t size = read(fd, buf + index, 1);
+        if (size < 0) {
+            perror("read failed");
+            return "";
+        }
+
+        if (size != 1) {
+            printf("Internal error in parseRequestHeader\n");
+            return "";
+        }
+        
+        if (needNewLine) {
+            if (buf[index] == '\n') {
+                buf[index - 1] = '\0';
+                break;
+            } else {
+                printf("Expected newline in parseRequestHeader\n");
+                return "";
+            }
+        }
+        
+        if (buf[index] == '\r') {
+            needNewLine = true;
+        }
+        index++;
+    }
+    return buf;
+}
+
+// Key/value pairs is separated by ':'
+static std::vector<std::string> parseKeyValue(const std::string& s)
+{
+    // Handle key:value pairs
+    std::vector<std::string> line = split(s, ':');
+    trimWhitespace(line[0]);
+    trimWhitespace(line[1]);
+    return line;
+}
+
+// FormData has this form:
+//
+//      <value> { ';' <key> '=' <value> }
+//
+// This can be used to parse lines in the header and at the 
+// start of a multipart/form-data section of the body.
+// Return value is a vector where [0] and [1] are the main
+// key value pairs and pairs of values after that are any
+// form data present
+//
+static std::vector<std::string> parseFormData(const std::string& value)
+{
+    std::vector<std::string> retVal;
+    
+    // The value can be further split on ';'
+    std::vector<std::string> line = split(value, ';');
+    trimWhitespace(line[0]);
+    retVal.push_back(line[0]);
+    line.erase(line.begin());
+    
+    // If we have further key/value pairs, save them        
+    for (int i = 0; i < line.size(); ++i) {
+        std::vector<std::string> pair = split(line[i], '=');
+        retVal.push_back(trimWhitespace(pair[0]));
+        retVal.push_back(trimWhitespace(pair[1]));
+    }
+    
+    return retVal;
+}
 
 // Function to parse query string into a map
 static WebServer::ArgMap parseQuery(const std::string& query)
@@ -37,43 +143,48 @@ static WebServer::ArgMap parseQuery(const std::string& query)
     return result;
 }
 
-void
-WebServer::parseRequest(const std::string& rawRequest, ArgMap& headers, ArgMap& args)
+static bool parseRequestHeader(int fd, WebServer::ArgMap& headers, WebServer::ArgMap& args)
 {
-    std::string method;
+    bool isFirstLine = true;
     std::string path;
     
-    int currindex = 0;
-    while(currindex < rawRequest.length()) {
-        if(rawRequest[currindex] == ' ') {
+    while (true) {
+        // Get a line
+        std::string line = getLine(fd);
+        
+        // We have a line in the buffer
+        // TODO: Do a bunch of error checking here
+        if (line.empty()) {
+            // Blank line, we're done
             break;
         }
-        method += rawRequest[currindex];
-        currindex++;
-    }
-    headers["method"] = method;
-
-    currindex++;
-    while(currindex < rawRequest.length()){
-        if(rawRequest[currindex] == ' '){
-            break;
+        
+        if (isFirstLine) {
+            isFirstLine = false;
+            
+            // Handle first line
+            std::vector<std::string> parsedLine = split(line, ' ');
+            headers["method"] = parsedLine[0];
+            path = parsedLine[1];
+            headers["path"] = path;
+        } else {
+            std::vector<std::string> keyValue = parseKeyValue(line);
+            headers[keyValue[0]] = keyValue[1];
         }
-        path += rawRequest[currindex];
-        currindex++;
     }
-   
-    headers["path"] = path;
 
     // Pick out args
     size_t firstArg = path.find('?');
     if (firstArg == std::string::npos) {
-        return;
+        return true;
     }
     
     std::string argList = path.substr(firstArg);
     headers["path"] = path.substr(0, firstArg);
 
     args = parseQuery(argList);
+    
+    return true;
 }
 
 static const char* responseCodeToString(int code)
@@ -143,7 +254,7 @@ void
 WebServer::sendHTTPResponse(int code, const char* mimetype, const char* data, const ArgMap& extraHeaders)
 {
     std::string body(data);
-    std::string response = buildHTTPHeader(code, body.size(), mimetype, extraHeaders);
+    std::string response = buildHTTPHeader(code, body.size(), mimetype ?: "text/plain", extraHeaders);
     response += body;
     write(_fdClient, response.c_str(), response.length());
 }
@@ -211,20 +322,217 @@ WebServer::sendStaticFile(const char* filename, const char* path)
 }
 
 void
+WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, HandlerCB uploadCB)
+{
+    // For now we handle ContentType: multipart. We accept exactly 2 parts. The first
+    // is a key value pair which is placed in _argMap. The second is the uploaded file
+    // data including the filename (which is placed in _argMap). The next line is Content-Type
+    // followed by a blank line, followed by the uploaded file data
+    std::string contentType = headers.at("Content-Type");
+    if (contentType.empty()) {
+        sendHTTPResponse(501);
+        return;
+    }
+    
+    std::vector<std::string> multipart = parseFormData(contentType);
+    if (multipart[0] != "multipart/form-data" || multipart[1] != "boundary") {
+        sendHTTPResponse(501);
+        return;
+    }
+
+    std::string boundary = multipart[2];
+
+    while (true) {
+        // The next line should be the boundary line
+        std::string line = getLine(fd);
+
+        // Ignore the first 2 characters of the boundary
+        if (line.substr(2) != boundary) {
+            sendHTTPResponse(204);
+            return;
+        }
+        
+        // First line of each section is a Content-Disposition
+        line = getLine(fd);
+        multipart.clear();
+        multipart = parseKeyValue(line);
+        if (multipart[0] != "Content-Disposition") {
+            sendHTTPResponse(204);
+            return;
+        }
+        multipart = parseFormData(multipart[1]);
+        if (multipart[0] != "form-data") {
+            sendHTTPResponse(204);
+            return;
+        }
+        
+        // Next should be a "name" key/value pair
+        if (multipart[1] != "name") {
+            sendHTTPResponse(204);
+            return;
+        }
+        
+        // The key might have quotes around it
+        std::string key = multipart[2];
+            
+        if (key[0] == '"') {
+            key = key.substr(1);
+            key.pop_back();
+        }
+
+        // The value of the "name" pair can either be a query param or "files[]"
+        // If it's the latter then there should be a "filename" key/value pair
+        if (key != "files[]") {
+            // This is a query param. The key is in multipart[2]. The value is
+            // content, which comes after a blank line
+            line = getLine(fd);
+            if (line[0] != '\0') {
+                sendHTTPResponse(204);
+                return;
+            }
+            
+            line = getLine(fd);
+            _argMap[key] = line;
+        } else {
+            // Set the filename
+            if (multipart[3] == "filename") {
+                std::string filename = multipart[4];
+                
+                // Get rid of any quotes
+                if (filename[0] == '"') {
+                    filename = filename.substr(1);
+                    filename.pop_back();
+                }
+                _uploadFilename = filename;
+            }
+            
+            // We're at the content. But first the next line should be "Content-Type"
+            line = getLine(fd);
+            multipart = parseKeyValue(line);
+            if (multipart[0] != "Content-Type") {
+                sendHTTPResponse(204);
+                return;
+            }
+
+            _uploadMimetype = multipart[1];
+            
+            // Now let's get to the content, the next line should be blank
+            line = getLine(fd);
+            if (line[0] != '\0') {
+                sendHTTPResponse(204);
+                return;
+            }
+            
+            // Now we upload
+            if (uploadCB) {
+                // We need to add "\n--" to the start of the boundary
+                boundary = "\n--" + boundary;
+
+                // Start upload
+                _uploadName = "";
+                _uploadStatus = WiFiPortal::HTTPUploadStatus::Start;
+                uploadCB();
+                
+                int bufferOverflow = 0;
+                int index = 0;
+                
+                while (true) {
+                    // We need to read one byte at a time.
+                    // As we go we need to check for the boundary string while
+                    // we keep accumulating data in the buffer. If we do hit
+                    // the boundary string we need to return the buffer data
+                    // up to the start of the string and this is the last buffer.
+                    // If it fails we need to send UploadBufferReturnSize bytes
+                    // then put the remaining data at the head of the buffer
+                    // and continue reading. The actual size of the buffer
+                    // (UploadBufferActualSize) is big enough to hold the extra
+                    // bytes while we're checking for the boundary string.
+                    //
+                    _uploadStatus = WiFiPortal::HTTPUploadStatus::Write;
+
+                    ssize_t size = read(fd, &(_uploadBuffer[index]), 1);
+                    if (size != 1) {
+                        sendHTTPResponse(204);
+                        return;
+                    }
+
+                    bool haveBoundary = false;
+                    if (_uploadBuffer[index] == '\r') {
+                        haveBoundary = true;
+                        ++index;
+                        // This might be the boundary
+                         // We start at -3 because we need to check the \n-- at the start of the boundary
+                        for (int i = 0; i < boundary.size(); ++i, ++index) {
+                            size = read(fd, &(_uploadBuffer[index]), 1);
+                            if (size != 1) {
+                                sendHTTPResponse(204);
+                                return;
+                            }
+                        
+                            if (_uploadBuffer[index] != boundary[i]) {
+                                // This is not the boundary
+                                haveBoundary = false;
+                                ++index;
+                                if (index > UploadBufferReturnSize) {
+                                    // We are in the overflow area. Set the buffer
+                                    // size to UploadBufferReturnSize. After sending
+                                    // the data move the overflow to the start of the
+                                    // buffer and continue
+                                    bufferOverflow = index - UploadBufferReturnSize;;
+                                    index = UploadBufferReturnSize;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    
+                    ++index;
+                    assert(index <= UploadBufferReturnSize);
+                    
+                    if (index == UploadBufferReturnSize || haveBoundary) {
+                        // Send the buffer
+                        _uploadCurrentSize = haveBoundary ? (index - boundary.size() - 1) : UploadBufferReturnSize;
+                        uploadCB();
+                        index = 0;
+                        
+                        // Deal with any overflow
+                        if (bufferOverflow > 0) {
+                            memcpy(_uploadBuffer, _uploadBuffer + UploadBufferReturnSize, bufferOverflow);
+                            index = bufferOverflow;
+                            bufferOverflow = 0;
+                        }
+                    
+                        // Break when we've sent all the data
+                        if (haveBoundary) {
+                            break;
+                        }
+                    }
+                }
+            
+                _uploadStatus = WiFiPortal::HTTPUploadStatus::End;
+                uploadCB();
+                
+                if (requestCB) {
+                    requestCB();
+                }
+            }
+        }
+    }
+}
+
+void
 WebServer::handleClient(int fdClient)
 {
     // Thread local variable
     _fdClient = fdClient;
-    
-    char clientReqBuffer[1024];
-    
-    read(_fdClient, clientReqBuffer, 1024);
-    
+
     ArgMap headers;
     _argMap.clear();
+
+    parseRequestHeader(fdClient, headers, _argMap);
     
-    parseRequest(clientReqBuffer, headers, _argMap);
     std::string path = headers["path"];
+    bool isUpload = headers["method"] == "POST";
     
     // If we have the root path, return index.html
     if (path.empty() || path == "/") {
@@ -252,9 +560,12 @@ WebServer::handleClient(int fdClient)
                 if (it.isStatic) {
                     sendStaticFile(path.c_str(), it.path.c_str());
                 } else {
-                    // Let handler deal with it
-                    if (it.requestCB) {
-                        it.requestCB();
+                    if (isUpload) {
+                        handleUpload(fdClient, headers, it.requestCB, it.uploadCB);
+                    } else {
+                        if (it.requestCB) {
+                            it.requestCB();
+                        }
                     }
                 }
                 break;
