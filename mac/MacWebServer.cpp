@@ -23,6 +23,49 @@ All rights reserved.
 using namespace mil;
     
 thread_local int _fdClient;
+int
+WebServer::start(WebFileSystem* wfs, int port)
+{
+    _wfs = wfs;
+    
+    int fdServer = socket(AF_INET, SOCK_STREAM, 0);
+    if (fdServer < 0) {
+        printf("Failed to create server socket.\n");
+        return -1;
+    }
+
+    int opt = 1;
+    if (setsockopt(fdServer, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+        printf("setsockopt(SO_REUSEADDR) failed\n");
+        return -1;
+    }
+    
+    struct sockaddr_in serverAddr;
+    
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_port = htons(port);
+    serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    
+    //bind  socket to port.
+    if (bind(fdServer, (struct sockaddr*)& serverAddr, sizeof(serverAddr)) < 0) {
+        printf("Failed to bind server socket.\n");
+        return -1;
+    }
+
+    //listens on socket.
+    if (listen(fdServer, 5) < 0) {
+        printf("Failed to listen on server socket.\n");
+        return -1;
+    }
+    
+    printf("Server started on port : %d\n", port);
+
+    std::thread serverThread([this, fdServer]() { handleServer(fdServer); });
+    serverThread.detach();
+    
+    return fdServer;
+}
+
 
 // String split function
 static std::vector<std::string> split(const std::string& str, char sep)
@@ -593,46 +636,3 @@ WebServer::handleServer(int fdServer)
         clientThread.detach();
     }
 }
-
-int
-WebServer::start(WebFileSystem* wfs, int port)
-{
-    _wfs = wfs;
-    
-    int fdServer = socket(AF_INET, SOCK_STREAM, 0);
-    if (fdServer < 0) {
-        printf("Failed to create server socket.\n");
-        return -1;
-    }
-
-    int opt = 1;
-    if (setsockopt(fdServer, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
-        printf("setsockopt(SO_REUSEADDR) failed\n");
-        return -1;
-    }
-    
-    struct sockaddr_in serverAddr;
-    
-    serverAddr.sin_family = AF_INET;
-    serverAddr.sin_port = htons(port);
-    serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    
-    //bind  socket to port.
-    if (bind(fdServer, (struct sockaddr*)& serverAddr, sizeof(serverAddr)) < 0) {
-        printf("Failed to bind server socket.\n");
-        return -1;
-    }
-
-    //listens on socket.
-    if (listen(fdServer, 5) < 0) {
-        printf("Failed to listen on server socket.\n");
-        return -1;
-    }
-    
-    printf("Server started on port : %d\n", port);
-
-    std::thread serverThread([this, fdServer]() { handleServer(fdServer); });
-    serverThread.detach();
-    
-    return fdServer;
-};
