@@ -45,11 +45,6 @@ File::File(const std::filesystem::path& path, const char* mode)
         // errno gets set by std::filesystem::is_directory, so clear it here
         _error = (_file != nullptr) ? 0 : errno;
         errno = 0;
-        
-        if (mode[0] == 'w' && _error == 0) {
-            write('a');
-            write('b');
-        }
     }
 }
 
