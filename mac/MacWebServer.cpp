@@ -22,7 +22,6 @@ All rights reserved.
 
 using namespace mil;
     
-thread_local int _fdClient;
 int
 WebServer::start(WebFileSystem* wfs, int port)
 {
@@ -66,6 +65,15 @@ WebServer::start(WebFileSystem* wfs, int port)
     return fdServer;
 }
 
+void
+WebServer::process()
+{
+    // Handle one client at a time so we don't overload
+    if (!_clientsToProcess.empty()) {
+        handleClient(_clientsToProcess[0]);
+        _clientsToProcess.erase(_clientsToProcess.begin());
+    }
+}
 
 // String split function
 static std::vector<std::string> split(const std::string& str, char sep)
@@ -566,7 +574,7 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
 void
 WebServer::handleClient(int fdClient)
 {
-    // Thread local variable
+    // Set the member variable, only valid for the duration of this call
     _fdClient = fdClient;
 
     ArgMap headers;
@@ -616,6 +624,7 @@ WebServer::handleClient(int fdClient)
         }
     }
     close(_fdClient);
+    _fdClient = -1;
 }
 
 void
@@ -630,9 +639,7 @@ WebServer::handleServer(int fdServer)
             printf("Failed to accept client request.\n");
             return;
         }
-       
-        // Create a new thread to handle the client
-        std::thread clientThread([this, fdClient]() { handleClient(fdClient); });
-        clientThread.detach();
+        // process() will process the client
+        _clientsToProcess.push_back(fdClient);
     }
 }

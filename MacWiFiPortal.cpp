@@ -81,6 +81,7 @@ MacWiFiPortal::autoConnect(char const *apName, char const *apPassword)
 void
 MacWiFiPortal::process()
 {
+    _server.process();
 }
 
 void

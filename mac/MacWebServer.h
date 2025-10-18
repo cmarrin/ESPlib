@@ -51,6 +51,8 @@ public:
     int start(WebFileSystem* fs, int port);
     void stop() { }
     
+    void process();
+    
     int32_t addHTTPHandler(const char* endpoint, HandlerCB requestCB, HandlerCB uploadCB)
     {
         _handlers.emplace_back(endpoint, "", requestCB, uploadCB, false);
@@ -103,7 +105,10 @@ private:
     size_t _uploadCurrentSize = 0;
     uint8_t _uploadBuffer[UploadBufferActualSize];
     
-
+    int _fdClient = -1; // This is only valis during handleClient
+    
+    std::vector<int> _clientsToProcess;
+    
     WebFileSystem* _wfs = nullptr;
 };
 
