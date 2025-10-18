@@ -28,16 +28,24 @@ class File
   public:
     File(const std::filesystem::path& path, const char* mode = "r");
     File() { }
-    File(const File& file)
-        : _file(file._file)
-        , _dir(file._dir)
-        , _isDir(file._isDir)
-        , _path(file._path)
-        , _name(file._name)
-    {
-    }
+    File(const File&) = delete;
+    File(File&& other) { *this = std::move(other); }
 
     ~File() { close(); }
+    
+    File& operator=(const File&) = delete;
+    
+    File& operator=(File&& other)
+    {
+        _dir = std::move(other._dir);
+        _isDir = other._isDir;
+        _path = std::move(other._path);
+        _name = std::move(other._name);
+        _error = other._error;
+        _file = other._file;
+        other._file = nullptr;
+        return *this;
+    }
     
     int write(uint8_t);
     int write(const uint8_t* buf, size_t size);
@@ -62,12 +70,12 @@ class File
     operator bool() const { return _isDir || (_file && _error == 0); }
     
   private:
-    FILE* _file = nullptr;
     std::filesystem::directory_iterator _dir;
     bool _isDir = false;
     std::filesystem::path _path;
     std::string _name; // We need to keep this so we can return it as a const char*
-    volatile int _error = 0;
+    int _error = 0;
+    FILE* _file = nullptr;
 };
     
 class FS
