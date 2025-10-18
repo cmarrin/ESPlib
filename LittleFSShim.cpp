@@ -40,26 +40,16 @@ File::File(const std::filesystem::path& path, const char* mode)
         _dir = std::filesystem::directory_iterator(_path);
     } else {
         _isDir = false;
+        _file = fopen(_path.c_str(), mode);
 
-        std::ios_base::openmode iosMode = std::ios::in;
+        // errno gets set by std::filesystem::is_directory, so clear it here
+        _error = (_file != nullptr) ? 0 : errno;
+        errno = 0;
         
-        // FIXME: Need to deal the 'w' modes (erase contents) and append stuff
-        std::string m = mode;
-        if (m == "r+") {
-            iosMode = std::ios::in | std::ios::out;
-        } else if (m == "w") {
-            iosMode = std::ios::out | std::ios::trunc | std::ios::binary;
-        } else if (m == "w+") {
-            iosMode = std::ios::in | std::ios::out | std::ios::trunc;
-        } else if (m == "a") {
-            iosMode = std::ios::out | std::ios::ate | std::ios::app;
-        } else if (m == "a+") {
-            iosMode = std::ios::in | std::ios::out | std::ios::app;
+        if (mode[0] == 'w' && _error == 0) {
+            write('a');
+            write('b');
         }
-        
-        iosMode |=  std::ios::binary;
-        
-        _file = new std::fstream(_path, iosMode);
     }
 }
 
@@ -70,19 +60,15 @@ File::write(const uint8_t* buf, size_t size)
         return -1;
     }
     
-    _file->write(reinterpret_cast<const char*>(buf), size);
-    return _file ? int(_file->gcount()) : -1;
+    int r = int(fwrite(buf, size, 1, _file));
+    _error = errno;
+    return r;
 }
 
 int
 File::write(uint8_t c)
 {
-    if (_isDir) {
-        return -1;
-    }
-    
-    _file->write(reinterpret_cast<const char*>(&c), 1);
-    return _file ? 1 : -1;
+    return write(&c, 1);
 }
 
 int
@@ -92,8 +78,9 @@ File::read(uint8_t* buf, size_t size)
         return -1;
     }
     
-    _file->read(reinterpret_cast<char*>(buf), size);
-    return _file ? int(_file->gcount()) : -1;
+    int r = int(fread(buf, size, 1, _file));
+    _error = errno;
+    return r;
 }
 
 int
@@ -103,9 +90,9 @@ File::read()
         return -1;
     }
     
-    uint8_t c;
-    _file->read(reinterpret_cast<char*>(&c), 1);
-    return _file ? c : -1;
+    int c = fgetc(_file);
+    _error = errno;
+    return c;
 }
 
 int
@@ -115,8 +102,10 @@ File::peek()
         return -1;
     }
     
-    int c = _file->peek();
-    return _file ? c : -1;
+    int c = read();
+    _error = errno;
+    ungetc(c, _file);
+    return c;
 }
 
 void
@@ -126,7 +115,8 @@ File::flush()
         return;
     }
     
-    _file->flush();
+    fflush(_file);
+    _error = errno;
 }
 
 bool
@@ -136,24 +126,27 @@ File::seek(uint32_t pos, SeekMode mode)
         return -1;
     }
     
-    std::ios_base::seekdir dir;
+    int dir;
     switch(mode) {
-        default     : dir = std::ios_base::beg; break;
-        case SeekCur: dir = std::ios_base::cur; break;
-        case SeekEnd: dir = std::ios_base::end; break;
+        default     : dir = SEEK_SET; break;
+        case SeekCur: dir = SEEK_CUR; break;
+        case SeekEnd: dir = SEEK_SET; break;
     }
-    _file->seekp(pos, dir);
-    return _file;
+    bool b = fseek(_file, pos, dir) == 0;
+    _error = errno;
+    return b;
 }
 
 size_t
-File::position() const
+File::position()
 {
     if (_isDir) {
         return -1;
     }
     
-    return const_cast<File*>(this)->_file->tellp();
+    size_t pos = ftell(_file);
+    _error = errno;
+    return pos;
 }
 
 size_t
@@ -170,8 +163,9 @@ void
 File::close()
 {
     if (_file) {
-        _file->close();
+        fclose(_file);
         _file = nullptr;
+        _error = 0;
     }
 }
 

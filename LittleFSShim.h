@@ -47,7 +47,7 @@ class File
     int read(uint8_t* buf, size_t size);
 
     bool seek(uint32_t pos, SeekMode mode = SeekSet);
-    size_t position() const;
+    size_t position();
     size_t size() const;
     
     void close();
@@ -59,14 +59,15 @@ class File
     File openNextFile();
     void rewindDirectory();
     
-    operator bool() const { return _isDir || (_file && !_file->fail()); }
+    operator bool() const { return _isDir || (_file && _error == 0); }
     
   private:
-    std::fstream* _file = nullptr;
+    FILE* _file = nullptr;
     std::filesystem::directory_iterator _dir;
     bool _isDir = false;
     std::filesystem::path _path;
     std::string _name; // We need to keep this so we can return it as a const char*
+    volatile int _error = 0;
 };
     
 class FS
