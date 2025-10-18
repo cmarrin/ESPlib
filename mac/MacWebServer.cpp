@@ -337,7 +337,7 @@ WebServer::streamHTTPResponse(File& file, const char* mimetype, bool attach, con
     
     headers["Content-Disposition"] = disp;
 
-    std::string response = buildHTTPHeader(200, file.size(), mimetype, extraHeaders);
+    std::string response = buildHTTPHeader(200, file.size(), mimetype, headers);
     write(_fdClient, response.c_str(), response.length());
     
     while (true) {
@@ -543,7 +543,7 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
                     
                     if (index == UploadBufferReturnSize || haveBoundary) {
                         // Send the buffer
-                        _uploadCurrentSize = haveBoundary ? (index - boundary.size() - 1) : UploadBufferReturnSize;
+                        _uploadCurrentSize = haveBoundary ? (index - boundary.size() - 2) : UploadBufferReturnSize;
                         _uploadTotalSize += _uploadCurrentSize;
                         uploadCB();
                         index = 0;
