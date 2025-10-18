@@ -607,7 +607,7 @@
                         setTimeout(() => {
                             uploadModal.style.display = 'none';
                             fetchFolderContents(currentPath);
-                        }, 500);
+                        }, 2000);
                     }
                 }
             });
@@ -618,7 +618,7 @@
                     setTimeout(() => {
                         uploadModal.style.display = 'none';
                         fetchFolderContents(currentPath);
-                    }, 500);
+                    }, 2000);
                 } else {
                     alert('File upload failed');
                     console.error('Upload failed:', xhr.responseText);
