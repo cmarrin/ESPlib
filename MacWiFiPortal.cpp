@@ -115,13 +115,7 @@ MacWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const char* data
 void
 MacWiFiPortal::streamHTTPResponse(File& file, const char* mimetype, bool attach)
 {
-//    // For now assume this is a file download. So set Content-Disposition
-//    std::string disp = attach ? "attachment" : "inline";
-//    disp += "; filename=\"";
-//    disp += file.name();
-//    disp += "\"";
-//    _wifiManager.server->sendHeader("Content-Disposition", disp.c_str(), true);
-//    _wifiManager.server->streamFile(file, mimetype);
+    _server.streamHTTPResponse(file, mimetype, attach);
 }
 
 int
@@ -133,57 +127,43 @@ MacWiFiPortal::readHTTPContent(uint8_t* buf, size_t bufSize)
 WiFiPortal::HTTPUploadStatus
 MacWiFiPortal::httpUploadStatus() const
 {
-//    switch(_wifiManager.server->upload().status) {
-//        default: return HTTPUploadStatus::None;
-//        case UPLOAD_FILE_START: return HTTPUploadStatus::Start;
-//        case UPLOAD_FILE_WRITE: return HTTPUploadStatus::Write;
-//        case UPLOAD_FILE_END: return HTTPUploadStatus::End;
-//        case UPLOAD_FILE_ABORTED: return HTTPUploadStatus::Aborted;
-//    }
-
-    return HTTPUploadStatus::None;
+    return _server.httpUploadStatus();
 }
 
 std::string
 MacWiFiPortal::httpUploadFilename() const
 {
-//    return _wifiManager.server->upload().filename.c_str();
-    return "";
+    return _server.httpUploadFilename();
 }
 
 std::string
 MacWiFiPortal::httpUploadName() const
 {
-//    return _wifiManager.server->upload().name.c_str();
-    return "";
+    return _server.httpUploadName();
 }
 
 std::string
 MacWiFiPortal::httpUploadType() const
 {
-//    return _wifiManager.server->upload().type.c_str();
-    return "";
+    return _server.httpUploadType();
 }
 
 size_t
 MacWiFiPortal::httpUploadTotalSize() const
 {
-//    return _wifiManager.server->upload().totalSize;
-    return 0;
+    return _server.httpUploadTotalSize();
 }
 
 size_t
 MacWiFiPortal::httpUploadCurrentSize() const
 {
-//    return _wifiManager.server->upload().currentSize;
-    return 0;
+    return _server.httpUploadCurrentSize();
 }
 
 const uint8_t*
 MacWiFiPortal::httpUploadBuffer() const
 {
-//    return _wifiManager.server->upload().buf;
-    return nullptr;
+    return _server.httpUploadBuffer();
 }
 
 std::string
