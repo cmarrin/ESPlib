@@ -55,7 +55,7 @@ File::write(const uint8_t* buf, size_t size)
         return -1;
     }
     
-    int r = int(fwrite(buf, size, 1, _file));
+    int r = int(fwrite(buf, 1, size, _file));
     _error = errno;
     return r;
 }
@@ -73,7 +73,7 @@ File::read(uint8_t* buf, size_t size)
         return -1;
     }
     
-    int r = int(fread(buf, size, 1, _file));
+    int r = int(fread(buf, 1, size, _file));
     _error = errno;
     return r;
 }
