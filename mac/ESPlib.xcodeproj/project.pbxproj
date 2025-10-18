@@ -364,10 +364,10 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 49E65B052E9C36F800D3C6C5 /* Build configuration list for PBXNativeTarget "ESPlib" */;
 			buildPhases = (
+				492744652EA03A4300AF8FA1 /* Run Script */,
 				49E65AFD2E9C36F800D3C6C5 /* Headers */,
 				49E65AFE2E9C36F800D3C6C5 /* Sources */,
 				49E65AFF2E9C36F800D3C6C5 /* Frameworks */,
-				492744652EA03A4300AF8FA1 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -439,7 +439,7 @@
 /* End PBXReferenceProxy section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		492744652EA03A4300AF8FA1 /* ShellScript */ = {
+		492744652EA03A4300AF8FA1 /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -449,6 +449,7 @@
 			);
 			inputPaths = (
 			);
+			name = "Run Script";
 			outputFileListPaths = (
 			);
 			outputPaths = (
