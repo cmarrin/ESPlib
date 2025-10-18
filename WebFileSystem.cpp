@@ -295,7 +295,7 @@ WebFileSystem::handleUpload(WiFiPortal* p)
             size_t currentSize = p->httpUploadCurrentSize();
             size_t bytesWritten = _uploadFile.write(p->httpUploadBuffer(), currentSize);
             
-            if (bytesWritten != currentSize) {
+            if (!_uploadFile || bytesWritten != currentSize) {
                 printf("Error writing chunk to file. Deleting '%s'\n", _uploadFilename.c_str());
                 
                 // Delete the file
