@@ -486,6 +486,7 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
                 
                 int bufferOverflow = 0;
                 int index = 0;
+                _uploadTotalSize = 0;
                 
                 while (true) {
                     // We need to read one byte at a time.
@@ -543,6 +544,7 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
                     if (index == UploadBufferReturnSize || haveBoundary) {
                         // Send the buffer
                         _uploadCurrentSize = haveBoundary ? (index - boundary.size() - 1) : UploadBufferReturnSize;
+                        _uploadTotalSize += _uploadCurrentSize;
                         uploadCB();
                         index = 0;
                         
