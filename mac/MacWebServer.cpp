@@ -420,7 +420,7 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
 
             // Ignore the first 2 characters of the boundary
             if (line.length() < 2 || line.substr(2) != boundary) {
-                sendHTTPResponse(204);
+                sendHTTPResponse(400);
                 return;
             }
         } else {
@@ -434,19 +434,19 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
         multipart = parseKeyValue(line);
         
         if (multipart[0] != "Content-Disposition" || multipart.size() < 2) {
-            sendHTTPResponse(204);
+            sendHTTPResponse(400);
             return;
         }
         
         multipart = parseFormData(multipart[1]);
         if (multipart[0] != "form-data") {
-            sendHTTPResponse(204);
+            sendHTTPResponse(400);
             return;
         }
         
         // Next should be a "name" key/value pair
         if (multipart.size() < 3 || multipart[1] != "name") {
-            sendHTTPResponse(204);
+            sendHTTPResponse(400);
             return;
         }
         
@@ -457,7 +457,7 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
         // If it's the latter then there should be a "filename" key/value pair and
         // we don't care about the value of the name.
         if (multipart.size() < 3) {
-            sendHTTPResponse(204);
+            sendHTTPResponse(400);
             return;
         }
         
@@ -466,7 +466,7 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
             // content, which comes after a blank line
             line = getLine(fd);
             if (line[0] != '\0') {
-                sendHTTPResponse(204);
+                sendHTTPResponse(400);
                 return;
             }
             
@@ -474,7 +474,7 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
             _argMap[key] = line;
         } else {
             if (multipart[3] != "filename") {
-                sendHTTPResponse(204);
+                sendHTTPResponse(400);
                 return;
             }
             
@@ -489,7 +489,7 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
             line = getLine(fd);
             multipart = parseKeyValue(line);
             if (multipart.size() < 2 || multipart[0] != "Content-Type") {
-                sendHTTPResponse(204);
+                sendHTTPResponse(400);
                 return;
             }
 
@@ -498,7 +498,7 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
             // Now let's get to the content, the next line should be blank
             line = getLine(fd);
             if (line[0] != '\0') {
-                sendHTTPResponse(204);
+                sendHTTPResponse(400);
                 return;
             }
             
@@ -532,7 +532,7 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
 
                     ssize_t size = read(fd, &(_uploadBuffer[index]), 1);
                     if (size != 1) {
-                        sendHTTPResponse(204);
+                        sendHTTPResponse(400);
                         return;
                     }
 
@@ -545,7 +545,7 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
                         for (int i = 0; i < boundary.size(); ++i, ++index) {
                             size = read(fd, &(_uploadBuffer[index]), 1);
                             if (size != 1) {
-                                sendHTTPResponse(204);
+                                sendHTTPResponse(400);
                                 return;
                             }
                         
