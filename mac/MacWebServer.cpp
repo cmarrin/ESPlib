@@ -101,6 +101,15 @@ static std::string trimWhitespace(const std::string& s)
     returnString.erase(0, returnString.find_first_not_of(" \t"));
     returnString.erase(returnString.find_last_not_of(" \t") + 1);
     return returnString;
+}
+
+static std::string removeQuotes(const std::string& s)
+{            
+    if (s[0] == '"') {
+        std::string returnString = s.substr(1);
+        returnString.pop_back();
+        return returnString;
+    }
     return s;
 }
 
@@ -426,12 +435,7 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
         }
         
         // The key might have quotes around it
-        std::string key = multipart[2];
-            
-        if (key[0] == '"') {
-            key = key.substr(1);
-            key.pop_back();
-        }
+        std::string key = removeQuotes(multipart[2]);
 
         // The value of the "name" pair can either be a query param or "files[]"
         // If it's the latter then there should be a "filename" key/value pair
@@ -447,16 +451,9 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
             line = getLine(fd);
             _argMap[key] = line;
         } else {
-            // Set the filename
-            if (multipart[3] == "filename") {
-                std::string filename = multipart[4];
-                
-                // Get rid of any quotes
-                if (filename[0] == '"') {
-                    filename = filename.substr(1);
-                    filename.pop_back();
-                }
-                _uploadFilename = filename;
+            if (multipart[3] != "filename") {
+                sendHTTPResponse(204);
+                return;
             }
             
             // We're at the content. But first the next line should be "Content-Type"
