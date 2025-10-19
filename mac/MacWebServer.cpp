@@ -566,31 +566,34 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
                             }
                         }
                         
-                        // After the boundary there should be a --\r\n if
-                        // we're at the last file or \r\n if not
-                        uint8_t endBuf[2];
-                        size = read(fd, endBuf, 2);
-                        if (size != 2) {
-                            sendHTTPResponse(400);
-                            return;
-                        }
-                        if (endBuf[0] == '-' && endBuf[1] == '-') {
-                            // We're done
-                            done = true;
+                        if (haveBoundary) {
+                            // After the boundary there should be a --\r\n if
+                            // we're at the last file or \r\n if not
+                            uint8_t endBuf[2];
                             size = read(fd, endBuf, 2);
+                            if (size != 2) {
+                                sendHTTPResponse(400);
+                                return;
+                            }
+                            if (endBuf[0] == '-' && endBuf[1] == '-') {
+                                // We're done
+                                done = true;
+                                size = read(fd, endBuf, 2);
+                            }
+                            if (endBuf[0] != '\r' || endBuf[1] != '\n') {
+                                sendHTTPResponse(400);
+                                return;
+                            }
                         }
-                        if (endBuf[0] != '\r' || endBuf[1] != '\n') {
-                            sendHTTPResponse(400);
-                            return;
-                        }
-                     }
+                     } else {
+                        ++index;
+                    }
                     
-                    ++index;
                     assert(index <= UploadBufferReturnSize);
                     
                     if (index == UploadBufferReturnSize || haveBoundary) {
                         // Send the buffer
-                        _uploadCurrentSize = haveBoundary ? (index - boundary.size() - 2) : UploadBufferReturnSize;
+                        _uploadCurrentSize = haveBoundary ? (index - boundary.size() - 4) : UploadBufferReturnSize;
                         _uploadTotalSize += _uploadCurrentSize;
                         uploadCB();
                         index = 0;
