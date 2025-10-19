@@ -95,10 +95,12 @@ static std::vector<std::string> split(const std::string& str, char sep)
     return strings;
 }
 
-static std::string& trimWhitespace(std::string& s)
+static std::string trimWhitespace(const std::string& s)
 {
-    s.erase(0, s.find_first_not_of(" \t"));
-    s.erase(s.find_last_not_of(" \t") + 1);
+    std::string returnString(s);
+    returnString.erase(0, returnString.find_first_not_of(" \t"));
+    returnString.erase(returnString.find_last_not_of(" \t") + 1);
+    return returnString;
     return s;
 }
 
@@ -145,8 +147,8 @@ static std::vector<std::string> parseKeyValue(const std::string& s)
 {
     // Handle key:value pairs
     std::vector<std::string> line = split(s, ':');
-    trimWhitespace(line[0]);
-    trimWhitespace(line[1]);
+    line[0] = trimWhitespace(line[0]);
+    line[1] = trimWhitespace(line[1]);
     return line;
 }
 
@@ -166,7 +168,7 @@ static std::vector<std::string> parseFormData(const std::string& value)
     
     // The value can be further split on ';'
     std::vector<std::string> line = split(value, ';');
-    trimWhitespace(line[0]);
+    line[0] = trimWhitespace(line[0]);
     retVal.push_back(line[0]);
     line.erase(line.begin());
     
