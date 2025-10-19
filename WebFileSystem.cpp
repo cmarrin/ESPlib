@@ -236,8 +236,6 @@ WebFileSystem::listDir(const char* dirname, uint8_t levels)
 {
     std::string s;
     
-    printf("Listing directory: %s\n", dirname);
-
     File root = open(dirname);
     if (!root){
         printf("Failed to open directory\n");
