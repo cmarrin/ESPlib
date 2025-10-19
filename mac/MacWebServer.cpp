@@ -403,25 +403,37 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
     }
 
     std::string boundary = multipart[2];
+    
+    bool nextLineIsBoundary = true;
 
     while (true) {
-        // The next line should be the boundary line
-        std::string line = getLine(fd);
+        std::string line;
+        
+        // If we just uploaded a file then we already read the boundary following it.
+        // Otherwise the next line is a boundary
+        if (nextLineIsBoundary) {
+            line = getLine(fd);
 
-        // Ignore the first 2 characters of the boundary
-        if (line.substr(2) != boundary) {
-            sendHTTPResponse(204);
-            return;
+            // Ignore the first 2 characters of the boundary
+            if (line.length() < 2 || line.substr(2) != boundary) {
+                sendHTTPResponse(204);
+                return;
+            }
+        } else {
+            // For next time. If we upload a file then we set this to false
+            nextLineIsBoundary = true;
         }
         
         // First line of each section is a Content-Disposition
         line = getLine(fd);
         multipart.clear();
         multipart = parseKeyValue(line);
-        if (multipart[0] != "Content-Disposition") {
+        
+        if (multipart[0] != "Content-Disposition" || multipart.size() < 2) {
             sendHTTPResponse(204);
             return;
         }
+        
         multipart = parseFormData(multipart[1]);
         if (multipart[0] != "form-data") {
             sendHTTPResponse(204);
@@ -429,7 +441,7 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
         }
         
         // Next should be a "name" key/value pair
-        if (multipart[1] != "name") {
+        if (multipart.size() < 3 || multipart[1] != "name") {
             sendHTTPResponse(204);
             return;
         }
@@ -437,9 +449,15 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
         // The key might have quotes around it
         std::string key = removeQuotes(multipart[2]);
 
-        // The value of the "name" pair can either be a query param or "files[]"
-        // If it's the latter then there should be a "filename" key/value pair
-        if (key != "files[]") {
+        // The value of the "name" pair can either be a query param or a file upload.
+        // If it's the latter then there should be a "filename" key/value pair and
+        // we don't care about the value of the name.
+        if (multipart.size() < 3) {
+            sendHTTPResponse(204);
+            return;
+        }
+        
+        if (multipart.size() < 5) {
             // This is a query param. The key is in multipart[2]. The value is
             // content, which comes after a blank line
             line = getLine(fd);
@@ -456,10 +474,17 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
                 return;
             }
             
+            // This is a file upload section. That means we'll be parsing the
+            // boundary following it here, so we don't need to do it above
+            nextLineIsBoundary = false;
+
+            // Set the filename
+            _uploadFilename = removeQuotes(multipart[4]);
+                
             // We're at the content. But first the next line should be "Content-Type"
             line = getLine(fd);
             multipart = parseKeyValue(line);
-            if (multipart[0] != "Content-Type") {
+            if (multipart.size() < 2 || multipart[0] != "Content-Type") {
                 sendHTTPResponse(204);
                 return;
             }
@@ -534,6 +559,14 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
                                 }
                                 break;
                             }
+                        }
+                        
+                        // After the boundary there should be a \r\n
+                        uint8_t endBuf[2];
+                        size = read(fd, endBuf, 2);
+                        if (size != 2 || endBuf[0] != '\r' || endBuf[1] != '\n') {
+                            sendHTTPResponse(204);
+                            return;
                         }
                     }
                     
