@@ -35,7 +35,7 @@
             justify-content:center;
             align-content:center;
             height: auto;
-            padding:5px;
+            padding-top:5px;
         }
 
         .menu-bar button {
@@ -88,13 +88,28 @@
             justify-content:center;
             align-content:center;
             display:flex;
-            margin: 0 auto;
+        }
+        
+        .folder-bar {
+            position:absolute;
+            width:300px;
+            display:inline-block;
+            justify-content: flex-start;
+            align-items: center;
+            background-color: #246;
+            font-size:13px;
+            border-radius: 5px;
+            padding:5px;
+        }
+        
+        #folder-name {
+            font-family: "Lucida Console", "Courier New", monospace;
         }
 
         .file-manager {
             display: flex;
             flex-direction: column;
-            margin-top: 10px;
+            margin-top: 30px;
             width:auto;
         }
 
@@ -269,9 +284,9 @@
     </div>
 
     <div class="container">
+        <div class="folder-bar"><span>Folder: </span><span id="folder-name"></span></div>
         <div id="file-manager" class="file-manager">
             <!-- these are dummy items used for testing. They will be replaced -->
-            <!--
             <div class="item selected">
                 <div class="icon file">📄</div>
                 <div class="name">Cincinnati Zoo Tickets.pdf</div>
@@ -292,7 +307,6 @@
                 <div class="name">Another File.pdf</div>
                 <div class="size">1573b</div>
             </div>
-            -->
         </div>
     </div>
     <div id="upload-modal" class="upload-modal">
@@ -318,6 +332,7 @@
         const storageTotal = document.getElementById('storage-total');
         const storageUsed = document.getElementById('storage-used');
         const storageBar = document.getElementById('storage-bar');
+        const folderName = document.getElementById('folder-name');
 
         let currentPath = [ ];
         
@@ -461,6 +476,9 @@
 
         function displayItems(items)
         {
+            // Show the current folder
+            folderName.innerHTML = makePathString(currentPath);
+            
             // First item is the size (type -> totalSize, name -> usedSize)
             const totalSize = items[0].name;
             const usedSize = items[0].size;
