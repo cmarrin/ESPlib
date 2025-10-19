@@ -11,6 +11,8 @@ All rights reserved.
 
 #include "LittleFSShim.h"
 
+#include <ftw.h>
+
 #if defined ESP_PLATFORM
 #include "esp_err.h"
 #include "esp_log.h"
@@ -247,13 +249,26 @@ FS::begin(bool format)
 size_t
 FS::totalBytes()
 {
-    return 1024 * 1024;
+    return TotalBytes;
 }
 
 size_t
 FS::usedBytes()
 {
-    return 50000;
+    static size_t total;
+    
+    total = 0;
+    if (ftw(_rootDir.c_str(),
+        [](const char *path, const struct stat* sb, int flag) -> int
+        {
+            total += sb->st_size;
+            return 0;
+        }, 1)) {
+        perror("ftw");
+        return 2;
+    }
+
+    return total;
 }
 
 File
