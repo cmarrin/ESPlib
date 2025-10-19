@@ -409,8 +409,9 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
     std::string boundary = multipart[2];
     
     bool nextLineIsBoundary = true;
-
-    while (true) {
+    bool done = false;
+    
+    while (!done) {
         std::string line;
         
         // If we just uploaded a file then we already read the boundary following it.
@@ -504,9 +505,6 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
             
             // Now we upload
             if (uploadCB) {
-                // We need to add "\n--" to the start of the boundary
-                boundary = "\n--" + boundary;
-
                 // Start upload
                 _uploadName = "";
                 _uploadStatus = WiFiPortal::HTTPUploadStatus::Start;
@@ -538,18 +536,21 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
 
                     bool haveBoundary = false;
                     if (_uploadBuffer[index] == '\r') {
+                        // We need to add "\n--" to the start of the boundary
+                        std::string testBoundary = "\n--" + boundary;
+
                         haveBoundary = true;
                         ++index;
                         // This might be the boundary
                          // We start at -3 because we need to check the \n-- at the start of the boundary
-                        for (int i = 0; i < boundary.size(); ++i, ++index) {
+                        for (int i = 0; i < testBoundary.size(); ++i, ++index) {
                             size = read(fd, &(_uploadBuffer[index]), 1);
                             if (size != 1) {
                                 sendHTTPResponse(400);
                                 return;
                             }
                         
-                            if (_uploadBuffer[index] != boundary[i]) {
+                            if (_uploadBuffer[index] != testBoundary[i]) {
                                 // This is not the boundary
                                 haveBoundary = false;
                                 ++index;
@@ -565,14 +566,24 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
                             }
                         }
                         
-                        // After the boundary there should be a \r\n
+                        // After the boundary there should be a --\r\n if
+                        // we're at the last file or \r\n if not
                         uint8_t endBuf[2];
                         size = read(fd, endBuf, 2);
-                        if (size != 2 || endBuf[0] != '\r' || endBuf[1] != '\n') {
-                            sendHTTPResponse(204);
+                        if (size != 2) {
+                            sendHTTPResponse(400);
                             return;
                         }
-                    }
+                        if (endBuf[0] == '-' && endBuf[1] == '-') {
+                            // We're done
+                            done = true;
+                            size = read(fd, endBuf, 2);
+                        }
+                        if (endBuf[0] != '\r' || endBuf[1] != '\n') {
+                            sendHTTPResponse(400);
+                            return;
+                        }
+                     }
                     
                     ++index;
                     assert(index <= UploadBufferReturnSize);
