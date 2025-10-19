@@ -315,6 +315,10 @@ WebServer::buildHTTPHeader(int statuscode, size_t contentLength, std::string mim
 void
 WebServer::sendHTTPResponse(int code, const char* mimetype, const char* data, const ArgMap& extraHeaders)
 {
+    if (code != 200) {
+        printf("Error Response code (%d): %s\n", code, responseCodeToString(code));
+    }
+    
     std::string body(data);
     std::string response = buildHTTPHeader(code, body.size(), mimetype ?: "text/plain", extraHeaders);
     response += body;
