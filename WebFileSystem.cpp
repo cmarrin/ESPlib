@@ -31,6 +31,27 @@ using namespace mil;
 FS LittleFS;
 #endif
 
+static std::string urlDecode(const std::string& s)
+{
+    std::vector<std::string> parts = WebFileSystem::split(s, '%');
+    std::string result = parts[0];
+    parts.erase(parts.begin());
+    
+    for (const auto& it : parts) {
+        // First 2 chars are the hex code
+        assert(it.size() >= 2);
+        
+        char buf[3] = "XX";
+        buf[0] = it[0];
+        buf[1] = it[1];
+        uint8_t hex = strtol(buf, nullptr, 16);
+        result += char(hex);
+        result += it.substr(2);
+    }
+    
+    return result;
+}
+
 std::vector<std::string>
 WebFileSystem::split(const std::string& str, char sep)
 {
@@ -114,7 +135,7 @@ WebFileSystem::begin(Application* app, bool format)
     {
         std::string s = "0,";
         s += std::to_string(LittleFS.totalBytes()) + "," + std::to_string(LittleFS.usedBytes());
-        std::string dir = listDir(p->getHTTPArg("path").c_str(), 0);
+        std::string dir = listDir(urlDecode(p->getHTTPArg("path")).c_str(), 0);
         if (!dir.empty()) {
             s += ":";
             s += dir;
@@ -125,7 +146,7 @@ WebFileSystem::begin(Application* app, bool format)
 
     app->addHTTPHandler("/newfolder", [this](WiFiPortal* p)
     {
-        std::string path = p->getHTTPArg("path");
+        std::string path = urlDecode(p->getHTTPArg("path"));
         
         if (path.empty()) {
             p->sendHTTPResponse(400, "application/json", "{\"status\":\"error\",\"message\":\"Path not provided\"}");
@@ -143,7 +164,7 @@ WebFileSystem::begin(Application* app, bool format)
 
     app->addHTTPHandler("/delete", [this](WiFiPortal* p)
     {
-        std::string path = p->getHTTPArg("path");
+        std::string path = urlDecode(p->getHTTPArg("path"));
         
         if (path.empty()) {
             p->sendHTTPResponse(400, "application/json", "{\"status\":\"error\",\"message\":\"Path not provided\"}");
@@ -173,7 +194,7 @@ WebFileSystem::begin(Application* app, bool format)
     // Open file (downloads with "attachment" disposition)
     app->addHTTPHandler("/download", [this](WiFiPortal* p)
     {
-        std::string path = p->getHTTPArg("path");
+        std::string path = urlDecode(p->getHTTPArg("path"));
         
         if (path.empty()) {
             p->sendHTTPResponse(400, "application/json", "{\"status\":\"error\",\"message\":\"Path not provided\"}");
@@ -194,7 +215,7 @@ WebFileSystem::begin(Application* app, bool format)
     // Open file (downloads with "inline" disposition)
     app->addHTTPHandler("/file", [this](WiFiPortal* p)
     {
-        std::string path = p->getHTTPArg("path");
+        std::string path = urlDecode(p->getHTTPArg("path"));
         
         if (path.empty()) {
             p->sendHTTPResponse(400, "application/json", "{\"status\":\"error\",\"message\":\"Path not provided\"}");
@@ -318,7 +339,7 @@ void
 WebFileSystem::handleUpload(WiFiPortal* p)
 {
     if (p->httpUploadStatus() == WiFiPortal::HTTPUploadStatus::Start) {
-        _uploadFilename = p->getHTTPArg("path") + "/" + p->httpUploadFilename();
+        _uploadFilename = urlDecode(p->getHTTPArg("path")) + "/" + p->httpUploadFilename();
         _uploadAborted = false;
     
         // Open file for writing
