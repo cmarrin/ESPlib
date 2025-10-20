@@ -31,6 +31,46 @@ using namespace mil;
 FS LittleFS;
 #endif
 
+std::vector<std::string>
+WebFileSystem::split(const std::string& str, char sep)
+{
+    std::vector<std::string> strings;
+    
+    int startIndex = 0;
+    int endIndex = 0;
+    
+    for (int i = 0; i <= str.size(); i++) {
+        if (str[i] == sep || i == str.size()) {
+            endIndex = i;
+            std::string temp;
+            temp.append(str, startIndex, endIndex - startIndex);
+            strings.push_back(temp);
+            startIndex = endIndex + 1;
+        }
+    }
+    return strings;
+}
+
+std::string
+WebFileSystem::trimWhitespace(const std::string& s)
+{
+    std::string returnString(s);
+    returnString.erase(0, returnString.find_first_not_of(" \t"));
+    returnString.erase(returnString.find_last_not_of(" \t") + 1);
+    return returnString;
+}
+
+std::string
+WebFileSystem::removeQuotes(const std::string& s)
+{            
+    if (s[0] == '"') {
+        std::string returnString = s.substr(1);
+        returnString.pop_back();
+        return returnString;
+    }
+    return s;
+}
+
 // Returns null if file is not a source file (cannot be displayed in web browser)
 std::string
 WebFileSystem::suffixToMimeType(const std::string& filename)

@@ -75,44 +75,6 @@ WebServer::process()
     }
 }
 
-// String split function
-static std::vector<std::string> split(const std::string& str, char sep)
-{
-    std::vector<std::string> strings;
-    
-    int startIndex = 0;
-    int endIndex = 0;
-    
-    for (int i = 0; i <= str.size(); i++) {
-        if (str[i] == sep || i == str.size()) {
-            endIndex = i;
-            std::string temp;
-            temp.append(str, startIndex, endIndex - startIndex);
-            strings.push_back(temp);
-            startIndex = endIndex + 1;
-        }
-    }
-    return strings;
-}
-
-static std::string trimWhitespace(const std::string& s)
-{
-    std::string returnString(s);
-    returnString.erase(0, returnString.find_first_not_of(" \t"));
-    returnString.erase(returnString.find_last_not_of(" \t") + 1);
-    return returnString;
-}
-
-static std::string removeQuotes(const std::string& s)
-{            
-    if (s[0] == '"') {
-        std::string returnString = s.substr(1);
-        returnString.pop_back();
-        return returnString;
-    }
-    return s;
-}
-
 static std::string getLine(int fd)
 {
     char buf[4096];
@@ -155,9 +117,9 @@ static std::string getLine(int fd)
 static std::vector<std::string> parseKeyValue(const std::string& s)
 {
     // Handle key:value pairs
-    std::vector<std::string> line = split(s, ':');
-    line[0] = trimWhitespace(line[0]);
-    line[1] = trimWhitespace(line[1]);
+    std::vector<std::string> line = WebFileSystem::split(s, ':');
+    line[0] = WebFileSystem::trimWhitespace(line[0]);
+    line[1] = WebFileSystem::trimWhitespace(line[1]);
     return line;
 }
 
@@ -176,16 +138,16 @@ static std::vector<std::string> parseFormData(const std::string& value)
     std::vector<std::string> retVal;
     
     // The value can be further split on ';'
-    std::vector<std::string> line = split(value, ';');
-    line[0] = trimWhitespace(line[0]);
+    std::vector<std::string> line = WebFileSystem::split(value, ';');
+    line[0] = WebFileSystem::trimWhitespace(line[0]);
     retVal.push_back(line[0]);
     line.erase(line.begin());
     
     // If we have further key/value pairs, save them        
     for (int i = 0; i < line.size(); ++i) {
-        std::vector<std::string> pair = split(line[i], '=');
-        retVal.push_back(trimWhitespace(pair[0]));
-        retVal.push_back(trimWhitespace(pair[1]));
+        std::vector<std::string> pair = WebFileSystem::split(line[i], '=');
+        retVal.push_back(WebFileSystem::trimWhitespace(pair[0]));
+        retVal.push_back(WebFileSystem::trimWhitespace(pair[1]));
     }
     
     return retVal;
@@ -225,7 +187,7 @@ static bool parseRequestHeader(int fd, WebServer::ArgMap& headers, WebServer::Ar
             isFirstLine = false;
             
             // Handle first line
-            std::vector<std::string> parsedLine = split(line, ' ');
+            std::vector<std::string> parsedLine = WebFileSystem::split(line, ' ');
             headers["method"] = parsedLine[0];
             path = parsedLine[1];
             headers["path"] = path;
@@ -452,7 +414,7 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
         }
         
         // The key might have quotes around it
-        std::string key = removeQuotes(multipart[2]);
+        std::string key = WebFileSystem::removeQuotes(multipart[2]);
 
         // The value of the "name" pair can either be a query param or a file upload.
         // If it's the latter then there should be a "filename" key/value pair and
@@ -484,7 +446,7 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
             nextLineIsBoundary = false;
 
             // Set the filename
-            _uploadFilename = removeQuotes(multipart[4]);
+            _uploadFilename = WebFileSystem::removeQuotes(multipart[4]);
                 
             // We're at the content. But first the next line should be "Content-Type"
             line = getLine(fd);
