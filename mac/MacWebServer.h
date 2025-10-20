@@ -66,7 +66,7 @@ public:
 
     void sendHTTPResponse(int code, const char* mimetype = nullptr, const char* data = "", const ArgMap& extraHeaders = ArgMap());
     void sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip, const ArgMap& extraHeaders = ArgMap());
-    void streamHTTPResponse(File& file, const char* mimetype, bool attach, const ArgMap& extraHeaders = ArgMap());
+    void streamHTTPResponse(fs::File& file, const char* mimetype, bool attach, const ArgMap& extraHeaders = ArgMap());
 
     std::string getHTTPArg(const char* name) { return _argMap[name]; }
     

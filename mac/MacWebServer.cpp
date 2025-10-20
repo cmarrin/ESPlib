@@ -302,7 +302,7 @@ WebServer::sendHTTPResponse(int code, const char* mimetype, const char* data, si
 }
 
 void
-WebServer::streamHTTPResponse(File& file, const char* mimetype, bool attach, const ArgMap& extraHeaders)
+WebServer::streamHTTPResponse(fs::File& file, const char* mimetype, bool attach, const ArgMap& extraHeaders)
 {
     ArgMap headers = extraHeaders;
 
@@ -343,7 +343,7 @@ WebServer::sendStaticFile(const char* filename, const char* path)
         printf("File not found.\n");
         sendHTTPResponse(404);
     } else {
-        File file = _wfs->open(f.c_str(), "r");
+        fs::File file = _wfs->open(f.c_str(), "r");
         streamHTTPResponse(file, WebFileSystem::suffixToMimeType(f).c_str(), false);
         file.close();
     }

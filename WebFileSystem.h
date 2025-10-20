@@ -29,7 +29,7 @@ class WebFileSystem
 {
   public:    
     bool begin(Application*, bool format);
-    File open(const char* path, const char* mode = "r", bool create = false);
+    fs::File open(const char* path, const char* mode = "r", bool create = false);
     
     size_t totalBytes();
     size_t usedBytes();
@@ -52,7 +52,7 @@ class WebFileSystem
     void handleUpload(WiFiPortal*);
     void handleUploadFinished(WiFiPortal*);
     
-    File _uploadFile;
+    fs::File _uploadFile;
     bool _uploadAborted = false;
     std::string _uploadFilename;
 };

@@ -15,6 +15,8 @@ All rights reserved.
 #include <ESPmDNS.h>
 #endif
 
+#include "LittleFS.h"
+
 using namespace mil;
 
 void
@@ -159,7 +161,7 @@ ESPWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const char* data
 }    
 
 void
-ESPWiFiPortal::streamHTTPResponse(File& file, const char* mimetype, bool attach)
+ESPWiFiPortal::streamHTTPResponse(fs::File& file, const char* mimetype, bool attach)
 {
     // For now assume this is a file download. So set Content-Disposition
     std::string disp = attach ? "attachment" : "inline";

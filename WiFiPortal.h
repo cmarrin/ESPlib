@@ -38,7 +38,9 @@ All rights reserved.
 // whatever filesystem is available, whether in flash, sd card or
 // any other persistent storage.
 
-class File;
+namespace fs {
+    class File;
+}
 
 namespace mil {
 
@@ -139,7 +141,7 @@ public:
     virtual void sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip) { }
     
     // Send a response with the contents of the passed File
-    virtual void streamHTTPResponse(File& file, const char* mimetype, bool attach) { }
+    virtual void streamHTTPResponse(fs::File& file, const char* mimetype, bool attach) { }
     
     // Read content from an incoming HTTP request. Must be called from inside a HandlerCB. A buffer no larger
     // than bufSize will be returned, but it could be smaller. If data was returned the return value will

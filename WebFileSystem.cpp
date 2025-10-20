@@ -28,7 +28,7 @@ using namespace mil;
 #endif
 
 #ifndef ARDUINO
-FS LittleFS;
+fs::FS LittleFS;
 #endif
 
 static std::string urlDecode(const std::string& s)
@@ -171,7 +171,7 @@ WebFileSystem::begin(Application* app, bool format)
         } else if (!LittleFS.exists(path.c_str())) {
             p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"Not found\"}");
         } else {
-            File file = open(path.c_str(), "r");
+            fs::File file = open(path.c_str(), "r");
             if (file.isDirectory()) {
                 file.close();
                 if (LittleFS.rmdir(path.c_str())) {
@@ -201,7 +201,7 @@ WebFileSystem::begin(Application* app, bool format)
         } else if (!LittleFS.exists(path.c_str())) {
             p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"File not found\"}");
         } else {
-            File file = open(path.c_str(), "r");
+            fs::File file = open(path.c_str(), "r");
             if (!file) {
                 p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"File not found\"}");
             } else {
@@ -222,7 +222,7 @@ WebFileSystem::begin(Application* app, bool format)
         } else if (!LittleFS.exists(path.c_str())) {
             p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"File not found\"}");
         } else {
-            File file = open(path.c_str(), "r");
+            fs::File file = open(path.c_str(), "r");
             if (!file) {
                 p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"File not found\"}");
             } else {
@@ -297,7 +297,7 @@ WebFileSystem::listDir(const char* dirname, uint8_t levels)
 {
     std::string s;
     
-    File root = open(dirname);
+    fs::File root = open(dirname);
     if (!root){
         printf("Failed to open directory\n");
         return "";
@@ -310,7 +310,7 @@ WebFileSystem::listDir(const char* dirname, uint8_t levels)
     }
 
     bool first_files = true;
-    File file = root.openNextFile();
+    fs::File file = root.openNextFile();
     while(file){
         if (first_files)
             first_files = false;
@@ -397,7 +397,7 @@ WebFileSystem::handleUploadFinished(WiFiPortal* p)
     }
 }
 
-File
+fs::File
 WebFileSystem::open(const char* path, const char* mode, bool create)
 {
     return LittleFS.open(path, mode);

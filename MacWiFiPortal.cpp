@@ -114,7 +114,7 @@ MacWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const char* data
 }    
 
 void
-MacWiFiPortal::streamHTTPResponse(File& file, const char* mimetype, bool attach)
+MacWiFiPortal::streamHTTPResponse(fs::File& file, const char* mimetype, bool attach)
 {
     _server.streamHTTPResponse(file, mimetype, attach);
 }

@@ -30,6 +30,8 @@ All rights reserved.
 #include "esp_littlefs.h"
 #endif
 
+using namespace fs;
+
 File::File(const std::filesystem::path& path, const char* mode)
 {
     close();
