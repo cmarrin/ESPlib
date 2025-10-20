@@ -9,9 +9,11 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
+            height:100%;
             color: #333;
             margin: 0;
             padding: 0;
+            overflow:hidden;
         }
 
         .header {
@@ -85,9 +87,10 @@
 		}
 		
         .container {
+            position:relative;
             justify-content:center;
-            align-content:center;
             display:flex;
+            height:100%;
         }
         
         .folder-bar {
@@ -105,12 +108,17 @@
         #folder-name {
             font-family: "Lucida Console", "Courier New", monospace;
         }
-
+        
         .file-manager {
-            display: flex;
-            flex-direction: column;
+            height: calc(100vh - 220px);
+            display:inline-block;
             margin-top: 30px;
-            width:auto;
+            width:350px;
+            overflow-y:auto;
+            overflow-x:hidden;
+            padding:10px 0px 10px 10px;
+            border:1px solid #ace;
+            border-radius:4px;
         }
 
         .item {
@@ -142,7 +150,7 @@
         
         .name {
             margin-right:5px;
-            width:250px;
+            width:240px;
             display:inline-block;
             vertical-align:middle;
             text-overflow:ellipsis;
@@ -287,6 +295,7 @@
         <div class="folder-bar"><span>Folder: </span><span id="folder-name"></span></div>
         <div id="file-manager" class="file-manager">
             <!-- these are dummy items used for testing. They will be replaced -->
+            <!--
             <div class="item selected">
                 <div class="icon file">📄</div>
                 <div class="name">Cincinnati Zoo Tickets.pdf</div>
@@ -307,6 +316,7 @@
                 <div class="name">Another File.pdf</div>
                 <div class="size">1573b</div>
             </div>
+            -->
         </div>
     </div>
     <div id="upload-modal" class="upload-modal">
