@@ -84,7 +84,7 @@ class FS
 {
   public:
     // Similated max size is around 4MB
-    static constexpr size_t TotalBytes = 4 * 1024 * 1024; 
+    static constexpr size_t TotalBytes = 1 * 1024 * 1024; 
     FS()
     {
 #if defined ESP_PLATFORM
