@@ -47,6 +47,7 @@ class WebFileSystem
 
 
   private:
+    bool prepareFile(WiFiPortal* p, std::string& path);
     std::string listDir(const char* dirname, uint8_t levels);
     
     void handleUpload(WiFiPortal*);

@@ -122,6 +122,25 @@ WebFileSystem::suffixToMimeType(const std::string& filename)
     }
 }
 
+// If return is true path has path to use and the file or dir exists
+bool
+WebFileSystem::prepareFile(WiFiPortal* p, std::string& path)
+{
+    path = urlDecode(p->getHTTPArg("path"));
+    
+    if (path.empty()) {
+        p->sendHTTPResponse(400, "application/json", "{\"status\":\"error\",\"message\":\"Path not provided\"}");
+    } else if (!LittleFS.exists(path.c_str())) {
+        p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"Not found\"}");
+    } else {
+        if (exists(path.c_str())) {
+            return true;
+        }
+        p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"File not found\"}");
+    }
+    return false;
+}
+
 bool
 WebFileSystem::begin(Application* app, bool format)
 {
@@ -164,13 +183,8 @@ WebFileSystem::begin(Application* app, bool format)
 
     app->addHTTPHandler("/delete", [this](WiFiPortal* p)
     {
-        std::string path = urlDecode(p->getHTTPArg("path"));
-        
-        if (path.empty()) {
-            p->sendHTTPResponse(400, "application/json", "{\"status\":\"error\",\"message\":\"Path not provided\"}");
-        } else if (!LittleFS.exists(path.c_str())) {
-            p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"Not found\"}");
-        } else {
+        std::string path;
+        if (prepareFile(p, path)) {
             fs::File file = open(path.c_str(), "r");
             if (file.isDirectory()) {
                 file.close();
@@ -194,20 +208,11 @@ WebFileSystem::begin(Application* app, bool format)
     // Open file (downloads with "attachment" disposition)
     app->addHTTPHandler("/download", [this](WiFiPortal* p)
     {
-        std::string path = urlDecode(p->getHTTPArg("path"));
-        
-        if (path.empty()) {
-            p->sendHTTPResponse(400, "application/json", "{\"status\":\"error\",\"message\":\"Path not provided\"}");
-        } else if (!LittleFS.exists(path.c_str())) {
-            p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"File not found\"}");
-        } else {
+        std::string path;
+        if (prepareFile(p, path)) {
             fs::File file = open(path.c_str(), "r");
-            if (!file) {
-                p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"File not found\"}");
-            } else {
-                printf("***** Download: path='%s', name='%s'\n", file.path(), file.name());
-                p->streamHTTPResponse(file, "application/octet-stream", true);
-            }
+            printf("***** Download: path='%s', name='%s'\n", file.path(), file.name());
+            p->streamHTTPResponse(file, "application/octet-stream", true);
         }
         return true;
     });
@@ -215,25 +220,20 @@ WebFileSystem::begin(Application* app, bool format)
     // Open file (downloads with "inline" disposition)
     app->addHTTPHandler("/file", [this](WiFiPortal* p)
     {
-        std::string path = urlDecode(p->getHTTPArg("path"));
-        
-        if (path.empty()) {
-            p->sendHTTPResponse(400, "application/json", "{\"status\":\"error\",\"message\":\"Path not provided\"}");
-        } else if (!LittleFS.exists(path.c_str())) {
-            p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"File not found\"}");
-        } else {
+        std::string path;
+        if (prepareFile(p, path)) {
             fs::File file = open(path.c_str(), "r");
-            if (!file) {
-                p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"File not found\"}");
-            } else {
-                std::string mime = suffixToMimeType(path);
-                printf("***** File: path='%s', mime-type='%s'\n", path.c_str(), mime.c_str());
+            std::string mime = suffixToMimeType(path);
+            printf("***** File: path='%s', mime-type='%s'\n", path.c_str(), mime.c_str());
                 
-                if (mime.empty()) {
-                    p->sendHTTPResponse(404, "text/html", "<center><h1>File cannot be displayed</h1><h2>Use Download</h2></center>");
-                } else {
-                    p->streamHTTPResponse(file, mime.c_str(), false);
-                }
+            if (mime.empty()) {
+                p->sendHTTPResponse(404, "text/html", "<center><h1>File cannot be displayed</h1><h2>Use Download</h2></center>");
+            } else {
+                p->streamHTTPResponse(file, mime.c_str(), false);
+            }
+        }
+        return true;
+    });
             }
         }
         return true;
