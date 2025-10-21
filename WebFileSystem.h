@@ -45,6 +45,7 @@ class WebFileSystem
     static std::string trimWhitespace(const std::string& s);
     static std::string removeQuotes(const std::string& s);
 
+    std::string realPath(const std::string& path) const;
 
   private:
     bool prepareFile(WiFiPortal* p, std::string& path);
