@@ -110,10 +110,10 @@ class FS
     bool mkdir(const char* path);
     bool rmdir(const char* path);
     
-  private:
     // Create an absolute path starting with _cwd
     std::filesystem::path makePath(const char* path);
-    
+
+  private:
     std::filesystem::path _rootDir;
 };
 
