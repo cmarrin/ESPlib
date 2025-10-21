@@ -234,7 +234,20 @@ WebFileSystem::begin(Application* app, bool format)
         }
         return true;
     });
+
+    // Run the file if it is .lua or .luac
+    app->addHTTPHandler("/run", [this](WiFiPortal* p)
+    {
+        std::string path;
+        if (prepareFile(p, path)) {
+            std::string suffix = std::filesystem::path(path).extension();
+            if (suffix != ".lua" && suffix != ".luac") {
+                p->sendHTTPResponse(404, "text/html", "<center><h1>File cannot be run</h1><h2>Can only run .lua and .luac files</h2></center>");
+                return true;
             }
+            
+            printf("***** Running Lua file '%s' (someday)\n", path.c_str());
+            p->sendHTTPResponse(404, "text/html", "<center><h1>Lua Runtime</h1><h2>Imagine Lua running right now!</h2></center>");
         }
         return true;
     });
