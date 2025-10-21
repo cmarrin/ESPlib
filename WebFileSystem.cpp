@@ -11,6 +11,7 @@ All rights reserved.
 
 #include "Application.h"
 #include <filesystem>
+#include "lua.hpp"
 
 using namespace mil;
 
@@ -246,8 +247,18 @@ WebFileSystem::begin(Application* app, bool format)
                 return true;
             }
             
-            printf("***** Running Lua file '%s' (someday)\n", path.c_str());
-            p->sendHTTPResponse(404, "text/html", "<center><h1>Lua Runtime</h1><h2>Imagine Lua running right now!</h2></center>");
+            lua_State* luaState = luaL_newstate();
+            luaL_openlibs(luaState);
+            
+            if (luaL_dofile(luaState, realPath(path).c_str()) != LUA_OK) {
+                printf("%s\n", lua_tostring(luaState, -1));
+                std::string err = "Lua file '" + path + "' failed to run: " + lua_tostring(luaState, -1) + "\n";
+                p->sendHTTPResponse(404, "text/plain", err.c_str());
+            } else {
+                printf("***** Running Lua file '%s'\n", path.c_str());
+                p->sendHTTPResponse(200, "text/html", "<center><h1>Lua Runtime</h1><h2>No output</h2></center>");
+            }
+            lua_close(luaState);
         }
         return true;
     });
@@ -402,7 +413,7 @@ WebFileSystem::handleUploadFinished(WiFiPortal* p)
         printf("Reply sent: Upload Aborted\n");
     } else if (p->httpUploadTotalSize() > 0) { // Check if any bytes were received
         p->sendHTTPResponse(200, "text/plain", "Upload Successful!");
-        printf("Reply sent: Upload Successful\n");
+        printf("Reply sent: Successful uploaded to '%s'\n", _uploadFilename.c_str());
     } else {
         // This might happen if the file was empty or write failed early
         p->sendHTTPResponse(500, "text/plain", "Upload Failed or Empty File");
