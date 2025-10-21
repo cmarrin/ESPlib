@@ -102,17 +102,37 @@
             background-color: #246;
             font-size:13px;
             border-radius: 5px;
-            padding:5px;
+        }
+        
+        .folder-bar span {
+            padding-left:3px;
+        }
+
+        .folder-bar button {
+            margin:0px;
+            background-color: #007acc;
+            border: none;
+            border-radius: 5px;
+            color: #ffffff;
+            cursor: pointer;
+            font-size:18px;
+        }
+
+        .folder-bar button:disabled {
+            background-color: #606060;
+            color:#a0a0a0;
         }
         
         #folder-name {
             font-family: "Lucida Console", "Courier New", monospace;
+            font-size:10px;
+            padding-left:0px;
         }
         
         .file-manager {
-            height: calc(100vh - 220px);
+            height: calc(100vh - 230px);
             display:inline-block;
-            margin-top: 30px;
+            margin-top: 35px;
             width:350px;
             overflow-y:auto;
             overflow-x:hidden;
@@ -285,14 +305,18 @@
             <div class="menu-bar-item"><button id="new-folder-button">New Folder</button></div>
         </div>
         <div class="menu-bar-row">
-            <div class="menu-bar-item"><button id="back-button" disabled>Back</button></div>
+            <div class="menu-bar-item"><button id="run-button" disabled>Run</button></div>
             <div class="menu-bar-item"><button id="download-button" disabled>Download</button></div>
             <div class="menu-bar-item"><button id="delete-button" disabled>Delete</button></div>
         </div>
     </div>
 
     <div class="container">
-        <div class="folder-bar"><span>Folder: </span><span id="folder-name"></span></div>
+        <div class="folder-bar">
+            <button id="back-button" disabled>Back</button>
+            <span>Folder: </span>
+            <span id="folder-name">/abc/iii</span>
+        </div>
         <div id="file-manager" class="file-manager">
             <!-- these are dummy items used for testing. They will be replaced -->
             <!--
