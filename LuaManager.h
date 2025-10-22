@@ -17,12 +17,18 @@ All rights reserved.
 
 namespace mil {
 
-class Lua
+class LuaManager
 {
 public:
-    Lua();
-    ~Lua();
-
+    LuaManager();
+    ~LuaManager();
+    
+    int execute(const std::string& filename);
+    
+    const char* toString(int idx) const { return lua_tostring(_luaState, idx); }
+    
 private:
-    lua_State _luaState;
+    lua_State* _luaState = nullptr;
 };
+
+}

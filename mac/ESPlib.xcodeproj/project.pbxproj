@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		491673DA2EA865380028A6F0 /* LuaManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 491673D92EA865290028A6F0 /* LuaManager.h */; };
+		491673DC2EA865410028A6F0 /* LuaManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491673DB2EA8653D0028A6F0 /* LuaManager.cpp */; };
 		492744262E9D910700AF8FA1 /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 492744172E9D851E00AF8FA1 /* liblua.a */; };
 		492744442E9DBF6F00AF8FA1 /* MacWebServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492744432E9DBF6F00AF8FA1 /* MacWebServer.cpp */; };
 		492744462E9DBFA100AF8FA1 /* MacWebServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 492744452E9DBF9900AF8FA1 /* MacWebServer.h */; };
@@ -99,6 +101,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		491673D82EA80A0D0028A6F0 /* timing.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = timing.lua; path = ../Vesper/timing.lua; sourceTree = SOURCE_ROOT; };
+		491673D92EA865290028A6F0 /* LuaManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LuaManager.h; path = ../LuaManager.h; sourceTree = "<group>"; };
+		491673DB2EA8653D0028A6F0 /* LuaManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = LuaManager.cpp; path = ../LuaManager.cpp; sourceTree = "<group>"; };
 		492744102E9D851E00AF8FA1 /* lua.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = lua.xcodeproj; path = "/Users/cmarrin/Projects/git/lua/lua-5.4.8/mac/lua.xcodeproj"; sourceTree = "<absolute>"; };
 		4927442B2E9D94D000AF8FA1 /* webby */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = webby; sourceTree = BUILT_PRODUCTS_DIR; };
 		492744432E9DBF6F00AF8FA1 /* MacWebServer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MacWebServer.cpp; sourceTree = "<group>"; };
@@ -202,6 +207,7 @@
 		495AB4692E9C756400C4C2C4 /* Vesper */ = {
 			isa = PBXGroup;
 			children = (
+				491673D82EA80A0D0028A6F0 /* timing.lua */,
 				492744632E9F185D00AF8FA1 /* index.html */,
 				495AB4722E9C7D1800C4C2C4 /* partitions.csv */,
 				495AB46B2E9C77FE00C4C2C4 /* Vesper.h */,
@@ -245,6 +251,8 @@
 				49E65B7A2E9C3A7600D3C6C5 /* JsonStreamingParser.cpp */,
 				49E65B7C2E9C3A7600D3C6C5 /* LittleFSShim.h */,
 				49E65B7D2E9C3A7600D3C6C5 /* LittleFSShim.cpp */,
+				491673D92EA865290028A6F0 /* LuaManager.h */,
+				491673DB2EA8653D0028A6F0 /* LuaManager.cpp */,
 				49E65B7E2E9C3A7600D3C6C5 /* Max7219Display.h */,
 				49E65B7F2E9C3A7600D3C6C5 /* Max7219Display.cpp */,
 				49E65B802E9C3A7600D3C6C5 /* MenuSystem.h */,
@@ -291,6 +299,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				491673DA2EA865380028A6F0 /* LuaManager.h in Headers */,
 				49E65B902E9C3A7600D3C6C5 /* Font_8x8_8pt.h in Headers */,
 				49E65B912E9C3A7600D3C6C5 /* Font_Compact_5pt.h in Headers */,
 				49E65B922E9C3A7600D3C6C5 /* filemgr.gz.h in Headers */,
@@ -491,6 +500,7 @@
 				49E65BB02E9C3A7600D3C6C5 /* ButtonManager.cpp in Sources */,
 				49E65BB12E9C3A7600D3C6C5 /* Clock.cpp in Sources */,
 				49E65BB22E9C3A7600D3C6C5 /* System.cpp in Sources */,
+				491673DC2EA865410028A6F0 /* LuaManager.cpp in Sources */,
 				49E65BB32E9C3A7600D3C6C5 /* Application.cpp in Sources */,
 				49E65BB42E9C3A7600D3C6C5 /* JsonStreamingParser.cpp in Sources */,
 			);
