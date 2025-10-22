@@ -15,6 +15,8 @@ All rights reserved.
 #include "LittleFSShim.h"
 #endif
 
+#include "LuaManager.h"
+
 // Web based filesystem. It can be integrated with WebServer
 // so HTTP requests can be made to upload files, read existing
 // files, create directories, delete files and directories and do
@@ -27,7 +29,7 @@ class WiFiPortal;
 
 class WebFileSystem
 {
-  public:    
+  public:
     bool begin(Application*, bool format);
     fs::File open(const char* path, const char* mode = "r", bool create = false);
     
@@ -57,6 +59,8 @@ class WebFileSystem
     fs::File _uploadFile;
     bool _uploadAborted = false;
     std::string _uploadFilename;
+    
+    LuaManager _lua;
 };
 
 }

@@ -247,18 +247,14 @@ WebFileSystem::begin(Application* app, bool format)
                 return true;
             }
             
-            lua_State* luaState = luaL_newstate();
-            luaL_openlibs(luaState);
-            
-            if (luaL_dofile(luaState, realPath(path).c_str()) != LUA_OK) {
-                printf("%s\n", lua_tostring(luaState, -1));
-                std::string err = "Lua file '" + path + "' failed to run: " + lua_tostring(luaState, -1) + "\n";
+            if (_lua.execute(realPath(path).c_str()) != LUA_OK) {
+                printf("%s\n", _lua.toString(-1));
+                std::string err = "Lua file '" + path + "' failed to run: " + _lua.toString(-1) + "\n";
                 p->sendHTTPResponse(404, "text/plain", err.c_str());
             } else {
                 printf("***** Running Lua file '%s'\n", path.c_str());
                 p->sendHTTPResponse(200, "text/html", "<center><h1>Lua Runtime</h1><h2>No output</h2></center>");
             }
-            lua_close(luaState);
         }
         return true;
     });
