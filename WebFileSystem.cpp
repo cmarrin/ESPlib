@@ -154,7 +154,7 @@ WebFileSystem::begin(Application* app, bool format)
     app->addHTTPHandler("/get-folder-contents", [this](WiFiPortal* p)
     {
         std::string s = "0,";
-        s += std::to_string(LittleFS.totalBytes()) + "," + std::to_string(LittleFS.usedBytes());
+        s += std::to_string(totalBytes()) + "," + std::to_string(usedBytes());
         std::string dir = listDir(urlDecode(p->getHTTPArg("path")).c_str(), 0);
         if (!dir.empty()) {
             s += ":";
