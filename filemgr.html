@@ -524,7 +524,7 @@
             storageUsed.innerHTML = prettySize(Number(usedSize));
             
             // Set bar graph
-            var width = usedSize / totalSize * 80;
+            let width = usedSize / totalSize * 80;
             if (usedSize == 0) {
                 width = 0;
             } else if (width < 4) {
