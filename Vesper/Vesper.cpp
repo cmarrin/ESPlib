@@ -22,7 +22,7 @@ Vesper::setup()
 
     setTitle("<center>MarrinTech Vesper Controller v0.1</center>");
 
-    printf("Vesper Controller v0.1\n");
+    printf("Vesper Controller v0.2\n");
 }
 	
 void
