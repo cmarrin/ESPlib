@@ -139,6 +139,8 @@
 		492744432E9DBF6F00AF8FA1 /* MacWebServer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MacWebServer.cpp; sourceTree = "<group>"; };
 		492744452E9DBF9900AF8FA1 /* MacWebServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MacWebServer.h; sourceTree = "<group>"; };
 		492744632E9F185D00AF8FA1 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = index.html; path = ../littlefs/index.html; sourceTree = "<group>"; };
+		4934EB112F0B19280054B78E /* IDFWiFiPortal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IDFWiFiPortal.h; path = ../IDFWiFiPortal.h; sourceTree = SOURCE_ROOT; };
+		4934EB122F0B19280054B78E /* IDFWiFiPortal.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = IDFWiFiPortal.cpp; path = ../IDFWiFiPortal.cpp; sourceTree = SOURCE_ROOT; };
 		495AB4572E9C730A00C4C2C4 /* Vesper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Vesper; sourceTree = BUILT_PRODUCTS_DIR; };
 		495AB4652E9C753400C4C2C4 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		495AB46A2E9C777C00C4C2C4 /* Vesper.ino */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; name = Vesper.ino; path = ../Vesper/Vesper.ino; sourceTree = "<group>"; };
@@ -353,6 +355,8 @@
 				49E65B772E9C3A7600D3C6C5 /* MacWiFiPortal.cpp */,
 				49E65B6E2E9C3A7600D3C6C5 /* ESPWiFiPortal.h */,
 				49E65B6F2E9C3A7600D3C6C5 /* ESPWiFiPortal.cpp */,
+				4934EB112F0B19280054B78E /* IDFWiFiPortal.h */,
+				4934EB122F0B19280054B78E /* IDFWiFiPortal.cpp */,
 				495AB4692E9C756400C4C2C4 /* Vesper */,
 				4927442C2E9D94D000AF8FA1 /* webby */,
 				495AB4702E9C7BE800C4C2C4 /* Frameworks */,

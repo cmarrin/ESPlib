@@ -21,15 +21,11 @@ All rights reserved.
 //                                   esp-idf
 //**************************************************************************
 
-#include <esp_wifi.h>
-#include <esp_netif.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_system.h"
 #include "esp_log.h"
 #include "esp_timer.h"
-
-#include "wifi_manager.h"
 
 #include <functional>
 

@@ -11,30 +11,36 @@ All rights reserved.
 
 #include "IDFWiFiPortal.h"
 
-#include <esp_wifi.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "esp_system.h"
-#include "esp_log.h"
-#include "esp_event.h"
-#include <netdb.h>
-#include "esp_netif_ip_addr.h"
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <freertos/event_groups.h>
 
-#include "nvs_flash.h"
-#include "nvs.h"
-#include "wifi_manager.h"
+#include <esp_log.h>
+#include <esp_wifi.h>
+#include <esp_event.h>
+#include <nvs_flash.h>
+
+#include <wifi_provisioning/manager.h>
 
 void
-IDFWiFiPortal::begin()
+IDFWiFiPortal::begin(WebFileSystem*)
 {
-    esp_err_t err = nvs_flash_init();
-    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        // NVS partition was truncated and needs to be erased
-        // Retry nvs_flash_init
+    // Setup prefs
+    // _prefs.begin("ESPLib");
+
+    // Initialize NVS partition
+    esp_err_t ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        /* NVS partition was truncated
+         * and needs to be erased */
         ESP_ERROR_CHECK(nvs_flash_erase());
-        err = nvs_flash_init();
+
+        /* Retry nvs_flash_init */
+        ESP_ERROR_CHECK(nvs_flash_init());
     }
-    ESP_ERROR_CHECK(err);
+
+    // Setup provisioning
+    
 }
 
 void
@@ -53,7 +59,7 @@ IDFWiFiPortal::setMenu(std::vector<const char*>& menu)
 }
 
 void
-IDFWiFiPortal::setDarkMode(bool)
+IDFWiFiPortal::setDarkMode(bool b)
 {
 }
 
@@ -63,12 +69,12 @@ IDFWiFiPortal::setCustomMenuHTML(const char* html)
 }
 
 void
-IDFWiFiPortal::setHostname(const char*)
+IDFWiFiPortal::setHostname(const char* name)
 {
 }
 
 void
-IDFWiFiPortal::setConfigHandler(HandlerCB)
+IDFWiFiPortal::setConfigHandler(HandlerCB f)
 {
 }
 
@@ -78,16 +84,20 @@ IDFWiFiPortal::setShowInfoErase(bool enabled)
 }
 
 int32_t
-IDFWiFiPortal::addHTTPHandler(const char* endpoint, HandlerCB)
+IDFWiFiPortal::addHTTPHandler(const char* endpoint, HandlerCB requestCB, HandlerCB uploadCB)
 {
-    return -1;
+    return 0;
+}
+
+void
+IDFWiFiPortal::serveStatic(const char *uri, const char *path)
+{
 }
 
 bool
 IDFWiFiPortal::autoConnect(char const *apName, char const *apPassword)
 {
-    wifi_manager_start();
-    return true;
+    return false;
 }
 
 void
@@ -103,17 +113,7 @@ IDFWiFiPortal::startWebPortal()
 std::string
 IDFWiFiPortal::localIP()
 {
-    esp_netif_t *intf = esp_netif_get_default_netif();
-    if (!intf) {
-        printf("Error: no interface to get IP Address\n");
-        return "0.0.0.0";
-    }
-    
-    esp_netif_ip_info_t ip_info;
-    esp_netif_get_ip_info(intf, &ip_info);
-    char buf[20];
-    sprintf(buf, "%d.%d.%d.%d", IP2STR(&ip_info.ip));
-    return buf;
+    return "0.0.0.0";
 }
 
 const char*
@@ -123,7 +123,17 @@ IDFWiFiPortal::getSSID()
 }
 
 void
-IDFWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const std::string& data)
+IDFWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const char* data)
+{
+}
+
+void
+IDFWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip)
+{
+}    
+
+void
+IDFWiFiPortal::streamHTTPResponse(fs::File& file, const char* mimetype, bool attach)
 {
 }
 
@@ -133,10 +143,64 @@ IDFWiFiPortal::readHTTPContent(uint8_t* buf, size_t bufSize)
     return -1;
 }
 
+WiFiPortal::HTTPUploadStatus
+IDFWiFiPortal::httpUploadStatus() const
+{
+    return HTTPUploadStatus::None;
+}
+
+std::string
+IDFWiFiPortal::httpUploadFilename() const
+{
+    return "";
+}
+
+std::string
+IDFWiFiPortal::httpUploadName() const
+{
+    return "";
+}
+
+std::string
+IDFWiFiPortal::httpUploadType() const
+{
+    return "";
+}
+
 size_t
-IDFWiFiPortal::httpContentLength()
+IDFWiFiPortal::httpUploadTotalSize() const
 {
     return 0;
+}
+
+size_t
+IDFWiFiPortal::httpUploadCurrentSize() const
+{
+    return 0;
+}
+
+const uint8_t*
+IDFWiFiPortal::httpUploadBuffer() const
+{
+    return nullptr
+}
+
+std::string
+IDFWiFiPortal::getHTTPArg(const char* name)
+{
+    return "";
+}
+
+bool
+IDFWiFiPortal::addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength)
+{
+    return false;
+}
+
+const char*
+IDFWiFiPortal::getParamValue(const char* id)
+{
+    return nullptr;
 }
 
 #endif
