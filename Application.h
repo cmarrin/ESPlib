@@ -74,7 +74,7 @@ public:
 	virtual void setup();
 	virtual void loop();
 	
-	virtual void showString(Message) { }
+	virtual void showString(Message m) { printf("******** Message:%d\n", int(m)); }
 	virtual void showMain(bool force = false) { }
 	virtual void showSecondary() { }
  
