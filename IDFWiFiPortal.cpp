@@ -73,11 +73,13 @@ IDFWiFiPortal::setCustomMenuHTML(const char* html)
 void
 IDFWiFiPortal::setHostname(const char* name)
 {
+    printf("*** setHostname not implemented\n");
 }
 
 void
 IDFWiFiPortal::setConfigHandler(HandlerCB f)
 {
+    printf("*** setConfigHandler not implemented\n");
 }
 
 void
@@ -88,17 +90,20 @@ IDFWiFiPortal::setShowInfoErase(bool enabled)
 int32_t
 IDFWiFiPortal::addHTTPHandler(const char* endpoint, HandlerCB requestCB, HandlerCB uploadCB)
 {
+    printf("*** addHTTPHandler not implemented\n");
     return 0;
 }
 
 void
 IDFWiFiPortal::serveStatic(const char *uri, const char *path)
 {
+    printf("*** serveStatic not implemented\n");
 }
 
 bool
 IDFWiFiPortal::autoConnect(char const *apName, char const *apPassword)
 {
+    printf("*** autoConnect not implemented\n");
     return false;
 }
 
@@ -110,6 +115,7 @@ IDFWiFiPortal::process()
 void
 IDFWiFiPortal::startWebPortal()
 {
+    printf("*** startWebPortal not implemented\n");
 }
 
 std::string
@@ -121,27 +127,31 @@ IDFWiFiPortal::localIP()
 const char*
 IDFWiFiPortal::getSSID()
 {
-    return "";
+    return "Not Implemented";
 }
 
 void
 IDFWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const char* data)
 {
+    printf("*** sendHTTPResponse (1) not implemented\n");
 }
 
 void
 IDFWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip)
 {
+    printf("*** sendHTTPResponse (2) not implemented\n");
 }    
 
 void
 IDFWiFiPortal::streamHTTPResponse(fs::File& file, const char* mimetype, bool attach)
 {
+    printf("*** streamHTTPResponse not implemented\n");
 }
 
 int
 IDFWiFiPortal::readHTTPContent(uint8_t* buf, size_t bufSize)
 {
+    printf("*** readHTTPContent not implemented\n");
     return -1;
 }
 
@@ -154,19 +164,19 @@ IDFWiFiPortal::httpUploadStatus() const
 std::string
 IDFWiFiPortal::httpUploadFilename() const
 {
-    return "";
+    return "not implemented";
 }
 
 std::string
 IDFWiFiPortal::httpUploadName() const
 {
-    return "";
+    return "not implemented";
 }
 
 std::string
 IDFWiFiPortal::httpUploadType() const
 {
-    return "";
+    return "not implemented";
 }
 
 size_t
@@ -190,7 +200,7 @@ IDFWiFiPortal::httpUploadBuffer() const
 std::string
 IDFWiFiPortal::getHTTPArg(const char* name)
 {
-    return "";
+    return "not implemented";
 }
 
 bool

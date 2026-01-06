@@ -69,16 +69,13 @@ Application::startNetwork()
 	});
 
 	if (!_portal->autoConnect(_configPortalName.c_str())) {
-		printf("*** Failed to connect and hit timeout\n");
-		restart();
-		delay(1000);
+		printf("*** Failed to connect. Reset and try again\n");
+        return;
 	}
 	
 	if (_enteredConfigMode) {
-		// If we've been in config mode, the network doesn't startup correctly, let's reboot
-		printf("*** Network didn't start up correctly, restart\n");
-		restart();
-		delay(1000);
+		printf("*** Network didn't start up correctly. Reset and try again\n");
+        return;
 	}
 
 	printf("Wifi connected, IP=%s\n", _portal->localIP().c_str());
