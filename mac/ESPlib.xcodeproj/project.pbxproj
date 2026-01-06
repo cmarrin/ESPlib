@@ -13,6 +13,7 @@
 		492744462E9DBFA100AF8FA1 /* MacWebServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 492744452E9DBF9900AF8FA1 /* MacWebServer.h */; };
 		492744492E9DC41800AF8FA1 /* libESPlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49E65B012E9C36F800D3C6C5 /* libESPlib.a */; };
 		492744602E9E929500AF8FA1 /* MacWiFiPortal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B772E9C3A7600D3C6C5 /* MacWiFiPortal.cpp */; };
+		4934EB1D2F0C2C370054B78E /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4934EB1A2F0B50460054B78E /* liblua.a */; };
 		495AB4662E9C753400C4C2C4 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 495AB4652E9C753400C4C2C4 /* main.cpp */; };
 		495AB46D2E9C77FE00C4C2C4 /* Vesper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 495AB46C2E9C77FE00C4C2C4 /* Vesper.cpp */; };
 		495AB4712E9C7BE800C4C2C4 /* libESPlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49E65B012E9C36F800D3C6C5 /* libESPlib.a */; };
@@ -54,6 +55,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 49E65B002E9C36F800D3C6C5;
 			remoteInfo = ESPlib;
+		};
+		4934EB192F0B50460054B78E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4934EB132F0B50460054B78E /* lua.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 495AB47C2E9D6BBF00C4C2C4;
+			remoteInfo = lua;
+		};
+		4934EB1B2F0C2C1A0054B78E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4934EB132F0B50460054B78E /* lua.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 495AB47B2E9D6BBF00C4C2C4;
+			remoteInfo = lua;
 		};
 		495AB4672E9C753D00C4C2C4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -125,6 +140,7 @@
 		492744632E9F185D00AF8FA1 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = index.html; path = ../littlefs/index.html; sourceTree = "<group>"; };
 		4934EB112F0B19280054B78E /* IDFWiFiPortal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IDFWiFiPortal.h; path = ../IDFWiFiPortal.h; sourceTree = SOURCE_ROOT; };
 		4934EB122F0B19280054B78E /* IDFWiFiPortal.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = IDFWiFiPortal.cpp; path = ../IDFWiFiPortal.cpp; sourceTree = SOURCE_ROOT; };
+		4934EB132F0B50460054B78E /* lua.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = lua.xcodeproj; path = "../lua/lua-5.4.8/mac/lua.xcodeproj"; sourceTree = SOURCE_ROOT; };
 		495AB4572E9C730A00C4C2C4 /* Vesper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Vesper; sourceTree = BUILT_PRODUCTS_DIR; };
 		495AB4652E9C753400C4C2C4 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		495AB46A2E9C777C00C4C2C4 /* Vesper.ino */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; name = Vesper.ino; path = ../Vesper/Vesper.ino; sourceTree = "<group>"; };
@@ -197,6 +213,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4934EB1D2F0C2C370054B78E /* liblua.a in Frameworks */,
 				495AB4712E9C7BE800C4C2C4 /* libESPlib.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -258,6 +275,14 @@
 			path = ../LuaBridge/detail;
 			sourceTree = SOURCE_ROOT;
 		};
+		4934EB162F0B50460054B78E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4934EB1A2F0B50460054B78E /* liblua.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		495AB4692E9C756400C4C2C4 /* Vesper */ = {
 			isa = PBXGroup;
 			children = (
@@ -282,6 +307,7 @@
 		49E65AF82E9C36F800D3C6C5 = {
 			isa = PBXGroup;
 			children = (
+				4934EB132F0B50460054B78E /* lua.xcodeproj */,
 				491673B82EA7D06B0028A6F0 /* LuaBridge */,
 				49E65B632E9C3A7600D3C6C5 /* Application.h */,
 				49E65B642E9C3A7600D3C6C5 /* Application.cpp */,
@@ -416,6 +442,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				4934EB1C2F0C2C1A0054B78E /* PBXTargetDependency */,
 				495AB4682E9C753D00C4C2C4 /* PBXTargetDependency */,
 			);
 			name = Vesper;
@@ -452,7 +479,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastUpgradeCheck = 2600;
+				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					4927442A2E9D94D000AF8FA1 = {
 						CreatedOnToolsVersion = 26.0.1;
@@ -477,6 +504,12 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 49E65B022E9C36F800D3C6C5 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 4934EB162F0B50460054B78E /* Products */;
+					ProjectRef = 4934EB132F0B50460054B78E /* lua.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				495AB4562E9C730A00C4C2C4 /* Vesper */,
@@ -485,6 +518,16 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		4934EB1A2F0B50460054B78E /* liblua.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblua.a;
+			remoteRef = 4934EB192F0B50460054B78E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXShellScriptBuildPhase section */
 		492744652EA03A4300AF8FA1 /* Run Script */ = {
@@ -553,6 +596,11 @@
 			target = 49E65B002E9C36F800D3C6C5 /* ESPlib */;
 			targetProxy = 492744472E9DC40F00AF8FA1 /* PBXContainerItemProxy */;
 		};
+		4934EB1C2F0C2C1A0054B78E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = lua;
+			targetProxy = 4934EB1B2F0C2C1A0054B78E /* PBXContainerItemProxy */;
+		};
 		495AB4682E9C753D00C4C2C4 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 49E65B002E9C36F800D3C6C5 /* ESPlib */;
@@ -565,6 +613,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -573,6 +622,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -581,6 +631,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				HEADER_SEARCH_PATHS = "$(CONFIGURATION_BUILD_DIR)/usr/local/include";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -590,6 +641,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				HEADER_SEARCH_PATHS = "$(CONFIGURATION_BUILD_DIR)/usr/local/include";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -629,6 +681,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -653,6 +706,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 			};
 			name = Debug;
 		};
@@ -690,6 +744,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -707,6 +762,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 			};
 			name = Release;
 		};
@@ -714,6 +770,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				EXECUTABLE_PREFIX = lib;
 				HEADER_SEARCH_PATHS = "$(CONFIGURATION_BUILD_DIR)/usr/local/include";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -725,6 +782,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				EXECUTABLE_PREFIX = lib;
 				HEADER_SEARCH_PATHS = "$(CONFIGURATION_BUILD_DIR)/usr/local/include";
 				PRODUCT_NAME = "$(TARGET_NAME)";
