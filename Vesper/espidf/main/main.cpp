@@ -27,6 +27,7 @@ void app_main(void)
 
     while (true) {
         controller.loop();
+        vTaskDelay(1);
     }
 }
 }
