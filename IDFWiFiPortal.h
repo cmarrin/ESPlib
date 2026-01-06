@@ -11,6 +11,8 @@ All rights reserved.
 
 #include "WiFiPortal.h"
 
+namespace mil {
+
 class IDFWiFiPortal : public WiFiPortal
 {
 public:
@@ -47,3 +49,4 @@ public:
     virtual const char* getParamValue(const char* id) override;
 };
 
+}

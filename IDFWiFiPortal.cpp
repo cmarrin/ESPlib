@@ -22,6 +22,8 @@ All rights reserved.
 
 #include <wifi_provisioning/manager.h>
 
+using namespace mil;
+
 void
 IDFWiFiPortal::begin(WebFileSystem*)
 {
@@ -182,7 +184,7 @@ IDFWiFiPortal::httpUploadCurrentSize() const
 const uint8_t*
 IDFWiFiPortal::httpUploadBuffer() const
 {
-    return nullptr
+    return nullptr;
 }
 
 std::string
