@@ -11,8 +11,6 @@ All rights reserved.
 
 #include "LittleFSShim.h"
 
-#include <ftw.h>
-
 #if defined ESP_PLATFORM
 #include "esp_err.h"
 #include "esp_log.h"
@@ -28,6 +26,8 @@ All rights reserved.
 #include "spi_flash_mmap.h"
 
 #include "esp_littlefs.h"
+#else
+#include <ftw.h>
 #endif
 
 using namespace fs;
@@ -210,6 +210,7 @@ File::rewindDirectory()
 bool
 FS::begin(bool format)
 {
+    return false;
 #if defined ESP_PLATFORM
     static const char *TAG = "LittleFSShim";
 
@@ -251,12 +252,29 @@ FS::begin(bool format)
 size_t
 FS::totalBytes()
 {
+#if defined ESP_PLATFORM
+    size_t total = 0, used = 0;
+    esp_err_t ret = esp_littlefs_info("littlefs", &total, &used);
+    if (ret != ESP_OK) {
+            ESP_LOGE("ESPlib_littlefs", "Failed to get LittleFS total bytes (%s)", esp_err_to_name(ret));
+    }
+    return total;
+#else
     return TotalBytes;
+#endif
 }
 
 size_t
 FS::usedBytes()
 {
+#if defined ESP_PLATFORM
+    size_t total = 0, used = 0;
+    esp_err_t ret = esp_littlefs_info("littlefs", &total, &used);
+    if (ret != ESP_OK) {
+            ESP_LOGE("ESPlib_littlefs", "Failed to get LittleFS used bytes (%s)", esp_err_to_name(ret));
+    }
+    return used;
+#else
     static size_t total;
     
     total = 0;
@@ -271,6 +289,7 @@ FS::usedBytes()
     }
 
     return total;
+#endif
 }
 
 File
