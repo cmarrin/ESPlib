@@ -15,5 +15,6 @@
     "--background-index",
     "--query-driver=**",
     "--compile-commands-dir=/Users/cmarrin/Projects/git/ESPlib/Vesper/espidf/espidf/build"
-  ]
+  ],
+  "idf.flashType": "UART"
 }
