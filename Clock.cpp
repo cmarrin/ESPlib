@@ -39,7 +39,13 @@ void Clock::loop()
 		_needsUpdate = false;
 		
 		if (_app && _app->isNetworkEnabled()) {
-			if (_timeWeatherServer.update(_app->getParamValue("zipcode"))) {
+            std::string zipcode;
+            if (!_app->getParamValue("zipcode", zipcode)) {
+                printf("*** Zipcode not set, using default\n");
+                zipcode = "93405";
+            }
+            
+			if (_timeWeatherServer.update(zipcode.c_str())) {
 				_currentTime = _timeWeatherServer.currentTime();
 				_app->sendInput(Input::Idle, false);
     

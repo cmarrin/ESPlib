@@ -52,7 +52,11 @@ Application::startNetwork()
     std::vector<const char *> menu = { "custom", "wifi", "info", "restart", "sep", "update" };
     _portal->setMenu(menu);
     
-    _portal->setHostname(getParamValue("hostname"));
+    std::string hostname;
+    if (getParamValue("hostname", hostname)) {
+        _portal->setHostname(hostname.c_str());
+    }
+    
 	_portal->setDarkMode(true);
     _portal->setShowInfoErase(true);
     

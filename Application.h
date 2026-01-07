@@ -107,7 +107,7 @@ public:
         _portal->addParam(id, label, defaultValue, length);
     }
     
-    const char* getParamValue(const char* id) { return _portal->getParamValue(id); }
+    bool getParamValue(const char* id, std::string& value) { return _portal->getParamValue(id, value); }
 
     void setTitle(const char* title) { _portal->setTitle(title); }
     void setCustomMenuHTML(const char* s) { _portal->setCustomMenuHTML(s); }

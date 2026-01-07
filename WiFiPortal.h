@@ -164,7 +164,7 @@ public:
     
     // Param handling
     virtual bool addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength) { return true; }
-    virtual const char* getParamValue(const char* id) { return ""; }
+    virtual bool getParamValue(const char* id, std::string& value) { return false; }
 };
 
 }

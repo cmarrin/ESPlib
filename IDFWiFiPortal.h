@@ -11,6 +11,9 @@ All rights reserved.
 
 #include "WiFiPortal.h"
 
+#include <nvs_flash.h>
+#include <map>
+
 namespace mil {
 
 class IDFWiFiPortal : public WiFiPortal
@@ -46,7 +49,19 @@ public:
     virtual const uint8_t* httpUploadBuffer() const override;
     virtual std::string getHTTPArg(const char* name) override;
     virtual bool addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength) override;
-    virtual const char* getParamValue(const char* id) override;
+    virtual bool getParamValue(const char* id, std::string& value) override;
+    
+  private:
+    // Params are stored in nvs memory, but also need to be presented to the user in the web page.
+    // So we store a list here with the label to display and the max length. The key for each entry
+    // is the param id.
+    void setNVSParam(const char* id, const std::string& value);
+    bool getNVSParam(const char* id, std::string& value);
+    
+    struct MapValue { std::string label; uint32_t maxLength; };
+    
+    std::map<std::string, MapValue> _paramMap;
+    nvs_handle_t _paramHandle;
 };
 
 }

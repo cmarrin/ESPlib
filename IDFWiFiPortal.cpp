@@ -18,11 +18,12 @@ All rights reserved.
 #include <esp_log.h>
 #include <esp_wifi.h>
 #include <esp_event.h>
-#include <nvs_flash.h>
 
 #include <wifi_provisioning/manager.h>
 
 using namespace mil;
+
+static const char *TAG = "nvs_example";
 
 void
 IDFWiFiPortal::begin(WebFileSystem*)
@@ -30,15 +31,19 @@ IDFWiFiPortal::begin(WebFileSystem*)
     // Setup prefs
     // _prefs.begin("ESPLib");
 
-    // Initialize NVS partition
+    // Initialize NVS partition to hold params
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        /* NVS partition was truncated
-         * and needs to be erased */
+        // NVS partition was truncated and needs to be erased
         ESP_ERROR_CHECK(nvs_flash_erase());
 
-        /* Retry nvs_flash_init */
+        // Retry nvs_flash_init
         ESP_ERROR_CHECK(nvs_flash_init());
+    }
+    
+    esp_err_t err = nvs_open("esplib", NVS_READWRITE, &_paramHandle);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Error (%s) opening NVS handle!", esp_err_to_name(err));
     }
 
     // Setup provisioning
@@ -206,13 +211,48 @@ IDFWiFiPortal::getHTTPArg(const char* name)
 bool
 IDFWiFiPortal::addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength)
 {
+    // See if the value is already in the map
+    auto entry = _paramMap.find(id);
+    if (entry == _paramMap.end()) {
+        // New entry
+        setNVSParam(id, defaultValue);
+        _paramMap.insert({ id, { label, maxLength } });
+    } else {
+        // Existing entry
+        setNVSParam(id, defaultValue);
+    }
     return false;
 }
 
-const char*
-IDFWiFiPortal::getParamValue(const char* id)
+bool
+IDFWiFiPortal::getParamValue(const char* id, std::string& value)
 {
-    return nullptr;
+    return getNVSParam(id, value);
+}
+
+void
+IDFWiFiPortal::setNVSParam(const char* id, const std::string& value)
+{
+    esp_err_t err = nvs_set_str(_paramHandle, id, value.c_str());
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to write string!");
+    }
+}
+
+bool
+IDFWiFiPortal::getNVSParam(const char* id, std::string& value)
+{
+    size_t requiredSize = 0;
+    esp_err_t err = nvs_get_str(_paramHandle, id, NULL, &requiredSize);
+    if (err == ESP_OK) {
+        char* message = new char[requiredSize];
+        err = nvs_get_str(_paramHandle, "message", message, &requiredSize);
+        if (err == ESP_OK) {
+            value = message;
+        }
+        delete [ ] message;
+    }
+    return err == ESP_OK;
 }
 
 #endif

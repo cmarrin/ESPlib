@@ -123,10 +123,13 @@ ESPWiFiPortal::startWebPortal()
 {
     _wifiManager.startWebPortal();
 
-    if (!MDNS.begin(getParamValue("hostname")))  {             
+    std::string hostname;
+    if (!getParamValue("hostname", hostname)) {
+        printf("***** can't start mDNS. No hostname\n");
+    } else if (!MDNS.begin(hostname.c_str()))  {             
         printf("***** Error starting mDNS\n");
     } else {
-        printf("mDNS started, hostname=%s\n", getParamValue("hostname"));
+        printf("mDNS started, hostname=%s\n", hostname.c_str());
     }
 }
 
@@ -250,16 +253,17 @@ ESPWiFiPortal::addParam(const char *id, const char* label, const char* defaultVa
     return true;
 }
 
-const char*
-ESPWiFiPortal::getParamValue(const char* id)
+bool
+ESPWiFiPortal::getParamValue(const char* id, std::string& value)
 {
     WiFiManagerParameter** params = _wifiManager.getParameters();
     int count = _wifiManager.getParametersCount();
     
     for (int i = 0; i < count; ++i) {
         if (strcmp(params[i]->getID(), id) == 0) {
-            return params[i]->getValue();
+            value = params[i]->getValue();
+            return true;
         }
     }
-    return nullptr;
+    return false;
 }

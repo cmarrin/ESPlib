@@ -192,8 +192,8 @@ MacWiFiPortal::addParam(const char *id, const char* label, const char* defaultVa
     return false;
 }
 
-const char*
-MacWiFiPortal::getParamValue(const char* id)
+bool
+MacWiFiPortal::getParamValue(const char* id, std::string& value)
 {
 //    WiFiManagerParameter** params = _wifiManager.getParameters();
 //    int count = _wifiManager.getParametersCount();
@@ -204,7 +204,7 @@ MacWiFiPortal::getParamValue(const char* id)
 //        }
 //    }
 //    return nullptr;
-    return "";
+    return false;
 }
 
 #endif
