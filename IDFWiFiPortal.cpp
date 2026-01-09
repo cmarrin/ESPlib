@@ -313,7 +313,7 @@ IDFWiFiPortal::eraseNVSParam(const char* id)
 {
     nvs_handle_t paramHandle;
 
-    ESP_ERROR_CHECK(nvs_open("esplib", NVS_READONLY, &paramHandle));
+    ESP_ERROR_CHECK(nvs_open("esplib", NVS_READWRITE, &paramHandle));
     ESP_ERROR_CHECK(nvs_erase_key(paramHandle, id));
     ESP_ERROR_CHECK(nvs_commit(paramHandle));
     nvs_close(paramHandle);
