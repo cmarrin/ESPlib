@@ -19,5 +19,5 @@ set(luaFiles lapi.c lauxlib.c lbaselib.c lcode.c lcorolib.c lctype.c ldblib.c ld
 list(TRANSFORM luaFiles PREPEND ${Lua}/)
 
 idf_component_register(SRCS "main.cpp" ${vesperFiles} ${esplibFiles} ${luaFiles}
-                    PRIV_REQUIRES esp_driver_gpio esp_wifi spi_flash nvs_flash wifi_provisioning
+                    PRIV_REQUIRES esp_driver_gpio esp_wifi spi_flash nvs_flash esp_http_server esp_timer
                     INCLUDE_DIRS "." ${ESPlib} ${Vesper} ${Lua})
