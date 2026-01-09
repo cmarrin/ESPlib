@@ -1,0 +1,170 @@
+<!-- /** 
+ * @file index.html
+ * @brief HTML page for ESP32 WiFi configuration interface.
+ *
+ * This file provides a web interface for configuring WiFi credentials
+ * on an ESP32 device, styled with responsive CSS for usability across devices.
+ */ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- /** @brief Meta tags and page title definition. */ -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 WiFi Configuration</title>
+    <!-- /** 
+     * @brief Embedded CSS styles for the WiFi configuration page.
+     *
+     * Defines theme variables, layout, form styling, and responsive design.
+     */ -->
+    <style>
+        <!-- /** @brief CSS variables for theming and maintenance. */ -->
+        :root {
+            --primary-color: #007bff;
+            --primary-color-dark: #0056b3;
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --card-bg: #ffffff;
+            --border-color: #dee2e6;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            --transition-speed: 0.3s;
+        }
+
+        <!-- /** @brief General body and layout styling. */ -->
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+
+        <!-- /** @brief Main content container styling. */ -->
+        .container {
+            width: 100%;
+            max-width: 420px;
+            padding: 2rem;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            text-align: center;
+            transition: box-shadow var(--transition-speed);
+        }
+
+        <!-- /** @brief Hover effect for the container. */ -->
+        .container:hover {
+             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        <!-- /** @brief Heading styling. */ -->
+        h1 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        <!-- /** @brief Form layout styling. */ -->
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        <!-- /** @brief Input group container styling. */ -->
+        .input-group {
+            text-align: left;
+        }
+
+        <!-- /** @brief Label styling for form inputs. */ -->
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        <!-- /** @brief Styling for text and password input fields. */ -->
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 0.85rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            box-sizing: border-box;
+            transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+        }
+
+        <!-- /** @brief Focus effect for input fields. */ -->
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        <!-- /** @brief Button styling for form submission. */ -->
+        .btn {
+            padding: 0.9rem;
+            border: none;
+            border-radius: var(--border-radius);
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color var(--transition-speed);
+        }
+
+        <!-- /** @brief Hover effect for the button. */ -->
+        .btn:hover {
+            background-color: var(--primary-color-dark);
+        }
+
+        <!-- /** @brief Responsive design adjustments for small screens. */ -->
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- /** @brief Main content container for the WiFi configuration form. */ -->
+    <div class="container">
+        <!-- /** @brief Page heading for WiFi configuration. */ -->
+        <h1>WiFi Configuration</h1>
+        <!-- /** 
+         * @brief Form for submitting WiFi credentials.
+         * @details Submits SSID and password to the /connect endpoint via POST.
+         */ -->
+        <form id="wifi-form" action="/connect" method="POST">
+            <!-- /** @brief Input group for the SSID field. */ -->
+            <div class="input-group">
+                <!-- /** @brief Label for the SSID input. */ -->
+                <label for="ssid">Network Name (SSID)</label>
+                <!-- /** @brief Input field for the WiFi SSID. */ -->
+                <input type="text" id="ssid" name="ssid" maxlength="32" required placeholder="e.g., MyHomeWiFi">
+            </div>
+            <!-- /** @brief Input group for the password field. */ -->
+            <div class="input-group">
+                <!-- /** @brief Label for the password input. */ -->
+                <label for="password">Password</label>
+                <!-- /** @brief Input field for the WiFi password. */ -->
+                <input type="password" id="password" name="password" maxlength="64" placeholder="Leave blank for open networks">
+            </div>
+            <!-- /** @brief Submit button for the form. */ -->
+            <button type="submit" class="btn">Connect</button>
+        </form>
+    </div>
+</body>
+</html>

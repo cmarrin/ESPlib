@@ -547,7 +547,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "rm ../../ESPlib/filemgr.html.gz ../../ESPlib/filemgr.h ../../ESPlib/filemgr.gz.h\ngzip -k ../../ESPlib/filemgr.html\nxxd -n filemgr_html -i ../../ESPlib/filemgr.html ../../ESPlib/filemgr.h\nxxd -n filemgr_html_gz -i ../../ESPlib/filemgr.html.gz ../../ESPlib/filemgr.gz.h\n";
+			shellScript = "cd ..\nbash cvtHTML.sh\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
