@@ -88,7 +88,6 @@ public:
     struct MapValue { std::string label; uint32_t maxLength; };
     
     std::map<std::string, MapValue> _paramMap;
-    nvs_handle_t _paramHandle;
     
     bool _isConnected = false;
     EventGroupHandle_t _eventGroup;

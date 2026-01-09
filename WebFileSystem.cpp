@@ -39,10 +39,16 @@ using namespace mil;
 fs::FS LittleFS;
 #endif
 
-static std::string urlDecode(const std::string& s)
+std::string
+WebFileSystem::urlDecode(const std::string& s)
 {
-    std::vector<std::string> parts = WebFileSystem::split(s, '%');
-    std::string result = parts[0];
+    // Convert '+' to space
+    std::string result = s;
+    std::replace( result.begin(), result.end(), '+', ' ');
+    
+    // Convert % hex codes
+    std::vector<std::string> parts = WebFileSystem::split(result, '%');
+    result = parts[0];
     parts.erase(parts.begin());
     
     for (const auto& it : parts) {

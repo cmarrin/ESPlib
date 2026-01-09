@@ -35,11 +35,6 @@ IDFWiFiPortal::begin(WebFileSystem* wfs)
         ESP_ERROR_CHECK(nvs_flash_init());
     }
     
-    esp_err_t err = nvs_open("esplib", NVS_READWRITE, &_paramHandle);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Error (%s) opening NVS handle!", esp_err_to_name(err));
-    }
-    
     _eventGroup = xEventGroupCreate();
 }
 
@@ -280,38 +275,49 @@ IDFWiFiPortal::getParamValue(const char* id, std::string& value)
 void
 IDFWiFiPortal::setNVSParam(const char* id, const std::string& value)
 {
-    esp_err_t err = nvs_set_str(_paramHandle, id, value.c_str());
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to write string!");
-    }
-    nvs_commit(_paramHandle);
+    nvs_handle_t paramHandle;
+
+    ESP_ERROR_CHECK(nvs_open("esplib", NVS_READWRITE, &paramHandle));    
+    ESP_ERROR_CHECK(nvs_set_str(paramHandle, id, value.c_str()));
+    ESP_ERROR_CHECK(nvs_commit(paramHandle));
+    nvs_close(paramHandle);
 }
 
 bool
 IDFWiFiPortal::getNVSParam(const char* id, std::string& value)
 {
+    nvs_handle_t paramHandle;
+
+    ESP_ERROR_CHECK(nvs_open("esplib", NVS_READONLY, &paramHandle));
+
     size_t requiredSize = 0;
-    esp_err_t err = nvs_get_str(_paramHandle, id, NULL, &requiredSize);
+    esp_err_t err = nvs_get_str(paramHandle, id, NULL, &requiredSize);
     if (err == ESP_OK) {
         std::vector<char> ssidBuf(requiredSize);
-        err = nvs_get_str(_paramHandle, "message", ssidBuf.data(), &requiredSize);
+        err = nvs_get_str(paramHandle, id, ssidBuf.data(), &requiredSize);
         if (err == ESP_OK) {
             value = ssidBuf.data();
+        } else {
+            ESP_LOGE(TAG, "Error (%s) getting string param", esp_err_to_name(err));
         }
     } else {
+        ESP_LOGE(TAG, "Error (%s) getting param size", esp_err_to_name(err));
         value = "";
     }
+
+    nvs_close(paramHandle);
     return err == ESP_OK;
 }
 
 void
 IDFWiFiPortal::eraseNVSParam(const char* id)
 {
-    esp_err_t err = nvs_erase_key(_paramHandle, id);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to erase string!");
-    }
-    nvs_commit(_paramHandle);
+    nvs_handle_t paramHandle;
+
+    ESP_ERROR_CHECK(nvs_open("esplib", NVS_READONLY, &paramHandle));
+    ESP_ERROR_CHECK(nvs_erase_key(paramHandle, id));
+    ESP_ERROR_CHECK(nvs_commit(paramHandle));
+    nvs_close(paramHandle);
 }
 
 
@@ -449,17 +455,23 @@ IDFWiFiPortal::connectPostHandler(httpd_req_t *req)
     }
     buf[ret] = '\0';
 
-    char ssid[33] = {0};
-    char pass[65] = {0};
+    char ssidBuf[33] = {0};
+    char passBuf[65] = {0};
     
-    if (httpd_query_key_value(buf, "ssid", ssid, sizeof(ssid)) != ESP_OK) {
+    if (httpd_query_key_value(buf, "ssid", ssidBuf, sizeof(ssidBuf)) != ESP_OK) {
         httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Missing 'ssid' parameter");
         return ESP_FAIL;
     }
-    httpd_query_key_value(buf, "password", pass, sizeof(pass));
+    httpd_query_key_value(buf, "password", passBuf, sizeof(passBuf));
+    
+    // Decode the strings
+    std::string ssid = WebFileSystem::urlDecode(ssidBuf);
+    std::string pass = WebFileSystem::urlDecode(passBuf);
 
-    const char *resp_str = "<h1>Connecting...</h1><p>If successful, the device will connect to the network. If failed, it will remain in provisioning mode.</p>";
-    httpd_resp_send(req, resp_str, HTTPD_RESP_USE_STRLEN);
+    std::string response = "<h1>Connecting to '";
+    response += ssid;
+    response += "'...</h1><p>If successful, the device will connect to the network. If failed, it will remain in provisioning mode.</p>";
+    httpd_resp_sendstr(req, response.c_str());
 
     self->setNVSParam("wifi_ssid", ssid);
     self->setNVSParam("wifi_pass", pass);
