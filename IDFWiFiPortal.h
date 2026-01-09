@@ -98,7 +98,12 @@ public:
     std::string _ssid;
     std::string _pass;
     
+    WebFileSystem* _wfs = nullptr;
+    
     static constexpr uint8_t MAX_RETRY = 5;
+    
+    // During an active request this has a valid pointer. Otherwise it is null
+    httpd_req_t* _activeRequest = nullptr;
 };
 
 }

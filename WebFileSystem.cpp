@@ -15,17 +15,24 @@ All rights reserved.
 
 using namespace mil;
 
-#define USE_GZIP_FILEMGR
-#ifdef USE_GZIP_FILEMGR
+//#define USE_GZIP_HTML
+#ifdef USE_GZIP_HTML
+#define HTML_IS_GZIP true
+#include "portal.gz.h"
 #include "filemgr.gz.h"
 #define FILEMGR_NAME filemgr_html_gz
 #define FILEMGR_LEN_NAME filemgr_html_gz_len
-#define FILEMGR_IS_GZIP true
+#define PORTAL_NAME portal_html_gz
+#define PORTAL_LEN_NAME portal_html_gz_len
 #else
 #include "filemgr.h"
+#include "portal.h"
+#define HTML_IS_GZIP false
 #define FILEMGR_NAME filemgr_html
 #define FILEMGR_LEN_NAME filemgr_html_len
 #define FILEMGR_IS_GZIP false
+#define PORTAL_NAME portal_html
+#define PORTAL_LEN_NAME portal_html_len
 #endif
 
 #ifndef ARDUINO
@@ -142,12 +149,18 @@ WebFileSystem::prepareFile(WiFiPortal* p, std::string& path)
     return false;
 }
 
+void
+WebFileSystem::sendPortalPage(WiFiPortal* portal)
+{
+    portal->sendHTTPResponse(200, "text/html", reinterpret_cast<const char*>(PORTAL_NAME), PORTAL_LEN_NAME, HTML_IS_GZIP);
+}
+
 bool
 WebFileSystem::begin(Application* app, bool format)
 {
     app->addHTTPHandler("/filemgr", [this](WiFiPortal* p)
     {
-        p->sendHTTPResponse(200, "text/html", reinterpret_cast<const char*>(FILEMGR_NAME), FILEMGR_LEN_NAME, FILEMGR_IS_GZIP);
+        p->sendHTTPResponse(200, "text/html", reinterpret_cast<const char*>(FILEMGR_NAME), FILEMGR_LEN_NAME, HTML_IS_GZIP);
         return true;
     });
 

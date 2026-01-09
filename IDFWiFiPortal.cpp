@@ -11,6 +11,8 @@ All rights reserved.
 
 #include "IDFWiFiPortal.h"
 
+#include "WebFileSystem.h"
+
 using namespace mil;
 
 static const char* TAG = "WiFiPortal";
@@ -19,8 +21,10 @@ static const char* PROV_AP_PASS = "password123";
 static constexpr uint32_t PROV_AP_MAX_CONN = 1;
 
 void
-IDFWiFiPortal::begin(WebFileSystem*)
+IDFWiFiPortal::begin(WebFileSystem* wfs)
 {
+    _wfs = wfs;
+    
     // Initialize NVS partition to hold params
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
@@ -181,7 +185,13 @@ IDFWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const char* data
 void
 IDFWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip)
 {
-    printf("*** sendHTTPResponse (2) not implemented\n");
+    if (!_activeRequest) {
+        ESP_LOGE(TAG, "Can't send HTTP response. No active request.");
+        return;
+    }
+
+    ESP_ERROR_CHECK(httpd_resp_set_type(_activeRequest, mimetype));
+    ESP_ERROR_CHECK(httpd_resp_send(_activeRequest, data, length));
 }    
 
 void
@@ -415,35 +425,12 @@ IDFWiFiPortal::eventHandler(void* arg, esp_event_base_t eventBase, int32_t event
 esp_err_t
 IDFWiFiPortal::provisioningGetHandler(httpd_req_t *req)
 {
-    const char* filepath = LFS_BASE_PATH "/index.html";
+    IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(req->user_ctx);
+    self->_activeRequest = req;
     
-    struct stat st;
-    if (stat(filepath, &st) != 0) {
-        ESP_LOGE(TAG, "index.html not found in %s", LFS_BASE_PATH);
-        httpd_resp_send_404(req);
-        return ESP_FAIL;
+    if (self->_wfs) {
+        self->_wfs->sendPortalPage(self);
     }
-
-    int fd = open(filepath, O_RDONLY, 0);
-    if (fd == -1) {
-        ESP_LOGE(TAG, "Failed to open index.html");
-        httpd_resp_send_500(req);
-        return ESP_FAIL;
-    }
-
-    httpd_resp_set_type(req, "text/html");
-
-    char buffer[256];
-    ssize_t bytes_read;
-    while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0) {
-        if (httpd_resp_send_chunk(req, buffer, bytes_read) != ESP_OK) {
-            close(fd);
-            return ESP_FAIL;
-        }
-    }
-    
-    close(fd);
-    httpd_resp_send_chunk(req, NULL, 0);
     return ESP_OK;
 }
 
