@@ -301,7 +301,6 @@ IDFWiFiPortal::getNVSParam(const char* id, std::string& value)
             ESP_LOGE(TAG, "Error (%s) getting string param", esp_err_to_name(err));
         }
     } else {
-        ESP_LOGE(TAG, "Error (%s) getting param size", esp_err_to_name(err));
         value = "";
     }
 
