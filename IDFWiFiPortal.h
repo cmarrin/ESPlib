@@ -72,6 +72,8 @@ public:
     void stopWebServer();
     void startProvisioning();
     
+    void scanNetworks(std::vector<std::string>&);
+    
     static void eventHandler(void* arg, esp_event_base_t, int32_t event_id, void* event_data);
     static esp_err_t provisioningGetHandler(httpd_req_t*);
     static esp_err_t connectPostHandler(httpd_req_t*);

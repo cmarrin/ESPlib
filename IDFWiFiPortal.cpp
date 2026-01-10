@@ -402,6 +402,34 @@ IDFWiFiPortal::startProvisioning()
 }
 
 void
+IDFWiFiPortal::scanNetworks(std::vector<std::string>& list)
+{
+    esp_wifi_scan_start(nullptr, true);
+
+    uint16_t apCount = 0;
+    ESP_ERROR_CHECK(esp_wifi_scan_get_ap_num(&apCount));
+    ESP_LOGI(TAG, "Total APs scanned = %u", apCount);
+    if (apCount) {
+        std::vector<wifi_ap_record_t> apInfo(apCount);
+        ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&apCount, apInfo.data()));
+        
+        // Copy the ssids to list
+        list.clear();
+        for (auto& it : apInfo) {
+            list.push_back(std::string(reinterpret_cast<const char*>(it.ssid)));
+        }
+
+        // Get rid of duplicates
+        std::sort(list.begin(), list.end());
+        list.erase(std::unique(list.begin(), list.end()), list.end());
+    
+        for (auto& it : list) {
+            ESP_LOGI(TAG, "SSID \t\t%s", it.c_str());
+        }
+    }
+}
+
+void
 IDFWiFiPortal::eventHandler(void* arg, esp_event_base_t eventBase, int32_t eventId, void* eventData)
 {
     IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(arg);
@@ -432,32 +460,6 @@ IDFWiFiPortal::provisioningGetHandler(httpd_req_t *req)
 {
     IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(req->user_ctx);
     self->_activeRequest = req;
-
-    // Do a scan
-    esp_wifi_scan_start(nullptr, true);
-
-    uint16_t apCount = 0;
-    ESP_ERROR_CHECK(esp_wifi_scan_get_ap_num(&apCount));
-    ESP_LOGI(TAG, "Total APs scanned = %u", apCount);
-    if (apCount) {
-        std::vector<wifi_ap_record_t> apInfo(apCount);
-        ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&apCount, apInfo.data()));
-        
-        // Get rid of duplicates
-        std::sort(apInfo.begin(), apInfo.end(), [](auto& a, auto& b) {
-            return std::string(reinterpret_cast<const char*>(a.ssid)) < std::string(reinterpret_cast<const char*>(b.ssid));
-        });
-        auto last = std::unique(apInfo.begin(), apInfo.end(), [](auto& a, auto& b) { 
-            return std::string(reinterpret_cast<const char*>(a.ssid)) == std::string(reinterpret_cast<const char*>(b.ssid));
-        });
-        apInfo.erase(last, apInfo.end());
-    
-        for (auto& it : apInfo) {
-            ESP_LOGI(TAG, "SSID \t\t%s", it.ssid);
-            ESP_LOGI(TAG, "RSSI \t\t%d", it.rssi);
-            ESP_LOGI(TAG, "Channel \t\t%d", it.primary);
-        }
-    }
     
     // Send the portal page
     if (self->_wfs) {
