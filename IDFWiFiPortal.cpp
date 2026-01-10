@@ -319,7 +319,6 @@ IDFWiFiPortal::eraseNVSParam(const char* id)
     nvs_close(paramHandle);
 }
 
-
 void
 IDFWiFiPortal::stopWiFi()
 {
@@ -379,6 +378,7 @@ IDFWiFiPortal::startProvisioning()
 {
     stopWiFi();
 
+    esp_netif_create_default_wifi_sta();
     esp_netif_create_default_wifi_ap();
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
@@ -390,7 +390,7 @@ IDFWiFiPortal::startProvisioning()
     wifi_config.ap.authmode = WIFI_AUTH_WPA_WPA2_PSK;
     wifi_config.ap.max_connection = PROV_AP_MAX_CONN;
 
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &wifi_config));
     ESP_ERROR_CHECK(esp_wifi_start());
 
@@ -432,7 +432,34 @@ IDFWiFiPortal::provisioningGetHandler(httpd_req_t *req)
 {
     IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(req->user_ctx);
     self->_activeRequest = req;
+
+    // Do a scan
+    esp_wifi_scan_start(nullptr, true);
+
+    uint16_t apCount = 0;
+    ESP_ERROR_CHECK(esp_wifi_scan_get_ap_num(&apCount));
+    ESP_LOGI(TAG, "Total APs scanned = %u", apCount);
+    if (apCount) {
+        std::vector<wifi_ap_record_t> apInfo(apCount);
+        ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&apCount, apInfo.data()));
+        
+        // Get rid of duplicates
+        std::sort(apInfo.begin(), apInfo.end(), [](auto& a, auto& b) {
+            return std::string(reinterpret_cast<const char*>(a.ssid)) < std::string(reinterpret_cast<const char*>(b.ssid));
+        });
+        auto last = std::unique(apInfo.begin(), apInfo.end(), [](auto& a, auto& b) { 
+            return std::string(reinterpret_cast<const char*>(a.ssid)) == std::string(reinterpret_cast<const char*>(b.ssid));
+        });
+        apInfo.erase(last, apInfo.end());
     
+        for (auto& it : apInfo) {
+            ESP_LOGI(TAG, "SSID \t\t%s", it.ssid);
+            ESP_LOGI(TAG, "RSSI \t\t%d", it.rssi);
+            ESP_LOGI(TAG, "Channel \t\t%d", it.primary);
+        }
+    }
+    
+    // Send the portal page
     if (self->_wfs) {
         self->_wfs->sendPortalPage(self);
     }
