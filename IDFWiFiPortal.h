@@ -72,7 +72,7 @@ public:
     void stopWebServer();
     void startProvisioning();
     
-    void scanNetworks(std::vector<std::string>&);
+    void scanNetworks();
     
     static void eventHandler(void* arg, esp_event_base_t, int32_t event_id, void* event_data);
     static esp_err_t provisioningGetHandler(httpd_req_t*);
@@ -90,6 +90,8 @@ public:
     struct MapValue { std::string label; uint32_t maxLength; };
     
     std::map<std::string, MapValue> _paramMap;
+    
+    std::vector<std::string> _knownNetworks;
     
     bool _isConnected = false;
     EventGroupHandle_t _eventGroup;

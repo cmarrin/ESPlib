@@ -102,8 +102,7 @@ IDFWiFiPortal::autoConnect(char const *apName, char const *apPassword)
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     
-    std::vector<std::string> networks;
-    scanNetworks(networks);
+    scanNetworks();
     
     ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT,
                                                         ESP_EVENT_ANY_ID,
@@ -406,7 +405,7 @@ IDFWiFiPortal::startProvisioning()
 }
 
 void
-IDFWiFiPortal::scanNetworks(std::vector<std::string>& list)
+IDFWiFiPortal::scanNetworks()
 {
     esp_netif_create_default_wifi_sta();
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
@@ -437,16 +436,16 @@ IDFWiFiPortal::scanNetworks(std::vector<std::string>& list)
         ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&apCount, apInfo.data()));
         
         // Copy the ssids to list
-        list.clear();
+        _knownNetworks.clear();
         for (auto& it : apInfo) {
-            list.push_back(std::string(reinterpret_cast<const char*>(it.ssid)));
+            _knownNetworks.push_back(std::string(reinterpret_cast<const char*>(it.ssid)));
         }
 
         // Get rid of duplicates
-        std::sort(list.begin(), list.end());
-        list.erase(std::unique(list.begin(), list.end()), list.end());
+        std::sort(_knownNetworks.begin(), _knownNetworks.end());
+        _knownNetworks.erase(std::unique(_knownNetworks.begin(), _knownNetworks.end()), _knownNetworks.end());
     
-        for (auto& it : list) {
+        for (auto& it : _knownNetworks) {
             ESP_LOGI(TAG, "SSID \t\t%s", it.c_str());
         }
     }
