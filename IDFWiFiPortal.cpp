@@ -149,7 +149,7 @@ IDFWiFiPortal::autoConnect(char const *apName, char const *apPassword)
                                                pdMS_TO_TICKS(30000));
 
         if (bits & WIFI_CONNECTED_BIT) {
-            startWebServer();
+            startWebPortal();
             return true;
         } 
         ESP_LOGW(TAG, "Failed to connect with stored credentials");
@@ -170,7 +170,29 @@ IDFWiFiPortal::process()
 void
 IDFWiFiPortal::startWebPortal()
 {
-    printf("*** startWebPortal not implemented\n");
+    if (_server) {
+        return;
+    }
+
+    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    config.uri_match_fn = httpd_uri_match_wildcard;
+    config.lru_purge_enable = true;
+
+    if (httpd_start(&_server, &config) == ESP_OK) {
+        httpd_uri_t root_uri = {.uri = "/", .method = HTTP_GET, .handler = provisioningGetHandler, .user_ctx = this };
+        httpd_register_uri_handler(_server, &root_uri);
+        
+        httpd_uri_t connect_uri = {.uri = "/connect", .method = HTTP_POST, .handler = connectPostHandler, .user_ctx = this };
+        httpd_register_uri_handler(_server, &connect_uri);
+        
+        httpd_uri_t reset_uri = {.uri = "/reset", .method = HTTP_GET, .handler = resetGetHandler, .user_ctx = this };
+        httpd_register_uri_handler(_server, &reset_uri);
+        
+        httpd_uri_t favicon_uri = {.uri = "/favicon.ico", .method = HTTP_GET, .handler = faviconGetHandler, .user_ctx = this };
+        httpd_register_uri_handler(_server, &favicon_uri);
+    } else {
+        ESP_LOGE(TAG, "Failed to start web server");
+    }
 }
 
 void
@@ -341,34 +363,6 @@ IDFWiFiPortal::stopWiFi()
 }
 
 void
-IDFWiFiPortal::startWebServer()
-{
-    if (_server) {
-        return;
-    }
-
-    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.uri_match_fn = httpd_uri_match_wildcard;
-    config.lru_purge_enable = true;
-
-    if (httpd_start(&_server, &config) == ESP_OK) {
-        httpd_uri_t root_uri = {.uri = "/", .method = HTTP_GET, .handler = provisioningGetHandler, .user_ctx = this };
-        httpd_register_uri_handler(_server, &root_uri);
-        
-        httpd_uri_t connect_uri = {.uri = "/connect", .method = HTTP_POST, .handler = connectPostHandler, .user_ctx = this };
-        httpd_register_uri_handler(_server, &connect_uri);
-        
-        httpd_uri_t reset_uri = {.uri = "/reset", .method = HTTP_GET, .handler = resetGetHandler, .user_ctx = this };
-        httpd_register_uri_handler(_server, &reset_uri);
-        
-        httpd_uri_t favicon_uri = {.uri = "/favicon.ico", .method = HTTP_GET, .handler = faviconGetHandler, .user_ctx = this };
-        httpd_register_uri_handler(_server, &favicon_uri);
-    } else {
-        ESP_LOGE(TAG, "Failed to start web server");
-    }
-}
-
-void
 IDFWiFiPortal::stopWebServer()
 {
     if (_server) {
@@ -401,7 +395,7 @@ IDFWiFiPortal::startProvisioning()
     esp_netif_get_ip_info(esp_netif_get_handle_from_ifkey("WIFI_AP_DEF"), &ip_info);
     ESP_LOGI(TAG, "AP started. SSID: '%s', Connect to http://" IPSTR, PROV_AP_SSID, IP2STR(&ip_info.ip));
 
-    startWebServer();
+    startWebPortal();
     
     // Don't ever return. When we get valid credentials we will reset and try again
     while (true) {
