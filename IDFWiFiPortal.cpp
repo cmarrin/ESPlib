@@ -188,7 +188,7 @@ IDFWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const char* data
     }
 
     ESP_ERROR_CHECK(httpd_resp_set_type(_activeRequest, mimetype));
-    ESP_ERROR_CHECK(httpd_resp_send(_activeRequest, data, length));
+    httpd_resp_send(_activeRequest, data, length);
 }    
 
 void
