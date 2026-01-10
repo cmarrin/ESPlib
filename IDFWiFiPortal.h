@@ -68,7 +68,7 @@ public:
 
     bool isConnected() const { return _isConnected; }
     void stopWiFi();
-    void startWebServer(bool provision);
+    void startWebServer();
     void stopWebServer();
     void startProvisioning();
     
