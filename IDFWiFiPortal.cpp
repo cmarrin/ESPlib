@@ -402,6 +402,11 @@ IDFWiFiPortal::startProvisioning()
     ESP_LOGI(TAG, "AP started. SSID: '%s', Connect to http://" IPSTR, PROV_AP_SSID, IP2STR(&ip_info.ip));
 
     startWebServer();
+    
+    // Don't ever return. When we get valid credentials we will reset and try again
+    while (true) {
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
 }
 
 void
