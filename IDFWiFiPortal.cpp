@@ -194,20 +194,11 @@ IDFWiFiPortal::startWebPortal()
     config.lru_purge_enable = true;
 
     if (httpd_start(&_server, &config) == ESP_OK) {
-        httpd_uri_t root_uri = {.uri = "/", .method = HTTP_GET, .handler = provisioningGetHandler, .user_ctx = this };
-        httpd_register_uri_handler(_server, &root_uri);
-        
-        httpd_uri_t connect_uri = {.uri = "/connect", .method = HTTP_POST, .handler = connectPostHandler, .user_ctx = this };
-        httpd_register_uri_handler(_server, &connect_uri);
-        
-        httpd_uri_t reset_uri = {.uri = "/reset", .method = HTTP_GET, .handler = resetGetHandler, .user_ctx = this };
-        httpd_register_uri_handler(_server, &reset_uri);
-        
-        httpd_uri_t getKnownNetworksURI = {.uri = "/get-known-networks", .method = HTTP_GET, .handler = getKnownNetworksHandler, .user_ctx = this };
-        httpd_register_uri_handler(_server, &getKnownNetworksURI);
-        
-        httpd_uri_t favicon_uri = {.uri = "/favicon.ico", .method = HTTP_GET, .handler = faviconGetHandler, .user_ctx = this };
-        httpd_register_uri_handler(_server, &favicon_uri);
+        WiFiPortal::addHTTPHandler("/", provisioningGetHandler);
+        WiFiPortal::addHTTPHandler("/connect", HTTPMethod::Post, connectPostHandler);
+        WiFiPortal::addHTTPHandler("/reset", resetGetHandler);
+        WiFiPortal::addHTTPHandler("/get-known-networks", getKnownNetworksHandler);
+        WiFiPortal::addHTTPHandler("/favicon.ico", faviconGetHandler);
     } else {
         ESP_LOGE(TAG, "Failed to start web server");
     }
@@ -494,31 +485,29 @@ IDFWiFiPortal::eventHandler(void* arg, esp_event_base_t eventBase, int32_t event
     }
 }
 
-esp_err_t
-IDFWiFiPortal::provisioningGetHandler(httpd_req_t *req)
+void
+IDFWiFiPortal::provisioningGetHandler(WiFiPortal* portal)
 {
-    IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(req->user_ctx);
-    self->_activeRequest = req;
-    
+    IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(portal);
+
     // Send the portal page
     if (self->_wfs) {
         self->_wfs->sendPortalPage(self);
     }
-    return ESP_OK;
 }
 
-esp_err_t
-IDFWiFiPortal::connectPostHandler(httpd_req_t *req)
+void
+IDFWiFiPortal::connectPostHandler(WiFiPortal* portal)
 {
-    IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(req->user_ctx);
+    IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(portal);
     
     char buf[128];
-    int ret = httpd_req_recv(req, buf, sizeof(buf) - 1);
+    int ret = httpd_req_recv(self->_activeRequest, buf, sizeof(buf) - 1);
     if (ret <= 0) {
         if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
-            httpd_resp_send_408(req);
+            httpd_resp_send_408(self->_activeRequest);
         }
-        return ESP_FAIL;
+        return;
     }
     buf[ret] = '\0';
 
@@ -526,8 +515,8 @@ IDFWiFiPortal::connectPostHandler(httpd_req_t *req)
     char passBuf[65] = {0};
     
     if (httpd_query_key_value(buf, "ssid", ssidBuf, sizeof(ssidBuf)) != ESP_OK) {
-        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Missing 'ssid' parameter");
-        return ESP_FAIL;
+        httpd_resp_send_err(self->_activeRequest, HTTPD_400_BAD_REQUEST, "Missing 'ssid' parameter");
+        return;
     }
     httpd_query_key_value(buf, "password", passBuf, sizeof(passBuf));
     
@@ -538,36 +527,32 @@ IDFWiFiPortal::connectPostHandler(httpd_req_t *req)
     std::string response = "<h1>Connecting to '";
     response += ssid;
     response += "'...</h1><p>If successful, the device will connect to the network. If failed, it will remain in provisioning mode.</p>";
-    httpd_resp_sendstr(req, response.c_str());
+    httpd_resp_sendstr(self->_activeRequest, response.c_str());
 
     self->setNVSParam("wifi_ssid", ssid);
     self->setNVSParam("wifi_pass", pass);
     
     vTaskDelay(pdMS_TO_TICKS(1000));
     esp_restart();
-
-    return ESP_OK;
 }
 
-esp_err_t
-IDFWiFiPortal::resetGetHandler(httpd_req_t* req)
+void
+IDFWiFiPortal::resetGetHandler(WiFiPortal* portal)
 {
-    IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(req->user_ctx);
+    IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(portal);
     
     const char* resp_str = "<h1>Credentials Cleared</h1><p>The device will restart and enter provisioning mode.</p>";
-    httpd_resp_send(req, resp_str, HTTPD_RESP_USE_STRLEN);
+    httpd_resp_send(self->_activeRequest, resp_str, HTTPD_RESP_USE_STRLEN);
     
     vTaskDelay(pdMS_TO_TICKS(1000));
     self->resetSettings();
     esp_restart();
-    
-    return ESP_OK;
 }
 
-esp_err_t
-IDFWiFiPortal::getKnownNetworksHandler(httpd_req_t* req)
+void
+IDFWiFiPortal::getKnownNetworksHandler(WiFiPortal* portal)
 {
-    IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(req->user_ctx);
+    IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(portal);
     
     std::string response;
     bool first = true;
@@ -584,15 +569,16 @@ IDFWiFiPortal::getKnownNetworksHandler(httpd_req_t* req)
         response += it.open ? "true" : "false";
     }
         
-    httpd_resp_send(req, response.c_str(), HTTPD_RESP_USE_STRLEN);
-    return ESP_OK;
+    httpd_resp_send(self->_activeRequest, response.c_str(), HTTPD_RESP_USE_STRLEN);
 }
 
-esp_err_t
-IDFWiFiPortal::faviconGetHandler(httpd_req_t *req)
+void
+IDFWiFiPortal::faviconGetHandler(WiFiPortal* portal)
 {
-    httpd_resp_set_status(req, "204 No Content");
-    return httpd_resp_send(req, NULL, 0);
+    IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(portal);
+
+    httpd_resp_set_status(self->_activeRequest, "204 No Content");
+    httpd_resp_send(self->_activeRequest, NULL, 0);
 }
 
 #endif

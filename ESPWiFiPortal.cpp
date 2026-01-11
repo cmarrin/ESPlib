@@ -75,7 +75,7 @@ ESPWiFiPortal::setShowInfoErase(bool enabled)
 }
 
 int32_t
-ESPWiFiPortal::addHTTPHandler(const char* endpoint, HandlerCB requestCB, HandlerCB uploadCB)
+ESPWiFiPortal::addHTTPHandler(const char* endpoint, HTTPMethod, HandlerCB requestCB, HandlerCB uploadCB)
 {
     _wifiManager.server->on(endpoint, HTTP_ANY, [this, requestCB]() { requestCB(this); }, [this, uploadCB]() { uploadCB(this); });
     return 0;

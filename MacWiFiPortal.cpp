@@ -60,9 +60,9 @@ MacWiFiPortal::setShowInfoErase(bool enabled)
 }
 
 int32_t
-MacWiFiPortal::addHTTPHandler(const char* endpoint, HandlerCB requestCB, HandlerCB uploadCB)
+MacWiFiPortal::addHTTPHandler(const char* endpoint, HTTPMethod method, HandlerCB requestCB, HandlerCB uploadCB)
 {
-   _server.addHTTPHandler(endpoint, [this, requestCB]() { requestCB(this); }, [this, uploadCB]() { uploadCB(this); });
+   _server.addHTTPHandler(endpoint, method, [this, requestCB]() { requestCB(this); }, [this, uploadCB]() { uploadCB(this); });
     return 0;
 }
 

@@ -31,7 +31,7 @@ public:
     virtual void setHostname(const char*) override;
     virtual void setConfigHandler(std::function<void(WiFiPortal*)>) override;
     virtual void setShowInfoErase(bool enabled) override;
-    virtual int32_t addHTTPHandler(const char* endpoint, HandlerCB requestCB, HandlerCB uploadCB = nullptr) override;
+    virtual int32_t addHTTPHandler(const char* endpoint, HTTPMethod method, HandlerCB requestCB, HandlerCB uploadCB = nullptr) override;
     virtual void serveStatic(const char *uri, const char *path) override;
     virtual bool autoConnect(char const *apName, char const *apPassword = NULL) override;
     virtual void process() override;

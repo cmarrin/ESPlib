@@ -53,7 +53,7 @@ public:
     
     void process();
     
-    int32_t addHTTPHandler(const char* endpoint, HandlerCB requestCB, HandlerCB uploadCB)
+    int32_t addHTTPHandler(const char* endpoint, WiFiPortal::HTTPMethod method, HandlerCB requestCB, HandlerCB uploadCB)
     {
         _handlers.emplace_back(endpoint, "", requestCB, uploadCB, false);
         return int32_t(_handlers.size());
