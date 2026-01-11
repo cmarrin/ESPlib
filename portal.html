@@ -230,10 +230,11 @@
 
     <script>
         const knownNetworks = document.getElementById('known-networks');
+        const ssidInput = document.getElementById('ssid');
 
         function selectItem(event)
         {
-            alert("Clicked on '" + event.textContent + "'");
+            ssidInput.value = event.textContent;
         }
         
         function createItemElement(item)
