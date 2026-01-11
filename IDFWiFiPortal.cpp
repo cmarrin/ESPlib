@@ -425,7 +425,7 @@ IDFWiFiPortal::scanNetworks()
         // Copy the ssids to list
         _knownNetworks.clear();
         for (auto& it : apInfo) {
-            _knownNetworks.push_back(std::string(reinterpret_cast<const char*>(it.ssid)));
+            _knownNetworks.push_back({ std::string(reinterpret_cast<const char*>(it.ssid)), it.rssi, it.authmode == WIFI_AUTH_OPEN });
         }
 
         // Get rid of duplicates
@@ -433,8 +433,20 @@ IDFWiFiPortal::scanNetworks()
         _knownNetworks.erase(std::unique(_knownNetworks.begin(), _knownNetworks.end()), _knownNetworks.end());
     
         for (auto& it : _knownNetworks) {
-            ESP_LOGI(TAG, "SSID \t\t%s", it.c_str());
+            ESP_LOGI(TAG, "********** ssid='%s', rssi=%d, open=%s", it.ssid.c_str(), int(it.rssi), it.open ? "true" : "false");
         }
+        
+        // Note: RSSI values are in dbM, from -100 to 10. Icon values should be:
+        //  -55 or higher   : 4 bars
+        //  -56 to -66      : 3 bars
+        //  -67 to -77      : 2 bars
+        //  -78 to -88      : 1 bar
+        //  -89 or lower    : 0 bars
+
+        //  -70 or higher   : 4 bars
+        //  -71 to -80      : 3 bars
+        //  -81 to -90      : 2 bars
+        //  -91 or lower    : 1 bars
     }
 }
 

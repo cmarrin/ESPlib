@@ -90,7 +90,15 @@ public:
     
     std::map<std::string, MapValue> _paramMap;
     
-    std::vector<std::string> _knownNetworks;
+    struct KnownNetwork
+    {
+        bool operator==(const KnownNetwork& other) const { return ssid == other.ssid; }
+        bool operator<(const KnownNetwork& other) const { return ssid < other.ssid; }
+        std::string ssid; 
+        int8_t rssi; 
+        bool open;
+    };
+    std::vector<KnownNetwork> _knownNetworks;
     
     bool _isConnected = false;
     EventGroupHandle_t _eventGroup;
