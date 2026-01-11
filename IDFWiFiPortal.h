@@ -74,11 +74,11 @@ public:
     void scanNetworks();
     
     static void eventHandler(void* arg, esp_event_base_t, int32_t event_id, void* event_data);
-    static esp_err_t provisioningGetHandler(httpd_req_t*);
-    static esp_err_t connectPostHandler(httpd_req_t*);
-    static esp_err_t resetGetHandler(httpd_req_t*);
-    static esp_err_t getKnownNetworksHandler(httpd_req_t*);
-    static esp_err_t faviconGetHandler(httpd_req_t*);
+    static void provisioningGetHandler(WiFiPortal*);
+    static void connectPostHandler(WiFiPortal*);
+    static void resetGetHandler(WiFiPortal*);
+    static void getKnownNetworksHandler(WiFiPortal*);
+    static void faviconGetHandler(WiFiPortal*);
 
     // Params are stored in nvs memory, but also need to be presented to the user in the web page.
     // So we store a list here with the label to display and the max length. The key for each entry
