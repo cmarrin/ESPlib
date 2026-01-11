@@ -69,6 +69,13 @@
             margin-bottom: 1.5rem;
             font-weight: 600;
         }
+        h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            font-weight: 300;
+            text-align: left;
+        }
 
         <!-- /** @brief Form layout styling. */ -->
         form {
@@ -125,6 +132,27 @@
         .btn:hover {
             background-color: var(--primary-color-dark);
         }
+        
+        .known-networks {
+            text-align:left;
+        }
+        
+        .known-network {
+            text-align:left;
+            height:30px;
+
+        }
+        
+        .ssid {
+            display:inline;
+            float:left;
+            width:300px;
+        }
+
+        .lock {
+            display:inline;
+            float:right;
+        }
 
         <!-- /** @brief Responsive design adjustments for small screens. */ -->
         @media (max-width: 480px) {
@@ -136,6 +164,30 @@
                 font-size: 1.5rem;
             }
         }
+
+        .wave {
+            display: inline-block;
+            border: 2px solid transparent;
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            border-style: solid;
+            margin:2px;
+        }
+        
+        .wifi {
+            width:50px;
+            height:50px;
+            display:inline;
+        }
+  
+        .wifi-3 .wv4.wave,
+        .wifi-2 .wv4.wave,
+        .wifi-2 .wv3.wave,
+        .wifi-1 .wv4.wave,
+        .wifi-1 .wv3.wave,
+        .wifi-1 .wv2.wave {
+            border-top-color: #bbb;
+        }  
     </style>
 </head>
 <body>
@@ -143,6 +195,15 @@
     <div class="container">
         <!-- /** @brief Page heading for WiFi configuration. */ -->
         <h1>WiFi Configuration</h1>
+        <!--
+            List of known networks
+        -->
+        <h2>Known Networks</h2>
+        <hr>
+        <div id="known-networks" class="known-networks">
+        </div>
+        <hr>
+        <br/>
         <!-- /** 
          * @brief Form for submitting WiFi credentials.
          * @details Submits SSID and password to the /connect endpoint via POST.
@@ -166,5 +227,56 @@
             <button type="submit" class="btn">Connect</button>
         </form>
     </div>
+
+    <script>
+        const knownNetworks = document.getElementById('known-networks');
+
+        function selectItem(event)
+        {
+            alert("Clicked on '" + event.textContent + "'");
+        }
+        
+        function createItemElement(item)
+        {
+            const itemElement = document.createElement('div');
+            itemElement.classList.add('known-network');
+            
+            const nameElement = document.createElement('a');
+            nameElement.classList.add('ssid');
+            nameElement.href = "#p";
+            nameElement.addEventListener('click', (event) => selectItem(event.currentTarget));
+            nameElement.innerHTML = item.ssid;
+            itemElement.appendChild(nameElement);
+
+            const strengthElement = document.createElement('div');
+            strengthElement.classList.add('wifi');
+            
+            let strength = "wifi-1";
+            if (item.rssi > -60) {
+                strength = "wifi-4";
+            } else if (item.rssi > -70) {
+                strength = "wifi-3";
+            } else if (item.rssi > -80) {
+                strength = "wifi-2";
+            }
+            strengthElement.classList.add(strength);
+            strengthElement.innerHTML = "<div class='wv4 wave'><div class='wv3 wave'><div class='wv2 wave'><div style='padding:4px;' class='wv1 wave'></div></div></div></div>";
+            itemElement.appendChild(strengthElement);
+
+            if (!item.open) {
+                const lockElement = document.createElement('div');
+                lockElement.classList.add('lock');
+                lockElement.textContent = "🔒";
+                itemElement.appendChild(lockElement);
+           }
+
+            return itemElement;
+        }
+        
+        // Test
+        knownNetworks.appendChild(createItemElement({ ssid:"network1", rssi:-50, lock:true }));
+        knownNetworks.appendChild(createItemElement({ ssid:"network123", rssi:-65, lock:false }));
+        knownNetworks.appendChild(createItemElement({ ssid:"network45", rssi:-85, lock:true }));
+    </script>
 </body>
 </html>
