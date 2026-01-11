@@ -115,6 +115,27 @@ public:
     
     // During an active request this has a valid pointer. Otherwise it is null
     httpd_req_t* _activeRequest = nullptr;
+    
+    // httpd_register_uri_handler is a c function which takes a function pointer
+    // to a handler function. Since addHTTPHandler is a c++ call it takes a 
+    // HandlerCB std::function. So we need a container to hold it that can be 
+    // passed to httpd_register_uri_handler as the user_ctx pointer. Then we need 
+    // a c function that we can pass to httpd_register_uri_handler that will use
+    // user_ctx to call the HandlerCB. The problem is we need to allocate this
+    // container, so ownership is the issue. We will say that 
+    // httpd_register_uri_handler owns it and it will live until 
+    // httpd_unregister_uri_handler is called. But since WiFiPortal doesn' support
+    // unregistering of handles we won't worry about that yet and the container
+    // will live forever
+    
+    struct HandlerThunk
+    {
+        HandlerThunk(HandlerCB handler, WiFiPortal* portal) : _handler(handler), _portal(portal) { }
+        HandlerCB _handler;
+        WiFiPortal* _portal;
+    };
+    
+    static esp_err_t thunkHandler(httpd_req_t*);
 };
 
 }

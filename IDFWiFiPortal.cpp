@@ -82,10 +82,25 @@ IDFWiFiPortal::setShowInfoErase(bool enabled)
 {
 }
 
-int32_t
-IDFWiFiPortal::addHTTPHandler(const char* endpoint, HandlerCB requestCB, HandlerCB uploadCB)
+esp_err_t
+IDFWiFiPortal::thunkHandler(httpd_req_t* req)
 {
-    printf("*** addHTTPHandler not implemented\n");
+    HandlerThunk* thunk = reinterpret_cast<HandlerThunk*>(req->user_ctx);
+    reinterpret_cast<IDFWiFiPortal*>(thunk->_portal)->_activeRequest = req;
+    thunk->_handler(thunk->_portal);
+    return ESP_OK;
+}
+
+int32_t
+IDFWiFiPortal::addHTTPHandler(const char* endpoint, HTTPMethod method, HandlerCB requestCB, HandlerCB uploadCB)
+{
+    httpd_uri_t uri = {
+        .uri = endpoint,
+        .method = (method == HTTPMethod::Put) ? HTTP_PUT : ((method == HTTPMethod::Post) ? HTTP_POST : HTTP_GET),
+        .handler = thunkHandler,
+        .user_ctx = new HandlerThunk(requestCB, this)
+    };
+    httpd_register_uri_handler(_server, &uri);
     return 0;
 }
 
