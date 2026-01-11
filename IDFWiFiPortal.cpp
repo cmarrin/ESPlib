@@ -188,6 +188,9 @@ IDFWiFiPortal::startWebPortal()
         httpd_uri_t reset_uri = {.uri = "/reset", .method = HTTP_GET, .handler = resetGetHandler, .user_ctx = this };
         httpd_register_uri_handler(_server, &reset_uri);
         
+        httpd_uri_t getKnownNetworksURI = {.uri = "/get-known-networks", .method = HTTP_GET, .handler = getKnownNetworksHandler, .user_ctx = this };
+        httpd_register_uri_handler(_server, &getKnownNetworksURI);
+        
         httpd_uri_t favicon_uri = {.uri = "/favicon.ico", .method = HTTP_GET, .handler = faviconGetHandler, .user_ctx = this };
         httpd_register_uri_handler(_server, &favicon_uri);
     } else {
@@ -543,6 +546,30 @@ IDFWiFiPortal::resetGetHandler(httpd_req_t* req)
     self->resetSettings();
     esp_restart();
     
+    return ESP_OK;
+}
+
+esp_err_t
+IDFWiFiPortal::getKnownNetworksHandler(httpd_req_t* req)
+{
+    IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(req->user_ctx);
+    
+    std::string response;
+    bool first = true;
+    
+    for (const auto& it : self->_knownNetworks) {
+        if (!first) {
+            response += ":";
+        } else {
+            first = false;
+        }
+        
+        response += it.ssid + ",";
+        response += std::to_string(it.rssi) + ",";
+        response += it.open ? "true" : "false";
+    }
+        
+    httpd_resp_send(req, response.c_str(), HTTPD_RESP_USE_STRLEN);
     return ESP_OK;
 }
 

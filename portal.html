@@ -251,19 +251,20 @@
             const strengthElement = document.createElement('div');
             strengthElement.classList.add('wifi');
             
+            const rssi = parseInt(item.rssi);
             let strength = "wifi-1";
-            if (item.rssi > -60) {
+            if (rssi > -60) {
                 strength = "wifi-4";
-            } else if (item.rssi > -70) {
+            } else if (rssi > -70) {
                 strength = "wifi-3";
-            } else if (item.rssi > -80) {
+            } else if (rssi > -80) {
                 strength = "wifi-2";
             }
             strengthElement.classList.add(strength);
             strengthElement.innerHTML = "<div class='wv4 wave'><div class='wv3 wave'><div class='wv2 wave'><div style='padding:4px;' class='wv1 wave'></div></div></div></div>";
             itemElement.appendChild(strengthElement);
 
-            if (!item.open) {
+            if (item.open != "true") {
                 const lockElement = document.createElement('div');
                 lockElement.classList.add('lock');
                 lockElement.textContent = "🔒";
@@ -272,11 +273,36 @@
 
             return itemElement;
         }
+
+        // Known networks format is:
+        //      {<ssid>,<rssi>,<open (boolean)>:}
+        //
+        function parseData(data)
+        {
+            if (data.length == 0) {
+                return [ ];
+            }
+            const items = data.split(':').map(item => {
+                const [ssid, rssi, open] = item.split(',');
+                return { ssid, rssi, open };
+            });
+            return items;
+        }
+        function fetchKnownNetworks(path)
+        {
+            fetch(`/get-known-networks`)
+                .then(response => response.text())
+                .then(data => {
+                    const items = parseData(data);
+                    items.forEach(item => {
+                        const itemElement = createItemElement(item);
+                        knownNetworks.appendChild(itemElement);
+                });
+                })
+                .catch(error => console.error('Error fetching known networks:', error));
+        }
         
-        // Test
-        knownNetworks.appendChild(createItemElement({ ssid:"network1", rssi:-50, lock:true }));
-        knownNetworks.appendChild(createItemElement({ ssid:"network123", rssi:-65, lock:false }));
-        knownNetworks.appendChild(createItemElement({ ssid:"network45", rssi:-85, lock:true }));
+        fetchKnownNetworks();
     </script>
 </body>
 </html>

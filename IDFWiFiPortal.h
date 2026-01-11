@@ -77,6 +77,7 @@ public:
     static esp_err_t provisioningGetHandler(httpd_req_t*);
     static esp_err_t connectPostHandler(httpd_req_t*);
     static esp_err_t resetGetHandler(httpd_req_t*);
+    static esp_err_t getKnownNetworksHandler(httpd_req_t*);
     static esp_err_t faviconGetHandler(httpd_req_t*);
 
     // Params are stored in nvs memory, but also need to be presented to the user in the web page.
