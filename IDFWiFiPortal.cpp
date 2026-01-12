@@ -251,7 +251,12 @@ IDFWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const char* data
     }
 
     assert(_activeRequest);
+
     ESP_ERROR_CHECK(httpd_resp_set_type(_activeRequest, mimetype));
+    ESP_ERROR_CHECK(httpd_resp_set_hdr(_activeRequest, "Content-Length", std::to_string(length).c_str()));
+    if (gzip) {
+        ESP_ERROR_CHECK(httpd_resp_set_hdr(_activeRequest, "Content-Encoding", "gzip"));
+    }
     httpd_resp_send(_activeRequest, data, length);
 }    
 

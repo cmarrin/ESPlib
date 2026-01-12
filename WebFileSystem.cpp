@@ -15,7 +15,9 @@ All rights reserved.
 
 using namespace mil;
 
-//#define USE_GZIP_HTML
+// There are a couple of bare "const"
+
+#define USE_GZIP_HTML
 #ifdef USE_GZIP_HTML
 #define HTML_IS_GZIP true
 const 
