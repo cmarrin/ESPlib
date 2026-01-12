@@ -444,16 +444,6 @@ IDFWiFiPortal::startProvisioning()
     startWebPortal();
 
     // Start the DNS server that will redirect all queries to the softAP IP
-    
-    
-    #define DNS_SERVER_CONFIG_SINGLE(queried_name, netif_key)  {        \
-        .num_of_entries = 1,                                        \
-        .item = { { .name = queried_name, .if_key = netif_key } }   \
-        }
-
-
-
-
     dns_server_config_t config = {
         .num_of_entries = 1,
         .item = {
