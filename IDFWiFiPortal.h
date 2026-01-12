@@ -18,7 +18,8 @@ All rights reserved.
 #include <esp_log.h>
 #include <esp_wifi.h>
 #include <esp_event.h>
-#include <esp_netif.h>              
+#include <esp_netif.h>
+#include <lwip/inet.h>
 #include <esp_http_server.h>        
 
 #include <nvs_flash.h>
@@ -73,7 +74,7 @@ public:
     
     void scanNetworks();
     
-    static void eventHandler(void* arg, esp_event_base_t, int32_t event_id, void* event_data);
+    static void eventHandler(void* arg, esp_event_base_t, int32_t eventId, void* eventData);
     static void provisioningGetHandler(WiFiPortal*);
     static void connectPostHandler(WiFiPortal*);
     static void resetGetHandler(WiFiPortal*);

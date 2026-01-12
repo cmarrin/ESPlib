@@ -13,12 +13,14 @@ All rights reserved.
 
 #include "WebFileSystem.h"
 
+#include "dns_server.h"
+
 using namespace mil;
 
 static const char* TAG = "WiFiPortal";
 static const char* PROV_AP_SSID = "ESP32-Provisioning";
 static const char* PROV_AP_PASS = "password123";
-static constexpr uint32_t PROV_AP_MAX_CONN = 1;
+static constexpr uint32_t PROV_AP_MAX_CONN = 4;
 
 void
 IDFWiFiPortal::begin(WebFileSystem* wfs)
@@ -36,6 +38,10 @@ IDFWiFiPortal::begin(WebFileSystem* wfs)
     }
     
     _eventGroup = xEventGroupCreate();
+
+    esp_log_level_set("httpd_uri", ESP_LOG_ERROR);
+    esp_log_level_set("httpd_txrx", ESP_LOG_ERROR);
+    esp_log_level_set("httpd_parse", ESP_LOG_ERROR);
 }
 
 void
@@ -182,6 +188,20 @@ IDFWiFiPortal::process()
 {
 }
 
+// HTTP Error (404) Handler - Redirects all requests to the root page
+static esp_err_t http404ErrorHandler(httpd_req_t *req, httpd_err_code_t err)
+{
+    // Set status
+    httpd_resp_set_status(req, "302 Temporary Redirect");
+    // Redirect to the "/" root directory
+    httpd_resp_set_hdr(req, "Location", "/");
+    // iOS requires content in the response to detect a captive portal, simply redirecting is not sufficient.
+    httpd_resp_send(req, "Redirect to the captive portal", HTTPD_RESP_USE_STRLEN);
+
+    ESP_LOGI(TAG, "Redirecting to root");
+    return ESP_OK;
+}
+
 void
 IDFWiFiPortal::startWebPortal()
 {
@@ -200,6 +220,9 @@ IDFWiFiPortal::startWebPortal()
         WiFiPortal::addHTTPHandler("/reset", resetGetHandler);
         WiFiPortal::addHTTPHandler("/get-known-networks", getKnownNetworksHandler);
         WiFiPortal::addHTTPHandler("/favicon.ico", faviconGetHandler);
+
+        // This is to redirect 404 to serve the root page
+        httpd_register_err_handler(_server, HTTPD_404_NOT_FOUND, http404ErrorHandler);
     } else {
         ESP_LOGE(TAG, "Failed to start web server");
     }
@@ -219,6 +242,7 @@ IDFWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const char* data
         return;
     }
 
+    assert(_activeRequest);
     ESP_ERROR_CHECK(httpd_resp_set_type(_activeRequest, mimetype));
     httpd_resp_send(_activeRequest, data, length);
 }    
@@ -381,6 +405,31 @@ IDFWiFiPortal::stopWebServer()
     }
 }
 
+static void dhcpSetCaptivePortalURL()
+{
+    // get the IP of the access point to redirect to
+    esp_netif_ip_info_t ip_info;
+    esp_netif_get_ip_info(esp_netif_get_handle_from_ifkey("WIFI_AP_DEF"), &ip_info);
+
+    char ip_addr[16];
+    inet_ntoa_r(ip_info.ip.addr, ip_addr, 16);
+    ESP_LOGI(TAG, "Set up softAP with IP: %s", ip_addr);
+
+    // turn the IP into a URI
+    char* captiveportal_uri = (char*) malloc(32 * sizeof(char));
+    assert(captiveportal_uri && "Failed to allocate captiveportal_uri");
+    strcpy(captiveportal_uri, "http://");
+    strcat(captiveportal_uri, ip_addr);
+
+    // get a handle to configure DHCP with
+    esp_netif_t* netif = esp_netif_get_handle_from_ifkey("WIFI_AP_DEF");
+
+    // set the DHCP option 114
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_netif_dhcps_stop(netif));
+    ESP_ERROR_CHECK(esp_netif_dhcps_option(netif, ESP_NETIF_OP_SET, ESP_NETIF_CAPTIVEPORTAL_URI, captiveportal_uri, strlen(captiveportal_uri)));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_netif_dhcps_start(netif));
+}
+
 void
 IDFWiFiPortal::startProvisioning()
 {
@@ -405,8 +454,33 @@ IDFWiFiPortal::startProvisioning()
     esp_netif_get_ip_info(esp_netif_get_handle_from_ifkey("WIFI_AP_DEF"), &ip_info);
     ESP_LOGI(TAG, "AP started. SSID: '%s', Connect to http://" IPSTR, PROV_AP_SSID, IP2STR(&ip_info.ip));
 
+    dhcpSetCaptivePortalURL();
+
     startWebPortal();
+
+    // Start the DNS server that will redirect all queries to the softAP IP
     
+    
+    #define DNS_SERVER_CONFIG_SINGLE(queried_name, netif_key)  {        \
+        .num_of_entries = 1,                                        \
+        .item = { { .name = queried_name, .if_key = netif_key } }   \
+        }
+
+
+
+
+    dns_server_config_t config = {
+        .num_of_entries = 1,
+        .item = {
+            { 
+                .name = "*",    
+                .if_key = "WIFI_AP_DEF",
+                .ip = 0
+            }
+        }
+    };
+    start_dns_server(&config);
+
     // Don't ever return. When we get valid credentials we will reset and try again
     while (true) {
         vTaskDelay(pdMS_TO_TICKS(100));
