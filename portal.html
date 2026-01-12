@@ -22,13 +22,28 @@
         :root {
             --primary-color: #007bff;
             --primary-color-hover: #0056b3;
-            --bg-color: #f8f9fa;
+            --bg-color: #ccc;
             --text-color: #212529;
-            --card-bg: #ffffff;
+            --card-bg: #ddd;
             --border-color: #dee2e6;
             --border-radius: 8px;
             --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
             --transition-speed: 0.3s;
+        }
+
+        /* Dark mode */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary-color: #007bff;
+                --primary-color-hover: #0056b3;
+                --bg-color: #1a1a1a;
+                --text-color: #ffffff;
+                --card-bg: #2a2a2a;
+                --border-color: #dee2e6;
+                --border-radius: 8px;
+                --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+                --transition-speed: 0.3s;
+            }
         }
         
         a:link      { color: var(--primary-color); }
@@ -104,6 +119,7 @@
         <!-- /** @brief Styling for text and password input fields. */ -->
         input[type="text"],
         input[type="password"] {
+            background-color:#eee;
             width: 100%;
             padding: 0.85rem;
             border: 1px solid var(--border-color);
