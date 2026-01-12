@@ -18,14 +18,18 @@ using namespace mil;
 //#define USE_GZIP_HTML
 #ifdef USE_GZIP_HTML
 #define HTML_IS_GZIP true
+const 
 #include "portal.gz.h"
+const 
 #include "filemgr.gz.h"
 #define FILEMGR_NAME filemgr_html_gz
 #define FILEMGR_LEN_NAME filemgr_html_gz_len
 #define PORTAL_NAME portal_html_gz
 #define PORTAL_LEN_NAME portal_html_gz_len
 #else
+const 
 #include "filemgr.h"
+const 
 #include "portal.h"
 #define HTML_IS_GZIP false
 #define FILEMGR_NAME filemgr_html
