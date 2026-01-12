@@ -21,7 +21,7 @@
         <!-- /** @brief CSS variables for theming and maintenance. */ -->
         :root {
             --primary-color: #007bff;
-            --primary-color-dark: #0056b3;
+            --primary-color-hover: #0056b3;
             --bg-color: #f8f9fa;
             --text-color: #212529;
             --card-bg: #ffffff;
@@ -30,6 +30,11 @@
             --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
             --transition-speed: 0.3s;
         }
+        
+        a:link      { color: var(--primary-color); }
+        a:visited   { color: var(--primary-color); }
+        a:hover     { color: var(--primary-color-hover); }
+        a:active    { color: var(--primary-color); }
 
         <!-- /** @brief General body and layout styling. */ -->
         body {
@@ -130,7 +135,7 @@
 
         <!-- /** @brief Hover effect for the button. */ -->
         .btn:hover {
-            background-color: var(--primary-color-dark);
+            background-color: var(--primary-color-hover);
         }
         
         .known-networks {
