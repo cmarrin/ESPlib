@@ -142,8 +142,6 @@ IDFWiFiPortal::autoConnect(char const *apName, char const *apPassword)
     if (!_ssid.empty()) {
         // Connect to WiFi
         ESP_LOGI(TAG, "Found credentials, connecting to '%s'", _ssid.c_str());
-
-        stopWiFi();
         
         esp_netif_create_default_wifi_sta();
         wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
@@ -379,32 +377,6 @@ IDFWiFiPortal::eraseNVSParam(const char* id)
     nvs_close(paramHandle);
 }
 
-void
-IDFWiFiPortal::stopWiFi()
-{
-    stopWebServer();
-    esp_wifi_stop();
-    esp_wifi_deinit();
-    
-    esp_netif_t* netif_sta = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
-    if (netif_sta) {
-        esp_netif_destroy(netif_sta);
-    }
-    esp_netif_t* netif_ap = esp_netif_get_handle_from_ifkey("WIFI_AP_DEF");
-    if (netif_ap) {
-        esp_netif_destroy(netif_ap);
-    }
-}
-
-void
-IDFWiFiPortal::stopWebServer()
-{
-    if (_server) {
-        httpd_stop(_server);
-        _server = nullptr;
-    }
-}
-
 static void dhcpSetCaptivePortalURL()
 {
     // get the IP of the access point to redirect to
@@ -433,8 +405,6 @@ static void dhcpSetCaptivePortalURL()
 void
 IDFWiFiPortal::startProvisioning()
 {
-    stopWiFi();
-
     esp_netif_create_default_wifi_ap();
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
@@ -519,18 +489,19 @@ IDFWiFiPortal::scanNetworks()
         for (auto& it : _knownNetworks) {
             ESP_LOGI(TAG, "********** ssid='%s', rssi=%d, open=%s", it.ssid.c_str(), int(it.rssi), it.open ? "true" : "false");
         }
-        
-        // Note: RSSI values are in dbM, from -100 to 10. Icon values should be:
-        //  -55 or higher   : 4 bars
-        //  -56 to -66      : 3 bars
-        //  -67 to -77      : 2 bars
-        //  -78 to -88      : 1 bar
-        //  -89 or lower    : 0 bars
-
-        //  -70 or higher   : 4 bars
-        //  -71 to -80      : 3 bars
-        //  -81 to -90      : 2 bars
-        //  -91 or lower    : 1 bars
+    }
+    
+    // Shut down WiFi so the STA or AP can start it up again
+    esp_wifi_stop();
+    esp_wifi_deinit();
+    
+    esp_netif_t* netif_sta = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+    if (netif_sta) {
+        esp_netif_destroy(netif_sta);
+    }
+    esp_netif_t* netif_ap = esp_netif_get_handle_from_ifkey("WIFI_AP_DEF");
+    if (netif_ap) {
+        esp_netif_destroy(netif_ap);
     }
 }
 

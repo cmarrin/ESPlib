@@ -68,8 +68,6 @@ public:
     static constexpr EventBits_t WIFI_FAIL_BIT = BIT1;
 
     bool isConnected() const { return _isConnected; }
-    void stopWiFi();
-    void stopWebServer();
     void startProvisioning();
     
     void scanNetworks();
