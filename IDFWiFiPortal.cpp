@@ -14,6 +14,7 @@ All rights reserved.
 #include "WebFileSystem.h"
 
 #include "dns_server.h"
+#include "mdns.h"
 
 using namespace mil;
 
@@ -74,7 +75,7 @@ IDFWiFiPortal::setCustomMenuHTML(const char* html)
 void
 IDFWiFiPortal::setHostname(const char* name)
 {
-    printf("*** setHostname not implemented\n");
+    _hostname = name;
 }
 
 void
@@ -143,7 +144,16 @@ IDFWiFiPortal::autoConnect(char const *apName, char const *apPassword)
         // Connect to WiFi
         ESP_LOGI(TAG, "Found credentials, connecting to '%s'", _ssid.c_str());
         
-        esp_netif_create_default_wifi_sta();
+        esp_netif_t *netif = esp_netif_create_default_wifi_sta();
+        if (!_hostname.empty()) {
+            ESP_LOGI(TAG, "Setting hostname to '%s'", _hostname.c_str());
+            esp_netif_set_hostname(netif, _hostname.c_str());
+
+            ESP_ERROR_CHECK(mdns_init());
+            ESP_LOGI(TAG, "Setting mdns hostname to '%s'", _hostname.c_str());
+            ESP_ERROR_CHECK(mdns_hostname_set(_hostname.c_str()));
+        }
+        
         wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
         ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 

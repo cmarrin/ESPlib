@@ -107,6 +107,7 @@ public:
     std::string _currentIP;
     std::string _ssid;
     std::string _pass;
+    std::string _hostname;
     
     WebFileSystem* _wfs = nullptr;
     
