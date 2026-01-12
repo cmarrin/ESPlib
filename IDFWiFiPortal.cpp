@@ -239,7 +239,7 @@ IDFWiFiPortal::startWebPortal()
 void
 IDFWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const char* data)
 {
-    printf("*** sendHTTPResponse (1) not implemented\n");
+    sendHTTPResponse(code, mimetype, data, strlen(data), false);
 }
 
 void
