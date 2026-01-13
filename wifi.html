@@ -322,6 +322,7 @@
         function fetchKnownNetworks(path)
         {
             fetch(`/get-known-networks`)
+            fetch(`/get-wifi-setup`)
                 .then(response => response.text())
                 .then(data => {
                     const items = parseData(data);

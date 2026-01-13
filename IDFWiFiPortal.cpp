@@ -464,7 +464,7 @@ IDFWiFiPortal::startWebServer(bool provision)
         }
         WiFiPortal::addHTTPHandler("/connect", HTTPMethod::Post, connectPostHandler);
         WiFiPortal::addHTTPHandler("/reset", resetGetHandler);
-        WiFiPortal::addHTTPHandler("/get-known-networks", getKnownNetworksHandler);
+        WiFiPortal::addHTTPHandler("/get-wifi-setup", getWifiSetupHandler);
         WiFiPortal::addHTTPHandler("/favicon.ico", faviconGetHandler);
 
         // This is to redirect 404 to serve the root page
@@ -641,7 +641,7 @@ IDFWiFiPortal::resetGetHandler(WiFiPortal* portal)
 }
 
 void
-IDFWiFiPortal::getKnownNetworksHandler(WiFiPortal* portal)
+IDFWiFiPortal::getWifiSetupHandler(WiFiPortal* portal)
 {
     IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(portal);
     
