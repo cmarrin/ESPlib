@@ -610,7 +610,6 @@ IDFWiFiPortal::connectPostHandler(WiFiPortal* portal)
     self->setNVSParam("wifi_ssid", ssid);
     self->setNVSParam("wifi_pass", pass);
 
-printf("********** saved hostname as '%s'\n", hostname.c_str());
     self->setNVSParam("hostname", hostname);
 
     vTaskDelay(pdMS_TO_TICKS(1000));
