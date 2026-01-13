@@ -24,6 +24,7 @@ ESPWiFiPortal::begin(WebFileSystem*)
 {
     _prefs.begin("ESPLib");
     _wifiManager.setDebugOutput(true);
+    _wifiManager.setMenu({ "custom", "wifi", "info", "restart", "sep", "update" });
 }
 
 void
@@ -36,12 +37,6 @@ void
 ESPWiFiPortal::setTitle(const char* title)
 {
     _wifiManager.setTitle(title);
-}
-
-void
-ESPWiFiPortal::setMenu(std::vector<const char*>& menu)
-{
-    _wifiManager.setMenu(menu);
 }
 
 void

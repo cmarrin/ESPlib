@@ -49,9 +49,6 @@ Application::startNetwork()
 	_blinker.setRate(ConnectingRate);
     addParam("hostname", "Hostname", "esp32",  MaxHostnameLength);
     
-    std::vector<const char *> menu = { "custom", "wifi", "info", "restart", "sep", "update" };
-    _portal->setMenu(menu);
-    
     std::string hostname;
     if (getParamValue("hostname", hostname)) {
         _portal->setHostname(hostname.c_str());

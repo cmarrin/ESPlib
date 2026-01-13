@@ -58,11 +58,6 @@ IDFWiFiPortal::setTitle(const char* title)
 }
 
 void
-IDFWiFiPortal::setMenu(std::vector<const char*>& menu)
-{
-}
-
-void
 IDFWiFiPortal::setDarkMode(bool b)
 {
 }

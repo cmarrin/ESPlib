@@ -66,23 +66,6 @@ public:
     // Set the title to be shown at the top of the front web page
     virtual void setTitle(const char* title) { }
 
-    // This sets a list of info to be shown on the front page of the web portal, Some 
-    // values show buttons to other pages, some show custom information. Currently
-    // supported values:
-    //
-    //      "wifi"      - Show a button to the WiFi settings page
-    //      "info"      - Show a button to a page with general system info
-    //      "restart"   - Show a button which restarts the system
-    //      "update"    - Show a button which allows an OTA update to be started
-    //      "sep"       - Show a single line separator
-    //      "custom"    - Show custom HTML, set with a call to setCustomMenuHTML
-    //
-    // Limitations:
-    //      - Only one "custom" section is supported
-    //      - All params set with addParam are shown on the Wifi settings page
-    
-    virtual void setMenu(std::vector<const char*>& menu) { }
-
     // Select the dark or light mode style sheet for the web pages
     virtual void setDarkMode(bool) { }
     

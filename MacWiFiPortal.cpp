@@ -30,11 +30,6 @@ MacWiFiPortal::setTitle(const char* title)
 }
 
 void
-MacWiFiPortal::setMenu(std::vector<const char*>& menu)
-{
-}
-
-void
 MacWiFiPortal::setDarkMode(bool)
 {
 }
