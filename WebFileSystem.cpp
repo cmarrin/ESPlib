@@ -17,28 +17,28 @@ using namespace mil;
 
 // There are a couple of bare "const"
 
-#define USE_GZIP_HTML
+//#define USE_GZIP_HTML
 #ifdef USE_GZIP_HTML
 #define HTML_IS_GZIP true
 const 
-#include "portal.gz.h"
+#include "wifi.gz.h"
 const 
 #include "filemgr.gz.h"
 #define FILEMGR_NAME filemgr_html_gz
 #define FILEMGR_LEN_NAME filemgr_html_gz_len
-#define PORTAL_NAME portal_html_gz
-#define PORTAL_LEN_NAME portal_html_gz_len
+#define WIFI_NAME wifi_html_gz
+#define WIFI_LEN_NAME wifi_html_gz_len
 #else
 const 
 #include "filemgr.h"
 const 
-#include "portal.h"
+#include "wifi.h"
 #define HTML_IS_GZIP false
 #define FILEMGR_NAME filemgr_html
 #define FILEMGR_LEN_NAME filemgr_html_len
 #define FILEMGR_IS_GZIP false
-#define PORTAL_NAME portal_html
-#define PORTAL_LEN_NAME portal_html_len
+#define WIFI_NAME wifi_html
+#define WIFI_LEN_NAME wifi_html_len
 #endif
 
 #ifndef ARDUINO
@@ -164,7 +164,7 @@ WebFileSystem::prepareFile(WiFiPortal* p, std::string& path)
 void
 WebFileSystem::sendPortalPage(WiFiPortal* portal)
 {
-    portal->sendHTTPResponse(200, "text/html", reinterpret_cast<const char*>(PORTAL_NAME), PORTAL_LEN_NAME, HTML_IS_GZIP);
+    portal->sendHTTPResponse(200, "text/html", reinterpret_cast<const char*>(WIFI_NAME), WIFI_LEN_NAME, HTML_IS_GZIP);
 }
 
 bool

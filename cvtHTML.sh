@@ -5,4 +5,4 @@ cvt() {
 	xxd -n $1_html_gz -i $1.html.gz $1.gz.h
 }
 cvt "filemgr"
-cvt "portal"
+cvt "wifi"
