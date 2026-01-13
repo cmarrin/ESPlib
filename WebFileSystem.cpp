@@ -17,7 +17,7 @@ using namespace mil;
 
 // There are a couple of bare "const"
 
-//#define USE_GZIP_HTML
+#define USE_GZIP_HTML
 #ifdef USE_GZIP_HTML
 #define HTML_IS_GZIP true
 const 
