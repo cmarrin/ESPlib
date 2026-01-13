@@ -577,15 +577,30 @@ IDFWiFiPortal::connectPostHandler(WiFiPortal* portal)
     char ssidBuf[33] = {0};
     char passBuf[65] = {0};
     
+    char hostnameBuf[65] = {0};
+    
     if (httpd_query_key_value(buf, "ssid", ssidBuf, sizeof(ssidBuf)) != ESP_OK) {
         httpd_resp_send_err(self->_activeRequest, HTTPD_400_BAD_REQUEST, "Missing 'ssid' parameter");
         return;
     }
     httpd_query_key_value(buf, "password", passBuf, sizeof(passBuf));
     
+    httpd_query_key_value(buf, "hostname", hostnameBuf, sizeof(hostnameBuf));
+    
     // Decode the strings
     std::string ssid = WebFileSystem::urlDecode(ssidBuf);
     std::string pass = WebFileSystem::urlDecode(passBuf);
+
+    std::string hostname = WebFileSystem::urlDecode(hostnameBuf);
+    
+    if (ssid.empty()) {
+        self->getNVSParam("wifi_ssid", ssid);
+        self->getNVSParam("wifi_pass", pass);
+    }
+    
+    if (hostname.empty()) {
+        self->getNVSParam("hostname", hostname);
+    }
 
     std::string response = "<h1>Connecting to '";
     response += ssid;
@@ -594,7 +609,10 @@ IDFWiFiPortal::connectPostHandler(WiFiPortal* portal)
 
     self->setNVSParam("wifi_ssid", ssid);
     self->setNVSParam("wifi_pass", pass);
-    
+
+printf("********** saved hostname as '%s'\n", hostname.c_str());
+    self->setNVSParam("hostname", hostname);
+
     vTaskDelay(pdMS_TO_TICKS(1000));
     esp_restart();
 }
