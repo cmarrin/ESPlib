@@ -55,11 +55,13 @@ IDFWiFiPortal::resetSettings()
 void
 IDFWiFiPortal::setTitle(const char* title)
 {
+    _title = title;
 }
 
 void
 IDFWiFiPortal::setCustomMenuHTML(const char* html)
 {
+    _customHTML = html;
 }
 
 void

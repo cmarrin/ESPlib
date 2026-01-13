@@ -108,6 +108,8 @@ public:
     std::string _ssid;
     std::string _pass;
     std::string _hostname;
+    std::string _title;
+    std::string _customHTML;
     
     WebFileSystem* _wfs = nullptr;
     
