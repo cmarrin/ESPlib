@@ -669,8 +669,6 @@ IDFWiFiPortal::getWifiSetupHandler(WiFiPortal* portal)
         response += jp("open", std::string(it.open ? "true" : "false")) + "}";
     }
     response += "]}";
-    
-    printf("***** response:%s\n", response.c_str());
 
     httpd_resp_send(self->_activeRequest, response.c_str(), HTTPD_RESP_USE_STRLEN);
 }
