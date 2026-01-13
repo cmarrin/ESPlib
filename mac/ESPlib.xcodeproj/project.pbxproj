@@ -147,6 +147,7 @@
 		495AB46C2E9C77FE00C4C2C4 /* Vesper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Vesper.cpp; path = ../Vesper/Vesper.cpp; sourceTree = SOURCE_ROOT; };
 		495AB4722E9C7D1800C4C2C4 /* partitions.csv */ = {isa = PBXFileReference; lastKnownFileType = text; name = partitions.csv; path = ../Vesper/partitions.csv; sourceTree = SOURCE_ROOT; };
 		49CAA5C92F11E434005B1107 /* cvtHTML.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = cvtHTML.sh; path = ../cvtHTML.sh; sourceTree = SOURCE_ROOT; };
+		49CAA5CA2F15F5B9005B1107 /* landing.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = landing.html; path = ../landing.html; sourceTree = SOURCE_ROOT; };
 		49E65B012E9C36F800D3C6C5 /* libESPlib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libESPlib.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		49E65B632E9C3A7600D3C6C5 /* Application.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Application.h; path = ../Application.h; sourceTree = SOURCE_ROOT; };
 		49E65B642E9C3A7600D3C6C5 /* Application.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Application.cpp; path = ../Application.cpp; sourceTree = SOURCE_ROOT; };
@@ -308,6 +309,7 @@
 				491673B82EA7D06B0028A6F0 /* LuaBridge */,
 				49CAA5C92F11E434005B1107 /* cvtHTML.sh */,
 				49E65B712E9C3A7600D3C6C5 /* filemgr.html */,
+				49CAA5CA2F15F5B9005B1107 /* landing.html */,
 				4934EB1F2F1170950054B78E /* wifi.html */,
 				49E65B632E9C3A7600D3C6C5 /* Application.h */,
 				49E65B642E9C3A7600D3C6C5 /* Application.cpp */,
