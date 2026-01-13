@@ -555,7 +555,7 @@ IDFWiFiPortal::provisioningGetHandler(WiFiPortal* portal)
 
     // Send the portal page
     if (self->_wfs) {
-        self->_wfs->sendPortalPage(self);
+        self->_wfs->sendWiFiPage(self);
     }
 }
 

@@ -96,6 +96,11 @@
             font-weight: 300;
             text-align: left;
         }
+        
+        hr {
+            color:var(--text-color: #212529);
+            width:100%;
+        }
 
         <!-- /** @brief Form layout styling. */ -->
         form {
@@ -229,24 +234,28 @@
          * @brief Form for submitting WiFi credentials.
          * @details Submits SSID and password to the /connect endpoint via POST.
          */ -->
-        <form id="wifi-form" action="/connect" method="POST">
+        <form novalidate="novalidate" id="wifi-form" action="/connect" method="POST">
             <!-- /** @brief Input group for the SSID field. */ -->
             <div class="input-group">
-                <!-- /** @brief Label for the SSID input. */ -->
                 <label for="ssid">Network Name (SSID)</label>
-                <!-- /** @brief Input field for the WiFi SSID. */ -->
                 <input type="text" id="ssid" name="ssid" maxlength="32" required placeholder="e.g., MyHomeWiFi">
             </div>
             <!-- /** @brief Input group for the password field. */ -->
             <div class="input-group">
-                <!-- /** @brief Label for the password input. */ -->
                 <label for="password">Password</label>
-                <!-- /** @brief Input field for the WiFi password. */ -->
                 <input type="password" id="password" name="password" maxlength="64" placeholder="Leave blank for open networks">
             </div>
+            <hr/>
+            <div class="input-group">
+                <label>Hostname</label>
+                <input type="text" name="hostname" id="hostname">
+            </div>
+            <hr/>
+
             <!-- /** @brief Submit button for the form. */ -->
             <button type="submit" class="btn">Connect</button>
         </form>
+        
     </div>
 
     <script>
@@ -277,9 +286,9 @@
             let strength = "wifi-1";
             if (rssi > -60) {
                 strength = "wifi-4";
-            } else if (rssi > -70) {
+            } else if (rssi > -75) {
                 strength = "wifi-3";
-            } else if (rssi > -80) {
+            } else if (rssi > -95) {
                 strength = "wifi-2";
             }
             strengthElement.classList.add(strength);

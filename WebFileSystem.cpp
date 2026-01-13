@@ -162,7 +162,7 @@ WebFileSystem::prepareFile(WiFiPortal* p, std::string& path)
 }
 
 void
-WebFileSystem::sendPortalPage(WiFiPortal* portal)
+WebFileSystem::sendWiFiPage(WiFiPortal* portal)
 {
     portal->sendHTTPResponse(200, "text/html", reinterpret_cast<const char*>(WIFI_NAME), WIFI_LEN_NAME, HTML_IS_GZIP);
 }

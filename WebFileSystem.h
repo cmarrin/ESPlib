@@ -50,7 +50,7 @@ class WebFileSystem
 
     std::string realPath(const std::string& path) const;
     
-    void sendPortalPage(WiFiPortal*);
+    void sendWiFiPage(WiFiPortal*);
 
   private:
     bool prepareFile(WiFiPortal* p, std::string& path);
