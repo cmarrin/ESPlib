@@ -25,7 +25,6 @@ public:
 
     virtual void resetSettings() override;
     virtual void setTitle(const char* title) override;
-    virtual void setDarkMode(bool) override;
     virtual void setCustomMenuHTML(const char* html) override;
     virtual void setHostname(const char*) override;
     virtual void setConfigHandler(std::function<void(WiFiPortal*)>) override;

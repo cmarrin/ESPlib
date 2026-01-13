@@ -30,11 +30,6 @@ MacWiFiPortal::setTitle(const char* title)
 }
 
 void
-MacWiFiPortal::setDarkMode(bool)
-{
-}
-
-void
 MacWiFiPortal::setCustomMenuHTML(const char* html)
 {
 }

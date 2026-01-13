@@ -58,11 +58,6 @@ IDFWiFiPortal::setTitle(const char* title)
 }
 
 void
-IDFWiFiPortal::setDarkMode(bool b)
-{
-}
-
-void
 IDFWiFiPortal::setCustomMenuHTML(const char* html)
 {
 }

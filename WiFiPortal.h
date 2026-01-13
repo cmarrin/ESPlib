@@ -66,9 +66,6 @@ public:
     // Set the title to be shown at the top of the front web page
     virtual void setTitle(const char* title) { }
 
-    // Select the dark or light mode style sheet for the web pages
-    virtual void setDarkMode(bool) { }
-    
     // Sets a string of static HTML that will be inserted into the front page at the
     // "custom" menu item
     virtual void setCustomMenuHTML(const char* html) { }

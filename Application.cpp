@@ -54,7 +54,6 @@ Application::startNetwork()
         _portal->setHostname(hostname.c_str());
     }
     
-	_portal->setDarkMode(true);
     _portal->setShowInfoErase(true);
     
 	if (_needsNetworkReset) {

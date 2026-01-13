@@ -25,6 +25,7 @@ ESPWiFiPortal::begin(WebFileSystem*)
     _prefs.begin("ESPLib");
     _wifiManager.setDebugOutput(true);
     _wifiManager.setMenu({ "custom", "wifi", "info", "restart", "sep", "update" });
+    _wifiManager.setDarkMode(true);
 }
 
 void
@@ -37,12 +38,6 @@ void
 ESPWiFiPortal::setTitle(const char* title)
 {
     _wifiManager.setTitle(title);
-}
-
-void
-ESPWiFiPortal::setDarkMode(bool b)
-{
-    _wifiManager.setDarkMode(b);
 }
 
 void
