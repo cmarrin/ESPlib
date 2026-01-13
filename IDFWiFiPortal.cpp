@@ -298,17 +298,20 @@ IDFWiFiPortal::getHTTPArg(const char* name)
 bool
 IDFWiFiPortal::addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength)
 {
-    // See if the value is already in the map
+    std::string value;
+
     auto entry = _paramMap.find(id);
     if (entry == _paramMap.end()) {
-        // New entry
-        setNVSParam(id, defaultValue);
+        // New map entry
         _paramMap.insert({ id, { label, maxLength } });
-    } else {
-        // Existing entry
+    }
+    
+    // If we don't have a param entry yet, set it to the default
+    if (!getNVSParam(id, value)) {
         setNVSParam(id, defaultValue);
     }
-    return false;
+    
+    return true;
 }
 
 bool
