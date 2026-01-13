@@ -23,6 +23,9 @@ static const char* PROV_AP_SSID = "ESP32-Provisioning";
 static const char* PROV_AP_PASS = "password123";
 static constexpr uint32_t PROV_AP_MAX_CONN = 4;
 
+static inline std::string q(const std::string& s) { return "\"" + s + "\""; }
+static inline std::string jp(const std::string& n, const std::string& v) { return q(n) + ":" + q(v); }
+
 void
 IDFWiFiPortal::begin(WebFileSystem* wfs)
 {
@@ -645,21 +648,30 @@ IDFWiFiPortal::getWifiSetupHandler(WiFiPortal* portal)
 {
     IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(portal);
     
-    std::string response;
+    std::string ssid, hostname;
+    self->getNVSParam("wifi_ssid", ssid);
+    self->getNVSParam("hostname", hostname);
+
+    std::string response = "{" + jp("ssid", ssid) + "," + jp("hostname", hostname) + ",";
+    response += q("knownNetworks") + ":[";
+
     bool first = true;
     
     for (const auto& it : self->_knownNetworks) {
         if (!first) {
-            response += ":";
+            response += ",";
         } else {
             first = false;
         }
         
-        response += it.ssid + ",";
-        response += std::to_string(it.rssi) + ",";
-        response += it.open ? "true" : "false";
+        response += "{" + jp("ssid", it.ssid) + ",";
+        response += jp("rssi", std::to_string(it.rssi)) + ",";
+        response += jp("open", std::string(it.open ? "true" : "false")) + "}";
     }
-        
+    response += "]}";
+    
+    printf("***** response:%s\n", response.c_str());
+
     httpd_resp_send(self->_activeRequest, response.c_str(), HTTPD_RESP_USE_STRLEN);
 }
 

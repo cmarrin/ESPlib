@@ -243,7 +243,7 @@
             <!-- /** @brief Input group for the password field. */ -->
             <div class="input-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" maxlength="64" placeholder="Leave blank for open networks">
+                <input type="password" id="password" name="password" maxlength="64" placeholder="Enter password">
             </div>
             <hr/>
             <div class="input-group">
@@ -261,6 +261,7 @@
     <script>
         const knownNetworks = document.getElementById('known-networks');
         const ssidInput = document.getElementById('ssid');
+        const hostnameInput = document.getElementById('hostname');
 
         function selectItem(event)
         {
@@ -321,20 +322,26 @@
         }
         function fetchKnownNetworks(path)
         {
-            fetch(`/get-known-networks`)
             fetch(`/get-wifi-setup`)
                 .then(response => response.text())
                 .then(data => {
-                    const items = parseData(data);
-                    items.forEach(item => {
+                    const items = JSON.parse(data);
+                    if (items.ssid) {
+                        ssidInput.value = items.ssid;
+                    }
+                    if (items.hostname) {
+                        hostnameInput.value = items.hostname;
+                    }
+                    for (const item of items.knownNetworks) {
                         const itemElement = createItemElement(item);
                         knownNetworks.appendChild(itemElement);
-                });
+                    }
                 })
                 .catch(error => console.error('Error fetching known networks:', error));
         }
-        
+
         fetchKnownNetworks();
+        
     </script>
 </body>
 </html>
