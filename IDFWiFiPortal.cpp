@@ -168,7 +168,7 @@ IDFWiFiPortal::autoConnect(char const *apName, char const *apPassword)
                                                pdMS_TO_TICKS(30000));
 
         if (bits & WIFI_CONNECTED_BIT) {
-            startWebPortal();
+            startWebServer(false);
             return true;
         } 
         ESP_LOGW(TAG, "Failed to connect with stored credentials");
@@ -203,27 +203,7 @@ static esp_err_t http404ErrorHandler(httpd_req_t *req, httpd_err_code_t err)
 void
 IDFWiFiPortal::startWebPortal()
 {
-    if (_server) {
-        return;
-    }
-
-    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.max_uri_handlers = 16;
-    config.uri_match_fn = httpd_uri_match_wildcard;
-    config.lru_purge_enable = true;
-
-    if (httpd_start(&_server, &config) == ESP_OK) {
-        WiFiPortal::addHTTPHandler("/", provisioningGetHandler);
-        WiFiPortal::addHTTPHandler("/connect", HTTPMethod::Post, connectPostHandler);
-        WiFiPortal::addHTTPHandler("/reset", resetGetHandler);
-        WiFiPortal::addHTTPHandler("/get-known-networks", getKnownNetworksHandler);
-        WiFiPortal::addHTTPHandler("/favicon.ico", faviconGetHandler);
-
-        // This is to redirect 404 to serve the root page
-        httpd_register_err_handler(_server, HTTPD_404_NOT_FOUND, http404ErrorHandler);
-    } else {
-        ESP_LOGE(TAG, "Failed to start web server");
-    }
+    startWebServer(false);
 }
 
 void
@@ -431,7 +411,7 @@ IDFWiFiPortal::startProvisioning()
 
     dhcpSetCaptivePortalURL();
 
-    startWebPortal();
+    startWebServer(true);
 
     // Start the DNS server that will redirect all queries to the softAP IP
     dns_server_config_t config = {
@@ -449,6 +429,41 @@ IDFWiFiPortal::startProvisioning()
     // Don't ever return. When we get valid credentials we will reset and try again
     while (true) {
         vTaskDelay(pdMS_TO_TICKS(100));
+    }
+}
+
+void
+IDFWiFiPortal::startWebServer(bool provision)
+{
+    if (_server) {
+        return;
+    }
+
+    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    config.max_uri_handlers = 16;
+    config.uri_match_fn = httpd_uri_match_wildcard;
+    config.lru_purge_enable = true;
+
+    if (httpd_start(&_server, &config) == ESP_OK) {
+        // If we're provisioning we bring up the captive portal (wifi setup) page.
+        // Otherwise we bring up the landing page, which shows buttons for all
+        // the functionality you can get to. This page is customizable both by
+        // rearranging the buttons and by adding custom html.
+        if (provision) {
+            WiFiPortal::addHTTPHandler("/", provisioningGetHandler);
+        } else {
+            WiFiPortal::addHTTPHandler("/", landingPageHandler);
+            WiFiPortal::addHTTPHandler("/wifi", provisioningGetHandler);
+        }
+        WiFiPortal::addHTTPHandler("/connect", HTTPMethod::Post, connectPostHandler);
+        WiFiPortal::addHTTPHandler("/reset", resetGetHandler);
+        WiFiPortal::addHTTPHandler("/get-known-networks", getKnownNetworksHandler);
+        WiFiPortal::addHTTPHandler("/favicon.ico", faviconGetHandler);
+
+        // This is to redirect 404 to serve the root page
+        httpd_register_err_handler(_server, HTTPD_404_NOT_FOUND, http404ErrorHandler);
+    } else {
+        ESP_LOGE(TAG, "Failed to start web server");
     }
 }
 
@@ -575,6 +590,17 @@ IDFWiFiPortal::connectPostHandler(WiFiPortal* portal)
     
     vTaskDelay(pdMS_TO_TICKS(1000));
     esp_restart();
+}
+
+void
+IDFWiFiPortal::landingPageHandler(WiFiPortal* portal)
+{
+    IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(portal);
+
+    // First construct the landing page.
+    std::string landingPage = "<H!>Someday this will be a landing page</h1>";
+    // Send the page
+    self->sendHTTPResponse(200, "text/html", landingPage.c_str());
 }
 
 void

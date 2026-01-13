@@ -66,6 +66,7 @@ public:
     static constexpr EventBits_t WIFI_FAIL_BIT = BIT1;
 
     bool isConnected() const { return _isConnected; }
+    void startWebServer(bool provision);
     void startProvisioning();
     
     void scanNetworks();
@@ -73,6 +74,7 @@ public:
     static void eventHandler(void* arg, esp_event_base_t, int32_t eventId, void* eventData);
     static void provisioningGetHandler(WiFiPortal*);
     static void connectPostHandler(WiFiPortal*);
+    static void landingPageHandler(WiFiPortal*);
     static void resetGetHandler(WiFiPortal*);
     static void getKnownNetworksHandler(WiFiPortal*);
     static void faviconGetHandler(WiFiPortal*);
