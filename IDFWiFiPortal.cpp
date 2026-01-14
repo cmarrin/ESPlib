@@ -692,8 +692,14 @@ void
 IDFWiFiPortal::getLandingSetupHandler(WiFiPortal* portal)
 {
     IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(portal);
-    
-    std::string response = "{" + jp("title", self->_title) + "}";
+
+    std::string response = "{";
+    response += jp("title", self->_title) + ",";
+    response += jp("ssid", self->_ssid) + ",";
+    response += jp("ip", self->_currentIP) + ",";
+    response += jp("hostname", self->_hostname) + ",";
+    response += jp("customMenuHTML", self->_customHTML);
+    response += "}";
     httpd_resp_send(self->_activeRequest, response.c_str(), HTTPD_RESP_USE_STRLEN);
 }
 

@@ -167,6 +167,10 @@
 
     <script>
         const title = document.getElementById('title');
+        const bannerSSID = document.getElementById('banner-ssid');
+        const bannerIP = document.getElementById('banner-ip');
+        const bannerHostname = document.getElementById('banner-hostname');
+        const customMenuHTML = document.getElementById('custom-menu-html');
 
         function fetchLandingSetup()
         {
@@ -175,6 +179,10 @@
                 .then(data => {
                     const items = JSON.parse(data);
                     title.innerHTML = items.title;
+                    bannerSSID.innerText = items.ssid;
+                    bannerIP.innerText = items.ip;
+                    bannerHostname.innerText = items.hostname;
+                    customMenuHTML.innerHTML = items.customMenuHTML;
                 })
                 .catch(error => console.error('Error fetching landing setup:', error));
         }

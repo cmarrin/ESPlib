@@ -95,9 +95,9 @@ Application::startNetwork()
     if (!_wfs.begin(this, true)) {
         printf("***** file system initialization failed\n");
     } else if (_wfs.exists("/system.html")) {
-        setCustomMenuHTML("<form action='/fs/system.html' method='get'><button>System</button></form><br/>");
+        setCustomMenuHTML("<form action='/fs/system.html' method='get'><button class='btn'>System</button></form><br/>");
     } else {
-        setCustomMenuHTML("<form action='/filemgr' method='get'><button>File Manager</button></form><br/>");
+        setCustomMenuHTML("<form action='/filemgr' method='get'><button class='btn'>File Manager</button></form><br/>");
     }
 
     _portal->serveStatic("/fs", "/");
