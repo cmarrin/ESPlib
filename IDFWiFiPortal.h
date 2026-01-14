@@ -77,6 +77,7 @@ public:
     static void landingPageHandler(WiFiPortal*);
     static void resetGetHandler(WiFiPortal*);
     static void getWifiSetupHandler(WiFiPortal*);
+    static void getLandingSetupHandler(WiFiPortal*);
     static void faviconGetHandler(WiFiPortal*);
 
     // Params are stored in nvs memory, but also need to be presented to the user in the web page.

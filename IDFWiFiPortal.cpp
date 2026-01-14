@@ -468,6 +468,7 @@ IDFWiFiPortal::startWebServer(bool provision)
         WiFiPortal::addHTTPHandler("/connect", HTTPMethod::Post, connectPostHandler);
         WiFiPortal::addHTTPHandler("/reset", resetGetHandler);
         WiFiPortal::addHTTPHandler("/get-wifi-setup", getWifiSetupHandler);
+        WiFiPortal::addHTTPHandler("/get-landing-setup", getLandingSetupHandler);
         WiFiPortal::addHTTPHandler("/favicon.ico", faviconGetHandler);
 
         // This is to redirect 404 to serve the root page
@@ -624,10 +625,10 @@ IDFWiFiPortal::landingPageHandler(WiFiPortal* portal)
 {
     IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(portal);
 
-    // First construct the landing page.
-    std::string landingPage = "<H!>Someday this will be a landing page</h1>";
-    // Send the page
-    self->sendHTTPResponse(200, "text/html", landingPage.c_str());
+    // Send the portal page
+    if (self->_wfs) {
+        self->_wfs->sendLandingPage(self);
+    }
 }
 
 void
@@ -670,6 +671,15 @@ IDFWiFiPortal::getWifiSetupHandler(WiFiPortal* portal)
     }
     response += "]}";
 
+    httpd_resp_send(self->_activeRequest, response.c_str(), HTTPD_RESP_USE_STRLEN);
+}
+
+void
+IDFWiFiPortal::getLandingSetupHandler(WiFiPortal* portal)
+{
+    IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(portal);
+    
+    std::string response = "{" + jp("title", self->_title) + "}";
     httpd_resp_send(self->_activeRequest, response.c_str(), HTTPD_RESP_USE_STRLEN);
 }
 
