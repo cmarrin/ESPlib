@@ -19,26 +19,33 @@ using namespace mil;
 
 #define USE_GZIP_HTML
 #ifdef USE_GZIP_HTML
-#define HTML_IS_GZIP true
+const 
+#include "landing.gz.h"
 const 
 #include "wifi.gz.h"
 const 
 #include "filemgr.gz.h"
-#define FILEMGR_NAME filemgr_html_gz
-#define FILEMGR_LEN_NAME filemgr_html_gz_len
+#define HTML_IS_GZIP true
+#define LANDING_NAME landing_html_gz
+#define LANDING_LEN_NAME landing_html_gz_len
 #define WIFI_NAME wifi_html_gz
 #define WIFI_LEN_NAME wifi_html_gz_len
+#define FILEMGR_NAME filemgr_html_gz
+#define FILEMGR_LEN_NAME filemgr_html_gz_len
 #else
 const 
-#include "filemgr.h"
+#include "landing.h"
 const 
 #include "wifi.h"
+const 
+#include "filemgr.h"
 #define HTML_IS_GZIP false
-#define FILEMGR_NAME filemgr_html
-#define FILEMGR_LEN_NAME filemgr_html_len
-#define FILEMGR_IS_GZIP false
+#define LANDING_NAME landing_html
+#define LANDING_LEN_NAME landing_html_len
 #define WIFI_NAME wifi_html
 #define WIFI_LEN_NAME wifi_html_len
+#define FILEMGR_NAME filemgr_html
+#define FILEMGR_LEN_NAME filemgr_html_len
 #endif
 
 #ifndef ARDUINO
@@ -159,6 +166,12 @@ WebFileSystem::prepareFile(WiFiPortal* p, std::string& path)
         p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"File not found\"}");
     }
     return false;
+}
+
+void
+WebFileSystem::sendLandingPage(WiFiPortal* portal)
+{
+    portal->sendHTTPResponse(200, "text/html", reinterpret_cast<const char*>(LANDING_NAME), LANDING_LEN_NAME, HTML_IS_GZIP);
 }
 
 void

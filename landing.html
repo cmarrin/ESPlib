@@ -1,24 +1,11 @@
-<!-- /** 
- * @file index.html
- * @brief HTML page for ESP32 WiFi configuration interface.
- *
- * This file provides a web interface for configuring WiFi credentials
- * on an ESP32 device, styled with responsive CSS for usability across devices.
- */ -->
+<!-- Landing Page -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- /** @brief Meta tags and page title definition. */ -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESP32 WiFi Configuration</title>
-    <!-- /** 
-     * @brief Embedded CSS styles for the WiFi configuration page.
-     *
-     * Defines theme variables, layout, form styling, and responsive design.
-     */ -->
+    <title>ESP32 Landing Page</title>
     <style>
-        <!-- /** @brief CSS variables for theming and maintenance. */ -->
         :root {
             --primary-color: #007bff;
             --primary-color-hover: #0056b3;
@@ -51,7 +38,6 @@
         a:hover     { color: var(--primary-color-hover); }
         a:active    { color: var(--primary-color); }
 
-        <!-- /** @brief General body and layout styling. */ -->
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background-color: var(--bg-color);
@@ -65,7 +51,6 @@
             box-sizing: border-box;
         }
 
-        <!-- /** @brief Main content container styling. */ -->
         .container {
             width: 100%;
             max-width: 420px;
@@ -77,12 +62,10 @@
             transition: box-shadow var(--transition-speed);
         }
 
-        <!-- /** @brief Hover effect for the container. */ -->
         .container:hover {
              box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
         }
 
-        <!-- /** @brief Heading styling. */ -->
         h1 {
             color: var(--primary-color);
             margin-top: 0;
@@ -96,27 +79,28 @@
             font-weight: 300;
             text-align: left;
         }
+        
+        hr {
+            color:var(--text-color: #212529);
+            width:100%;
+        }
 
-        <!-- /** @brief Form layout styling. */ -->
         form {
             display: flex;
             flex-direction: column;
             gap: 1.25rem;
         }
 
-        <!-- /** @brief Input group container styling. */ -->
         .input-group {
             text-align: left;
         }
 
-        <!-- /** @brief Label styling for form inputs. */ -->
         label {
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 500;
         }
 
-        <!-- /** @brief Styling for text and password input fields. */ -->
         input[type="text"],
         input[type="password"] {
             background-color:#eee;
@@ -128,7 +112,6 @@
             transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
         }
 
-        <!-- /** @brief Focus effect for input fields. */ -->
         input[type="text"]:focus,
         input[type="password"]:focus {
             outline: none;
@@ -136,7 +119,6 @@
             box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
         }
 
-        <!-- /** @brief Button styling for form submission. */ -->
         .btn {
             padding: 0.9rem;
             border: none;
@@ -149,33 +131,10 @@
             transition: background-color var(--transition-speed);
         }
 
-        <!-- /** @brief Hover effect for the button. */ -->
         .btn:hover {
             background-color: var(--primary-color-hover);
         }
         
-        .known-networks {
-            text-align:left;
-        }
-        
-        .known-network {
-            text-align:left;
-            height:30px;
-
-        }
-        
-        .ssid {
-            display:inline;
-            float:left;
-            width:200px;
-        }
-
-        .lock {
-            display:inline;
-            float:right;
-        }
-
-        <!-- /** @brief Responsive design adjustments for small screens. */ -->
         @media (max-width: 480px) {
             .container {
                 padding: 1.5rem;
@@ -185,146 +144,45 @@
                 font-size: 1.5rem;
             }
         }
-
-        .wave {
-            display: inline-block;
-            border: 2px solid transparent;
-            border-top-color: var(--primary-color);
-            border-radius: 50%;
-            border-style: solid;
-            margin:2px;
-        }
-        
-        .wifi {
-            width:50px;
-            height:50px;
-            display:inline;
-        }
-  
-        .wifi-3 .wv4.wave,
-        .wifi-2 .wv4.wave,
-        .wifi-2 .wv3.wave,
-        .wifi-1 .wv4.wave,
-        .wifi-1 .wv3.wave,
-        .wifi-1 .wv2.wave {
-            border-top-color: #bbb;
-        }  
     </style>
 </head>
 <body>
-    <!-- /** @brief Main content container for the WiFi configuration form. */ -->
     <div class="container">
-        <!-- /** @brief Page heading for WiFi configuration. */ -->
-        <h1>WiFi Configuration</h1>
-        <!--
-            List of known networks
-        -->
-        <h2>Known Networks</h2>
-        <hr>
-        <div id="known-networks" class="known-networks">
+        <h1 id="title">Placeholder Title</h1>
+        
+        <!-- Connection banner -->
+        <div class="msg S">
+            <strong>Connected</strong> to The Marrin Network
+            <br>
+            <em><small>with IP 192.168.4.254</small></em>
         </div>
-        <hr>
-        <br/>
-        <!-- /** 
-         * @brief Form for submitting WiFi credentials.
-         * @details Submits SSID and password to the /connect endpoint via POST.
-         */ -->
-        <form id="wifi-form" action="/connect" method="POST">
-            <!-- /** @brief Input group for the SSID field. */ -->
-            <div class="input-group">
-                <!-- /** @brief Label for the SSID input. */ -->
-                <label for="ssid">Network Name (SSID)</label>
-                <!-- /** @brief Input field for the WiFi SSID. */ -->
-                <input type="text" id="ssid" name="ssid" maxlength="32" required placeholder="e.g., MyHomeWiFi">
-            </div>
-            <!-- /** @brief Input group for the password field. */ -->
-            <div class="input-group">
-                <!-- /** @brief Label for the password input. */ -->
-                <label for="password">Password</label>
-                <!-- /** @brief Input field for the WiFi password. */ -->
-                <input type="password" id="password" name="password" maxlength="64" placeholder="Leave blank for open networks">
-            </div>
-            <!-- /** @brief Submit button for the form. */ -->
-            <button type="submit" class="btn">Connect</button>
-        </form>
+
+
+        <div>
+        <form class="btn" action="/fs/system.html" method="get"><button>System</button></form>
+        <form class="btn" action="/wifi" method="get"><button>Configure WiFi</button></form>
+        <form class="btn" action="/info" method="get"><button>Info</button></form>
+        <form class="btn" action="/restart" method="get"><button>Restart</button></form>
+        <br>
+        <form class="btn" action="/update" method="get"><button>Update</button></form>
     </div>
 
     <script>
-        const knownNetworks = document.getElementById('known-networks');
-        const ssidInput = document.getElementById('ssid');
+        const title = document.getElementById('title');
 
-        function selectItem(event)
+        function fetchLandingSetup()
         {
-            ssidInput.value = event.textContent;
-        }
-        
-        function createItemElement(item)
-        {
-            const itemElement = document.createElement('div');
-            itemElement.classList.add('known-network');
-            
-            const nameElement = document.createElement('a');
-            nameElement.classList.add('ssid');
-            nameElement.href = "#p";
-            nameElement.addEventListener('click', (event) => selectItem(event.currentTarget));
-            nameElement.innerHTML = item.ssid;
-            itemElement.appendChild(nameElement);
-
-            const strengthElement = document.createElement('div');
-            strengthElement.classList.add('wifi');
-            
-            const rssi = parseInt(item.rssi);
-            let strength = "wifi-1";
-            if (rssi > -60) {
-                strength = "wifi-4";
-            } else if (rssi > -70) {
-                strength = "wifi-3";
-            } else if (rssi > -80) {
-                strength = "wifi-2";
-            }
-            strengthElement.classList.add(strength);
-            strengthElement.innerHTML = "<div class='wv4 wave'><div class='wv3 wave'><div class='wv2 wave'><div style='padding:4px;' class='wv1 wave'></div></div></div></div>";
-            itemElement.appendChild(strengthElement);
-
-            if (item.open != "true") {
-                const lockElement = document.createElement('div');
-                lockElement.classList.add('lock');
-                lockElement.textContent = "🔒";
-                itemElement.appendChild(lockElement);
-           }
-
-            return itemElement;
-        }
-
-        // Known networks format is:
-        //      {<ssid>,<rssi>,<open (boolean)>:}
-        //
-        function parseData(data)
-        {
-            if (data.length == 0) {
-                return [ ];
-            }
-            const items = data.split(':').map(item => {
-                const [ssid, rssi, open] = item.split(',');
-                return { ssid, rssi, open };
-            });
-            return items;
-        }
-        function fetchKnownNetworks(path)
-        {
-            fetch(`/get-known-networks`)
+            fetch(`/get-landing-setup`)
                 .then(response => response.text())
                 .then(data => {
-                    const items = parseData(data);
-                    items.forEach(item => {
-                        const itemElement = createItemElement(item);
-                        knownNetworks.appendChild(itemElement);
-                });
+                    const items = JSON.parse(data);
+                    title.innerHTML = items.title;
                 })
-                .catch(error => console.error('Error fetching known networks:', error));
+                .catch(error => console.error('Error fetching landing setup:', error));
         }
+
+        fetchLandingSetup();
         
-        fetchKnownNetworks();
     </script>
 </body>
 </html>
