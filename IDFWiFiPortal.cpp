@@ -40,6 +40,12 @@ IDFWiFiPortal::begin(WebFileSystem* wfs)
         // Retry nvs_flash_init
         ESP_ERROR_CHECK(nvs_flash_init());
     }
+
+    // Open the namespace in read-write mode. If we try to open it the first time
+    // in READONLY mode it will return and error.
+    nvs_handle_t paramHandle;
+    ESP_ERROR_CHECK(nvs_open("esplib", NVS_READWRITE, &paramHandle));    
+    nvs_close(paramHandle);
     
     _eventGroup = xEventGroupCreate();
 
