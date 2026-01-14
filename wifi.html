@@ -1,24 +1,11 @@
-<!-- /** 
- * @file index.html
- * @brief HTML page for ESP32 WiFi configuration interface.
- *
- * This file provides a web interface for configuring WiFi credentials
- * on an ESP32 device, styled with responsive CSS for usability across devices.
- */ -->
+<!-- WiFi Credential Setting Page -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- /** @brief Meta tags and page title definition. */ -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ESP32 WiFi Configuration</title>
-    <!-- /** 
-     * @brief Embedded CSS styles for the WiFi configuration page.
-     *
-     * Defines theme variables, layout, form styling, and responsive design.
-     */ -->
     <style>
-        <!-- /** @brief CSS variables for theming and maintenance. */ -->
         :root {
             --primary-color: #007bff;
             --primary-color-hover: #0056b3;
@@ -51,7 +38,6 @@
         a:hover     { color: var(--primary-color-hover); }
         a:active    { color: var(--primary-color); }
 
-        <!-- /** @brief General body and layout styling. */ -->
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background-color: var(--bg-color);
@@ -65,7 +51,6 @@
             box-sizing: border-box;
         }
 
-        <!-- /** @brief Main content container styling. */ -->
         .container {
             width: 100%;
             max-width: 420px;
@@ -77,12 +62,10 @@
             transition: box-shadow var(--transition-speed);
         }
 
-        <!-- /** @brief Hover effect for the container. */ -->
         .container:hover {
              box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
         }
 
-        <!-- /** @brief Heading styling. */ -->
         h1 {
             color: var(--primary-color);
             margin-top: 0;
@@ -102,26 +85,22 @@
             width:100%;
         }
 
-        <!-- /** @brief Form layout styling. */ -->
         form {
             display: flex;
             flex-direction: column;
             gap: 1.25rem;
         }
 
-        <!-- /** @brief Input group container styling. */ -->
         .input-group {
             text-align: left;
         }
 
-        <!-- /** @brief Label styling for form inputs. */ -->
         label {
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 500;
         }
 
-        <!-- /** @brief Styling for text and password input fields. */ -->
         input[type="text"],
         input[type="password"] {
             background-color:#eee;
@@ -133,7 +112,6 @@
             transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
         }
 
-        <!-- /** @brief Focus effect for input fields. */ -->
         input[type="text"]:focus,
         input[type="password"]:focus {
             outline: none;
@@ -141,7 +119,6 @@
             box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
         }
 
-        <!-- /** @brief Button styling for form submission. */ -->
         .btn {
             padding: 0.9rem;
             border: none;
@@ -154,7 +131,6 @@
             transition: background-color var(--transition-speed);
         }
 
-        <!-- /** @brief Hover effect for the button. */ -->
         .btn:hover {
             background-color: var(--primary-color-hover);
         }
@@ -180,7 +156,6 @@
             float:right;
         }
 
-        <!-- /** @brief Responsive design adjustments for small screens. */ -->
         @media (max-width: 480px) {
             .container {
                 padding: 1.5rem;
@@ -217,30 +192,19 @@
     </style>
 </head>
 <body>
-    <!-- /** @brief Main content container for the WiFi configuration form. */ -->
     <div class="container">
-        <!-- /** @brief Page heading for WiFi configuration. */ -->
         <h1>WiFi Configuration</h1>
-        <!--
-            List of known networks
-        -->
         <h2>Known Networks</h2>
         <hr>
         <div id="known-networks" class="known-networks">
         </div>
         <hr>
         <br/>
-        <!-- /** 
-         * @brief Form for submitting WiFi credentials.
-         * @details Submits SSID and password to the /connect endpoint via POST.
-         */ -->
         <form novalidate="novalidate" id="wifi-form" action="/connect" method="POST">
-            <!-- /** @brief Input group for the SSID field. */ -->
             <div class="input-group">
                 <label for="ssid">Network Name (SSID)</label>
                 <input type="text" id="ssid" name="ssid" maxlength="32" required placeholder="e.g., MyHomeWiFi">
             </div>
-            <!-- /** @brief Input group for the password field. */ -->
             <div class="input-group">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" maxlength="64" placeholder="Enter password">
@@ -252,7 +216,6 @@
             </div>
             <hr/>
 
-            <!-- /** @brief Submit button for the form. */ -->
             <button type="submit" class="btn">Connect</button>
         </form>
         
@@ -306,21 +269,7 @@
             return itemElement;
         }
 
-        // Known networks format is:
-        //      {<ssid>,<rssi>,<open (boolean)>:}
-        //
-        function parseData(data)
-        {
-            if (data.length == 0) {
-                return [ ];
-            }
-            const items = data.split(':').map(item => {
-                const [ssid, rssi, open] = item.split(',');
-                return { ssid, rssi, open };
-            });
-            return items;
-        }
-        function fetchKnownNetworks(path)
+        function fetchWiFiSetup()
         {
             fetch(`/get-wifi-setup`)
                 .then(response => response.text())
@@ -337,10 +286,10 @@
                         knownNetworks.appendChild(itemElement);
                     }
                 })
-                .catch(error => console.error('Error fetching known networks:', error));
+                .catch(error => console.error('Error fetching wifi setup:', error));
         }
 
-        fetchKnownNetworks();
+        fetchWiFiSetup();
         
     </script>
 </body>
