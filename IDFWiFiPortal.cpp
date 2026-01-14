@@ -193,8 +193,8 @@ IDFWiFiPortal::process()
 {
 }
 
-// HTTP Error (404) Handler - Redirects all requests to the root page
-static esp_err_t http404ErrorHandler(httpd_req_t *req, httpd_err_code_t err)
+// HTTP Error (404) Handler for the captive portal - Redirects all requests to the root page
+static esp_err_t portalHTTP404ErrorHandler(httpd_req_t *req, httpd_err_code_t err)
 {
     // Set status
     httpd_resp_set_status(req, "302 Temporary Redirect");
@@ -204,6 +204,15 @@ static esp_err_t http404ErrorHandler(httpd_req_t *req, httpd_err_code_t err)
     httpd_resp_send(req, "Redirect to the captive portal", HTTPD_RESP_USE_STRLEN);
 
     ESP_LOGI(TAG, "Redirecting to root");
+    return ESP_OK;
+}
+
+// HTTP Error (404) Handler when connected - show a 404 page
+static esp_err_t connectedHTTP404ErrorHandler(httpd_req_t *req, httpd_err_code_t err)
+{
+    ESP_ERROR_CHECK(httpd_resp_set_status(req, "404 Not Found"));
+    httpd_resp_send(req, "<h1><b>Page not found</b></h1>", HTTPD_RESP_USE_STRLEN);
+    ESP_LOGI(TAG, "%s page not found", req->uri);
     return ESP_OK;
 }
 
@@ -461,18 +470,17 @@ IDFWiFiPortal::startWebServer(bool provision)
         // rearranging the buttons and by adding custom html.
         if (provision) {
             WiFiPortal::addHTTPHandler("/", provisioningGetHandler);
+            httpd_register_err_handler(_server, HTTPD_404_NOT_FOUND, portalHTTP404ErrorHandler);
         } else {
             WiFiPortal::addHTTPHandler("/", landingPageHandler);
             WiFiPortal::addHTTPHandler("/wifi", provisioningGetHandler);
+            httpd_register_err_handler(_server, HTTPD_404_NOT_FOUND, connectedHTTP404ErrorHandler);
         }
         WiFiPortal::addHTTPHandler("/connect", HTTPMethod::Post, connectPostHandler);
         WiFiPortal::addHTTPHandler("/reset", resetGetHandler);
         WiFiPortal::addHTTPHandler("/get-wifi-setup", getWifiSetupHandler);
         WiFiPortal::addHTTPHandler("/get-landing-setup", getLandingSetupHandler);
         WiFiPortal::addHTTPHandler("/favicon.ico", faviconGetHandler);
-
-        // This is to redirect 404 to serve the root page
-        httpd_register_err_handler(_server, HTTPD_404_NOT_FOUND, http404ErrorHandler);
     } else {
         ESP_LOGE(TAG, "Failed to start web server");
     }
