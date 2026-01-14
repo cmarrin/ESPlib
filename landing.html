@@ -91,34 +91,6 @@
             gap: 1.25rem;
         }
 
-        .input-group {
-            text-align: left;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-
-        input[type="text"],
-        input[type="password"] {
-            background-color:#eee;
-            width: 100%;
-            padding: 0.85rem;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            box-sizing: border-box;
-            transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
-        }
-
-        input[type="text"]:focus,
-        input[type="password"]:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-        }
-
         .btn {
             padding: 0.9rem;
             border: none;
@@ -133,6 +105,20 @@
 
         .btn:hover {
             background-color: var(--primary-color-hover);
+        }
+        
+        .msg {
+            border-radius: .3rem;
+            background-color: var(--bg-color);
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #eee;
+            border-left-width: 5px;
+            border-left-color: #777;
+        }
+        
+        .msg.S {
+            border-left-color: #5cb85c;
         }
         
         @media (max-width: 480px) {
@@ -159,12 +145,17 @@
 
 
         <div>
-        <form class="btn" action="/fs/system.html" method="get"><button>System</button></form>
-        <form class="btn" action="/wifi" method="get"><button>Configure WiFi</button></form>
-        <form class="btn" action="/info" method="get"><button>Info</button></form>
-        <form class="btn" action="/restart" method="get"><button>Restart</button></form>
+        <form action="/fs/system.html" method="get"><button class="btn">System</button></form>
         <br>
-        <form class="btn" action="/update" method="get"><button>Update</button></form>
+        <form action="/wifi" method="get"><button class="btn">Configure WiFi</button></form>
+        <br>
+        <form action="/info" method="get"><button class="btn">Info</button></form>
+        <br>
+        <form action="/restart" method="get"><button class="btn">Restart</button></form>
+        <br>
+        <hr>
+        <br>
+        <form action="/update" method="get"><button class="btn">Update</button></form>
     </div>
 
     <script>
