@@ -210,7 +210,6 @@ File::rewindDirectory()
 bool
 FS::begin(bool format)
 {
-    return false;
 #if defined ESP_PLATFORM
     static const char *TAG = "LittleFSShim";
 
