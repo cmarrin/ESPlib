@@ -65,6 +65,11 @@
         .container:hover {
              box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
         }
+        
+        .bannerLine2 {
+            font-style:italic;
+            font-size:small;
+        }
 
         h1 {
             color: var(--primary-color);
@@ -113,7 +118,7 @@
             padding: 20px;
             margin: 20px 0;
             border: 1px solid #eee;
-            border-left-width: 5px;
+            border-left-width: 8px;
             border-left-color: #777;
         }
         
@@ -138,9 +143,13 @@
         
         <!-- Connection banner -->
         <div class="msg S">
-            <strong>Connected</strong> to The Marrin Network
+            <strong>Connected</strong> to <span id="banner-ssid">Placeholder</span>
             <br>
-            <em><small>with IP 192.168.4.254</small></em>
+            <span class="bannerLine2">
+                <strong>IP: </strong><span id="banner-ip">Placeholder</span>
+                <span style="padding:20px"> </span>
+                <strong>Hostname: </strong><span id="banner-hostname">Placeholder</span>
+            </span>
         </div>
 
 
