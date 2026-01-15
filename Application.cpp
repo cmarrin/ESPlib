@@ -54,8 +54,6 @@ Application::startNetwork()
         _portal->setHostname(hostname.c_str());
     }
     
-    _portal->setShowInfoErase(true);
-    
 	if (_needsNetworkReset) {
 		_needsNetworkReset = false;
 		_portal->resetSettings();			

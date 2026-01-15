@@ -87,11 +87,6 @@ IDFWiFiPortal::setConfigHandler(HandlerCB f)
     printf("*** setConfigHandler not implemented\n");
 }
 
-void
-IDFWiFiPortal::setShowInfoErase(bool enabled)
-{
-}
-
 esp_err_t
 IDFWiFiPortal::thunkHandler(httpd_req_t* req)
 {

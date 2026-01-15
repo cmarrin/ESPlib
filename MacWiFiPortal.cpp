@@ -44,11 +44,6 @@ MacWiFiPortal::setConfigHandler(HandlerCB)
 {
 }
 
-void
-MacWiFiPortal::setShowInfoErase(bool enabled)
-{
-}
-
 int32_t
 MacWiFiPortal::addHTTPHandler(const char* endpoint, HTTPMethod method, HandlerCB requestCB, HandlerCB uploadCB)
 {

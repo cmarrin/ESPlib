@@ -26,6 +26,7 @@ ESPWiFiPortal::begin(WebFileSystem*)
     _wifiManager.setDebugOutput(true);
     _wifiManager.setMenu({ "custom", "wifi", "info", "restart", "sep", "update" });
     _wifiManager.setDarkMode(true);
+    _wifiManager.setShowInfoErase(true);
 }
 
 void
@@ -56,12 +57,6 @@ void
 ESPWiFiPortal::setConfigHandler(HandlerCB f)
 {
     _wifiManager.setAPCallback([this, f](WiFiManager*) { f(this); });
-}
-
-void
-ESPWiFiPortal::setShowInfoErase(bool enabled)
-{
-    _wifiManager.setShowInfoErase(enabled);
 }
 
 int32_t

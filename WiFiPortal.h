@@ -76,10 +76,6 @@ public:
     // Set the callback that will be called when the system enters the captive portal
     virtual void setConfigHandler(HandlerCB) { }
 
-    // If enabled shows an "Erase WiFi Config" button on the info page
-    // FIXME: very confusing that this is on the info page and not on the WiFi settings page
-    virtual void setShowInfoErase(bool enabled) { }
-    
     // Call the passed handler function when a request is made to the endpoint with the passed name.
     // Returns an id of the request for later use in deleting the request (not yet implemented).
     // The callback return true if it handled the request and false if not.
