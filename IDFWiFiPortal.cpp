@@ -97,11 +97,11 @@ IDFWiFiPortal::thunkHandler(httpd_req_t* req)
 }
 
 int32_t
-IDFWiFiPortal::addHTTPHandler(const char* endpoint, HTTPMethod method, HandlerCB requestCB, HandlerCB uploadCB)
+IDFWiFiPortal::addHTTPHandler(const char* endpoint, HTTPMethod method, HandlerCB requestCB)
 {
     httpd_uri_t uri = {
         .uri = endpoint,
-        .method = (method == HTTPMethod::Put) ? HTTP_PUT : ((method == HTTPMethod::Post) ? HTTP_POST : HTTP_GET),
+        .method = (method == HTTPMethod::Post) ? HTTP_POST : HTTP_GET,
         .handler = thunkHandler,
         .user_ctx = new HandlerThunk(requestCB, this)
     };

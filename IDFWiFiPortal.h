@@ -38,7 +38,7 @@ public:
     virtual void setCustomMenuHTML(const char* html) override;
     virtual void setHostname(const char*) override;
     virtual void setConfigHandler(HandlerCB) override;
-    virtual int32_t addHTTPHandler(const char* endpoint, HTTPMethod, HandlerCB requestCB, HandlerCB uploadCB = nullptr) override;
+    virtual int32_t addHTTPHandler(const char* endpoint, HTTPMethod, HandlerCB requestCB) override;
     virtual void serveStatic(const char *uri, const char *path) override;
     virtual bool autoConnect(char const *apName, char const *apPassword = NULL) override;
     virtual void process() override;

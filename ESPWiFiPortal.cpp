@@ -60,9 +60,17 @@ ESPWiFiPortal::setConfigHandler(HandlerCB f)
 }
 
 int32_t
-ESPWiFiPortal::addHTTPHandler(const char* endpoint, HTTPMethod, HandlerCB requestCB, HandlerCB uploadCB)
+ESPWiFiPortal::addHTTPHandler(const char* endpoint, HTTPMethod, HandlerCB requestCB)
 {
-    _wifiManager.server->on(endpoint, HTTP_ANY, [this, requestCB]() { requestCB(this); }, [this, uploadCB]() { uploadCB(this); });
+    // If the method is POST then WebServer expects a requestCB, which is called after the upload is
+    // finished, and an uploadCB which is called multiple times during the upload. We will 
+    // call the requestCB for upload and a null requestCB. We'll handle all the end stuff in
+    // the uploadCB when we hit a status of END or ABORT.
+    if (method == HTTPMethod::Post) {
+        _wifiManager.server->on(endpoint, HTTP_ANY, nullptr, [this, requestCB]() { requestCB(this); });
+    } else {
+        _wifiManager.server->on(endpoint, HTTP_ANY, [this, requestCB]() { requestCB(this); }, nullptr);
+    }
     return 0;
 }
 

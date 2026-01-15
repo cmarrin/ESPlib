@@ -297,7 +297,7 @@ WebFileSystem::begin(Application* app, bool format)
         return true;
     });
 
-    app->addHTTPHandler("/upload", [this](WiFiPortal* p) { handleUploadFinished(p); }, [this](WiFiPortal* p) { handleUpload(p); });
+    app->addHTTPHandler("/upload", [this](WiFiPortal* p) { handleUpload(p); });
 
 
     bool retval = LittleFS.begin(format);
@@ -396,6 +396,8 @@ WebFileSystem::listDir(const char* dirname, uint8_t levels)
 void
 WebFileSystem::handleUpload(WiFiPortal* p)
 {
+    bool finished = false;
+    
     if (p->httpUploadStatus() == WiFiPortal::HTTPUploadStatus::Start) {
         _uploadFilename = urlDecode(p->getHTTPArg("path")) + "/" + p->httpUploadFilename();
         _uploadAborted = false;
@@ -407,19 +409,21 @@ WebFileSystem::handleUpload(WiFiPortal* p)
             return;
         }
     } else if (p->httpUploadStatus() == WiFiPortal::HTTPUploadStatus::Write) {
-        // Write the received chunk to the file
-        if (_uploadFile) {
-            size_t currentSize = p->httpUploadCurrentSize();
-            size_t bytesWritten = _uploadFile.write(p->httpUploadBuffer(), currentSize);
-            
-            if (!_uploadFile || bytesWritten != currentSize) {
-                printf("Error writing chunk to file. Deleting '%s'\n", _uploadFilename.c_str());
+        if (!_uploadAborted) {
+            // Write the received chunk to the file
+            if (_uploadFile) {
+                size_t currentSize = p->httpUploadCurrentSize();
+                size_t bytesWritten = _uploadFile.write(p->httpUploadBuffer(), currentSize);
                 
-                // Delete the file
-                _uploadFile.close();
-                remove(_uploadFilename.c_str());
-                _uploadAborted = true;
-                return;
+                if (!_uploadFile || bytesWritten != currentSize) {
+                    printf("Error writing chunk to file. Deleting '%s'\n", _uploadFilename.c_str());
+                    
+                    // Delete the file
+                    _uploadFile.close();
+                    remove(_uploadFilename.c_str());
+                    _uploadAborted = true;
+                    return;
+                }
             }
         }
     } else if (p->httpUploadStatus() == WiFiPortal::HTTPUploadStatus::End) {
@@ -428,6 +432,7 @@ WebFileSystem::handleUpload(WiFiPortal* p)
         } else {
             printf("handleUpload: END received but file not open.\n");
         }
+        finished = true;
     } else if (p->httpUploadStatus() == WiFiPortal::HTTPUploadStatus::Aborted) {
         printf("handleUpload: Upload Aborted\n");
         if (_uploadFile) {
@@ -436,22 +441,22 @@ WebFileSystem::handleUpload(WiFiPortal* p)
             _uploadFile.close();
             remove(filename.c_str());
         }
+        _uploadAborted = true;
+        finished = true;
     }
-}
-
-void
-WebFileSystem::handleUploadFinished(WiFiPortal* p)
-{
-    if (p->httpUploadStatus() == WiFiPortal::HTTPUploadStatus::Aborted || _uploadAborted) {
-        p->sendHTTPResponse(500, "text/plain", "Upload Aborted");
-        printf("Reply sent: Upload Aborted\n");
-    } else if (p->httpUploadTotalSize() > 0) { // Check if any bytes were received
-        p->sendHTTPResponse(200, "text/plain", "Upload Successful!");
-        printf("Reply sent: Successful uploaded to '%s'\n", _uploadFilename.c_str());
-    } else {
-        // This might happen if the file was empty or write failed early
-        p->sendHTTPResponse(500, "text/plain", "Upload Failed or Empty File");
-        printf("Reply sent: Upload Failed/Empty\n");
+    
+    if (finished) {
+        if (_uploadAborted) {
+            p->sendHTTPResponse(500, "text/plain", "Upload Aborted");
+            printf("Reply sent: Upload Aborted\n");
+        } else if (p->httpUploadTotalSize() > 0) { // Check if any bytes were received
+            p->sendHTTPResponse(200, "text/plain", "Upload Successful!");
+            printf("Reply sent: Successful uploaded to '%s'\n", _uploadFilename.c_str());
+        } else {
+            // This might happen if the file was empty or write failed early
+            p->sendHTTPResponse(500, "text/plain", "Upload Failed or Empty File");
+            printf("Reply sent: Upload Failed/Empty\n");
+        }
     }
 }
 

@@ -45,9 +45,9 @@ MacWiFiPortal::setConfigHandler(HandlerCB)
 }
 
 int32_t
-MacWiFiPortal::addHTTPHandler(const char* endpoint, HTTPMethod method, HandlerCB requestCB, HandlerCB uploadCB)
+MacWiFiPortal::addHTTPHandler(const char* endpoint, HTTPMethod method, HandlerCB requestCB)
 {
-   _server.addHTTPHandler(endpoint, method, [this, requestCB]() { requestCB(this); }, [this, uploadCB]() { uploadCB(this); });
+   _server.addHTTPHandler(endpoint, method, [this, requestCB]() { requestCB(this); }, nullptr);
     return 0;
 }
 

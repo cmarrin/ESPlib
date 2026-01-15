@@ -58,7 +58,6 @@ class WebFileSystem
     std::string listDir(const char* dirname, uint8_t levels);
     
     void handleUpload(WiFiPortal*);
-    void handleUploadFinished(WiFiPortal*);
     
     fs::File _uploadFile;
     bool _uploadAborted = false;
