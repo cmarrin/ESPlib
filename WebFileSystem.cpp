@@ -244,7 +244,7 @@ WebFileSystem::begin(Application* app, bool format)
         return true;
     });
 
-    // Open file (downloads with "attachment" disposition)
+    // Open file (downloads with "attachment" disposition) - this downloads the file to the client
     app->addHTTPHandler("/download", [this](WiFiPortal* p)
     {
         std::string path;
@@ -256,7 +256,7 @@ WebFileSystem::begin(Application* app, bool format)
         return true;
     });
 
-    // Open file (downloads with "inline" disposition)
+    // Open file (downloads with "inline" disposition) - this displays the content in a web page
     app->addHTTPHandler("/file", [this](WiFiPortal* p)
     {
         std::string path;
