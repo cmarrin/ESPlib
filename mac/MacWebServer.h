@@ -53,15 +53,15 @@ public:
     
     void process();
     
-    int32_t addHTTPHandler(const char* endpoint, WiFiPortal::HTTPMethod method, HandlerCB requestCB, HandlerCB uploadCB)
+    int32_t addHTTPHandler(const char* endpoint, WiFiPortal::HTTPMethod method, HandlerCB requestCB)
     {
-        _handlers.emplace_back(endpoint, "", requestCB, uploadCB, false);
+        _handlers.emplace_back(endpoint, "", requestCB, false);
         return int32_t(_handlers.size());
     }
 
     void serveStatic(const char* uri, const char* path)
     {
-        _handlers.emplace_back(uri, path, nullptr, nullptr, true);
+        _handlers.emplace_back(uri, path, nullptr, true);
     }
 
     void sendHTTPResponse(int code, const char* mimetype = nullptr, const char* data = "", const ArgMap& extraHeaders = ArgMap());
@@ -82,7 +82,7 @@ private:
     void sendErrorResponse(int code, const char* error);
     void handleClient(int fdClient);
     void handleServer(int fdServer);
-    void handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, HandlerCB uploadCB);
+    void handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB);
 
     void sendStaticFile(const char* filename, const char* path);
     
@@ -91,7 +91,7 @@ private:
     struct HTTPHandler
     {
         std::string endpoint, path;
-        HandlerCB requestCB, uploadCB;
+        HandlerCB requestCB;
         bool isStatic;
     };
     

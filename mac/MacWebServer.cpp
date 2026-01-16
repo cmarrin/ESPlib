@@ -472,121 +472,123 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB)
                 return;
             }
             
-            // Now we upload
-            if (uploadCB) {
-                // Start upload
-                _uploadName = "";
-                _uploadStatus = WiFiPortal::HTTPUploadStatus::Start;
-                uploadCB();
-                
-                int bufferOverflow = 0;
-                int index = 0;
-                _uploadTotalSize = 0;
-                
-                while (true) {
-                    // We need to read one byte at a time.
-                    // As we go we need to check for the boundary string while
-                    // we keep accumulating data in the buffer. If we do hit
-                    // the boundary string we need to return the buffer data
-                    // up to the start of the string and this is the last buffer.
-                    // If it fails we need to send UploadBufferReturnSize bytes
-                    // then put the remaining data at the head of the buffer
-                    // and continue reading. The actual size of the buffer
-                    // (UploadBufferActualSize) is big enough to hold the extra
-                    // bytes while we're checking for the boundary string.
-                    //
-                    _uploadStatus = WiFiPortal::HTTPUploadStatus::Write;
+            // Now we upload. If there is no requestCB we still need to go through
+            // reading all the data
 
-                    ssize_t size = read(fd, &(_uploadBuffer[index]), 1);
-                    if (size != 1) {
-                        sendHTTPResponse(400);
-                        return;
-                    }
+            // Start upload
+            _uploadName = "";
+            _uploadStatus = WiFiPortal::HTTPUploadStatus::Start;
+            if (requestCB) {
+                requestCB();
+            }
+            
+            int bufferOverflow = 0;
+            int index = 0;
+            _uploadTotalSize = 0;
+            
+            while (true) {
+                // We need to read one byte at a time.
+                // As we go we need to check for the boundary string while
+                // we keep accumulating data in the buffer. If we do hit
+                // the boundary string we need to return the buffer data
+                // up to the start of the string and this is the last buffer.
+                // If it fails we need to send UploadBufferReturnSize bytes
+                // then put the remaining data at the head of the buffer
+                // and continue reading. The actual size of the buffer
+                // (UploadBufferActualSize) is big enough to hold the extra
+                // bytes while we're checking for the boundary string.
+                //
+                _uploadStatus = WiFiPortal::HTTPUploadStatus::Write;
 
-                    bool haveBoundary = false;
-                    if (_uploadBuffer[index] == '\r') {
-                        // We need to add "\n--" to the start of the boundary
-                        std::string testBoundary = "\n--" + boundary;
+                ssize_t size = read(fd, &(_uploadBuffer[index]), 1);
+                if (size != 1) {
+                    sendErrorResponse(400, "read error");
+                    return;
+                }
 
-                        haveBoundary = true;
-                        ++index;
-                        // This might be the boundary
-                         // We start at -3 because we need to check the \n-- at the start of the boundary
-                        for (int i = 0; i < testBoundary.size(); ++i, ++index) {
-                            size = read(fd, &(_uploadBuffer[index]), 1);
-                            if (size != 1) {
-                                sendHTTPResponse(400);
-                                return;
-                            }
-                        
-                            if (_uploadBuffer[index] != testBoundary[i]) {
-                                // This is not the boundary
-                                haveBoundary = false;
-                                ++index;
-                                if (index > UploadBufferReturnSize) {
-                                    // We are in the overflow area. Set the buffer
-                                    // size to UploadBufferReturnSize. After sending
-                                    // the data move the overflow to the start of the
-                                    // buffer and continue
-                                    bufferOverflow = index - UploadBufferReturnSize;;
-                                    index = UploadBufferReturnSize;
-                                }
-                                break;
-                            }
-                        }
-                        
-                        if (haveBoundary) {
-                            // After the boundary there should be a --\r\n if
-                            // we're at the last file or \r\n if not
-                            uint8_t endBuf[2];
-                            size = read(fd, endBuf, 2);
-                            if (size != 2) {
-                                sendHTTPResponse(400);
-                                return;
-                            }
-                            if (endBuf[0] == '-' && endBuf[1] == '-') {
-                                // We're done
-                                done = true;
-                                size = read(fd, endBuf, 2);
-                            }
-                            if (endBuf[0] != '\r' || endBuf[1] != '\n') {
-                                sendHTTPResponse(400);
-                                return;
-                            }
-                        }
-                     } else {
-                        ++index;
-                    }
-                    
-                    assert(index <= UploadBufferReturnSize);
-                    
-                    if (index == UploadBufferReturnSize || haveBoundary) {
-                        // Send the buffer
-                        _uploadCurrentSize = haveBoundary ? (index - boundary.size() - 4) : UploadBufferReturnSize;
-                        _uploadTotalSize += _uploadCurrentSize;
-                        uploadCB();
-                        index = 0;
-                        
-                        // Deal with any overflow
-                        if (bufferOverflow > 0) {
-                            memcpy(_uploadBuffer, _uploadBuffer + UploadBufferReturnSize, bufferOverflow);
-                            index = bufferOverflow;
-                            bufferOverflow = 0;
+                bool haveBoundary = false;
+                if (_uploadBuffer[index] == '\r') {
+                    // We need to add "\n--" to the start of the boundary
+                    std::string testBoundary = "\n--" + boundary;
+
+                    haveBoundary = true;
+                    ++index;
+                    // This might be the boundary
+                     // We start at -3 because we need to check the \n-- at the start of the boundary
+                    for (int i = 0; i < testBoundary.size(); ++i, ++index) {
+                        size = read(fd, &(_uploadBuffer[index]), 1);
+                        if (size != 1) {
+                            sendErrorResponse(400, "read error");
+                            return;
                         }
                     
-                        // Break when we've sent all the data
-                        if (haveBoundary) {
+                        if (_uploadBuffer[index] != testBoundary[i]) {
+                            // This is not the boundary
+                            haveBoundary = false;
+                            ++index;
+                            if (index > UploadBufferReturnSize) {
+                                // We are in the overflow area. Set the buffer
+                                // size to UploadBufferReturnSize. After sending
+                                // the data move the overflow to the start of the
+                                // buffer and continue
+                                bufferOverflow = index - UploadBufferReturnSize;;
+                                index = UploadBufferReturnSize;
+                            }
                             break;
                         }
                     }
+                    
+                    if (haveBoundary) {
+                        // After the boundary there should be a --\r\n if
+                        // we're at the last file or \r\n if not
+                        uint8_t endBuf[2];
+                        size = read(fd, endBuf, 2);
+                        if (size != 2) {
+                            sendErrorResponse(400, "read error");
+                            return;
+                        }
+                        if (endBuf[0] == '-' && endBuf[1] == '-') {
+                            // We're done
+                            done = true;
+                            size = read(fd, endBuf, 2);
+                        }
+                        if (endBuf[0] != '\r' || endBuf[1] != '\n') {
+                            sendErrorResponse(400, "missing end of line");
+                            return;
+                        }
+                    }
+                 } else {
+                    ++index;
                 }
-            
-                _uploadStatus = WiFiPortal::HTTPUploadStatus::End;
-                uploadCB();
                 
-                if (requestCB) {
-                    requestCB();
+                assert(index <= UploadBufferReturnSize);
+                
+                if (index == UploadBufferReturnSize || haveBoundary) {
+                    // Send the buffer
+                    _uploadCurrentSize = haveBoundary ? (index - boundary.size() - 4) : UploadBufferReturnSize;
+                    _uploadTotalSize += _uploadCurrentSize;
+                    if (requestCB) {
+                        requestCB();
+                    }
+                    index = 0;
+                    
+                    // Deal with any overflow
+                    if (bufferOverflow > 0) {
+                        memcpy(_uploadBuffer, _uploadBuffer + UploadBufferReturnSize, bufferOverflow);
+                        index = bufferOverflow;
+                        bufferOverflow = 0;
+                    }
+                
+                    // Break when we've sent all the data
+                    if (haveBoundary) {
+                        break;
+                    }
                 }
+            }
+        
+            _uploadStatus = WiFiPortal::HTTPUploadStatus::End;
+            if (requestCB) {
+                requestCB();
             }
         }
     }
@@ -633,7 +635,7 @@ WebServer::handleClient(int fdClient)
                     sendStaticFile(path.c_str(), it.path.c_str());
                 } else {
                     if (isUpload) {
-                        handleUpload(fdClient, headers, it.requestCB, it.uploadCB);
+                        handleUpload(fdClient, headers, it.requestCB);
                     } else {
                         if (it.requestCB) {
                             it.requestCB();
