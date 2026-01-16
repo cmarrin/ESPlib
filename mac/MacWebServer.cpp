@@ -322,7 +322,7 @@ WebServer::streamHTTPResponse(fs::File& file, const char* mimetype, bool attach,
         int size = file.read(buf, 1024);
         if (size < 0) {
             printf("**** Error reading file\n");
-            sendHTTPResponse(404, "text/plain", "Error reading file");
+            sendErrorResponse(404, "Error reading file");
             break;
         }
         
@@ -340,8 +340,7 @@ WebServer::sendStaticFile(const char* filename, const char* path)
     f += filename;
     
     if (!_wfs || !_wfs->exists(f.c_str())) {
-        printf("File not found.\n");
-        sendHTTPResponse(404);
+        sendErrorResponse(404, "File not found");
     } else {
         fs::File file = _wfs->open(f.c_str(), "r");
         streamHTTPResponse(file, WebFileSystem::suffixToMimeType(f).c_str(), false);
@@ -350,7 +349,15 @@ WebServer::sendStaticFile(const char* filename, const char* path)
 }
 
 void
-WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, HandlerCB uploadCB)
+WebServer::sendErrorResponse(int code, const char* error)
+{
+    sendHTTPResponse(code, "text/plain", error);
+    printf("***** Error response (%d):%s.\n", code, error);
+
+}
+
+void
+WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB)
 {
     // For now we handle ContentType: multipart. We accept exactly 2 parts. The first
     // is a key value pair which is placed in _argMap. The second is the uploaded file
@@ -358,13 +365,13 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
     // followed by a blank line, followed by the uploaded file data
     std::string contentType = headers.at("Content-Type");
     if (contentType.empty()) {
-        sendHTTPResponse(501);
+        sendErrorResponse(501, "no Content-Type");
         return;
     }
     
     std::vector<std::string> multipart = parseFormData(contentType);
     if (multipart[0] != "multipart/form-data" || multipart[1] != "boundary") {
-        sendHTTPResponse(501);
+        sendErrorResponse(501, "no multipart boundary");
         return;
     }
 
@@ -383,7 +390,7 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
 
             // Ignore the first 2 characters of the boundary
             if (line.length() < 2 || line.substr(2) != boundary) {
-                sendHTTPResponse(400);
+                sendErrorResponse(400, "missing boundary");
                 return;
             }
         } else {
@@ -397,19 +404,19 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
         multipart = parseKeyValue(line);
         
         if (multipart[0] != "Content-Disposition" || multipart.size() < 2) {
-            sendHTTPResponse(400);
+            sendErrorResponse(400, "missing Content-Disposition");
             return;
         }
         
         multipart = parseFormData(multipart[1]);
         if (multipart[0] != "form-data") {
-            sendHTTPResponse(400);
+            sendErrorResponse(400, "missing form-data");
             return;
         }
         
         // Next should be a "name" key/value pair
         if (multipart.size() < 3 || multipart[1] != "name") {
-            sendHTTPResponse(400);
+            sendErrorResponse(400, "missing name");
             return;
         }
         
@@ -420,7 +427,7 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
         // If it's the latter then there should be a "filename" key/value pair and
         // we don't care about the value of the name.
         if (multipart.size() < 3) {
-            sendHTTPResponse(400);
+            sendErrorResponse(400, "bad name format");
             return;
         }
         
@@ -429,7 +436,7 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
             // content, which comes after a blank line
             line = getLine(fd);
             if (line[0] != '\0') {
-                sendHTTPResponse(400);
+                sendErrorResponse(400, "should be blank line");
                 return;
             }
             
@@ -437,7 +444,7 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
             _argMap[key] = line;
         } else {
             if (multipart[3] != "filename") {
-                sendHTTPResponse(400);
+                sendErrorResponse(400, "missing filename");
                 return;
             }
             
@@ -452,7 +459,7 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
             line = getLine(fd);
             multipart = parseKeyValue(line);
             if (multipart.size() < 2 || multipart[0] != "Content-Type") {
-                sendHTTPResponse(400);
+                sendErrorResponse(400, "missing Content-Type");
                 return;
             }
 
@@ -461,7 +468,7 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, Hand
             // Now let's get to the content, the next line should be blank
             line = getLine(fd);
             if (line[0] != '\0') {
-                sendHTTPResponse(400);
+                sendErrorResponse(400, "line should be blank");
                 return;
             }
             

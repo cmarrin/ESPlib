@@ -79,6 +79,7 @@ public:
     const uint8_t* httpUploadBuffer() const { return _uploadBuffer; }
 
 private:
+    void sendErrorResponse(int code, const char* error);
     void handleClient(int fdClient);
     void handleServer(int fdServer);
     void handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB, HandlerCB uploadCB);
