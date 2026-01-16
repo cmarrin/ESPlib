@@ -25,10 +25,10 @@ All rights reserved.
 class MultipartParser
 {
   public:
-    using Callback = std::function<void(const char* buffer, size_t start, size_t end, void* userData)>;
+    enum class CBType { PartBegin, HeaderField, HeaderValue, HeaderEnd, HeadersEnd, PartData, PartEnd, End };
+    using Callback = std::function<void(CBType, const char* buffer, size_t start, size_t end)>;
 
-	MultipartParser() { reset(); }
-	MultipartParser(const std::string &boundary) { setBoundary(boundary); }
+	MultipartParser(Callback cb, const std::string &boundary = "") : _callback(cb) { setBoundary(boundary); }
 	
 	~MultipartParser() { delete[] _lookbehind; }
 	
@@ -89,23 +89,13 @@ private:
 	size_t _partDataMark;
 	const char* _errorReason;
 
-	Callback _onPartBegin = nullptr;
-	Callback _onHeaderField = nullptr;
-	Callback _onHeaderValue = nullptr;
-	Callback _onHeaderEnd = nullptr;
-	Callback _onHeadersEnd = nullptr;
-	Callback _onPartData = nullptr;
-	Callback _onPartEnd = nullptr;
-	Callback _onEnd = nullptr;
-	void* _userData = nullptr;
+	Callback _callback;
 	
 	void indexBoundary();
 	
-	void callback(Callback cb, const char *buffer = NULL, size_t start = UNMARKED,
-		size_t end = UNMARKED, bool allowEmpty = false);
+	void callback(CBType, const char *buffer = NULL, size_t start = UNMARKED, size_t end = UNMARKED, bool allowEmpty = false);
 	
-	void dataCallback(Callback cb, size_t &mark, const char *buffer, size_t i, size_t bufferLen,
-		bool clear, bool allowEmpty = false);
+	void dataCallback(CBType, size_t &mark, const char *buffer, size_t i, size_t bufferLen, bool clear, bool allowEmpty = false);
         
 	char lower(char c) const { return c | 0x20; }
 	

@@ -25,28 +25,28 @@ MultipartParser::indexBoundary()
 }
 
 void
-MultipartParser::callback(Callback cb, const char *buffer, size_t start, size_t end, bool allowEmpty)
+MultipartParser::callback(CBType type, const char *buffer, size_t start, size_t end, bool allowEmpty)
 {
     if (start != UNMARKED && start == end && !allowEmpty) {
         return;
     }
-    if (cb != NULL) {
-        cb(buffer, start, end, _userData);
+    if (_callback) {
+        _callback(type, buffer, start, end);
     }
 }
 
 void
-MultipartParser::dataCallback(Callback cb, size_t &mark, const char *buffer, size_t i, size_t bufferLen, bool clear, bool allowEmpty)
+MultipartParser::dataCallback(CBType type, size_t &mark, const char *buffer, size_t i, size_t bufferLen, bool clear, bool allowEmpty)
 {
     if (mark == UNMARKED) {
         return;
     }
     
     if (!clear) {
-        callback(cb, buffer, mark, bufferLen, allowEmpty);
+        callback(type, buffer, mark, bufferLen, allowEmpty);
         mark = 0;
     } else {
-        callback(cb, buffer, mark, i, allowEmpty);
+        callback(type, buffer, mark, i, allowEmpty);
         mark = UNMARKED;
     }
 }
@@ -75,7 +75,7 @@ MultipartParser::processPartData(size_t &prevIndex, size_t &index, const char *b
     if (index < _boundarySize) {
         if (_boundary[index] == c) {
             if (index == 0) {
-                dataCallback(_onPartData, _partDataMark, buffer, i, len, true);
+                dataCallback(CBType::PartData, _partDataMark, buffer, i, len, true);
             }
             index++;
         } else {
@@ -98,15 +98,15 @@ MultipartParser::processPartData(size_t &prevIndex, size_t &index, const char *b
             if (c == LF) {
                 // unset the PART_BOUNDARY flag
                 flags &= ~PART_BOUNDARY;
-                callback(_onPartEnd);
-                callback(_onPartBegin);
+                callback(CBType::PartEnd);
+                callback(CBType::PartBegin);
                 state = State::HEADER_FIELD_START;
                 return;
             }
         } else if (flags & LAST_BOUNDARY) {
             if (c == HYPHEN) {
-                callback(_onPartEnd);
-                callback(_onEnd);
+                callback(CBType::PartEnd);
+                callback(CBType::End);
                 state = State::END;
             } else {
                 index = 0;
@@ -123,8 +123,8 @@ MultipartParser::processPartData(size_t &prevIndex, size_t &index, const char *b
     } else if (index - _boundarySize == 3) {
         index = 0;
         if (c == LF) {
-            callback(_onPartEnd);
-            callback(_onEnd);
+            callback(CBType::PartEnd);
+            callback(CBType::End);
             state = State::END;
             return;
         }
@@ -146,7 +146,7 @@ MultipartParser::processPartData(size_t &prevIndex, size_t &index, const char *b
     } else if (prevIndex > 0) {
         // if our boundary turned out to be rubbish, the captured lookbehind
         // belongs to partData
-        callback(_onPartData, _lookbehind, 0, prevIndex);
+        callback(CBType::PartData, _lookbehind, 0, prevIndex);
         prevIndex = 0;
         _partDataMark = i;
         
@@ -178,14 +178,16 @@ void
 MultipartParser::setBoundary(const std::string &boundary)
 {
     reset();
-    _boundary = "\r\n--" + _boundary;
-    _boundaryData = _boundary.c_str();
-    _boundarySize = _boundary.size();
-    indexBoundary();
-    _lookbehind = new char[_boundarySize + 8];
-    _lookbehindSize = _boundarySize + 8;
-    _state = State::START;
-    _errorReason = "No error.";
+    if (!boundary.empty()) {
+        _boundary = "\r\n--" + boundary;
+        _boundaryData = _boundary.c_str();
+        _boundarySize = _boundary.size();
+        indexBoundary();
+        _lookbehind = new char[_boundarySize + 8];
+        _lookbehindSize = _boundarySize + 8;
+        _state = State::START;
+        _errorReason = "No error.";
+    }
 }
 
 size_t
@@ -226,7 +228,7 @@ MultipartParser::feed(const char *buffer, size_t len)
                     return i;
                 }
                 index = 0;
-                callback(_onPartBegin);
+                callback(CBType::PartBegin);
                 state = State::HEADER_FIELD_START;
                 break;
             }
@@ -258,7 +260,7 @@ MultipartParser::feed(const char *buffer, size_t len)
                     setError("Malformed first header name character.");
                     return i;
                 }
-                dataCallback(_onHeaderField, _headerFieldMark, buffer, i, len, true);
+                dataCallback(CBType::HeaderField, _headerFieldMark, buffer, i, len, true);
                 state = State::HEADER_VALUE_START;
                 break;
             }
@@ -278,8 +280,8 @@ MultipartParser::feed(const char *buffer, size_t len)
             _state = State::HEADER_VALUE;
         case State::HEADER_VALUE:
             if (c == CR) {
-                dataCallback(_onHeaderValue, _headerValueMark, buffer, i, len, true, true);
-                callback(_onHeaderEnd);
+                dataCallback(CBType::HeaderValue, _headerValueMark, buffer, i, len, true, true);
+                callback(CBType::HeaderEnd);
                 state = State::HEADER_VALUE_ALMOST_DONE;
             }
             break;
@@ -297,7 +299,7 @@ MultipartParser::feed(const char *buffer, size_t len)
                 return i;
             }
             
-            callback(_onHeadersEnd);
+            callback(CBType::HeadersEnd);
             _state = State::PART_DATA_START;
             break;
         case State::PART_DATA_START:
@@ -311,9 +313,9 @@ MultipartParser::feed(const char *buffer, size_t len)
         }
     }
     
-    dataCallback(_onHeaderField, _headerFieldMark, buffer, i, len, false);
-    dataCallback(_onHeaderValue, _headerValueMark, buffer, i, len, false);
-    dataCallback(_onPartData, _partDataMark, buffer, i, len, false);
+    dataCallback(CBType::HeaderField, _headerFieldMark, buffer, i, len, false);
+    dataCallback(CBType::HeaderValue, _headerValueMark, buffer, i, len, false);
+    dataCallback(CBType::PartData, _partDataMark, buffer, i, len, false);
     
     _index = index;
     _state = state;
