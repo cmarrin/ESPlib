@@ -17,6 +17,8 @@
 		495AB4662E9C753400C4C2C4 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 495AB4652E9C753400C4C2C4 /* main.cpp */; };
 		495AB46D2E9C77FE00C4C2C4 /* Vesper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 495AB46C2E9C77FE00C4C2C4 /* Vesper.cpp */; };
 		495AB4712E9C7BE800C4C2C4 /* libESPlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49E65B012E9C36F800D3C6C5 /* libESPlib.a */; };
+		4968BAE62F19CAE00038B8A9 /* MultipartParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4968BAE52F19CAD40038B8A9 /* MultipartParser.h */; };
+		4968BAE82F19CAEB0038B8A9 /* MultipartParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4968BAE72F19CAE90038B8A9 /* MultipartParser.cpp */; };
 		49E65B902E9C3A7600D3C6C5 /* Font_8x8_8pt.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B742E9C3A7600D3C6C5 /* Font_8x8_8pt.h */; };
 		49E65B912E9C3A7600D3C6C5 /* Font_Compact_5pt.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B752E9C3A7600D3C6C5 /* Font_Compact_5pt.h */; };
 		49E65B932E9C3A7600D3C6C5 /* Blinker.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B652E9C3A7600D3C6C5 /* Blinker.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -146,6 +148,8 @@
 		495AB46B2E9C77FE00C4C2C4 /* Vesper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Vesper.h; path = ../Vesper/Vesper.h; sourceTree = SOURCE_ROOT; };
 		495AB46C2E9C77FE00C4C2C4 /* Vesper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Vesper.cpp; path = ../Vesper/Vesper.cpp; sourceTree = SOURCE_ROOT; };
 		495AB4722E9C7D1800C4C2C4 /* partitions.csv */ = {isa = PBXFileReference; lastKnownFileType = text; name = partitions.csv; path = ../Vesper/partitions.csv; sourceTree = SOURCE_ROOT; };
+		4968BAE52F19CAD40038B8A9 /* MultipartParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MultipartParser.h; sourceTree = "<group>"; };
+		4968BAE72F19CAE90038B8A9 /* MultipartParser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MultipartParser.cpp; sourceTree = "<group>"; };
 		49CAA5C92F11E434005B1107 /* cvtHTML.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = cvtHTML.sh; path = ../cvtHTML.sh; sourceTree = SOURCE_ROOT; };
 		49CAA5CA2F15F5B9005B1107 /* landing.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = landing.html; path = ../landing.html; sourceTree = SOURCE_ROOT; };
 		49E65B012E9C36F800D3C6C5 /* libESPlib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libESPlib.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -355,6 +359,8 @@
 				49E65B6F2E9C3A7600D3C6C5 /* ESPWiFiPortal.cpp */,
 				4934EB112F0B19280054B78E /* IDFWiFiPortal.h */,
 				4934EB122F0B19280054B78E /* IDFWiFiPortal.cpp */,
+				4968BAE72F19CAE90038B8A9 /* MultipartParser.cpp */,
+				4968BAE52F19CAD40038B8A9 /* MultipartParser.h */,
 				495AB4692E9C756400C4C2C4 /* Vesper */,
 				4927442C2E9D94D000AF8FA1 /* webby */,
 				495AB4702E9C7BE800C4C2C4 /* Frameworks */,
@@ -385,6 +391,7 @@
 				49E65B932E9C3A7600D3C6C5 /* Blinker.h in Headers */,
 				49E65B942E9C3A7600D3C6C5 /* mil.h in Headers */,
 				49E65B962E9C3A7600D3C6C5 /* WebShell.h in Headers */,
+				4968BAE62F19CAE00038B8A9 /* MultipartParser.h in Headers */,
 				49E65B982E9C3A7600D3C6C5 /* WiFiPortal.h in Headers */,
 				49E65B992E9C3A7600D3C6C5 /* Clock.h in Headers */,
 				49E65B9B2E9C3A7600D3C6C5 /* StateMachine.h in Headers */,
@@ -571,6 +578,7 @@
 				492744602E9E929500AF8FA1 /* MacWiFiPortal.cpp in Sources */,
 				49E65BA82E9C3A7600D3C6C5 /* WebShell.cpp in Sources */,
 				49E65BAA2E9C3A7600D3C6C5 /* TimeWeatherServer.cpp in Sources */,
+				4968BAE82F19CAEB0038B8A9 /* MultipartParser.cpp in Sources */,
 				49E65BAD2E9C3A7600D3C6C5 /* LittleFSShim.cpp in Sources */,
 				49E65BAE2E9C3A7600D3C6C5 /* BrightnessManager.cpp in Sources */,
 				49E65BAF2E9C3A7600D3C6C5 /* WebFileSystem.cpp in Sources */,
