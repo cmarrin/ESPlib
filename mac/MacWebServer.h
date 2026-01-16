@@ -34,7 +34,7 @@ public:
     
     static constexpr int UploadBufferReturnSize = 2048;
     
-    // While reading uload data we need to check for the boundary string.
+    // While reading upload data we need to check for the boundary string.
     // If we hit the UploadBufferReturnSize and we're in the middle of 
     // checking for the boundary string, we need to keep reading until
     // we get it or we fail to get it. In the former case we return the
