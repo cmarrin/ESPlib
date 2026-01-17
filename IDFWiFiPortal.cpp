@@ -305,7 +305,7 @@ IDFWiFiPortal::httpUploadBuffer() const
 std::string
 IDFWiFiPortal::getHTTPArg(const char* name)
 {
-   char buf[128];
+    char buf[128];
     int ret = httpd_req_recv(_activeRequest, buf, sizeof(buf) - 1);
     if (ret <= 0) {
         if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
@@ -316,7 +316,7 @@ IDFWiFiPortal::getHTTPArg(const char* name)
     buf[ret] = '\0';
 
     char arg[128] = {0};
-    httpd_query_key_value(buf, "name", arg, sizeof(arg));
+    httpd_query_key_value(buf, name, arg, sizeof(arg));
 
     return arg;
 }
