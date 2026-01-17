@@ -9,10 +9,10 @@ All rights reserved.
 
 #ifndef ARDUINO
 
-#include "MultipartParser.h"
+#include "HTTPParser.h"
 
 void
-MultipartParser::indexBoundary()
+HTTPParser::indexBoundary()
 {
     const char *current;
     const char *end = _boundaryData + _boundarySize;
@@ -25,7 +25,7 @@ MultipartParser::indexBoundary()
 }
 
 void
-MultipartParser::callback(CBType type, const char *buffer, size_t start, size_t end, bool allowEmpty)
+HTTPParser::callback(CBType type, const char *buffer, size_t start, size_t end, bool allowEmpty)
 {
     if (start != UNMARKED && start == end && !allowEmpty) {
         return;
@@ -36,7 +36,7 @@ MultipartParser::callback(CBType type, const char *buffer, size_t start, size_t 
 }
 
 void
-MultipartParser::dataCallback(CBType type, size_t &mark, const char *buffer, size_t i, size_t bufferLen, bool clear, bool allowEmpty)
+HTTPParser::dataCallback(CBType type, size_t &mark, const char *buffer, size_t i, size_t bufferLen, bool clear, bool allowEmpty)
 {
     if (mark == UNMARKED) {
         return;
@@ -52,7 +52,7 @@ MultipartParser::dataCallback(CBType type, size_t &mark, const char *buffer, siz
 }
 
 void
-MultipartParser::processPartData(size_t &prevIndex, size_t &index, const char *buffer,
+HTTPParser::processPartData(size_t &prevIndex, size_t &index, const char *buffer,
     size_t len, size_t boundaryEnd, size_t &i, char c, State &state, int &flags)
 {
     prevIndex = index;
@@ -157,7 +157,7 @@ MultipartParser::processPartData(size_t &prevIndex, size_t &index, const char *b
 }
 
 void
-MultipartParser::reset()
+HTTPParser::reset()
 {
     delete[] _lookbehind;
     _state = State::ERROR;
@@ -175,9 +175,11 @@ MultipartParser::reset()
 }
 
 void
-MultipartParser::setBoundary(const std::string &boundary)
+HTTPParser::setBoundary(const std::string &boundary)
 {
     reset();
+    _state = State::START;
+    
     if (!boundary.empty()) {
         _boundary = "\r\n--" + boundary;
         _boundaryData = _boundary.c_str();
@@ -185,83 +187,79 @@ MultipartParser::setBoundary(const std::string &boundary)
         indexBoundary();
         _lookbehind = new char[_boundarySize + 8];
         _lookbehindSize = _boundarySize + 8;
-        _state = State::START;
         _errorReason = "No error.";
     }
 }
 
 size_t
-MultipartParser::feed(const char *buffer, size_t len) 
+HTTPParser::feed(const char *buffer, size_t len) 
 {
     if (_state == State::ERROR || len == 0) {
         return 0;
     }
     
-    State state         = _state;
-    int flags           = _flags;
-    size_t prevIndex    = _index;
-    size_t index        = _index;
-    size_t boundaryEnd  = _boundarySize - 1;
     size_t i;
     char c, cl;
+    size_t prevIndex = _index;
+    size_t boundaryEnd = _boundarySize - 1;
     
     for (i = 0; i < len; i++) {
         c = buffer[i];
         
-        switch (state) {
+        switch (_state) {
         case State::ERROR:
             return i;
         case State::START:
-            index = 0;
-            state = State::START_BOUNDARY;
+            _index = 0;
+            _state = State::START_BOUNDARY;
         case State::START_BOUNDARY:
-            if (index == _boundarySize - 2) {
+            if (_index == _boundarySize - 2) {
                 if (c != CR) {
                     setError("Malformed. Expected CR after boundary.");
                     return i;
                 }
-                index++;
+                _index++;
                 break;
-            } else if (index - 1 == _boundarySize - 2) {
+            } else if (_index - 1 == _boundarySize - 2) {
                 if (c != LF) {
                     setError("Malformed. Expected LF after boundary CR.");
                     return i;
                 }
-                index = 0;
+                _index = 0;
                 callback(CBType::PartBegin);
-                state = State::HEADER_FIELD_START;
+                _state = State::HEADER_FIELD_START;
                 break;
             }
-            if (c != _boundary[index + 2]) {
+            if (c != _boundary[_index + 2]) {
                 setError("Malformed. Found different boundary data than the given one.");
                 return i;
             }
-            index++;
+            _index++;
             break;
         case State::HEADER_FIELD_START:
             _state = State::HEADER_FIELD;
             _headerFieldMark = i;
-            index = 0;
+            _index = 0;
         case State::HEADER_FIELD:
             if (c == CR) {
                 _headerFieldMark = UNMARKED;
-                state = State::HEADERS_ALMOST_DONE;
+                _state = State::HEADERS_ALMOST_DONE;
                 break;
             }
 
-            index++;
+            _index++;
             if (c == HYPHEN) {
                 break;
             }
 
             if (c == COLON) {
-                if (index == 1) {
+                if (_index == 1) {
                     // empty header field
                     setError("Malformed first header name character.");
                     return i;
                 }
                 dataCallback(CBType::HeaderField, _headerFieldMark, buffer, i, len, true);
-                state = State::HEADER_VALUE_START;
+                _state = State::HEADER_VALUE_START;
                 break;
             }
 
@@ -282,7 +280,7 @@ MultipartParser::feed(const char *buffer, size_t len)
             if (c == CR) {
                 dataCallback(CBType::HeaderValue, _headerValueMark, buffer, i, len, true, true);
                 callback(CBType::HeaderEnd);
-                state = State::HEADER_VALUE_ALMOST_DONE;
+                _state = State::HEADER_VALUE_ALMOST_DONE;
             }
             break;
         case State::HEADER_VALUE_ALMOST_DONE:
@@ -306,7 +304,7 @@ MultipartParser::feed(const char *buffer, size_t len)
             _state = State::PART_DATA;
             _partDataMark = i;
         case State::PART_DATA:
-            processPartData(prevIndex, index, buffer, len, boundaryEnd, i, c, state, flags);
+            processPartData(prevIndex, _index, buffer, len, boundaryEnd, i, c, _state, _flags);
             break;
         default:
             return i;
@@ -316,10 +314,6 @@ MultipartParser::feed(const char *buffer, size_t len)
     dataCallback(CBType::HeaderField, _headerFieldMark, buffer, i, len, false);
     dataCallback(CBType::HeaderValue, _headerValueMark, buffer, i, len, false);
     dataCallback(CBType::PartData, _partDataMark, buffer, i, len, false);
-    
-    _index = index;
-    _state = state;
-    _flags = flags;
     
     return len;
 }

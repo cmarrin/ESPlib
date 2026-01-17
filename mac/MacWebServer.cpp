@@ -9,6 +9,8 @@ All rights reserved.
 
 #include "MacWebServer.h"
 
+#include "HTTPParser.h"
+
 #include<cassert>
 #include<fstream>
 #include<iostream>
@@ -359,10 +361,6 @@ WebServer::sendErrorResponse(int code, const char* error)
 void
 WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB)
 {
-    // For now we handle ContentType: multipart. We accept exactly 2 parts. The first
-    // is a key value pair which is placed in _argMap. The second is the uploaded file
-    // data including the filename (which is placed in _argMap). The next line is Content-Type
-    // followed by a blank line, followed by the uploaded file data
     std::string contentType = headers.at("Content-Type");
     if (contentType.empty()) {
         sendErrorResponse(501, "no Content-Type");
@@ -377,6 +375,43 @@ WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB)
 
     std::string boundary = multipart[2];
     
+    HTTPParser parser([this](HTTPParser::CBType type, const char* buffer, size_t start, size_t end)
+    {
+        // For headers we handle Content-Disposition and Content-Type.
+        std::string field;
+        if (buffer) {
+            field = std::string(buffer + start, end - start);
+        }
+        
+        switch (type) {
+            case HTTPParser::CBType::HeaderField:
+                if (field == "Content-Disposition") {
+                }
+                break;
+            default:
+                break;
+        }
+    }, boundary);
+
+    while (!parser.stopped()) {
+        size_t len = read(fd, _uploadBuffer, sizeof(_uploadBuffer));
+        size_t fed = 0;
+        do {
+            size_t ret = parser.feed(reinterpret_cast<const char*>(_uploadBuffer + fed), len - fed);
+            fed += ret;
+        } while (fed < len && !parser.stopped());
+    }
+    
+    return;
+
+
+
+
+
+    // For now we handle ContentType: multipart. We accept exactly 2 parts. The first
+    // is a key value pair which is placed in _argMap. The second is the uploaded file
+    // data including the filename (which is placed in _argMap). The next line is Content-Type
+    // followed by a blank line, followed by the uploaded file data
     bool nextLineIsBoundary = true;
     bool done = false;
     

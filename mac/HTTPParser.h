@@ -14,6 +14,15 @@ All rights reserved.
 // It is heavily edited to bring it up to modern C++ standards and 
 // to make it prettier :-)
 //
+// In its original form it simply parsed and sent back the component parts.
+// The caller need to have state to complete the parse. I've added the ability
+// to add the header fields to a map that the caller can use to determine
+// what to do with this part. So now each part gets a callback with the start
+// of the data, another for each chunk, and one more at the end. The parser
+// keeps the header map which can be queried as needed.
+//
+// Since the main header fields are the same format, this parser can be used
+// to parse those as well.
 
 #pragma once
 
@@ -22,15 +31,15 @@ All rights reserved.
 #include <array>
 #include <functional>
 
-class MultipartParser
+class HTTPParser
 {
   public:
     enum class CBType { PartBegin, HeaderField, HeaderValue, HeaderEnd, HeadersEnd, PartData, PartEnd, End };
     using Callback = std::function<void(CBType, const char* buffer, size_t start, size_t end)>;
 
-	MultipartParser(Callback cb, const std::string &boundary = "") : _callback(cb) { setBoundary(boundary); }
+	HTTPParser(Callback cb, const std::string &boundary = "") : _callback(cb) { setBoundary(boundary); }
 	
-	~MultipartParser() { delete[] _lookbehind; }
+	~HTTPParser() { delete[] _lookbehind; }
 	
 	void reset();
 	
