@@ -17,7 +17,8 @@ All rights reserved.
 #pragma once
 
 #include "WiFiPortal.h"
-#include <map>
+#include "HTTPParser.h"
+
 #include <string>
 
 class File;
@@ -30,7 +31,6 @@ class WebServer
 {
 public:
     using HandlerCB = std::function<void()>;
-    using ArgMap = std::map<std::string, std::string>;
     
     static constexpr int UploadBufferReturnSize = 2048;
     
@@ -64,9 +64,9 @@ public:
         _handlers.emplace_back(uri, path, nullptr, true);
     }
 
-    void sendHTTPResponse(int code, const char* mimetype = nullptr, const char* data = "", const ArgMap& extraHeaders = ArgMap());
-    void sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip, const ArgMap& extraHeaders = ArgMap());
-    void streamHTTPResponse(fs::File& file, const char* mimetype, bool attach, const ArgMap& extraHeaders = ArgMap());
+    void sendHTTPResponse(int code, const char* mimetype = nullptr, const char* data = "", const HTTPParser::ArgMap& extraHeaders = HTTPParser::ArgMap());
+    void sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip, const HTTPParser::ArgMap& extraHeaders = HTTPParser::ArgMap());
+    void streamHTTPResponse(fs::File& file, const char* mimetype, bool attach, const HTTPParser::ArgMap& extraHeaders = HTTPParser::ArgMap());
 
     std::string getHTTPArg(const char* name) { return _argMap[name]; }
     
@@ -82,11 +82,11 @@ private:
     void sendErrorResponse(int code, const char* error);
     void handleClient(int fdClient);
     void handleServer(int fdServer);
-    void handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB);
+    void handleUpload(int fd, const HTTPParser::ArgMap& headers, HandlerCB requestCB);
 
     void sendStaticFile(const char* filename, const char* path);
     
-    std::string buildHTTPHeader(int statuscode, size_t contentLength, std::string mimetype, const ArgMap& extraHeaders = ArgMap());
+    std::string buildHTTPHeader(int statuscode, size_t contentLength, std::string mimetype, const HTTPParser::ArgMap& extraHeaders = HTTPParser::ArgMap());
     
     struct HTTPHandler
     {
@@ -97,7 +97,7 @@ private:
     
     std::vector<HTTPHandler> _handlers;
     
-    ArgMap _argMap;
+    HTTPParser::ArgMap _argMap;
     WiFiPortal::HTTPUploadStatus _uploadStatus = WiFiPortal::HTTPUploadStatus::None;
     std::string _uploadFilename;
     std::string _uploadName;

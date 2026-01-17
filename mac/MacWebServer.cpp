@@ -9,8 +9,6 @@ All rights reserved.
 
 #include "MacWebServer.h"
 
-#include "HTTPParser.h"
-
 #include<cassert>
 #include<fstream>
 #include<iostream>
@@ -156,9 +154,9 @@ static std::vector<std::string> parseFormData(const std::string& value)
 }
 
 // Function to parse query string into a map
-static WebServer::ArgMap parseQuery(const std::string& query)
+static HTTPParser::ArgMap parseQuery(const std::string& query)
 {
-    WebServer::ArgMap result;
+    HTTPParser::ArgMap result;
     std::regex paramRegex("([^&=]+)=([^&]*)");
     auto begin = std::sregex_iterator(query.begin() + 1, query.end(), paramRegex);
     auto end = std::sregex_iterator();
@@ -169,7 +167,7 @@ static WebServer::ArgMap parseQuery(const std::string& query)
     return result;
 }
 
-static bool parseRequestHeader(int fd, WebServer::ArgMap& headers, WebServer::ArgMap& args)
+static bool parseRequestHeader(int fd, HTTPParser::ArgMap& headers, HTTPParser::ArgMap& args)
 {
     bool isFirstLine = true;
     std::string path;
@@ -261,7 +259,7 @@ static const char* responseCodeToString(int code)
 }
 
 std::string
-WebServer::buildHTTPHeader(int statuscode, size_t contentLength, std::string mimetype, const ArgMap& extraHeaders)
+WebServer::buildHTTPHeader(int statuscode, size_t contentLength, std::string mimetype, const HTTPParser::ArgMap& extraHeaders)
 {
     std::ostringstream buffer;
     buffer << "HTTP/1.1 " << statuscode << " " << responseCodeToString(statuscode) << "\r\n";
@@ -277,7 +275,7 @@ WebServer::buildHTTPHeader(int statuscode, size_t contentLength, std::string mim
 }
 
 void
-WebServer::sendHTTPResponse(int code, const char* mimetype, const char* data, const ArgMap& extraHeaders)
+WebServer::sendHTTPResponse(int code, const char* mimetype, const char* data, const HTTPParser::ArgMap& extraHeaders)
 {
     if (code != 200) {
         printf("Error Response code (%d): %s\n", code, responseCodeToString(code));
@@ -290,9 +288,9 @@ WebServer::sendHTTPResponse(int code, const char* mimetype, const char* data, co
 }
 
 void
-WebServer::sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip, const ArgMap& extraHeaders)
+WebServer::sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip, const HTTPParser::ArgMap& extraHeaders)
 {
-    ArgMap headers = extraHeaders;
+    HTTPParser::ArgMap headers = extraHeaders;
     
     if (gzip) {
         headers["Content-Encoding"] = "gzip";
@@ -304,9 +302,9 @@ WebServer::sendHTTPResponse(int code, const char* mimetype, const char* data, si
 }
 
 void
-WebServer::streamHTTPResponse(fs::File& file, const char* mimetype, bool attach, const ArgMap& extraHeaders)
+WebServer::streamHTTPResponse(fs::File& file, const char* mimetype, bool attach, const HTTPParser::ArgMap& extraHeaders)
 {
-    ArgMap headers = extraHeaders;
+    HTTPParser::ArgMap headers = extraHeaders;
 
     // For now assume this is a file download. So set Content-Disposition
     std::string disp = attach ? "attachment" : "inline";
@@ -359,7 +357,7 @@ WebServer::sendErrorResponse(int code, const char* error)
 }
 
 void
-WebServer::handleUpload(int fd, const ArgMap& headers, HandlerCB requestCB)
+WebServer::handleUpload(int fd, const HTTPParser::ArgMap& headers, HandlerCB requestCB)
 {
     std::string contentType = headers.at("Content-Type");
     if (contentType.empty()) {
@@ -635,7 +633,7 @@ WebServer::handleClient(int fdClient)
     // Set the member variable, only valid for the duration of this call
     _fdClient = fdClient;
 
-    ArgMap headers;
+    HTTPParser::ArgMap headers;
     _argMap.clear();
 
     parseRequestHeader(fdClient, headers, _argMap);

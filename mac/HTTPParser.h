@@ -30,12 +30,14 @@ All rights reserved.
 #include <string>
 #include <array>
 #include <functional>
+#include <map>
 
 class HTTPParser
 {
   public:
     enum class CBType { PartBegin, HeaderField, HeaderValue, HeaderEnd, HeadersEnd, PartData, PartEnd, End };
     using Callback = std::function<void(CBType, const char* buffer, size_t start, size_t end)>;
+    using ArgMap = std::map<std::string, std::string>;
 
 	HTTPParser(Callback cb, const std::string &boundary = "") : _callback(cb) { setBoundary(boundary); }
 	
