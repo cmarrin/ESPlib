@@ -11,6 +11,7 @@ All rights reserved.
 
 #include "HTTPParser.h"
 
+#include <cstring>
 #include <filesystem>
 #include <regex>
 
