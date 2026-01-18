@@ -30,21 +30,6 @@ class WebFileSystem;
 class WebServer
 {
 public:
-    using HandlerCB = std::function<void()>;
-    
-    static constexpr int UploadBufferReturnSize = 2048;
-    
-    // While reading upload data we need to check for the boundary string.
-    // If we hit the UploadBufferReturnSize and we're in the middle of 
-    // checking for the boundary string, we need to keep reading until
-    // we get it or we fail to get it. In the former case we return the
-    // data up to where the boundary starts and make that the last buffer.
-    // In the latter case we need to send UploadBufferReturnSize then
-    // put the rest of the data at the head of the buffer and continue
-    // reading. 80 bytes is enough for the max boundary string size plus
-    // a couple of \r\n and a couple of '-'. 
-    static constexpr int UploadBufferActualSize = UploadBufferReturnSize + 80;
-
     WebServer() { }
     ~WebServer() { stop(); }
 
@@ -53,7 +38,7 @@ public:
     
     void process();
     
-    int32_t addHTTPHandler(const char* endpoint, WiFiPortal::HTTPMethod method, HandlerCB requestCB)
+    int32_t addHTTPHandler(const char* endpoint, WiFiPortal::HTTPMethod method, HTTPParser::HandlerCB requestCB)
     {
         _handlers.emplace_back(endpoint, "", requestCB, false);
         return int32_t(_handlers.size());
@@ -68,21 +53,16 @@ public:
     void sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip, const HTTPParser::ArgMap& extraHeaders = HTTPParser::ArgMap());
     void streamHTTPResponse(fs::File& file, const char* mimetype, bool attach, const HTTPParser::ArgMap& extraHeaders = HTTPParser::ArgMap());
 
-    std::string getHTTPArg(const char* name) { return _argMap[name]; }
-    
-    WiFiPortal::HTTPUploadStatus httpUploadStatus() const { return _uploadStatus; }
-    std::string httpUploadFilename() const { return _uploadFilename; }
-    std::string httpUploadName() const { return _uploadName; }
-    std::string httpUploadType() const { return _uploadMimetype; }
-    size_t httpUploadTotalSize() const { return _uploadTotalSize; }
-    size_t httpUploadCurrentSize() const { return _uploadCurrentSize; }
-    const uint8_t* httpUploadBuffer() const { return _uploadBuffer; }
+    std::string getHTTPArg(const char* name) { return _parser ? _parser->getHTTPArg(name) : ""; }
+    WiFiPortal::HTTPUploadStatus httpUploadStatus() const { return _parser ? _parser->httpUploadStatus() : WiFiPortal::HTTPUploadStatus::None; }
+    std::string httpUploadFilename() const { return _parser ? _parser->httpUploadFilename() : ""; }
+    size_t httpUploadTotalSize() const { return _parser ? _parser->httpUploadTotalSize() : 0; }
+    size_t httpUploadCurrentSize() const { return _parser ? _parser->httpUploadCurrentSize() : 0; }
+    const uint8_t* httpUploadBuffer() const { return _parser ? _parser->httpUploadBuffer() : nullptr; }
 
 private:
-    void sendErrorResponse(int code, const char* error);
     void handleClient(int fdClient);
     void handleServer(int fdServer);
-    void handleUpload(int fd, const HTTPParser::ArgMap& headers, HandlerCB requestCB);
 
     void sendStaticFile(const char* filename, const char* path);
     
@@ -91,26 +71,19 @@ private:
     struct HTTPHandler
     {
         std::string endpoint, path;
-        HandlerCB requestCB;
+        HTTPParser::HandlerCB requestCB;
         bool isStatic;
     };
     
     std::vector<HTTPHandler> _handlers;
-    
-    HTTPParser::ArgMap _argMap;
-    WiFiPortal::HTTPUploadStatus _uploadStatus = WiFiPortal::HTTPUploadStatus::None;
-    std::string _uploadFilename;
-    std::string _uploadName;
-    std::string _uploadMimetype;
-    size_t _uploadTotalSize = 0;
-    size_t _uploadCurrentSize = 0;
-    uint8_t _uploadBuffer[UploadBufferActualSize];
-    
+        
     int _fdClient = -1; // This is only valis during handleClient
     
     std::vector<int> _clientsToProcess;
     
     WebFileSystem* _wfs = nullptr;
+    
+    std::unique_ptr<HTTPParser> _parser;
 };
 
 }

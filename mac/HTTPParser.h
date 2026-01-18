@@ -32,97 +32,79 @@ All rights reserved.
 #include <functional>
 #include <map>
 
+#include "WiFiPortal.h"
+
+namespace mil {
+
 class HTTPParser
 {
   public:
-    enum class CBType { PartBegin, HeaderField, HeaderValue, HeaderEnd, HeadersEnd, PartData, PartEnd, End };
-    using Callback = std::function<void(CBType, const char* buffer, size_t start, size_t end)>;
+    static constexpr int UploadBufferReturnSize = 256;
+    
+    // While reading upload data we need to check for the boundary string.
+    // If we hit the UploadBufferReturnSize and we're in the middle of 
+    // checking for the boundary string, we need to keep reading until
+    // we get it or we fail to get it. In the former case we return the
+    // data up to where the boundary starts and make that the last buffer.
+    // In the latter case we need to send UploadBufferReturnSize then
+    // put the rest of the data at the head of the buffer and continue
+    // reading. 80 bytes is enough for the max boundary string size plus
+    // a couple of \r\n and a couple of '-'. 
+    static constexpr int UploadBufferActualSize = UploadBufferReturnSize + 80;
+
+    using ReadCB = std::function<ssize_t(uint8_t* buf, size_t size)>;
+    using HandlerCB = std::function<void()>;
+    
     using ArgMap = std::map<std::string, std::string>;
 
-	HTTPParser(Callback cb, const std::string &boundary = "") : _callback(cb) { setBoundary(boundary); }
-	
-	~HTTPParser() { delete[] _lookbehind; }
-	
-	void reset();
-	
-	void setBoundary(const std::string &boundary);
-	
-	size_t feed(const char *buffer, size_t len);
-	
-	bool succeeded() const { return _state == State::END; }
-	
-	bool hasError() const { return _state == State::ERROR; }
-	
-	bool stopped() const { return _state == State::ERROR || _state == State::END; }
-	
-	const char *getErrorMessage() const { return _errorReason; }
-    
-private:
-	static const char CR     = 13;
-	static const char LF     = 10;
-	static const char SPACE  = 32;
-	static const char HYPHEN = 45;
-	static const char COLON  = 58;
-	static const size_t UNMARKED = (size_t) -1;
-	
-	enum class State {
-		ERROR,
-		START,
-		START_BOUNDARY,
-		HEADER_FIELD_START,
-		HEADER_FIELD,
-		HEADER_VALUE_START,
-		HEADER_VALUE,
-		HEADER_VALUE_ALMOST_DONE,
-		HEADERS_ALMOST_DONE,
-		PART_DATA_START,
-		PART_DATA,
-		PART_END,
-		END
-	};
-	
-	enum Flags {
-		PART_BOUNDARY = 1,
-		LAST_BOUNDARY = 2
-	};
-	
-	std::string _boundary;
-	const char* _boundaryData = nullptr;
-	size_t _boundarySize;
-	std::array<bool, 256> _boundaryIndex;
-	char* _lookbehind = nullptr;
-	size_t _lookbehindSize;
-	State _state;
-	int _flags;
-	size_t _index;
-	size_t _headerFieldMark;
-	size_t _headerValueMark;
-	size_t _partDataMark;
-	const char* _errorReason;
+	HTTPParser() { }
+	~HTTPParser() { }
 
-	Callback _callback;
-	
-	void indexBoundary();
-	
-	void callback(CBType, const char *buffer = NULL, size_t start = UNMARKED, size_t end = UNMARKED, bool allowEmpty = false);
-	
-	void dataCallback(CBType, size_t &mark, const char *buffer, size_t i, size_t bufferLen, bool clear, bool allowEmpty = false);
-        
-	char lower(char c) const { return c | 0x20; }
-	
-	bool isBoundaryChar(char c) const { return _boundaryIndex[(unsigned char) c]; }
-	
-	bool isHeaderFieldCharacter(char c) const {
-		return (c >= 'a' && c <= 'z')
-			|| (c >= 'A' && c <= 'Z')
-			|| c == HYPHEN;
-	}
-	
-	void setError(const char *message) {
-		_state = State::ERROR;
-		_errorReason = message;
-	}
-	
-	void processPartData(size_t &prevIndex, size_t &index, const char *buffer,
-		size_t len, size_t boundaryEnd, size_t &i, char c, State &state, int &flags);
+    bool parseMultipart(HandlerCB, ReadCB);
+    
+    bool parseRequestHeader(ReadCB cb);
+    
+    static std::string getLine(ReadCB cb);
+    static std::string urlDecode(const std::string&);
+    static std::string suffixToMimeType(const std::string& filename);
+    static std::vector<std::string> split(const std::string& str, char sep);
+    static std::string trimWhitespace(const std::string& s);
+    static std::string removeQuotes(const std::string& s);
+    static std::vector<std::string> parseFormData(const std::string& value);
+    
+    void setErrorResponse(int code, const char* error)
+    {
+        _errorCode = code;
+        _errorReason = error;
+    }
+    
+    const std::string& method() const { return _method; }
+    const std::string& path() const { return _path; }
+    const std::string getHTTPArg(const char* name) { return _args[name]; }
+    WiFiPortal::HTTPUploadStatus httpUploadStatus() const { return _uploadStatus; }
+    std::string httpUploadFilename() const { return _uploadFilename; }
+    size_t httpUploadTotalSize() const { return _uploadTotalSize; }
+    size_t httpUploadCurrentSize() const { return _uploadCurrentSize; }
+    const uint8_t* httpUploadBuffer() const { return _uploadBuffer; }
+
+private:
+    static std::vector<std::string> parseKeyValue(const std::string& s);
+
+    HTTPParser::ArgMap _args;
+    HTTPParser::ArgMap _headers;
+    std::string _method;
+    std::string _path;
+    
+    int _errorCode = 0;
+    std::string _errorReason;
+    
+    // For upload
+    WiFiPortal::HTTPUploadStatus _uploadStatus = WiFiPortal::HTTPUploadStatus::None;
+    std::string _uploadFilename;
+    std::string _uploadMimetype;
+    size_t _uploadTotalSize = 0;
+    size_t _uploadCurrentSize = 0;
+    uint8_t _uploadBuffer[UploadBufferActualSize];
 };
+
+}

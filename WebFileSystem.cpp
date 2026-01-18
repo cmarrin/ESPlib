@@ -10,6 +10,8 @@ All rights reserved.
 #include "WebFileSystem.h"
 
 #include "Application.h"
+#include "HTTPParser.h"
+
 #include <filesystem>
 #include "lua.hpp"
 
@@ -52,108 +54,11 @@ const
 fs::FS LittleFS;
 #endif
 
-std::string
-WebFileSystem::urlDecode(const std::string& s)
-{
-    // Convert '+' to space
-    std::string result = s;
-    std::replace( result.begin(), result.end(), '+', ' ');
-    
-    // Convert % hex codes
-    std::vector<std::string> parts = WebFileSystem::split(result, '%');
-    result = parts[0];
-    parts.erase(parts.begin());
-    
-    for (const auto& it : parts) {
-        // First 2 chars are the hex code
-        assert(it.size() >= 2);
-        
-        char buf[3] = "XX";
-        buf[0] = it[0];
-        buf[1] = it[1];
-        uint8_t hex = strtol(buf, nullptr, 16);
-        result += char(hex);
-        result += it.substr(2);
-    }
-    
-    return result;
-}
-
-std::vector<std::string>
-WebFileSystem::split(const std::string& str, char sep)
-{
-    std::vector<std::string> strings;
-    
-    int startIndex = 0;
-    int endIndex = 0;
-    
-    for (int i = 0; i <= str.size(); i++) {
-        if (str[i] == sep || i == str.size()) {
-            endIndex = i;
-            std::string temp;
-            temp.append(str, startIndex, endIndex - startIndex);
-            strings.push_back(temp);
-            startIndex = endIndex + 1;
-        }
-    }
-    return strings;
-}
-
-std::string
-WebFileSystem::trimWhitespace(const std::string& s)
-{
-    std::string returnString(s);
-    returnString.erase(0, returnString.find_first_not_of(" \t"));
-    returnString.erase(returnString.find_last_not_of(" \t") + 1);
-    return returnString;
-}
-
-std::string
-WebFileSystem::removeQuotes(const std::string& s)
-{            
-    if (s[0] == '"') {
-        std::string returnString = s.substr(1);
-        returnString.pop_back();
-        return returnString;
-    }
-    return s;
-}
-
-// Returns null if file is not a source file (cannot be displayed in web browser)
-std::string
-WebFileSystem::suffixToMimeType(const std::string& filename)
-{
-    std::string suffix = std::filesystem::path(filename).extension();
-    for_each(suffix.begin(), suffix.end(), [](char& c) {
-        c = std::tolower(c);
-    });
-
-    if (suffix == ".htm" || suffix == ".html") {
-        return "text/html";
-    } else if (suffix == ".css") {
-        return "text/css";
-    } else if (suffix == ".js") {
-        return "text/javascript";
-    } else if (suffix == ".png") {
-        return "image/png";
-    } else if (suffix == ".gif") {
-        return "image/gif";
-    } else if (suffix == ".jpg" || suffix == ".jpeg") {
-        return "image/jpeg";
-    } else if (suffix == ".pdf") {
-        return "application/pdf";
-    } else if (suffix == ".txt" || suffix == ".c" || suffix == ".h" || suffix == ".cpp" || suffix == ".hpp") {
-        return "text/plain";
-    } else {
-        return "";
-    }
-}
-
 // If return is true path has path to use and the file or dir exists
 bool
 WebFileSystem::prepareFile(WiFiPortal* p, std::string& path)
 {
-    path = urlDecode(p->getHTTPArg("path"));
+    path = HTTPParser::urlDecode(p->getHTTPArg("path"));
     
     if (path.empty()) {
         p->sendHTTPResponse(400, "application/json", "{\"status\":\"error\",\"message\":\"Path not provided\"}");
@@ -193,7 +98,7 @@ WebFileSystem::begin(Application* app, bool format)
     {
         std::string s = "0,";
         s += std::to_string(totalBytes()) + "," + std::to_string(usedBytes());
-        std::string dir = listDir(urlDecode(p->getHTTPArg("path")).c_str(), 0);
+        std::string dir = listDir(HTTPParser::urlDecode(p->getHTTPArg("path")).c_str(), 0);
         if (!dir.empty()) {
             s += ":";
             s += dir;
@@ -204,7 +109,7 @@ WebFileSystem::begin(Application* app, bool format)
 
     app->addHTTPHandler("/newfolder", [this](WiFiPortal* p)
     {
-        std::string path = urlDecode(p->getHTTPArg("path"));
+        std::string path = HTTPParser::urlDecode(p->getHTTPArg("path"));
         
         if (path.empty()) {
             p->sendHTTPResponse(400, "application/json", "{\"status\":\"error\",\"message\":\"Path not provided\"}");
@@ -262,7 +167,7 @@ WebFileSystem::begin(Application* app, bool format)
         std::string path;
         if (prepareFile(p, path)) {
             fs::File file = open(path.c_str(), "r");
-            std::string mime = suffixToMimeType(path);
+            std::string mime = HTTPParser::suffixToMimeType(path);
             printf("***** File: path='%s', mime-type='%s'\n", path.c_str(), mime.c_str());
                 
             if (mime.empty()) {
@@ -399,7 +304,7 @@ WebFileSystem::handleUpload(WiFiPortal* p)
     bool finished = false;
     
     if (p->httpUploadStatus() == WiFiPortal::HTTPUploadStatus::Start) {
-        _uploadFilename = urlDecode(p->getHTTPArg("path")) + "/" + p->httpUploadFilename();
+        _uploadFilename = HTTPParser::urlDecode(p->getHTTPArg("path")) + "/" + p->httpUploadFilename();
         _uploadAborted = false;
     
         // Open file for writing

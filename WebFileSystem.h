@@ -42,12 +42,6 @@ class WebFileSystem
     bool mkdir(const char* path);
     bool rmdir(const char* path);
 
-    static std::string urlDecode(const std::string&);
-    static std::string suffixToMimeType(const std::string& filename);
-    static std::vector<std::string> split(const std::string& str, char sep);
-    static std::string trimWhitespace(const std::string& s);
-    static std::string removeQuotes(const std::string& s);
-
     std::string realPath(const std::string& path) const;
     
     void sendLandingPage(WiFiPortal*);
