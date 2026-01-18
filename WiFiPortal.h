@@ -134,8 +134,6 @@ public:
     // These methods get values for the current upload. Must be called inside a HandlerCB
     virtual HTTPUploadStatus httpUploadStatus() const { return HTTPUploadStatus::None; }
     virtual std::string httpUploadFilename() const { return ""; }
-    virtual std::string httpUploadName() const { return ""; }
-    virtual std::string httpUploadType() const { return ""; }
     virtual size_t httpUploadTotalSize() const { return 0; }
     virtual size_t httpUploadCurrentSize() const { return 0; }
     virtual const uint8_t* httpUploadBuffer() const { return nullptr; }

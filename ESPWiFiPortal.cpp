@@ -192,18 +192,6 @@ ESPWiFiPortal::httpUploadFilename() const
     return _wifiManager.server->upload().filename.c_str();
 }
 
-std::string
-ESPWiFiPortal::httpUploadName() const
-{
-    return _wifiManager.server->upload().name.c_str();
-}
-
-std::string
-ESPWiFiPortal::httpUploadType() const
-{
-    return _wifiManager.server->upload().type.c_str();
-}
-
 size_t
 ESPWiFiPortal::httpUploadTotalSize() const
 {

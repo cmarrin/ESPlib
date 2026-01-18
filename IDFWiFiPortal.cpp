@@ -272,18 +272,6 @@ IDFWiFiPortal::httpUploadFilename() const
     return "not implemented";
 }
 
-std::string
-IDFWiFiPortal::httpUploadName() const
-{
-    return "not implemented";
-}
-
-std::string
-IDFWiFiPortal::httpUploadType() const
-{
-    return "not implemented";
-}
-
 size_t
 IDFWiFiPortal::httpUploadTotalSize() const
 {

@@ -41,8 +41,6 @@ public:
     virtual int readHTTPContent(uint8_t* buf, size_t bufSize) override;
     virtual HTTPUploadStatus httpUploadStatus() const override;
     virtual std::string httpUploadFilename() const override;
-    virtual std::string httpUploadName() const override;
-    virtual std::string httpUploadType() const override;
     virtual size_t httpUploadTotalSize() const override;
     virtual size_t httpUploadCurrentSize() const override;
     virtual const uint8_t* httpUploadBuffer() const override;

@@ -67,6 +67,7 @@ void
 MacWiFiPortal::process()
 {
     _server.process();
+    delay(1);
 }
 
 void
@@ -120,18 +121,6 @@ std::string
 MacWiFiPortal::httpUploadFilename() const
 {
     return _server.httpUploadFilename();
-}
-
-std::string
-MacWiFiPortal::httpUploadName() const
-{
-    return _server.httpUploadName();
-}
-
-std::string
-MacWiFiPortal::httpUploadType() const
-{
-    return _server.httpUploadType();
 }
 
 size_t
