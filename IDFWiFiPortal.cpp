@@ -11,6 +11,7 @@ All rights reserved.
 
 #include "IDFWiFiPortal.h"
 
+#include "HTTPParser.h"
 #include "WebFileSystem.h"
 
 #include "dns_server.h"
@@ -602,10 +603,10 @@ IDFWiFiPortal::connectPostHandler(WiFiPortal* portal)
     httpd_query_key_value(buf, "hostname", hostnameBuf, sizeof(hostnameBuf));
     
     // Decode the strings
-    std::string ssid = WebFileSystem::urlDecode(ssidBuf);
-    std::string pass = WebFileSystem::urlDecode(passBuf);
+    std::string ssid = HTTPParser::urlDecode(ssidBuf);
+    std::string pass = HTTPParser::urlDecode(passBuf);
 
-    std::string hostname = WebFileSystem::urlDecode(hostnameBuf);
+    std::string hostname = HTTPParser::urlDecode(hostnameBuf);
     
     if (ssid.empty()) {
         self->getNVSParam("wifi_ssid", ssid);
