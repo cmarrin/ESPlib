@@ -202,8 +202,7 @@ WebFileSystem::begin(Application* app, bool format)
         return true;
     });
 
-    app->addHTTPHandler("/upload", [this](WiFiPortal* p) { handleUpload(p); });
-
+    app->addHTTPHandler("/upload", WiFiPortal::HTTPMethod::Post, [this](WiFiPortal* p) { handleUpload(p); });
 
     bool retval = LittleFS.begin(format);
     if (!retval) {
