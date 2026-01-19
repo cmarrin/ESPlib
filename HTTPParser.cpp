@@ -248,10 +248,9 @@ HTTPParser::parseMultipart(const std::string& boundary, HandlerCB requestCB, Rea
 std::string
 HTTPParser::getLine(ReadCB cb)
 {
-    char buf[4096];
+    std::string s;
     
     // Get a line
-    int index = 0;
     bool needNewLine = false;
     
     while (true) {
@@ -260,11 +259,9 @@ HTTPParser::getLine(ReadCB cb)
         if (size != 1) {
             return "";
         }
-        buf[index] = char(c);
 
         if (needNewLine) {
-            if (buf[index] == '\n') {
-                buf[index - 1] = '\0';
+            if (c == '\n') {
                 break;
             } else {
                 printf("Expected newline in parseRequestHeader\n");
@@ -272,12 +269,13 @@ HTTPParser::getLine(ReadCB cb)
             }
         }
         
-        if (buf[index] == '\r') {
+        if (c == '\r') {
             needNewLine = true;
+        } else {
+            s += c;
         }
-        index++;
     }
-    return buf;
+    return s;
 }
 
 std::string
