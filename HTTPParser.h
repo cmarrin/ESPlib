@@ -78,6 +78,9 @@ class HTTPParser
         _errorReason = error;
     }
     
+    int errorCode() const { return _errorCode; }
+    const std::string& errorReason() const { return _errorReason; }
+    
     const std::string& method() const { return _method; }
     const std::string& path() const { return _path; }
     const std::string getHTTPArg(const char* name) { return _args[name]; }
