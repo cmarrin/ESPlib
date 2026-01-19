@@ -84,6 +84,8 @@ public:
     bool getNVSParam(const char* id, std::string& value);
     void eraseNVSParam(const char* id);
     
+    const std::string getHTTPHeader(const char* name);
+
     struct MapValue { std::string label; uint32_t maxLength; };
     
     std::map<std::string, MapValue> _paramMap;
@@ -136,6 +138,9 @@ public:
     };
     
     static esp_err_t thunkHandler(httpd_req_t*);
+    
+    std::string _args;
+
 };
 
 }

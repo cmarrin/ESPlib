@@ -294,20 +294,40 @@ IDFWiFiPortal::httpUploadBuffer() const
 std::string
 IDFWiFiPortal::getHTTPArg(const char* name)
 {
-    char buf[128];
-    int ret = httpd_req_recv(_activeRequest, buf, sizeof(buf) - 1);
-    if (ret <= 0) {
-        if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
-            httpd_resp_send_408(_activeRequest);
-        }
+    if (!_activeRequest) {
         return "";
     }
-    buf[ret] = '\0';
+    
+    std::vector<char>buf(_args.size());
+    esp_err_t err = httpd_query_key_value(_args.c_str(), name, buf.data(), buf.size());
+    if (err != ESP_OK) {
+        ESP_LOGE("Query URL parser", "parsing URL");
+        return "";
+    }
 
-    char arg[128] = {0};
-    httpd_query_key_value(buf, name, arg, sizeof(arg));
+    return buf.data();
+}
 
-    return arg;
+const std::string
+IDFWiFiPortal::getHTTPHeader(const char* name)
+{
+    if (!_activeRequest) {
+        return "";
+    }
+    
+    size_t size = httpd_req_get_hdr_value_len(_activeRequest, name) + 1;
+
+    if(size < 2) {
+        return "";
+    }
+
+    // Allocate temporary buffer to store the parameter
+    std::vector<char> buf(size);
+    if (httpd_req_get_hdr_value_str(_activeRequest, name, buf.data(), size) != ESP_OK) {
+        ESP_LOGE("get header", "Failed to extract get header");
+        return "";
+    }
+    return std::string(buf.data(), size - 1);
 }
 
 bool
