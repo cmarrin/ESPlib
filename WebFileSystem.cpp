@@ -302,51 +302,61 @@ WebFileSystem::handleUpload(WiFiPortal* p)
 {
     bool finished = false;
     
-    if (p->httpUploadStatus() == WiFiPortal::HTTPUploadStatus::Start) {
-        _uploadFilename = HTTPParser::urlDecode(p->getHTTPArg("path")) + "/" + p->httpUploadFilename();
-        _uploadAborted = false;
-    
-        // Open file for writing
-        _uploadFile = open(_uploadFilename.c_str(), "w");
-        if (!_uploadFile) {
-            printf("Failed to open file for writing\n");
-            return;
-        }
-    } else if (p->httpUploadStatus() == WiFiPortal::HTTPUploadStatus::Write) {
-        if (!_uploadAborted) {
-            // Write the received chunk to the file
-            if (_uploadFile) {
-                size_t currentSize = p->httpUploadCurrentSize();
-                size_t bytesWritten = _uploadFile.write(p->httpUploadBuffer(), currentSize);
-                
-                if (!_uploadFile || bytesWritten != currentSize) {
-                    printf("Error writing chunk to file. Deleting '%s'\n", _uploadFilename.c_str());
+    switch(p->httpUploadStatus()) {
+        case WiFiPortal::HTTPUploadStatus::Start:
+            _uploadFilename = HTTPParser::urlDecode(p->getHTTPArg("path")) + "/" + p->httpUploadFilename();
+            _uploadAborted = false;
+        
+            // Open file for writing
+            _uploadFile = open(_uploadFilename.c_str(), "w");
+            if (!_uploadFile) {
+                printf("Failed to open file for writing\n");
+                _uploadAborted = true;
+            }
+            break;
+        case WiFiPortal::HTTPUploadStatus::Write:
+            if (!_uploadAborted) {
+                // Write the received chunk to the file
+                if (_uploadFile) {
+                    size_t currentSize = p->httpUploadCurrentSize();
+                    size_t bytesWritten = _uploadFile.write(p->httpUploadBuffer(), currentSize);
                     
-                    // Delete the file
-                    _uploadFile.close();
-                    remove(_uploadFilename.c_str());
-                    _uploadAborted = true;
-                    return;
+                    if (!_uploadFile || bytesWritten != currentSize) {
+                        printf("Error writing chunk to file. Deleting '%s'\n", _uploadFilename.c_str());
+                        
+                        // Delete the file
+                        _uploadFile.close();
+                        remove(_uploadFilename.c_str());
+                        _uploadAborted = true;
+                        return;
+                    }
                 }
             }
-        }
-    } else if (p->httpUploadStatus() == WiFiPortal::HTTPUploadStatus::End) {
-        if (_uploadFile) {
-            _uploadFile.close();
-        } else {
-            printf("handleUpload: END received but file not open.\n");
-        }
-        finished = true;
-    } else if (p->httpUploadStatus() == WiFiPortal::HTTPUploadStatus::Aborted) {
-        printf("handleUpload: Upload Aborted\n");
-        if (_uploadFile) {
-           // Delete the file
-            std::string filename = _uploadFile.name();
-            _uploadFile.close();
-            remove(filename.c_str());
-        }
-        _uploadAborted = true;
-        finished = true;
+            break;
+        case WiFiPortal::HTTPUploadStatus::End:
+            if (_uploadFile) {
+                _uploadFile.close();
+            } else {
+                printf("handleUpload: END received but file not open.\n");
+            }
+            finished = true;
+            break;
+        case WiFiPortal::HTTPUploadStatus::Aborted:
+            printf("handleUpload: Upload Aborted\n");
+            if (_uploadFile) {
+               // Delete the file
+                std::string filename = _uploadFile.name();
+                _uploadFile.close();
+                remove(filename.c_str());
+            }
+            _uploadAborted = true;
+            finished = true;
+            break;
+        case WiFiPortal::HTTPUploadStatus::None:
+            printf("Invalid upload status\n");
+            _uploadAborted = true;
+            finished = true;
+            break;
     }
     
     if (finished) {
