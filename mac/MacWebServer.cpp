@@ -263,7 +263,19 @@ WebServer::handleClient(int fdClient)
                     sendStaticFile(filePath.c_str(), it.path.c_str());
                 } else {
                     if (isUpload) {
-                        _parser->parseMultipart(it.requestCB, [fdClient](uint8_t* buf, size_t size) -> ssize_t
+                        std::string contentType = _parser->getHeader("Content-Type");
+                        if (contentType.empty()) {
+                            _parser->setErrorResponse(501, "no Content-Type");
+                            return;
+                        }
+    
+                        std::vector<std::string> multipart = HTTPParser::parseFormData(contentType);
+                        if (multipart[0] != "multipart/form-data" || multipart[1] != "boundary") {
+                            _parser->setErrorResponse(501, "only multipart/form-data supported");
+                            return;
+                        }
+    
+                        _parser->parseMultipart(multipart[2], it.requestCB, [fdClient](uint8_t* buf, size_t size) -> ssize_t
                         {
                             return read(fdClient, buf, size);
                         });

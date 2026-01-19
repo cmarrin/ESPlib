@@ -60,7 +60,7 @@ class HTTPParser
 	HTTPParser() { }
 	~HTTPParser() { }
 
-    bool parseMultipart(HandlerCB, ReadCB);
+    bool parseMultipart(const std::string& boundary, HandlerCB, ReadCB);
     
     bool parseRequestHeader(ReadCB cb);
     

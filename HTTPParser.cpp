@@ -18,22 +18,8 @@ All rights reserved.
 using namespace mil;
 
 bool
-HTTPParser::parseMultipart(HandlerCB requestCB, ReadCB readCB)
+HTTPParser::parseMultipart(const std::string& boundary, HandlerCB requestCB, ReadCB readCB)
 {
-    std::string contentType = _headers.at("Content-Type");
-    if (contentType.empty()) {
-        setErrorResponse(501, "no Content-Type");
-        return false;
-    }
-    
-    std::vector<std::string> multipart = parseFormData(contentType);
-    if (multipart[0] != "multipart/form-data" || multipart[1] != "boundary") {
-        setErrorResponse(501, "no multipart boundary");
-        return false;
-    }
-
-    std::string boundary = multipart[2];
-    
     // For now we handle ContentType: multipart. We accept exactly 2 parts. The first
     // is a key value pair which is placed in _argMap. The second is the uploaded file
     // data including the filename (which is placed in _argMap). The next line is Content-Type
@@ -62,38 +48,38 @@ HTTPParser::parseMultipart(HandlerCB requestCB, ReadCB readCB)
         
         // First line of each section is a Content-Disposition
         line = getLine(readCB);
-        multipart.clear();
-        multipart = parseKeyValue(line);
+
+        std::vector<std::string> parsedValue = parseKeyValue(line);
         
-        if (multipart[0] != "Content-Disposition" || multipart.size() < 2) {
+        if (parsedValue.size() < 2 || parsedValue[0] != "Content-Disposition") {
             setErrorResponse(400, "missing Content-Disposition");
             return false;
         }
         
-        multipart = parseFormData(multipart[1]);
-        if (multipart[0] != "form-data") {
+        parsedValue = parseFormData(parsedValue[1]);
+        if (parsedValue.size() < 1 || parsedValue[0] != "form-data") {
             setErrorResponse(400, "missing form-data");
             return false;
         }
         
         // Next should be a "name" key/value pair
-        if (multipart.size() < 3 || multipart[1] != "name") {
+        if (parsedValue.size() < 3 || parsedValue[1] != "name") {
             setErrorResponse(400, "missing name");
             return false;
         }
         
         // The key might have quotes around it
-        std::string key = removeQuotes(multipart[2]);
+        std::string key = removeQuotes(parsedValue[2]);
 
         // The value of the "name" pair can either be a query param or a file upload.
         // If it's the latter then there should be a "filename" key/value pair and
         // we don't care about the value of the name.
-        if (multipart.size() < 3) {
+        if (parsedValue.size() < 3) {
             setErrorResponse(400, "bad name format");
             return false;
         }
         
-        if (multipart.size() < 5) {
+        if (parsedValue.size() < 5) {
             // This is a query param. The key is in multipart[2]. The value is
             // content, which comes after a blank line
             line = getLine(readCB);
@@ -105,7 +91,7 @@ HTTPParser::parseMultipart(HandlerCB requestCB, ReadCB readCB)
             line = getLine(readCB);
             _args[key] = line;
         } else {
-            if (multipart[3] != "filename") {
+            if (parsedValue[3] != "filename") {
                 setErrorResponse(400, "missing filename");
                 return false;
             }
@@ -115,19 +101,19 @@ HTTPParser::parseMultipart(HandlerCB requestCB, ReadCB readCB)
             nextLineIsBoundary = false;
 
             // Set the filename
-            _uploadFilename = removeQuotes(multipart[4]);
+            _uploadFilename = removeQuotes(parsedValue[4]);
                 
             // We're at the content. But first the next line should be "Content-Type"
             line = getLine(readCB);
-            multipart = parseKeyValue(line);
-            if (multipart.size() < 2 || multipart[0] != "Content-Type") {
+            parsedValue = parseKeyValue(line);
+            if (parsedValue.size() < 2 || parsedValue[0] != "Content-Type") {
                 setErrorResponse(400, "missing Content-Type");
                 return false;
             }
 
-            _uploadMimetype = multipart[1];
+            _uploadMimetype = parsedValue[1];
             
-            // Now let's get to the content, the next line should be blank
+           // Now let's get to the content, the next line should be blank
             line = getLine(readCB);
             if (line[0] != '\0') {
                 setErrorResponse(400, "line should be blank");
@@ -218,7 +204,7 @@ HTTPParser::parseMultipart(HandlerCB requestCB, ReadCB readCB)
                             return false;
                         }
                     }
-                 } else {
+                } else {
                     ++index;
                 }
                 
