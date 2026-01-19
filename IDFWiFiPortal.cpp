@@ -92,8 +92,60 @@ esp_err_t
 IDFWiFiPortal::thunkHandler(httpd_req_t* req)
 {
     HandlerThunk* thunk = reinterpret_cast<HandlerThunk*>(req->user_ctx);
-    reinterpret_cast<IDFWiFiPortal*>(thunk->_portal)->_activeRequest = req;
-    thunk->_handler(thunk->_portal);
+    IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(thunk->_portal);
+    self->_activeRequest = req;
+
+    // Get the arg string
+    size_t queryURLLen = httpd_req_get_url_query_len(req) + 1;
+
+    if(queryURLLen > 1) {    
+        // Allocate temporary buffer to store the parameter
+        std::vector<char> buf(queryURLLen);
+        if (httpd_req_get_url_query_str(req, buf.data(), queryURLLen) != ESP_OK) {
+            ESP_LOGE("Query URL parser", "Failed to extract query URL");
+            self->_args = "";
+        } else {
+            self->_args = std::string(buf.data(), queryURLLen);
+        }
+    } else {
+        self->_args = "";
+    }
+    
+    if (req->method == HTTP_POST) {
+        self->_parser = std::make_unique<HTTPParser>();
+        
+        std::string contentType = self->getHTTPHeader("Content-Type");
+        if (contentType.empty()) {
+            self->_parser->setErrorResponse(501, "no Content-Type");
+            return ESP_ERR_INVALID_ARG;
+        }
+
+        std::vector<std::string> multipart = HTTPParser::parseFormData(contentType);
+        if (multipart[0] != "multipart/form-data" || multipart[1] != "boundary") {
+            self->_parser->setErrorResponse(501, "only multipart/form-data supported");
+            return ESP_ERR_INVALID_ARG;
+        }
+
+        if (!self->_parser->parseMultipart(multipart[2],
+            [thunk]()
+            {
+                thunk->_handler(thunk->_portal);
+            },
+            [req](uint8_t* buf, size_t size) -> ssize_t
+            {
+                return httpd_req_recv(req, reinterpret_cast<char*>(buf), size);
+            }
+        )) {
+           self->sendHTTPResponse(self->_parser->errorCode(), "text/plain", self->_parser->errorReason().c_str());
+           printf("***** Error (%d):%s\n", self->_parser->errorCode(), self->_parser->errorReason().c_str());
+        }
+        
+        self->_parser.release();
+    } else {
+        thunk->_handler(thunk->_portal);
+        self->_activeRequest = nullptr;
+    }
+    
     return ESP_OK;
 }
 
@@ -256,7 +308,7 @@ IDFWiFiPortal::readHTTPContent(uint8_t* buf, size_t bufSize)
 WiFiPortal::HTTPUploadStatus
 IDFWiFiPortal::httpUploadStatus() const
 {
-    return HTTPUploadStatus::None;
+    return _parser ? _parser->httpUploadStatus() : HTTPUploadStatus::None;
 }
 
 std::string

@@ -11,6 +11,8 @@ All rights reserved.
 
 #include "WiFiPortal.h"
 
+#include "HTTPParser.h"
+
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <freertos/event_groups.h>
@@ -138,6 +140,8 @@ public:
     };
     
     static esp_err_t thunkHandler(httpd_req_t*);
+    
+    std::unique_ptr<HTTPParser> _parser;
     
     std::string _args;
 
