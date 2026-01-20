@@ -307,25 +307,25 @@ IDFWiFiPortal::httpUploadStatus() const
 std::string
 IDFWiFiPortal::httpUploadFilename() const
 {
-    return "not implemented";
+    return _parser ? _parser->httpUploadFilename() : "";
 }
 
 size_t
 IDFWiFiPortal::httpUploadTotalSize() const
 {
-    return 0;
+    return _parser ? _parser->httpUploadTotalSize() : 0;
 }
 
 size_t
 IDFWiFiPortal::httpUploadCurrentSize() const
 {
-    return 0;
+    return _parser ? _parser->httpUploadCurrentSize() : 0;
 }
 
 const uint8_t*
 IDFWiFiPortal::httpUploadBuffer() const
 {
-    return nullptr;
+    return _parser ? _parser->httpUploadBuffer() : nullptr;
 }
 
 std::string
