@@ -153,7 +153,6 @@ WebFileSystem::begin(Application* app, bool format)
         std::string path;
         if (prepareFile(p, path)) {
             fs::File file = open(path.c_str(), "r");
-            printf("***** Download: path='%s', name='%s'\n", file.path(), file.name());
             p->streamHTTPResponse(file, "application/octet-stream", true);
         }
         return true;
