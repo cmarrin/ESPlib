@@ -39,6 +39,7 @@ class File
     
     File& operator=(File&& other)
     {
+        close();
         _dir = std::move(other._dir);
         _isDir = other._isDir;
         _path = std::move(other._path);
