@@ -111,10 +111,10 @@ WebFileSystem::begin(Application* app, bool format)
         
         if (path.empty()) {
             p->sendHTTPResponse(400, "application/json", "{\"status\":\"error\",\"message\":\"Path not provided\"}");
-        } else if (LittleFS.exists(path.c_str())) {
+        } else if (exists(path.c_str())) {
             p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"Folder already exists\"}");
         } else {
-            if (LittleFS.mkdir(path.c_str())) {
+            if (mkdir(path.c_str())) {
                 p->sendHTTPResponse(200, "application/json", "{\"status\":\"success\",\"message\":\"Folder created successfully\"}");
             } else {
                 p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"Could not create folder\"}");
