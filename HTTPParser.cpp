@@ -436,13 +436,17 @@ HTTPParser::parseFormData(const std::string& value)
 void
 HTTPParser::parseQuery(const std::string& query)
 {
-    // parseQuery expects to see a leading '?'. Add it if it's not there
-    std::regex paramRegex("([^&=]+)=([^&]*)");
-    auto begin = std::sregex_iterator(query.begin(), query.end(), paramRegex);
-    auto end = std::sregex_iterator();
-    for (std::sregex_iterator i = begin; i != end; ++i) {
-        std::smatch match = *i;
-        _args[match[1]] = match[2];
+    // Query string is key/value pairs separated by '&'.
+    // Each key value pair is <key>=<value>
+    std::vector<std::string> keyValue = split(query, '&');
+    
+    for (const auto& it : keyValue) {
+        std::vector<std::string> kvPairs = split(it, '=');
+        if (kvPairs.size() != 2) {
+            printf("**** Invalid query key/value pair\n");
+        } else {
+            _args[kvPairs[0]] = kvPairs[1];
+        }
     }
 }
 
