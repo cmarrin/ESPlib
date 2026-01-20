@@ -420,18 +420,17 @@ HTTPParser::parseFormData(const std::string& value)
     return retVal;
 }
 
-// Function to parse query string into a map
-static HTTPParser::ArgMap parseQuery(const std::string& query)
+void
+HTTPParser::parseQuery(const std::string& query)
 {
-    HTTPParser::ArgMap result;
+    // parseQuery expects to see a leading '?'. Add it if it's not there
     std::regex paramRegex("([^&=]+)=([^&]*)");
-    auto begin = std::sregex_iterator(query.begin() + 1, query.end(), paramRegex);
+    auto begin = std::sregex_iterator(query.begin(), query.end(), paramRegex);
     auto end = std::sregex_iterator();
     for (std::sregex_iterator i = begin; i != end; ++i) {
         std::smatch match = *i;
-        result[match[1]] = match[2];
+        _args[match[1]] = match[2];
     }
-    return result;
 }
 
 bool
@@ -469,10 +468,10 @@ HTTPParser::parseRequestHeader(ReadCB cb)
         return true;
     }
     
-    std::string argList = _path.substr(firstArg);
+    std::string argList = _path.substr(firstArg + 1);
     _path = _path.substr(0, firstArg);
 
-    _args = parseQuery(argList);
+    parseQuery(argList);
     
     return true;
 }

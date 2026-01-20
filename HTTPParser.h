@@ -63,6 +63,7 @@ class HTTPParser
     bool parseMultipart(const std::string& boundary, HandlerCB, ReadCB);
     
     bool parseRequestHeader(ReadCB cb);
+    void parseQuery(const std::string& query);
     
     static std::string getLine(ReadCB cb);
     static std::string urlDecode(const std::string&);

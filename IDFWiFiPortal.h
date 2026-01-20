@@ -141,9 +141,6 @@ public:
     static esp_err_t thunkHandler(httpd_req_t*);
     
     std::unique_ptr<HTTPParser> _parser;
-    
-    std::string _args;
-
 };
 
 }
