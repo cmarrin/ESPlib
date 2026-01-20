@@ -348,34 +348,47 @@ HTTPParser::removeQuotes(const std::string& s)
     return s;
 }
 
+struct SuffixToTypeEntry
+{
+    const char* suffix;
+    const char* type;
+};
+
+SuffixToTypeEntry suffixToTypeArray[ ] = {
+    { "htm",  "text/html" },
+    { "html", "text/html" },
+    { "css",  "text/css" },
+    { "js",   "text/javascript" },
+    { "png",  "image/png" },
+    { "gif",  "text/gif" },
+    { "jpg",  "image/jpeg" },
+    { "jpeg", "image/jpeg" },
+    { "jpeg", "image/jpeg" },
+    { "pdf",  "application/pdf" },
+    { "txt",  "text/plain" },
+    { "c",    "text/plain" },
+    { "h",    "text/plain" },
+    { "cpp",  "text/plain" },
+    { "hpp",  "text/plain" },
+};
+
 // Returns empty string if file is not a source file (cannot be displayed in web browser)
 std::string
 HTTPParser::suffixToMimeType(const std::string& filename)
 {
     std::string suffix = std::filesystem::path(filename).extension();
+    suffix.erase(0, 1);
+    
     for_each(suffix.begin(), suffix.end(), [](char& c) {
         c = std::tolower(c);
     });
-
-    if (suffix == ".htm" || suffix == ".html") {
-        return "text/html";
-    } else if (suffix == ".css") {
-        return "text/css";
-    } else if (suffix == ".js") {
-        return "text/javascript";
-    } else if (suffix == ".png") {
-        return "image/png";
-    } else if (suffix == ".gif") {
-        return "image/gif";
-    } else if (suffix == ".jpg" || suffix == ".jpeg") {
-        return "image/jpeg";
-    } else if (suffix == ".pdf") {
-        return "application/pdf";
-    } else if (suffix == ".txt" || suffix == ".c" || suffix == ".h" || suffix == ".cpp" || suffix == ".hpp") {
-        return "text/plain";
-    } else {
-        return "";
+    
+    for (const auto& it : suffixToTypeArray) {
+        if (strcmp(it.suffix, suffix.c_str()) == 0) {
+            return it.type;
+        }
     }
+    return "";
 }
 
 // Key/value pairs is separated by ':'
