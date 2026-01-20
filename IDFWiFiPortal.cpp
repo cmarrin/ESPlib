@@ -293,7 +293,45 @@ IDFWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const char* data
 void
 IDFWiFiPortal::streamHTTPResponse(fs::File& file, const char* mimetype, bool attach)
 {
-    printf("*** streamHTTPResponse not implemented\n");
+    // For now assume this is a file download. So set Content-Disposition
+    std::string disp = attach ? "attachment" : "inline";
+    disp += "; filename=\"";
+    disp += file.name();
+    disp += "\"";
+    
+    ESP_ERROR_CHECK(httpd_resp_set_hdr(_activeRequest, "Content-Disposition", disp.c_str()));
+    ESP_ERROR_CHECK(httpd_resp_set_type(_activeRequest, mimetype));
+    
+    uint8_t buf[256];
+
+    while (true) {
+        int size = file.read(buf, 256);
+        if (size < 0) {
+            printf("**** Error reading file\n");
+            if (_parser) {
+                _parser->setErrorResponse(404, "Error reading file");
+            }
+            break;
+        } else if (size == 0) {
+            break;
+        }
+        
+        if (httpd_resp_send_chunk(_activeRequest, reinterpret_cast<char*>(buf), size) != ESP_OK) {
+            ESP_LOGE(TAG, "File sending failed!");
+            
+            httpd_resp_sendstr_chunk(_activeRequest, NULL);
+            httpd_resp_send_err(_activeRequest, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to send file");
+            return;
+        }
+
+        if (size < 256) {
+            break;
+        }
+    }
+    
+    ESP_LOGI(TAG, "File sending complete");
+    httpd_resp_set_hdr(_activeRequest, "Connection", "close");
+    httpd_resp_send_chunk(_activeRequest, NULL, 0);
 }
 
 WiFiPortal::HTTPUploadStatus
