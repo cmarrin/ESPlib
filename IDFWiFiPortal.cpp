@@ -104,7 +104,7 @@ IDFWiFiPortal::thunkHandler(httpd_req_t* req)
         // Allocate temporary buffer to store the parameter
         std::vector<char> buf(queryURLLen);
         if (httpd_req_get_url_query_str(req, buf.data(), queryURLLen) != ESP_OK) {
-            ESP_LOGE("Query URL parser", "Failed to extract query URL");
+            ESP_LOGE(TAG, "Failed to extract query URL");
         } else {
             std::string args(buf.data(), queryURLLen);
             self->_parser->parseQuery(args);
@@ -357,7 +357,7 @@ IDFWiFiPortal::getHTTPHeader(const char* name)
     // Allocate temporary buffer to store the parameter
     std::vector<char> buf(size);
     if (httpd_req_get_hdr_value_str(_activeRequest, name, buf.data(), size) != ESP_OK) {
-        ESP_LOGE("get header", "Failed to extract get header");
+        ESP_LOGE(TAG, "Failed to extract get header");
         return "";
     }
     return std::string(buf.data(), size - 1);
