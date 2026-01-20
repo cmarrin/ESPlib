@@ -62,15 +62,13 @@ WebFileSystem::prepareFile(WiFiPortal* p, std::string& path)
     
     if (path.empty()) {
         p->sendHTTPResponse(400, "application/json", "{\"status\":\"error\",\"message\":\"Path not provided\"}");
-    } else if (!LittleFS.exists(path.c_str())) {
-        p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"Not found\"}");
-    } else {
-        if (exists(path.c_str())) {
-            return true;
-        }
-        p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"File not found\"}");
+        return false;
     }
-    return false;
+    if (!exists(path.c_str())) {
+        p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"Not found\"}");
+        return false;
+    }
+    return true;
 }
 
 void
