@@ -298,13 +298,6 @@ IDFWiFiPortal::streamHTTPResponse(fs::File& file, const char* mimetype, bool att
     printf("*** streamHTTPResponse not implemented\n");
 }
 
-int
-IDFWiFiPortal::readHTTPContent(uint8_t* buf, size_t bufSize)
-{
-    printf("*** readHTTPContent not implemented\n");
-    return -1;
-}
-
 WiFiPortal::HTTPUploadStatus
 IDFWiFiPortal::httpUploadStatus() const
 {

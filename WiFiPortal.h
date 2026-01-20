@@ -125,12 +125,6 @@ public:
     // Send a response with the contents of the passed File
     virtual void streamHTTPResponse(fs::File& file, const char* mimetype, bool attach) { }
     
-    // Read content from an incoming HTTP request. Must be called from inside a HandlerCB. A buffer no larger
-    // than bufSize will be returned, but it could be smaller. If data was returned the return value will
-    // be the positive number of bytes returned. A value of 0 mean there is no more data to return and a 
-    // negative value means there was an error.
-    virtual int readHTTPContent(uint8_t* buf, size_t bufSize) { return -1; }
-    
     // These methods get values for the current upload. Must be called inside a HandlerCB
     virtual HTTPUploadStatus httpUploadStatus() const { return HTTPUploadStatus::None; }
     virtual std::string httpUploadFilename() const { return ""; }

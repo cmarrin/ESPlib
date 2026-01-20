@@ -36,7 +36,6 @@ public:
     virtual void sendHTTPResponse(int code, const char* mimetype = nullptr, const char* data = "") override;
     virtual void sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip) override;
     virtual void streamHTTPResponse(fs::File& file, const char* mimetype, bool attach) override;
-    virtual int readHTTPContent(uint8_t* buf, size_t bufSize) override;
     virtual HTTPUploadStatus httpUploadStatus() const override;
     virtual std::string httpUploadFilename() const override;
     virtual size_t httpUploadTotalSize() const override;

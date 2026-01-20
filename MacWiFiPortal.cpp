@@ -105,12 +105,6 @@ MacWiFiPortal::streamHTTPResponse(fs::File& file, const char* mimetype, bool att
     _server.streamHTTPResponse(file, mimetype, attach);
 }
 
-int
-MacWiFiPortal::readHTTPContent(uint8_t* buf, size_t bufSize)
-{
-    return -1;
-}
-
 WiFiPortal::HTTPUploadStatus
 MacWiFiPortal::httpUploadStatus() const
 {

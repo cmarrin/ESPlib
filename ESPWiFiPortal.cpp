@@ -168,12 +168,6 @@ ESPWiFiPortal::streamHTTPResponse(fs::File& file, const char* mimetype, bool att
     _wifiManager.server->streamFile(file, mimetype);
 }
 
-int
-ESPWiFiPortal::readHTTPContent(uint8_t* buf, size_t bufSize)
-{
-    return -1;
-}
-
 WiFiPortal::HTTPUploadStatus
 ESPWiFiPortal::httpUploadStatus() const
 {
