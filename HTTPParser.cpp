@@ -213,11 +213,6 @@ HTTPParser::parseMultipart(const std::string& boundary, HandlerCB requestCB, Rea
                     ++index;
                 }
                 
-                if (index > UploadBufferReturnSize) {
-                    setErrorResponse(404, "Internal error");
-                    return false;
-                }
-                
                 if (index == UploadBufferReturnSize || haveBoundary) {
                     // Send the buffer
                     _uploadCurrentSize = haveBoundary ? (index - boundary.size() - 4) : UploadBufferReturnSize;
