@@ -118,7 +118,8 @@ IDFWiFiPortal::thunkHandler(httpd_req_t* req)
         } else {
             std::vector<std::string> multipart = HTTPParser::parseFormData(contentType);
             if (multipart[0] != "multipart/form-data" || multipart[1] != "boundary") {
-                self->_parser->setErrorResponse(501, "only multipart/form-data supported");
+                // This is not a multipart, Handle it normally
+                thunk->_handler(thunk->_portal);
             } else {
                 self->_parser->parseMultipart(multipart[2],
                     [thunk]()
@@ -134,7 +135,6 @@ IDFWiFiPortal::thunkHandler(httpd_req_t* req)
         }
     } else {
         thunk->_handler(thunk->_portal);
-        self->_activeRequest = nullptr;
     }
 
     if (self->_parser->errorCode()) {
@@ -143,6 +143,7 @@ IDFWiFiPortal::thunkHandler(httpd_req_t* req)
     }
     
     self->_parser.release();
+    self->_activeRequest = nullptr;
     
     return ESP_OK;
 }
@@ -563,18 +564,18 @@ IDFWiFiPortal::startWebServer(bool provision)
         // the functionality you can get to. This page is customizable both by
         // rearranging the buttons and by adding custom html.
         if (provision) {
-            WiFiPortal::addHTTPHandler("/", provisioningGetHandler);
+            addHTTPHandler("/", WiFiPortal::HTTPMethod::Get, provisioningGetHandler);
             httpd_register_err_handler(_server, HTTPD_404_NOT_FOUND, portalHTTP404ErrorHandler);
         } else {
-            WiFiPortal::addHTTPHandler("/", landingPageHandler);
-            WiFiPortal::addHTTPHandler("/wifi", provisioningGetHandler);
+            addHTTPHandler("/", WiFiPortal::HTTPMethod::Get, landingPageHandler);
+            addHTTPHandler("/wifi", WiFiPortal::HTTPMethod::Get, provisioningGetHandler);
             httpd_register_err_handler(_server, HTTPD_404_NOT_FOUND, connectedHTTP404ErrorHandler);
         }
-        WiFiPortal::addHTTPHandler("/connect", HTTPMethod::Post, connectPostHandler);
-        WiFiPortal::addHTTPHandler("/reset", resetGetHandler);
-        WiFiPortal::addHTTPHandler("/get-wifi-setup", getWifiSetupHandler);
-        WiFiPortal::addHTTPHandler("/get-landing-setup", getLandingSetupHandler);
-        WiFiPortal::addHTTPHandler("/favicon.ico", faviconGetHandler);
+        addHTTPHandler("/connect", HTTPMethod::Post, connectPostHandler);
+        addHTTPHandler("/reset", WiFiPortal::HTTPMethod::Get, resetGetHandler);
+        addHTTPHandler("/get-wifi-setup", WiFiPortal::HTTPMethod::Get, getWifiSetupHandler);
+        addHTTPHandler("/get-landing-setup", WiFiPortal::HTTPMethod::Get, getLandingSetupHandler);
+        addHTTPHandler("/favicon.ico", WiFiPortal::HTTPMethod::Get, faviconGetHandler);
     } else {
         ESP_LOGE(TAG, "Failed to start web server");
     }

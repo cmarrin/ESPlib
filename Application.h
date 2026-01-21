@@ -117,7 +117,7 @@ public:
     }
     void addHTTPHandler(const char* endpoint, WiFiPortal::HandlerCB h)
     {
-        _portal->addHTTPHandler(endpoint, h);
+        _portal->addHTTPHandler(endpoint, WiFiPortal::HTTPMethod::Get, h);
     }
 
 protected:

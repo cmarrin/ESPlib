@@ -81,11 +81,6 @@ public:
     // The callback return true if it handled the request and false if not.
     virtual int32_t addHTTPHandler(const char* endpoint, HTTPMethod, HandlerCB requestCB) { return -1; }
     
-    int32_t addHTTPHandler(const char* endpoint, HandlerCB requestCB)
-    {
-        return addHTTPHandler(endpoint, HTTPMethod::Get, requestCB);
-    }
-    
     // Serve static pages. When an endpoint starting in uri is seen it responds with the file at
     // the passed path as its root.
     virtual void serveStatic(const char *uri, const char *path) { }
