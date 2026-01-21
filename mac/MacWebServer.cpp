@@ -279,6 +279,10 @@ WebServer::handleClient(int fdClient)
                         {
                             return read(fdClient, buf, size);
                         });
+                            if (_parser->errorCode()) {
+                                sendHTTPResponse(_parser->errorCode(), "text/plain", _parser->errorReason().c_str());
+                                printf("***** Error (%d):%s\n", _parser->errorCode(), _parser->errorReason().c_str());
+                            }
                     } else {
                         if (it.requestCB) {
                             it.requestCB();
