@@ -131,6 +131,8 @@ HTTPParser::parseMultipart(const std::string& boundary, HandlerCB requestCB, Rea
             int bufferOverflow = 0;
             int index = 0;
             _uploadTotalSize = 0;
+
+            bool aborted = false;
             
             while (true) {
                 // We need to read one byte at a time.
@@ -149,7 +151,8 @@ HTTPParser::parseMultipart(const std::string& boundary, HandlerCB requestCB, Rea
                 ssize_t size = readCB(_uploadBuffer + index, 1);
                 if (size != 1) {
                     setErrorResponse(400, "read error");
-                    return false;
+                    aborted = true;
+                    break;
                 }
 
                 bool haveBoundary = false;
@@ -165,7 +168,8 @@ HTTPParser::parseMultipart(const std::string& boundary, HandlerCB requestCB, Rea
                         size = readCB(_uploadBuffer +index, 1);
                         if (size != 1) {
                             setErrorResponse(400, "read error");
-                            return false;
+                            aborted = true;
+                            break;
                         }
                     
                         if (_uploadBuffer[index] != testBoundary[i]) {
@@ -191,7 +195,8 @@ HTTPParser::parseMultipart(const std::string& boundary, HandlerCB requestCB, Rea
                         size = readCB(endBuf, 2);
                         if (size != 2) {
                             setErrorResponse(400, "read error");
-                            return false;
+                            aborted = true;
+                            break;
                         }
                         if (endBuf[0] == '-' && endBuf[1] == '-') {
                             // We're done
@@ -200,7 +205,8 @@ HTTPParser::parseMultipart(const std::string& boundary, HandlerCB requestCB, Rea
                         }
                         if (endBuf[0] != '\r' || endBuf[1] != '\n') {
                             setErrorResponse(400, "missing end of line");
-                            return false;
+                            aborted = true;
+                            break;
                         }
                     }
                 } else {
@@ -234,8 +240,8 @@ HTTPParser::parseMultipart(const std::string& boundary, HandlerCB requestCB, Rea
                     }
                 }
             }
-        
-            _uploadStatus = WiFiPortal::HTTPUploadStatus::End;
+
+            _uploadStatus = aborted ? WiFiPortal::HTTPUploadStatus::Aborted : WiFiPortal::HTTPUploadStatus::End;
             if (requestCB) {
                 requestCB();
             }
