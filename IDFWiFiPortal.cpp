@@ -742,7 +742,7 @@ IDFWiFiPortal::resetGetHandler(WiFiPortal* portal)
     const char* resp_str = "<h1>Credentials Cleared</h1><p>The device will restart and enter provisioning mode.</p>";
     httpd_resp_send(self->_activeRequest, resp_str, HTTPD_RESP_USE_STRLEN);
     
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    vTaskDelay(pdMS_TO_TICKS(2000));
     self->resetSettings();
     esp_restart();
 }
