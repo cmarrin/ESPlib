@@ -9,6 +9,8 @@
         :root {
             --primary-color: #007bff;
             --primary-color-hover: #0056b3;
+            --danger-color: #c22;
+            --danger-color-hover: #800;
             --bg-color: #ccc;
             --text-color: #212529;
             --card-bg: #ddd;
@@ -21,8 +23,6 @@
         /* Dark mode */
         @media (prefers-color-scheme: dark) {
             :root {
-                --primary-color: #007bff;
-                --primary-color-hover: #0056b3;
                 --bg-color: #1a1a1a;
                 --text-color: #ffffff;
                 --card-bg: #2a2a2a;
@@ -88,7 +88,7 @@
         form {
             display: flex;
             flex-direction: column;
-            gap: 1.25rem;
+            gap: 0.5rem;
         }
 
         .input-group {
@@ -133,6 +133,15 @@
 
         .btn:hover {
             background-color: var(--primary-color-hover);
+        }
+        
+        .danger {
+            background-color: var(--danger-color);
+            margin:10px;
+        }
+        
+        .danger:hover {
+            background-color: var(--danger-color-hover);
         }
         
         .known-networks {
@@ -215,10 +224,12 @@
                 <input type="text" name="hostname" id="hostname">
             </div>
             <hr/>
-
             <button type="submit" class="btn">Connect</button>
+            <br>
         </form>
-        
+        <hr/>
+        <br>
+       <form action="/reset" method="get"><button class="btn danger">Erase WiFi Config</button></form>
     </div>
 
     <script>
