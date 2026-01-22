@@ -571,6 +571,7 @@ IDFWiFiPortal::startWebServer(bool provision)
             addHTTPHandler("/wifi", WiFiPortal::HTTPMethod::Get, provisioningGetHandler);
             httpd_register_err_handler(_server, HTTPD_404_NOT_FOUND, connectedHTTP404ErrorHandler);
         }
+        addHTTPHandler("/restart", HTTPMethod::Get, restartGetHandler);
         addHTTPHandler("/connect", HTTPMethod::Post, connectPostHandler);
         addHTTPHandler("/reset", WiFiPortal::HTTPMethod::Get, resetGetHandler);
         addHTTPHandler("/get-wifi-setup", WiFiPortal::HTTPMethod::Get, getWifiSetupHandler);
@@ -732,6 +733,18 @@ IDFWiFiPortal::landingPageHandler(WiFiPortal* portal)
     if (self->_wfs) {
         self->_wfs->sendLandingPage(self);
     }
+}
+
+void
+IDFWiFiPortal::restartGetHandler(WiFiPortal* portal)
+{
+    IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(portal);
+    
+    const char* resp_str = "<h1>Restarting...</h1>";
+    httpd_resp_send(self->_activeRequest, resp_str, HTTPD_RESP_USE_STRLEN);
+    
+    vTaskDelay(pdMS_TO_TICKS(2000));
+    esp_restart();
 }
 
 void

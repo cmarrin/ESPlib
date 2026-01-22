@@ -73,6 +73,7 @@ public:
     static void provisioningGetHandler(WiFiPortal*);
     static void connectPostHandler(WiFiPortal*);
     static void landingPageHandler(WiFiPortal*);
+    static void restartGetHandler(WiFiPortal*);
     static void resetGetHandler(WiFiPortal*);
     static void getWifiSetupHandler(WiFiPortal*);
     static void getLandingSetupHandler(WiFiPortal*);
