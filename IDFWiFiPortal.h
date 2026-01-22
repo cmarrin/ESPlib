@@ -7,6 +7,33 @@ Copyright (c) 2025, Chris Marrin
 All rights reserved.
 -------------------------------------------------------------------------*/
 
+/*
+    Info sources:
+    
+    https://github.com/pgiacalo/esp_chip_info
+    https://github.com/espressif/esp-idf/tree/v5.5.2/examples/peripherals/temperature_sensor/temp_sensor
+    
+    int64_t esp_timer_get_time(void) - Gives time in usec since startup
+    
+    _wfs->totalBytes(), _wfs->usedBytes() - file system sizes
+    
+    esp_netif_get_ip_info - ip, mask, gw
+    
+    esp_netif_get_dns_info - dns ip
+
+    OTA:
+        https://github.com/espressif/esp-idf/blob/v5.5.2/examples/system/ota/native_ota_example/main/native_ota_example.c
+        
+        Native OTA basically calls esp_ota_begin(), multiple esp_ota_write() and esp_ota_end()
+        esp_ota_abort if this don't go well
+        
+    
+    On landing page show:
+    
+        Chip: model, freq, temp, uptime
+        Flash: total/used
+        WiFi: ip, mask, gw, dns ip
+ */
 #pragma once
 
 #include "WiFiPortal.h"
@@ -106,7 +133,7 @@ public:
     EventGroupHandle_t _eventGroup;
     httpd_handle_t _server = nullptr;
     uint8_t _retryNum = 0;
-    std::string _currentIP;
+    std::string _currentIP, _currentGW, _currentMSK, _currentDNS;
     std::string _ssid;
     std::string _pass;
     std::string _hostname;

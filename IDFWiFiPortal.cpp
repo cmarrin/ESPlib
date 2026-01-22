@@ -650,6 +650,21 @@ IDFWiFiPortal::eventHandler(void* arg, esp_event_base_t eventBase, int32_t event
         char ipStr[16];
         snprintf(ipStr, sizeof(ipStr), IPSTR, IP2STR(&event->ip_info.ip));
         self->_currentIP = ipStr;
+        snprintf(ipStr, sizeof(ipStr), IPSTR, IP2STR(&event->ip_info.netmask));
+        self->_currentMSK = ipStr;
+        snprintf(ipStr, sizeof(ipStr), IPSTR, IP2STR(&event->ip_info.gw));
+        self->_currentGW = ipStr;
+
+        // Get DNS
+        esp_netif_dns_info_t dnsInfo;
+        esp_err_t err = esp_netif_get_dns_info(event->esp_netif, ESP_NETIF_DNS_MAIN, &dnsInfo);
+        if (err == ESP_OK) {
+            snprintf(ipStr, sizeof(ipStr), IPSTR, IP2STR(&dnsInfo.ip.u_addr.ip4));
+            self->_currentDNS = ipStr;
+        } else {
+            self->_currentDNS = "unknown";
+        }
+        
         self->_retryNum = 0;
         self->_isConnected = true;
         xEventGroupSetBits(self->_eventGroup, WIFI_CONNECTED_BIT);
@@ -800,6 +815,9 @@ IDFWiFiPortal::getLandingSetupHandler(WiFiPortal* portal)
     response += jp("ssid", self->_ssid) + ",";
     response += jp("ip", self->_currentIP) + ",";
     response += jp("hostname", self->_hostname) + ",";
+    response += jp("gw", self->_currentGW) + ",";
+    response += jp("msk", self->_currentMSK) + ",";
+    response += jp("dns", self->_currentDNS) + ",";
     response += jp("customMenuHTML", self->_customHTML);
     response += "}";
     httpd_resp_send(self->_activeRequest, response.c_str(), HTTPD_RESP_USE_STRLEN);
