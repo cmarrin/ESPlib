@@ -16,6 +16,11 @@ All rights reserved.
 
 #include "dns_server.h"
 #include "mdns.h"
+#include "esp_chip_info.h"
+#include "esp_system.h"
+#include "esp_timer.h"
+#include "soc/rtc.h"
+#include "driver/temperature_sensor.h"
 
 using namespace mil;
 
@@ -810,6 +815,62 @@ IDFWiFiPortal::getLandingSetupHandler(WiFiPortal* portal)
 {
     IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(portal);
 
+    // Get CPU Model
+    esp_chip_info_t chipInfo;
+    esp_chip_info(&chipInfo);
+    std::string cpuModel;
+
+    switch (chipInfo.model) {
+        case CHIP_ESP32:
+            cpuModel = "ESP32";
+            break;
+        case CHIP_ESP32S2:
+            cpuModel = "ESP32s2";
+            break;
+        case CHIP_ESP32S3:
+            cpuModel = "ESP32s3";
+            break;
+        case CHIP_ESP32C3:
+            cpuModel = "ESP32c3";
+            break;
+        case CHIP_ESP32C2:
+            cpuModel = "ESP32c2";
+            break;
+        case CHIP_ESP32C6:
+            cpuModel = "ESP32c6";
+            break;
+        case CHIP_ESP32H2:
+            cpuModel = "ESP32h2";
+            break;
+        case CHIP_ESP32P4:
+            cpuModel = "ESP32p4";
+            break;
+        case CHIP_POSIX_LINUX:
+            cpuModel = "Sim";
+            break;
+        default:
+            cpuModel = "Unknown";
+            break;
+    }
+
+    // Get CPU Freq
+    rtc_cpu_freq_config_t freq_config;
+    rtc_clk_cpu_freq_get_config(&freq_config);
+    uint32_t cpuFreq = freq_config.freq_mhz;
+    
+    // Get CPU Temp
+    temperature_sensor_handle_t tempSensor = nullptr;
+    temperature_sensor_config_t tempSensorConfig = TEMPERATURE_SENSOR_CONFIG_DEFAULT(10, 50);
+    ESP_ERROR_CHECK(temperature_sensor_install(&tempSensorConfig, &tempSensor));
+    ESP_ERROR_CHECK(temperature_sensor_enable(tempSensor));
+    float cpuTemp;
+    ESP_ERROR_CHECK(temperature_sensor_get_celsius(tempSensor, &cpuTemp));
+    ESP_ERROR_CHECK(temperature_sensor_disable(tempSensor));
+    ESP_ERROR_CHECK(temperature_sensor_uninstall(tempSensor));
+
+    // Get Uptime in seconds (esp_timer_get_time returns usec)
+    uint32_t cpuUptime = esp_timer_get_time() / 1000000;
+
     std::string response = "{";
     response += jp("title", self->_title) + ",";
     response += jp("ssid", self->_ssid) + ",";
@@ -818,6 +879,13 @@ IDFWiFiPortal::getLandingSetupHandler(WiFiPortal* portal)
     response += jp("gw", self->_currentGW) + ",";
     response += jp("msk", self->_currentMSK) + ",";
     response += jp("dns", self->_currentDNS) + ",";
+    response += jp("cpuModel", cpuModel) + ",";
+    response += jp("cpuFreq", std::to_string(cpuFreq)) + ",";
+    response += jp("cpuTemp", std::to_string(cpuTemp)) + ",";
+    response += jp("cpuUptime", std::to_string(cpuUptime)) + ",";
+    response += jp("flashTotal", std::to_string(self->_wfs->totalBytes())) + ",";
+    response += jp("flashUsed", std::to_string(self->_wfs->usedBytes())) + ",";
+    
     response += jp("customMenuHTML", self->_customHTML);
     response += "}";
     httpd_resp_send(self->_activeRequest, response.c_str(), HTTPD_RESP_USE_STRLEN);

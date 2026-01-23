@@ -133,6 +133,11 @@
             border-left-color: #5cb85c;
         }
         
+       .msg.X {
+            border-left-width: 1px;
+            border-left-color: #eee;
+     }
+        
         @media (max-width: 480px) {
             .container {
                 padding: 1.5rem;
@@ -154,19 +159,18 @@
             <br>
             <span class="bannerLine2">
                 <strong>IP: </strong><span id="banner-ip">Placeholder</span>
-                <span style="padding:20px"> </span>
+                <span style="padding:10px"> </span>
                 <strong>Hostname: </strong><span id="banner-hostname">Placeholder</span>
             </span>
             <br>
             <span class="bannerLine3">
-                <strong>gw: </strong><span id="banner-gw">Placeholderxxxx</span>
+                <strong>gw: </strong><span id="banner-gw">Placeholder</span>
                 <span style="padding:4px"> </span>
-                <strong>msk: </strong><span id="banner-msk">Placeholderxxxx</span>
+                <strong>msk: </strong><span id="banner-msk">Placeholder</span>
                 <span style="padding:4px"> </span>
-                <strong>dns: </strong><span id="banner-dns">Placeholderxxxx</span>
+                <strong>dns: </strong><span id="banner-dns">Placeholder</span>
             </span>
         </div>
-
 
         <div id="custom-menu-html"> <!-- Custom menu item --></div>
         <form action="/wifi" method="get"><button class="btn">Configure WiFi</button></form>
@@ -178,6 +182,25 @@
         <hr>
         <br>
         <form action="/update" method="get"><button class="btn">Update</button></form>
+
+       <!-- Info banner -->
+        <div class="msg X">
+            <span class="bannerLine2">
+                <strong>CPU: </strong><span id="info-cpu-model">ESP32s3</span>
+                <span style="padding:5px"> </span>
+                <strong>freq: </strong><span id="info-cpu-freq">000MHz</span>
+                <span style="padding:5px"> </span>
+                <strong>temp: </strong><span id="info-cpu-temp">00°C</span>
+                <span style="padding:5px"> </span>
+                <strong>uptime: </strong><span id="info-cpu-uptime">00hr</span>
+            </span>
+            <br>
+            <span class="bannerLine2">
+                <strong>Flash size: </strong><span id="info-flash-total">00.0MB</span>
+                <span style="padding:5px"> </span>
+                <strong>used: </strong><span id="info-flash-used">00.0KB</span>
+              </span>
+        </div>
     </div>
 
     <script>
@@ -188,8 +211,40 @@
         const bannerGW = document.getElementById('banner-gw');
         const bannerMSK = document.getElementById('banner-msk');
         const bannerDNS = document.getElementById('banner-dns');
+        
+        const infoCPUModel = document.getElementById('info-cpu-model');
+        const infoCPUFreq = document.getElementById('info-cpu-freq');
+        const infoCPUTemp = document.getElementById('info-cpu-temp');
+        const infoCPUUptime = document.getElementById('info-cpu-uptime');
+        const infoFlashTotal = document.getElementById('info-flash-total');
+        const infoFlashUsed = document.getElementById('info-flash-used');
+        
         const customMenuHTML = document.getElementById('custom-menu-html');
 
+        function prettySize(size)
+        {
+            if (size <= 9999) {
+                return size.toFixed(0) + "B";
+            } else if (size <= 999999) {
+                return (size / 1000).toFixed(1) + "KB";
+            } else {
+                return (size / 1000000).toFixed(1) + "MB";
+            }
+            return buf;
+        }
+        
+        // Time in seconds
+        function prettyTime(t)
+        {
+            if (t < (10 * 60)) {
+                return t.toFixed(0) + "sec";
+            }
+            if (t < (10 * 60 * 60)) {
+                return (t / 60).toFixed(0) + "min";
+            }
+            return (t / 3600).toFixed(0) + "hr";
+        }
+        
         function fetchLandingSetup()
         {
             fetch(`/get-landing-setup`)
@@ -203,6 +258,13 @@
                     bannerGW.innerText = items.gw;
                     bannerMSK.innerText = items.msk;
                     bannerDNS.innerText = items.dns;
+                    infoCPUModel.innerText = items.cpuModel;
+                    infoCPUFreq.innerText = Number(items.cpuFreq).toFixed(0) + "MHz";
+                    infoCPUTemp.innerText = Number(items.cpuTemp).toFixed(1) + "°C";
+                    infoCPUUptime.innerText = prettyTime(Number(items.cpuUptime));
+                    infoFlashTotal.innerText = prettySize(Number(items.flashTotal));
+                    infoFlashUsed.innerText = prettySize(Number(items.flashUsed));
+                    
                     customMenuHTML.innerHTML = items.customMenuHTML;
                 })
                 .catch(error => console.error('Error fetching landing setup:', error));
