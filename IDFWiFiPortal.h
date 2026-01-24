@@ -92,6 +92,7 @@ public:
     static void getWifiSetupHandler(WiFiPortal*);
     static void getLandingSetupHandler(WiFiPortal*);
     static void faviconGetHandler(WiFiPortal*);
+    static void otaUpdateHandler(WiFiPortal*);
 
     // Params are stored in nvs memory, but also need to be presented to the user in the web page.
     // So we store a list here with the label to display and the max length. The key for each entry
@@ -126,6 +127,8 @@ public:
     std::string _hostname;
     std::string _title;
     std::string _customHTML;
+    
+    bool _otaUpdateAborted = false;
     
     WebFileSystem* _wfs = nullptr;
     

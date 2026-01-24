@@ -576,6 +576,7 @@ IDFWiFiPortal::startWebServer(bool provision)
             addHTTPHandler("/wifi", WiFiPortal::HTTPMethod::Get, provisioningGetHandler);
             httpd_register_err_handler(_server, HTTPD_404_NOT_FOUND, connectedHTTP404ErrorHandler);
         }
+        addHTTPHandler("/update", HTTPMethod::Post, otaUpdateHandler);
         addHTTPHandler("/restart", HTTPMethod::Get, restartGetHandler);
         addHTTPHandler("/connect", HTTPMethod::Post, connectPostHandler);
         addHTTPHandler("/reset", WiFiPortal::HTTPMethod::Get, resetGetHandler);
@@ -899,5 +900,59 @@ IDFWiFiPortal::faviconGetHandler(WiFiPortal* portal)
     httpd_resp_set_status(self->_activeRequest, "204 No Content");
     httpd_resp_send(self->_activeRequest, NULL, 0);
 }
+
+void
+IDFWiFiPortal::otaUpdateHandler(WiFiPortal* p)
+{
+    IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(p);
+    
+    bool finished = false;
+    
+    switch(p->httpUploadStatus()) {
+        case WiFiPortal::HTTPUploadStatus::Start: {
+            std::string f = HTTPParser::urlDecode(p->getHTTPArg("path")) + "/" + p->httpUploadFilename();
+            self->_otaUpdateAborted = false;
+printf("******** otaUpdateHandler:Start - '%s'\n", f.c_str());
+            break;
+        }
+        case WiFiPortal::HTTPUploadStatus::Write:
+            if (!self->_otaUpdateAborted) {
+                // Write the received chunk to the file
+                size_t currentSize = p->httpUploadCurrentSize();
+printf("******** otaUpdateHandler:Write - currentSize=%d\n", int(currentSize));
+            }
+            break;
+        case WiFiPortal::HTTPUploadStatus::End:
+printf("******** otaUpdateHandler:End\n");
+            finished = true;
+            break;
+        case WiFiPortal::HTTPUploadStatus::Aborted:
+printf("******** otaUpdateHandler:Aborted\n");
+            printf("handleUpload: Upload Aborted\n");
+            self->_otaUpdateAborted = true;
+            finished = true;
+            break;
+        case WiFiPortal::HTTPUploadStatus::None:
+            printf("Invalid ota update status\n");
+            self->_otaUpdateAborted = true;
+            finished = true;
+            break;
+    }
+    
+    if (finished) {
+        if (self->_otaUpdateAborted) {
+            p->sendHTTPResponse(500, "text/plain", "Upload Aborted");
+            printf("Reply sent: ota Update Aborted\n");
+        } else if (p->httpUploadTotalSize() > 0) { // Check if any bytes were received
+            p->sendHTTPResponse(200, "text/plain", "ota Update Successful!");
+            printf("Reply sent: Successful ota update\n");
+        } else {
+            // This might happen if the file was empty or write failed early
+            p->sendHTTPResponse(500, "text/plain", "ota Update Failed or Empty File");
+            printf("Reply sent: ota Update Failed/Empty\n");
+        }
+    }
+}
+
 
 #endif

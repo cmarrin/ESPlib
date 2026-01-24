@@ -103,6 +103,12 @@
             gap: 1.25rem;
         }
 
+        .update {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
         .btn {
             padding: 0.9rem;
             border: none;
@@ -136,7 +142,7 @@
        .msg.X {
             border-left-width: 1px;
             border-left-color: #eee;
-     }
+        }
         
         @media (max-width: 480px) {
             .container {
@@ -147,6 +153,47 @@
                 font-size: 1.5rem;
             }
         }
+        
+ 		.ota-update-input {
+            display:none;
+		}
+        
+        .update-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #3a3a3a;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+        
+        .progress-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .progress-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: conic-gradient(#007acc 0%, #ddd 0%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        #progress-text {
+            position: absolute;
+            font-size: 18px;
+            color: #ffffff;
+        }
+        
     </style>
 </head>
 <body>
@@ -172,16 +219,15 @@
             </span>
         </div>
 
+        <input type="file" class="ota-update-input" id="ota-update">
         <div id="custom-menu-html"> <!-- Custom menu item --></div>
         <form action="/wifi" method="get"><button class="btn">Configure WiFi</button></form>
-        <br>
-        <form action="/info" method="get"><button class="btn">Info</button></form>
         <br>
         <form action="/restart" method="get"><button class="btn">Restart</button></form>
         <br>
         <hr>
         <br>
-        <form action="/update" method="get"><button class="btn">Update</button></form>
+        <div class="update"><button id="update-button" class="btn">Update</button></div>
 
        <!-- Info banner -->
         <div class="msg X">
@@ -200,6 +246,13 @@
                 <span style="padding:5px"> </span>
                 <strong>used: </strong><span id="info-flash-used">00.0KB</span>
               </span>
+        </div>
+    </div>
+    <div id="update-modal" class="update-modal">
+        <div class="progress-container">
+            <div class="progress-circle">
+                <span id="progress-text">0%</span>
+            </div>
         </div>
     </div>
 
@@ -221,6 +274,66 @@
         
         const customMenuHTML = document.getElementById('custom-menu-html');
 
+        const updateButton = document.getElementById('update-button');
+        const otaUpdateInput = document.getElementById('ota-update');
+        const updateModal = document.getElementById('update-modal');
+        const progressCircle = document.querySelector('.progress-circle');
+        const progressText = document.getElementById('progress-text');
+
+        updateButton.addEventListener('click', () => {
+            otaUpdateInput.click();
+        });
+
+        otaUpdateInput.addEventListener('change', () => {
+            const files = otaUpdateInput.files;
+            if (files.length > 0) {
+                otaUpdate(files);
+            }
+        });
+
+        function otaUpdate(files)
+        {
+            const formData = new FormData();
+            formData.append('path', "/");
+            Array.from(files).forEach(file => {
+                formData.append('files[]', file);
+            });
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/update');
+            xhr.upload.addEventListener('progress', (event) => {
+                if (event.lengthComputable) {
+                    const percentComplete = (event.loaded / event.total) * 100;
+                    progressCircle.style.background = `conic-gradient(#007acc ${percentComplete}%, #ddd ${percentComplete}%)`;
+                    progressText.textContent = `${Math.floor(percentComplete)}%`;
+                    if (percentComplete === 100) {
+                        setTimeout(() => {
+                            updateModal.style.display = 'none';
+                        }, 2000);
+                    }
+                }
+            });
+
+            xhr.onload = () => {
+                if (xhr.status === 200) {
+                    progressText.textContent = 'ota upadate complete!';
+                    setTimeout(() => {
+                        updateModal.style.display = 'none';
+                    }, 2000);
+                } else {
+                    alert('ota update failed:' + xhr.responseText);
+                    console.error('ota update failed:', xhr.responseText);
+                }
+            };
+
+            xhr.onerror = () => {
+                alert('ota update failed');
+                console.error('ota update failed.');
+            };
+
+            updateModal.style.display = 'block';
+            xhr.send(formData);
+        }
         function prettySize(size)
         {
             if (size <= 9999) {
