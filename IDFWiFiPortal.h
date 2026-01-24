@@ -8,19 +8,6 @@ All rights reserved.
 -------------------------------------------------------------------------*/
 
 /*
-    Info sources:
-    
-    https://github.com/pgiacalo/esp_chip_info
-    https://github.com/espressif/esp-idf/tree/v5.5.2/examples/peripherals/temperature_sensor/temp_sensor
-    
-    int64_t esp_timer_get_time(void) - Gives time in usec since startup
-    
-    _wfs->totalBytes(), _wfs->usedBytes() - file system sizes
-    
-    esp_netif_get_ip_info - ip, mask, gw
-    
-    esp_netif_get_dns_info - dns ip
-
     OTA:
         https://github.com/espressif/esp-idf/blob/v5.5.2/examples/system/ota/native_ota_example/main/native_ota_example.c
         
