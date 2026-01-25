@@ -84,18 +84,8 @@ Application::startNetwork()
     _portal->startWebPortal();
 	delay(500);
  
-    // Setup the system pages. We add a System button to the top of the front page.
-    // We check to see if /system.html exists. If so the button loads it. If not
-    // it takes you to the /fs endpoint which is added by WebFileSystem. if 
-    // system.html is corrupt of doesn't let you get to the filesystem you can
-    // always load it manually by going to the /fs endpoint to correct the problem.
-    // We first start WebFileSystem so we can get to the file
     if (!_wfs.begin(this, true)) {
         printf("***** file system initialization failed\n");
-    } else if (_wfs.exists("/system.html")) {
-        setCustomMenuHTML("<form action='/fs/system.html' method='get'><button class='btn'>System</button></form><br/>");
-    } else {
-        setCustomMenuHTML("<form action='/filemgr' method='get'><button class='btn'>File Manager</button></form><br/>");
     }
 
     _portal->serveStatic("/fs", "/");
