@@ -20,9 +20,9 @@ Vesper::setup()
     delay(500);
     Application::setup();
 
-    setTitle("<center>MarrinTech Vesper Controller v0.1</center>");
+    setTitle((std::string("<center>MarrinTech Vesper Controller v") + Version + "</center>").c_str());
 
-    printf("Vesper Controller v0.2\n");
+    printf("Vesper Controller v%s\n", Version);
 }
 	
 void
