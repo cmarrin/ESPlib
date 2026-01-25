@@ -39,7 +39,7 @@ namespace mil {
 class HTTPParser
 {
   public:
-    static constexpr int UploadBufferReturnSize = 256;
+    static constexpr int UploadBufferReturnSize = 8192;
     
     // While reading upload data we need to check for the boundary string.
     // If we hit the UploadBufferReturnSize and we're in the middle of 
@@ -57,10 +57,17 @@ class HTTPParser
     
     using ArgMap = std::map<std::string, std::string>;
 
-	HTTPParser() { }
-	~HTTPParser() { }
+	HTTPParser()
+    {
+        _uploadBuffer = new uint8_t[UploadBufferActualSize];
+    }
+    
+	~HTTPParser()
+    {
+        delete [ ] _uploadBuffer;
+    }
 
-    bool parseMultipart(const std::string& boundary, HandlerCB, ReadCB);
+    bool parseMultipart(size_t size, const std::string& boundary, HandlerCB, ReadCB);
     
     bool parseRequestHeader(ReadCB cb);
     void parseQuery(const std::string& query);
@@ -89,6 +96,7 @@ class HTTPParser
     
     WiFiPortal::HTTPUploadStatus httpUploadStatus() const { return _uploadStatus; }
     std::string httpUploadFilename() const { return _uploadFilename; }
+    size_t httpUploadContentLength() const { return _uploadContentLength; }
     size_t httpUploadTotalSize() const { return _uploadTotalSize; }
     size_t httpUploadCurrentSize() const { return _uploadCurrentSize; }
     const uint8_t* httpUploadBuffer() const { return _uploadBuffer; }
@@ -106,11 +114,12 @@ private:
     
     // For upload
     WiFiPortal::HTTPUploadStatus _uploadStatus = WiFiPortal::HTTPUploadStatus::None;
+    size_t _uploadContentLength = 0;
     std::string _uploadFilename;
     std::string _uploadMimetype;
     size_t _uploadTotalSize = 0;
     size_t _uploadCurrentSize = 0;
-    uint8_t _uploadBuffer[UploadBufferActualSize];
+    uint8_t* _uploadBuffer = nullptr;
 };
 
 }

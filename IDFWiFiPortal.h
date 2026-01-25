@@ -37,6 +37,7 @@ All rights reserved.
 #include <esp_netif.h>
 #include <lwip/inet.h>
 #include <esp_http_server.h>        
+#include "esp_ota_ops.h"
 
 #include <nvs_flash.h>
 
@@ -129,6 +130,8 @@ public:
     std::string _customHTML;
     
     bool _otaUpdateAborted = false;
+    esp_ota_handle_t _otaUpdateHandle = 0;
+    const esp_partition_t* _updatePartition = nullptr;
     
     WebFileSystem* _wfs = nullptr;
     

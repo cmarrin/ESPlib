@@ -17,13 +17,15 @@ All rights reserved.
 using namespace mil;
 
 bool
-HTTPParser::parseMultipart(const std::string& boundary, HandlerCB requestCB, ReadCB readCB)
+HTTPParser::parseMultipart(size_t size, const std::string& boundary, HandlerCB requestCB, ReadCB readCB)
 {
     // For now we handle ContentType: multipart. We accept exactly 2 parts. The first
     // is a key value pair which is placed in _argMap. The second is the uploaded file
     // data including the filename (which is placed in _argMap). The next line is Content-Type
     // followed by a blank line, followed by the uploaded file data
 
+    _uploadContentLength = size;
+    
     bool nextLineIsBoundary = true;
     bool done = false;
     
@@ -219,6 +221,7 @@ HTTPParser::parseMultipart(const std::string& boundary, HandlerCB requestCB, Rea
                     _uploadTotalSize += _uploadCurrentSize;
                     if (requestCB) {
                         requestCB();
+                        delay(10);
                     }
                     index = 0;
                     

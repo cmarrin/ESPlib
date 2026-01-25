@@ -275,7 +275,9 @@ WebServer::handleClient(int fdClient)
                             return;
                         }
     
-                        _parser->parseMultipart(multipart[2], it.requestCB, [fdClient](uint8_t* buf, size_t size) -> ssize_t
+                        std::string lengthString = _parser->getHeader("Content-Length");
+                        size_t contentLength = std::stoi(lengthString);
+                        _parser->parseMultipart(contentLength, multipart[2], it.requestCB, [fdClient](uint8_t* buf, size_t size) -> ssize_t
                         {
                             return read(fdClient, buf, size);
                         });

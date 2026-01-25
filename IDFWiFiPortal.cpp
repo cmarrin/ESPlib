@@ -126,7 +126,9 @@ IDFWiFiPortal::thunkHandler(httpd_req_t* req)
                 // This is not a multipart, Handle it normally
                 thunk->_handler(thunk->_portal);
             } else {
-                self->_parser->parseMultipart(multipart[2],
+                std::string lengthString = self->getHTTPHeader("Content-Length");
+                size_t contentLength = std::stoi(lengthString);
+                self->_parser->parseMultipart(contentLength, multipart[2],
                     [thunk]()
                     {
                         thunk->_handler(thunk->_portal);
@@ -912,25 +914,63 @@ IDFWiFiPortal::otaUpdateHandler(WiFiPortal* p)
         case WiFiPortal::HTTPUploadStatus::Start: {
             std::string f = HTTPParser::urlDecode(p->getHTTPArg("path")) + "/" + p->httpUploadFilename();
             self->_otaUpdateAborted = false;
-printf("******** otaUpdateHandler:Start - '%s'\n", f.c_str());
+            size_t length = self->_parser->httpUploadContentLength();
+
+            self->_updatePartition = esp_ota_get_next_update_partition(nullptr);
+            if (!self->_updatePartition) {
+                printf("ota Update: no updatePartition\n");
+                self->_otaUpdateAborted = true;
+                finished = true;
+            } else {
+                ESP_LOGI(TAG, "Writing to partition subtype %d at offset 0x%04x", int(self->_updatePartition->subtype), int(self->_updatePartition->address));
+                esp_err_t err = esp_ota_begin(self->_updatePartition, length ? length : OTA_WITH_SEQUENTIAL_WRITES, &self->_otaUpdateHandle);
+                if (err != ESP_OK) {
+                    ESP_LOGE(TAG, "esp_ota_begin failed (%s)", esp_err_to_name(err));
+                    self->_otaUpdateAborted = true;
+                    finished = true;
+                } else {
+                    ESP_LOGI(TAG, "esp_ota_begin succeeded");
+                }
+            }
             break;
         }
         case WiFiPortal::HTTPUploadStatus::Write:
             if (!self->_otaUpdateAborted) {
                 // Write the received chunk to the file
                 size_t currentSize = p->httpUploadCurrentSize();
-printf("******** otaUpdateHandler:Write - currentSize=%d\n", int(currentSize));
+
+                esp_err_t err = esp_ota_write(self->_otaUpdateHandle, reinterpret_cast<const void *>(p->httpUploadBuffer()), currentSize);
+                if (err != ESP_OK) {
+                    ESP_LOGE(TAG, "esp_ota_write failed (%s)", esp_err_to_name(err));
+                    self->_otaUpdateAborted = true;
+                    finished = true;
+                    esp_ota_abort(self->_otaUpdateHandle);
+                }
             }
             break;
-        case WiFiPortal::HTTPUploadStatus::End:
-printf("******** otaUpdateHandler:End\n");
+        case WiFiPortal::HTTPUploadStatus::End: {
             finished = true;
+
+            esp_err_t err = esp_ota_end(self->_otaUpdateHandle);
+            if (err != ESP_OK) {
+                ESP_LOGE(TAG, "esp_ota_end failed (%s)", esp_err_to_name(err));
+                self->_otaUpdateAborted = true;
+                esp_ota_abort(self->_otaUpdateHandle);
+            } else {
+                err = esp_ota_set_boot_partition(self->_updatePartition);
+                if (err != ESP_OK) {
+                    ESP_LOGE(TAG, "esp_ota_set_boot_partition failed (%s)", esp_err_to_name(err));
+                    self->_otaUpdateAborted = true;
+                    esp_ota_abort(self->_otaUpdateHandle);
+                }
+            }
             break;
+        }
         case WiFiPortal::HTTPUploadStatus::Aborted:
-printf("******** otaUpdateHandler:Aborted\n");
             printf("handleUpload: Upload Aborted\n");
             self->_otaUpdateAborted = true;
             finished = true;
+            esp_ota_abort(self->_otaUpdateHandle);
             break;
         case WiFiPortal::HTTPUploadStatus::None:
             printf("Invalid ota update status\n");
@@ -944,8 +984,10 @@ printf("******** otaUpdateHandler:Aborted\n");
             p->sendHTTPResponse(500, "text/plain", "Upload Aborted");
             printf("Reply sent: ota Update Aborted\n");
         } else if (p->httpUploadTotalSize() > 0) { // Check if any bytes were received
-            p->sendHTTPResponse(200, "text/plain", "ota Update Successful!");
-            printf("Reply sent: Successful ota update\n");
+            p->sendHTTPResponse(200, "text/html", "<h1>OTA Update Successful. Restarting...</h1>");
+            printf("Reply sent: Successful ota update, restarting...\n");
+            vTaskDelay(pdMS_TO_TICKS(2000));
+            esp_restart();
         } else {
             // This might happen if the file was empty or write failed early
             p->sendHTTPResponse(500, "text/plain", "ota Update Failed or Empty File");
