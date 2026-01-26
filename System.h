@@ -11,6 +11,8 @@ All rights reserved.
 
 #include "mil.h"
 
+#include <string>
+
 // System level functions with specializations for each platform
 
 #if defined ARDUINO
@@ -128,6 +130,60 @@ class System
     
     static void restart();
     
-private:
+    static std::string vformat(const char* fmt, va_list);
 
+    static std::string format(const char* fmt, ...)
+    {
+        va_list args;
+        va_start(args, fmt);
+        std::string s = vformat(fmt, args);
+        va_end(args);
+        return s;
+    }
+    
+    static void logV(const char* tag, const char* fmt, ...)
+    {
+        va_list args;
+        va_start(args, fmt);
+        log('V', tag, fmt, args);
+        va_end(args);
+    }
+    
+    static void logD(const char* tag, const char* fmt, ...)
+    {
+        va_list args;
+        va_start(args, fmt);
+        log('D', tag, fmt, args);
+        va_end(args);
+    }
+    
+    static void logI(const char* tag, const char* fmt, ...)
+    {
+        va_list args;
+        va_start(args, fmt);
+        log('I', tag, fmt, args);
+        va_end(args);
+    }
+    
+    static void logW(const char* tag, const char* fmt, ...)
+    {
+        va_list args;
+        va_start(args, fmt);
+        log('W', tag, fmt, args);
+        va_end(args);
+    }
+    
+    static void logE(const char* tag, const char* fmt, ...)
+    {
+        va_list args;
+        va_start(args, fmt);
+        log('E', tag, fmt, args);
+        va_end(args);
+    }
+
+private:
+    static void log(char type, const char* tag, const char* fmt, va_list args)
+    {
+        printf("%c %s: %s\n", type, tag, vformat(fmt, args).c_str());
+    }
 };

@@ -9,6 +9,18 @@ All rights reserved.
 
 #include "System.h"
 
+// Logging
+std::string
+System::vformat(const char* fmt, va_list args)
+{
+    int size = vsnprintf(nullptr, 0, fmt, args);
+    char* buf = new char[size + 1];
+    vsnprintf(buf, size + 1, fmt, args);
+    std::string s(buf);
+    delete [ ] buf;
+    return s;
+}
+
 #if defined ARDUINO
 
 //**************************************************************************
