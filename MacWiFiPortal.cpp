@@ -78,7 +78,7 @@ MacWiFiPortal::startWebPortal()
 std::string
 MacWiFiPortal::localIP()
 {
-    return "";
+    return "localhost";
 }
 
 const char*
