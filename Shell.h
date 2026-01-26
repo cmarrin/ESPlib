@@ -9,21 +9,24 @@ All rights reserved.
 
 #pragma once
 
-// Web based filesystem. It can be integrated with WebServer
-// so HTTP requests can be made to upload files, read existing
-// files, create directories, delete files and directories and do
-// directory listings.
+#include <string>
+#include <thread>
+
+// Cross platform shell server. Uses sockets to open port 23 and when
+// connected runs a shell based on linenoise. Executes lua programs
+// from the file system, along with some built-in commands
 
 namespace mil {
 
-class Application;
-
-class WebShell
+class Shell
 {
   public:    
-    bool begin(Application*);
+    bool begin();
     
   private:
+    void telnetServerTask();
+    
+    std::thread _thread;
 };
 
 }

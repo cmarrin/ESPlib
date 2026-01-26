@@ -23,7 +23,7 @@
 		49E65B912E9C3A7600D3C6C5 /* Font_Compact_5pt.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B752E9C3A7600D3C6C5 /* Font_Compact_5pt.h */; };
 		49E65B932E9C3A7600D3C6C5 /* Blinker.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B652E9C3A7600D3C6C5 /* Blinker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		49E65B942E9C3A7600D3C6C5 /* mil.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B822E9C3A7600D3C6C5 /* mil.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		49E65B962E9C3A7600D3C6C5 /* WebShell.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B8C2E9C3A7600D3C6C5 /* WebShell.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		49E65B962E9C3A7600D3C6C5 /* Shell.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B8C2E9C3A7600D3C6C5 /* Shell.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		49E65B982E9C3A7600D3C6C5 /* WiFiPortal.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B8E2E9C3A7600D3C6C5 /* WiFiPortal.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		49E65B992E9C3A7600D3C6C5 /* Clock.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B6A2E9C3A7600D3C6C5 /* Clock.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		49E65B9B2E9C3A7600D3C6C5 /* StateMachine.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B842E9C3A7600D3C6C5 /* StateMachine.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -36,7 +36,7 @@
 		49E65BA42E9C3A7600D3C6C5 /* JsonListener.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B782E9C3A7600D3C6C5 /* JsonListener.h */; };
 		49E65BA52E9C3A7600D3C6C5 /* LittleFSShim.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B7C2E9C3A7600D3C6C5 /* LittleFSShim.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		49E65BA72E9C3A7600D3C6C5 /* WebFileSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B8A2E9C3A7600D3C6C5 /* WebFileSystem.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		49E65BA82E9C3A7600D3C6C5 /* WebShell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B8D2E9C3A7600D3C6C5 /* WebShell.cpp */; };
+		49E65BA82E9C3A7600D3C6C5 /* Shell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B8D2E9C3A7600D3C6C5 /* Shell.cpp */; };
 		49E65BAA2E9C3A7600D3C6C5 /* TimeWeatherServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B892E9C3A7600D3C6C5 /* TimeWeatherServer.cpp */; };
 		49E65BAD2E9C3A7600D3C6C5 /* LittleFSShim.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B7D2E9C3A7600D3C6C5 /* LittleFSShim.cpp */; };
 		49E65BAE2E9C3A7600D3C6C5 /* BrightnessManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B672E9C3A7600D3C6C5 /* BrightnessManager.cpp */; };
@@ -189,8 +189,8 @@
 		49E65B892E9C3A7600D3C6C5 /* TimeWeatherServer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TimeWeatherServer.cpp; path = ../TimeWeatherServer.cpp; sourceTree = SOURCE_ROOT; };
 		49E65B8A2E9C3A7600D3C6C5 /* WebFileSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WebFileSystem.h; path = ../WebFileSystem.h; sourceTree = SOURCE_ROOT; };
 		49E65B8B2E9C3A7600D3C6C5 /* WebFileSystem.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = WebFileSystem.cpp; path = ../WebFileSystem.cpp; sourceTree = SOURCE_ROOT; };
-		49E65B8C2E9C3A7600D3C6C5 /* WebShell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WebShell.h; path = ../WebShell.h; sourceTree = SOURCE_ROOT; };
-		49E65B8D2E9C3A7600D3C6C5 /* WebShell.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = WebShell.cpp; path = ../WebShell.cpp; sourceTree = SOURCE_ROOT; };
+		49E65B8C2E9C3A7600D3C6C5 /* Shell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Shell.h; path = ../Shell.h; sourceTree = SOURCE_ROOT; };
+		49E65B8D2E9C3A7600D3C6C5 /* Shell.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Shell.cpp; path = ../Shell.cpp; sourceTree = SOURCE_ROOT; };
 		49E65B8E2E9C3A7600D3C6C5 /* WiFiPortal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WiFiPortal.h; path = ../WiFiPortal.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -348,8 +348,8 @@
 				49E65B892E9C3A7600D3C6C5 /* TimeWeatherServer.cpp */,
 				49E65B8A2E9C3A7600D3C6C5 /* WebFileSystem.h */,
 				49E65B8B2E9C3A7600D3C6C5 /* WebFileSystem.cpp */,
-				49E65B8C2E9C3A7600D3C6C5 /* WebShell.h */,
-				49E65B8D2E9C3A7600D3C6C5 /* WebShell.cpp */,
+				49E65B8C2E9C3A7600D3C6C5 /* Shell.h */,
+				49E65B8D2E9C3A7600D3C6C5 /* Shell.cpp */,
 				49E65B8E2E9C3A7600D3C6C5 /* WiFiPortal.h */,
 				492744432E9DBF6F00AF8FA1 /* MacWebServer.cpp */,
 				492744452E9DBF9900AF8FA1 /* MacWebServer.h */,
@@ -390,7 +390,7 @@
 				49E65B912E9C3A7600D3C6C5 /* Font_Compact_5pt.h in Headers */,
 				49E65B932E9C3A7600D3C6C5 /* Blinker.h in Headers */,
 				49E65B942E9C3A7600D3C6C5 /* mil.h in Headers */,
-				49E65B962E9C3A7600D3C6C5 /* WebShell.h in Headers */,
+				49E65B962E9C3A7600D3C6C5 /* Shell.h in Headers */,
 				4968BAE62F19CAE00038B8A9 /* HTTPParser.h in Headers */,
 				49E65B982E9C3A7600D3C6C5 /* WiFiPortal.h in Headers */,
 				49E65B992E9C3A7600D3C6C5 /* Clock.h in Headers */,
@@ -576,7 +576,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				492744602E9E929500AF8FA1 /* MacWiFiPortal.cpp in Sources */,
-				49E65BA82E9C3A7600D3C6C5 /* WebShell.cpp in Sources */,
+				49E65BA82E9C3A7600D3C6C5 /* Shell.cpp in Sources */,
 				49E65BAA2E9C3A7600D3C6C5 /* TimeWeatherServer.cpp in Sources */,
 				4968BAE82F19CAEB0038B8A9 /* HTTPParser.cpp in Sources */,
 				49E65BAD2E9C3A7600D3C6C5 /* LittleFSShim.cpp in Sources */,

@@ -90,7 +90,7 @@ Application::startNetwork()
 
     _portal->serveStatic("/fs", "/");
     
-    _webShell.begin(this);
+    _shell.begin();
     
 	sendInput(Input::Connected, false);
 }

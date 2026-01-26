@@ -38,7 +38,7 @@ All rights reserved.
 #include "Blinker.h"
 #include "System.h"
 #include "WebFileSystem.h"
-#include "WebShell.h"
+#include "Shell.h"
 #include "WiFiPortal.h"
 
 namespace mil {
@@ -124,7 +124,7 @@ protected:
     System _system;
     WiFiPortal* _portal;
     WebFileSystem _wfs;
-    WebShell _webShell;
+    Shell _shell;
     
 private:
 	void startNetwork();
