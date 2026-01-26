@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shell</title>
+    <link rel='stylesheet' href='https://unpkg.com/xterminal/dist/xterminal.css'>
+    
+    <style>
+        body {
+            background-color: var(--xt-bg);
+        }
+        
+        .error {
+            color: rgb(248, 88, 88);
+        }
+
+        .spinner:after {
+            animation: changeContent 0.8s linear infinite;
+            content: "⠋";
+        }
+
+        @keyframes changeContent {
+            10% { content: "⠙"; }
+            20% { content: "⠹"; }
+            30% { content: "⠸"; }
+            40% { content: "⠼"; }
+            50% { content: "⠴"; }
+            60% { content: "⠦"; }
+            70% { content: "⠧"; }
+            80% { content: "⠇"; }
+            90% { content: "⠏"; }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app"></div>
+
+    <script src='https://unpkg.com/xterminal/dist/xterminal.umd.js'></script>
+
+    <script>
+        window.onload = () => createTerminal('#app');        
+        
+        function createTerminal(target)
+        {
+            const term = new XTerminal({ target });
+
+            const state = { 
+                username: "user",
+                hostname: "web"
+            };
+
+            // input evaluator
+            const shell = createShell();
+
+            // print prompt and get ready for user input
+            function promptUser() {
+                term.write(`┌[${state.username}@${state.hostname}]\n`);
+                term.write("└$ ");
+                term.resume();
+                term.focus();
+            }
+
+            // user input handler
+            term.on("data", async input => {
+
+                // deactivate until the execution is done
+                term.pause();
+
+                // execute command
+                await shell.execute(term, input)
+                    .then(res => res && term.writeln(res))
+                    .catch(err => {
+                        if (err) {
+                            // sanitize error to prevent xss attacks
+                            // error may contain user input or HTML strings (like script tags)
+                            term.writeln(`<span class="error">${XTerminal.escapeHTML(err)}</span>\n`)
+                        }
+                    })
+                    .finally(promptUser);
+            });
+
+            // greeting message
+            term.writeln("Welcome to XTerminal (v" + XTerminal.version + ")");
+            term.writeln("Type `help` for available commands\n");
+            
+            // kickstart
+            promptUser();
+
+            // remember to free resources
+            window.addEventListener('unload', () => term.dispose());
+        }
+
+        function createShell() {
+
+            // Help
+            const manual = `XTerminal : version ${XTerminal.version}
+
+        Type 'help' to see this list
+          
+        Commands:
+          
+          js [expr]       execute a JS expression
+          clear           clear the terminal screen
+          help            display this list
+        `;
+
+
+            // evaluate user input from the terminal
+            // -> can be shared among several terminal objects
+            function execute(term, command = '') {
+                let args = command.split(' ');
+                let cmd = args.shift();
+
+                // JavaScript Evaluation
+                if (cmd == 'js') {
+                    return new Promise((res, rej) => {
+                        try {
+                            let output = eval(args.join(' ')) + '\n';
+                            res(output);
+                        } catch (error) {
+                            rej(error);
+                        }
+                    });
+                } 
+                // Help menu
+                else if (cmd == 'help') {
+                    return Promise.resolve(manual);
+                } 
+                // Clear the terminal
+                else if (cmd == 'clear') {
+                    term.clear();
+                    return Promise.resolve(null);
+                } 
+                // Oopps!
+                else {
+                    return Promise.reject(`sh: '${cmd}' command not found`);
+                }
+            }
+
+            return { execute };
+        }
+    </script>
+</body>
+</html>

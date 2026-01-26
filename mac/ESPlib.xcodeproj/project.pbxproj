@@ -150,6 +150,7 @@
 		495AB4722E9C7D1800C4C2C4 /* partitions.csv */ = {isa = PBXFileReference; lastKnownFileType = text; name = partitions.csv; path = ../Vesper/partitions.csv; sourceTree = SOURCE_ROOT; };
 		4968BAE52F19CAD40038B8A9 /* HTTPParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HTTPParser.h; path = ../HTTPParser.h; sourceTree = "<group>"; };
 		4968BAE72F19CAE90038B8A9 /* HTTPParser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = HTTPParser.cpp; path = ../HTTPParser.cpp; sourceTree = "<group>"; };
+		4968BB432F2823C00038B8A9 /* shell.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = shell.html; path = ../shell.html; sourceTree = SOURCE_ROOT; };
 		49CAA5C92F11E434005B1107 /* cvtHTML.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = cvtHTML.sh; path = ../cvtHTML.sh; sourceTree = SOURCE_ROOT; };
 		49CAA5CA2F15F5B9005B1107 /* landing.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = landing.html; path = ../landing.html; sourceTree = SOURCE_ROOT; };
 		49E65B012E9C36F800D3C6C5 /* libESPlib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libESPlib.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -312,6 +313,7 @@
 				4934EB132F0B50460054B78E /* lua.xcodeproj */,
 				491673B82EA7D06B0028A6F0 /* LuaBridge */,
 				49CAA5C92F11E434005B1107 /* cvtHTML.sh */,
+				4968BB432F2823C00038B8A9 /* shell.html */,
 				49E65B712E9C3A7600D3C6C5 /* filemgr.html */,
 				49CAA5CA2F15F5B9005B1107 /* landing.html */,
 				4934EB1F2F1170950054B78E /* wifi.html */,
