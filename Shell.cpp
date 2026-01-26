@@ -56,14 +56,7 @@ Shell::begin()
 void
 Shell::telnetServerTask()
 {
-    int ipProtocol = 0;
-    int keepAlive = 1;
-    int keepIdle = 5;
-    int keepInterval = 5;
-    int keepCount = 3;
-    int listenSocket;
-
-    listenSocket = socket(AF_INET, SOCK_STREAM, 0);
+    int listenSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (listenSocket < 0) {
         System::logE(TAG, "Unable to create listen socket %i: errno %d", listenSocket, errno);
         return;
@@ -109,6 +102,11 @@ Shell::telnetServerTask()
         System::logI(TAG, "Accepted connection:ip=%d.%d.%d.%d, socket=%d", ip[0], ip[1], ip[2], ip[3], sock);
 
         // Set tcp keepalive option
+        int keepAlive = 1;
+        int keepIdle = 5;
+        int keepInterval = 5;
+        int keepCount = 3;
+
         setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &keepAlive, sizeof(int));
         setsockopt(sock, IPPROTO_TCP, 5, &keepIdle, sizeof(int));
         setsockopt(sock, IPPROTO_TCP, 5, &keepInterval, sizeof(int));
