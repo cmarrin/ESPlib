@@ -24,7 +24,7 @@ static constexpr int TelnetPort = 23;
 bool
 Shell::begin()
 {
-    _thread = std::thread([this]() { telnetServerTask(); });
+    _thread = std::thread([this]() { serverTask(); });
 
 
 //    // Test running a script
@@ -54,7 +54,7 @@ Shell::begin()
 }
 
 void
-Shell::telnetServerTask()
+Shell::serverTask()
 {
     int listenSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (listenSocket < 0) {
@@ -111,5 +111,20 @@ Shell::telnetServerTask()
         setsockopt(sock, IPPROTO_TCP, 5, &keepIdle, sizeof(int));
         setsockopt(sock, IPPROTO_TCP, 5, &keepInterval, sizeof(int));
         setsockopt(sock, IPPROTO_TCP, 3, &keepCount, sizeof(int));
+        
+        // Start a thread with a shell for the client
+        //std::thread clientThread = std::thread([this, sock]() { clientTask(sock); });
+        
+        // FIXME: ultimately we need to keep all the client threads in a list
+        // along with their socket so we can kill them and stuff like that
     }  
+}
+
+void
+Shell::clientTask(int sock)
+{
+    // FIXME: Allocate the buffer (and probably bigger) to avoid blowing the stack
+    char buf[128];
+    ssize_t result = read(sock, buf, 127);
+    printf("******* received '%s'\n", buf);
 }

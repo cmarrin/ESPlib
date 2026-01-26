@@ -24,7 +24,8 @@ class Shell
     bool begin();
     
   private:
-    void telnetServerTask();
+    void serverTask();
+    void clientTask(int sock);
     
     std::thread _thread;
 };
