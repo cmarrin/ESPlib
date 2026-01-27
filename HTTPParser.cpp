@@ -444,6 +444,9 @@ HTTPParser::parseQuery(const std::string& query)
     std::vector<std::string> keyValue = split(query, '&');
     
     for (const auto& it : keyValue) {
+        if (it.empty()) {
+            continue;
+        }
         std::vector<std::string> kvPairs = split(it, '=');
         if (kvPairs.size() != 2) {
             printf("**** Invalid query key/value pair\n");
