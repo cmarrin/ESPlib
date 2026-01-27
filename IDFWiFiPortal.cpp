@@ -168,7 +168,28 @@ IDFWiFiPortal::addHTTPHandler(const char* endpoint, HTTPMethod method, HandlerCB
 void
 IDFWiFiPortal::addStaticHTTPHandler(const char *uri, const char *path)
 {
-    printf("*** addStaticHTTPHandler not implemented\n");
+    addHTTPHandler((std::string(uri) + "/*").c_str(), HTTPMethod::Get, [uri, path](WiFiPortal* p) {
+        IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(p);
+        
+        std::string endpoint(uri);
+        std::string filePath(self->_activeRequest->uri);
+        filePath = filePath.substr(endpoint.length());
+        if (filePath.back() == '?') {
+            filePath.pop_back();
+        }
+
+        std::string f(path);
+        f += filePath;
+    
+        if (!self->_wfs || !self->_wfs->exists(f.c_str())) {
+            httpd_resp_send(self->_activeRequest, "<h1><b>Page not found</b></h1>", HTTPD_RESP_USE_STRLEN);
+            ESP_LOGI(TAG, "%s page not found", self->_activeRequest->uri);
+        } else {
+            fs::File file = self->_wfs->open(f.c_str(), "r");
+            self->streamHTTPResponse(file, HTTPParser::suffixToMimeType(f).c_str(), false);
+            file.close();
+        }
+    });
 }
 
 bool
