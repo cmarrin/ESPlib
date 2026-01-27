@@ -29,7 +29,7 @@ public:
     virtual void setHostname(const char*) override;
     virtual void setConfigHandler(std::function<void(WiFiPortal*)>) override;
     virtual int32_t addHTTPHandler(const char* endpoint, HTTPMethod method, HandlerCB requestCB) override;
-    virtual void serveStatic(const char *uri, const char *path) override;
+    virtual void addStaticHTTPHandler(const char *uri, const char *path) override;
     virtual bool autoConnect(char const *apName, char const *apPassword = NULL) override;
     virtual void process() override;
     virtual void startWebPortal() override;

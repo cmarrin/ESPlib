@@ -52,9 +52,9 @@ MacWiFiPortal::addHTTPHandler(const char* endpoint, HTTPMethod method, HandlerCB
 }
 
 void
-MacWiFiPortal::serveStatic(const char *uri, const char *path)
+MacWiFiPortal::addStaticHTTPHandler(const char *uri, const char *path)
 {
-    _server.serveStatic(uri, path);
+    _server.addStaticHTTPHandler(uri, path);
 }
 
 bool

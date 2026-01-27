@@ -44,7 +44,7 @@ public:
         return int32_t(_handlers.size());
     }
 
-    void serveStatic(const char* uri, const char* path)
+    void addStaticHTTPHandler(const char* uri, const char* path)
     {
         _handlers.emplace_back(uri, path, nullptr, true);
     }

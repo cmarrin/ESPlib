@@ -169,9 +169,9 @@ IDFWiFiPortal::addHTTPHandler(const char* endpoint, HTTPMethod method, HandlerCB
 }
 
 void
-IDFWiFiPortal::serveStatic(const char *uri, const char *path)
+IDFWiFiPortal::addStaticHTTPHandler(const char *uri, const char *path)
 {
-    printf("*** serveStatic not implemented\n");
+    printf("*** addStaticHTTPHandler not implemented\n");
 }
 
 bool

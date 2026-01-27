@@ -75,7 +75,7 @@ ESPWiFiPortal::addHTTPHandler(const char* endpoint, HTTPMethod, HandlerCB reques
 }
 
 void
-ESPWiFiPortal::serveStatic(const char *uri, const char *path)
+ESPWiFiPortal::addStaticHTTPHandler(const char *uri, const char *path)
 {
     _wifiManager.server->serveStatic(uri, LittleFS, path);
 }

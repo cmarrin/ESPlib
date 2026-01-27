@@ -88,7 +88,7 @@ Application::startNetwork()
         printf("***** file system initialization failed\n");
     }
 
-    _portal->serveStatic("/fs", "/");
+    _portal->addStaticHTTPHandler("/fs", "/");
     
     _shell.begin();
     

@@ -83,7 +83,7 @@ public:
     
     // Serve static pages. When an endpoint starting in uri is seen it responds with the file at
     // the passed path as its root.
-    virtual void serveStatic(const char *uri, const char *path) { }
+    virtual void addStaticHTTPHandler(const char *uri, const char *path) { }
 
     ///
     /// These next calls are used to either start the web portal or are called after
