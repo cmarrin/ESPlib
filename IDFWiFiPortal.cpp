@@ -146,7 +146,7 @@ IDFWiFiPortal::thunkHandler(httpd_req_t* req)
         printf("***** Error (%d):%s\n", self->_parser->errorCode(), self->_parser->errorReason().c_str());
     }
     
-    self->_parser.release();
+    self->_parser.reset();
     self->_activeRequest = nullptr;
     
     return ESP_OK;

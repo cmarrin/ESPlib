@@ -223,7 +223,7 @@ WebServer::handleClient(int fdClient)
 
     if (_parser) {
         printf("***** Already in the middle of a request\n");
-        _parser.release();
+        _parser.reset();
         return;
     }
     
@@ -293,7 +293,7 @@ WebServer::handleClient(int fdClient)
     
     close(_fdClient);
     _fdClient = -1;
-    _parser.release();
+    _parser.reset();
 }
 
 void
