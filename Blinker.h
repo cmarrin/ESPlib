@@ -56,12 +56,11 @@ static constexpr uint32_t OnCounts = 5;
 class Blinker
 {
 public:
-    Blinker(uint8_t led, uint32_t sampleRate)
-        : _led(led)
-        , _sampleRate(sampleRate)
+    Blinker(uint32_t sampleRate)
+        : _sampleRate(sampleRate)
     {
-        System::gpioSetPinMode(_led, System::GPIOPinMode::Output);
-        System::gpioWritePin(_led, true);
+        System::initLED();
+        System::setLED(0, 0, 0, 0);
     }
 
     void setRate(uint32_t rate)
@@ -83,9 +82,9 @@ private:
         }
         
         if (_count == 0) {
-            System::gpioWritePin(_led, false);
+            System::setLED(0, 0, 0, 1);
         } else if (_count == OnCounts){
-            System::gpioWritePin(_led, true);
+            System::setLED(0, 0, 0, 0);
         }
         if (++_count >= _rate) {
             _count = 0;
@@ -95,7 +94,6 @@ private:
     Ticker _ticker;
     uint32_t _rate = 0;
     uint32_t _count = 0;
-    uint8_t _led;
     uint32_t _sampleRate;
     bool _isAttached = false;
 };

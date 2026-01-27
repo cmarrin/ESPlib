@@ -128,6 +128,12 @@ class System
     static bool gpioReadPin(uint8_t pin);
     static uint32_t gpioReadAnalog(uint8_t pin);
     
+    // This manages the LED, allowing both GPIO based and LED strip based lights
+    // In the case of a GPIO based light, index is ignored and if r or g or b are
+    // all 0 then the light is off, otherwise it is on.
+    static void initLED();
+    static void setLED(uint32_t index, uint8_t r, uint8_t g, uint8_t b);
+    
     static void restart();
     
     static std::string vformat(const char* fmt, va_list);

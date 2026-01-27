@@ -69,7 +69,7 @@ enum class Message { Startup, Connecting, NetConfig, NetFail, UpdateFail,
 class Application
 {
 public:
-	Application(WiFiPortal* portal, uint8_t led, const char* configPortalName);
+	Application(WiFiPortal* portal, const char* configPortalName);
 	
 	virtual void setup();
 	virtual void loop();

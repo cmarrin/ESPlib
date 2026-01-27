@@ -14,10 +14,10 @@ using namespace mil;
 static constexpr int MaxHostnameLength = 40;
 static const char* TAG = "Application";
 
-Application::Application(WiFiPortal* portal, uint8_t led, const char* configPortalName)
+Application::Application(WiFiPortal* portal, const char* configPortalName)
     : _portal(portal)
     , _stateMachine({ { Input::LongPress, State::AskPreUserQuestion } })
-    , _blinker(led, BlinkSampleRate)
+    , _blinker(BlinkSampleRate)
     , _configPortalName(configPortalName)
 {
 }

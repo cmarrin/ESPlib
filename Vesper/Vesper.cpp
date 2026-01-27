@@ -10,7 +10,7 @@
 #include "Vesper.h"
 
 Vesper::Vesper(mil::WiFiPortal* portal)
-    : mil::Application(portal, LED_BUILTIN, ConfigPortalName)
+    : mil::Application(portal, ConfigPortalName)
 {
 }
 
