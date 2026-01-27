@@ -95,7 +95,7 @@ Application::startNetwork()
  
     _portal->addStaticHTTPHandler("/fs", "/");
     
-    _shell.begin();
+    //_shell.begin();
     
 	sendInput(Input::Connected, false);
 }
