@@ -11,11 +11,41 @@ All rights reserved.
 
 #include "MacWiFiPortal.h"
 
+#include "WebFileSystem.h"
+
 using namespace mil;
 
 void
 MacWiFiPortal::begin(WebFileSystem* wfs)
 {
+    _startTime = std::chrono::steady_clock::now();
+
+    addHTTPHandler("/", WiFiPortal::HTTPMethod::Get, [this, wfs](WiFiPortal* p) { wfs->sendLandingPage(p); });
+
+    addHTTPHandler("/get-landing-setup", WiFiPortal::HTTPMethod::Get, [this, wfs](WiFiPortal* p)
+    {
+        std::chrono::duration<double> uptime = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now() - _startTime);
+
+        std::string response = "{";
+        response += jsonParam("title", _title) + ",";
+        response += jsonParam("ssid", "My Network") + ",";
+        response += jsonParam("ip", localIP()) + ",";
+        response += jsonParam("hostname", _hostname) + ",";
+        response += jsonParam("gw", "0.0.0.0") + ",";
+        response += jsonParam("msk", "0.0.0.0") + ",";
+        response += jsonParam("dns", "0.0.0.0") + ",";
+        response += jsonParam("cpuModel", "Mac") + ",";
+        response += jsonParam("cpuFreq", "0") + ",";
+        response += jsonParam("cpuTemp", "0") + ",";
+        response += jsonParam("cpuUptime", std::to_string(uptime.count())) + ",";
+        response += jsonParam("flashTotal", std::to_string(wfs->totalBytes())) + ",";
+        response += jsonParam("flashUsed", std::to_string(wfs->usedBytes())) + ",";
+        
+        response += jsonParam("customMenuHTML", _customHTML);
+        response += "}";
+        sendHTTPResponse(200, "application/json", response.c_str(), response.length(), false);
+    });
+
     _server.start(wfs, 80);
 }
 
@@ -27,16 +57,19 @@ MacWiFiPortal::resetSettings()
 void
 MacWiFiPortal::setTitle(const char* title)
 {
+    _title = title;
 }
 
 void
 MacWiFiPortal::setCustomMenuHTML(const char* html)
 {
+    _customHTML = html;
 }
 
 void
-MacWiFiPortal::setHostname(const char*)
+MacWiFiPortal::setHostname(const char* hostname)
 {
+    _hostname = hostname;
 }
 
 void

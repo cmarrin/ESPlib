@@ -236,65 +236,61 @@ WebServer::handleClient(int fdClient)
     bool isUpload = _parser->method() == "POST";
     std::string filePath = _parser->path();
     
-    // If we have the root path, return index.html
-    if (filePath.empty() || filePath == "/") {
-        sendStaticFile("index.html", "/");
+    // Go through all the handlers
+    // FIXME: For now the endpoint is the string up to the 
+    // first slash.
+    if (filePath[0] != '/') {
+        filePath = "/" + filePath;
+    }
+    
+    std::string endpoint;
+    size_t slash = filePath.substr(1).find('/');
+    if (slash == std::string::npos) {
+        endpoint = filePath;
+        filePath = "";
     } else {
-        // Go through all the handlers
-        // FIXME: For now the endpoint is the string up to the 
-        // first slash.
-        if (filePath[0] != '/') {
-            filePath = "/" + filePath;
-        }
-        
-        std::string endpoint;
-        size_t slash = filePath.substr(1).find('/');
-        if (slash == std::string::npos) {
-            endpoint = filePath;
-            filePath = "";
-        } else {
-            endpoint = filePath.substr(0, slash + 1);
-            filePath = filePath.substr(slash + 2);
-        }
-        
-        for (const auto& it : _handlers) {
-            if (it.endpoint == endpoint) {
-                if (it.isStatic) {
-                    sendStaticFile(filePath.c_str(), it.path.c_str());
+        endpoint = filePath.substr(0, slash + 1);
+        filePath = filePath.substr(slash + 2);
+    }
+    
+    for (const auto& it : _handlers) {
+        if (it.endpoint == endpoint) {
+            if (it.isStatic) {
+                sendStaticFile(filePath.c_str(), it.path.c_str());
+            } else {
+                if (isUpload) {
+                    std::string contentType = _parser->getHeader("Content-Type");
+                    if (contentType.empty()) {
+                        _parser->setErrorResponse(501, "no Content-Type");
+                        return;
+                    }
+
+                    std::vector<std::string> multipart = HTTPParser::parseFormData(contentType);
+                    if (multipart[0] != "multipart/form-data" || multipart[1] != "boundary") {
+                        _parser->setErrorResponse(501, "only multipart/form-data supported");
+                        return;
+                    }
+
+                    std::string lengthString = _parser->getHeader("Content-Length");
+                    size_t contentLength = std::stoi(lengthString);
+                    _parser->parseMultipart(contentLength, multipart[2], it.requestCB, [fdClient](uint8_t* buf, size_t size) -> ssize_t
+                    {
+                        return read(fdClient, buf, size);
+                    });
+                        if (_parser->errorCode()) {
+                            sendHTTPResponse(_parser->errorCode(), "text/plain", _parser->errorReason().c_str());
+                            printf("***** Error (%d):%s\n", _parser->errorCode(), _parser->errorReason().c_str());
+                        }
                 } else {
-                    if (isUpload) {
-                        std::string contentType = _parser->getHeader("Content-Type");
-                        if (contentType.empty()) {
-                            _parser->setErrorResponse(501, "no Content-Type");
-                            return;
-                        }
-    
-                        std::vector<std::string> multipart = HTTPParser::parseFormData(contentType);
-                        if (multipart[0] != "multipart/form-data" || multipart[1] != "boundary") {
-                            _parser->setErrorResponse(501, "only multipart/form-data supported");
-                            return;
-                        }
-    
-                        std::string lengthString = _parser->getHeader("Content-Length");
-                        size_t contentLength = std::stoi(lengthString);
-                        _parser->parseMultipart(contentLength, multipart[2], it.requestCB, [fdClient](uint8_t* buf, size_t size) -> ssize_t
-                        {
-                            return read(fdClient, buf, size);
-                        });
-                            if (_parser->errorCode()) {
-                                sendHTTPResponse(_parser->errorCode(), "text/plain", _parser->errorReason().c_str());
-                                printf("***** Error (%d):%s\n", _parser->errorCode(), _parser->errorReason().c_str());
-                            }
-                    } else {
-                        if (it.requestCB) {
-                            it.requestCB();
-                        }
+                    if (it.requestCB) {
+                        it.requestCB();
                     }
                 }
-                break;
             }
+            break;
         }
     }
+    
     close(_fdClient);
     _fdClient = -1;
     _parser.release();

@@ -48,6 +48,11 @@ public:
     virtual bool getParamValue(const char* id, std::string& value) override;
     
 private:
+    std::string _hostname;
+    std::string _title;
+    std::string _customHTML;
+    std::chrono::steady_clock::time_point _startTime;
+
     WebServer _server;
 };
 
