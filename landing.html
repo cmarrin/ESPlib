@@ -351,10 +351,10 @@
         // Time in seconds
         function prettyTime(t)
         {
-            if (t < (10 * 60)) {
+            if (t < (5 * 60)) {
                 return t.toFixed(0) + "sec";
             }
-            if (t < (10 * 60 * 60)) {
+            if (t < (5 * 60 * 60)) {
                 return (t / 60).toFixed(0) + "min";
             }
             return (t / 3600).toFixed(0) + "hr";
