@@ -29,9 +29,6 @@ static const char* PROV_AP_SSID = "ESP32-Provisioning";
 static const char* PROV_AP_PASS = "password123";
 static constexpr uint32_t PROV_AP_MAX_CONN = 4;
 
-static inline std::string q(const std::string& s) { return "\"" + s + "\""; }
-static inline std::string jp(const std::string& n, const std::string& v) { return q(n) + ":" + q(v); }
-
 void
 IDFWiFiPortal::begin(WebFileSystem* wfs)
 {
@@ -792,8 +789,8 @@ IDFWiFiPortal::getWifiSetupHandler(WiFiPortal* portal)
     self->getNVSParam("wifi_ssid", ssid);
     self->getNVSParam("hostname", hostname);
 
-    std::string response = "{" + jp("ssid", ssid) + "," + jp("hostname", hostname) + ",";
-    response += q("knownNetworks") + ":[";
+    std::string response = "{" + jsonParam("ssid", ssid) + "," + jsonParam("hostname", hostname) + ",";
+    response += quote("knownNetworks") + ":[";
 
     bool first = true;
     
@@ -804,9 +801,9 @@ IDFWiFiPortal::getWifiSetupHandler(WiFiPortal* portal)
             first = false;
         }
         
-        response += "{" + jp("ssid", it.ssid) + ",";
-        response += jp("rssi", std::to_string(it.rssi)) + ",";
-        response += jp("open", std::string(it.open ? "true" : "false")) + "}";
+        response += "{" + jsonParam("ssid", it.ssid) + ",";
+        response += jsonParam("rssi", std::to_string(it.rssi)) + ",";
+        response += jsonParam("open", std::string(it.open ? "true" : "false")) + "}";
     }
     response += "]}";
 
@@ -875,21 +872,21 @@ IDFWiFiPortal::getLandingSetupHandler(WiFiPortal* portal)
     uint32_t cpuUptime = esp_timer_get_time() / 1000000;
 
     std::string response = "{";
-    response += jp("title", self->_title) + ",";
-    response += jp("ssid", self->_ssid) + ",";
-    response += jp("ip", self->_currentIP) + ",";
-    response += jp("hostname", self->_hostname) + ",";
-    response += jp("gw", self->_currentGW) + ",";
-    response += jp("msk", self->_currentMSK) + ",";
-    response += jp("dns", self->_currentDNS) + ",";
-    response += jp("cpuModel", cpuModel) + ",";
-    response += jp("cpuFreq", std::to_string(cpuFreq)) + ",";
-    response += jp("cpuTemp", std::to_string(cpuTemp)) + ",";
-    response += jp("cpuUptime", std::to_string(cpuUptime)) + ",";
-    response += jp("flashTotal", std::to_string(self->_wfs->totalBytes())) + ",";
-    response += jp("flashUsed", std::to_string(self->_wfs->usedBytes())) + ",";
+    response += jsonParam("title", self->_title) + ",";
+    response += jsonParam("ssid", self->_ssid) + ",";
+    response += jsonParam("ip", self->_currentIP) + ",";
+    response += jsonParam("hostname", self->_hostname) + ",";
+    response += jsonParam("gw", self->_currentGW) + ",";
+    response += jsonParam("msk", self->_currentMSK) + ",";
+    response += jsonParam("dns", self->_currentDNS) + ",";
+    response += jsonParam("cpuModel", cpuModel) + ",";
+    response += jsonParam("cpuFreq", std::to_string(cpuFreq)) + ",";
+    response += jsonParam("cpuTemp", std::to_string(cpuTemp)) + ",";
+    response += jsonParam("cpuUptime", std::to_string(cpuUptime)) + ",";
+    response += jsonParam("flashTotal", std::to_string(self->_wfs->totalBytes())) + ",";
+    response += jsonParam("flashUsed", std::to_string(self->_wfs->usedBytes())) + ",";
     
-    response += jp("customMenuHTML", self->_customHTML);
+    response += jsonParam("customMenuHTML", self->_customHTML);
     response += "}";
     httpd_resp_send(self->_activeRequest, response.c_str(), HTTPD_RESP_USE_STRLEN);
 }
