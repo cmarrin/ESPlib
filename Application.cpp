@@ -93,10 +93,6 @@ Application::startNetwork()
     _portal->startWebPortal();
 	delay(500);
  
-    if (!_wfs.begin(this, true)) {
-        printf("***** file system initialization failed\n");
-    }
-
     _portal->addStaticHTTPHandler("/fs", "/");
     
     _shell.begin();
