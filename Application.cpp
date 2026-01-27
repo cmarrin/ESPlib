@@ -12,6 +12,7 @@ All rights reserved.
 using namespace mil;
 
 static constexpr int MaxHostnameLength = 40;
+static const char* TAG = "Application";
 
 Application::Application(WiFiPortal* portal, uint8_t led, const char* configPortalName)
     : _portal(portal)
@@ -81,6 +82,14 @@ Application::startNetwork()
 	_enableNetwork = true;
 	_blinker.setRate(ConnectedRate);
  
+    // Setup the top level web page. If there is a /sys/shell.html in the filesystem
+    // we add a button for it at the top of the landing page.
+    if (!_wfs.begin(this, true)) {
+        System::logE(TAG, "file system initialization failed");
+    } else if (_wfs.exists("/sys/shell.html")) {
+        setCustomMenuHTML("<form action='/fs/sys/shell.html' method='get'><button class='btn'>Shell</button></form><br/>");
+    }
+    
     _portal->startWebPortal();
 	delay(500);
  
