@@ -124,7 +124,7 @@ void
 Shell::clientTask(int sock)
 {
     // FIXME: Allocate the buffer (and probably bigger) to avoid blowing the stack
-    char buf[128];
-    ssize_t result = read(sock, buf, 127);
-    printf("******* received '%s'\n", buf);
+//    char buf[128];
+//    ssize_t result = read(sock, buf, 127);
+//    printf("******* received '%s'\n", buf);
 }
