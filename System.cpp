@@ -81,43 +81,20 @@ System::restart()
 //**************************************************************************
 
 #include "driver/gpio.h"
-#include "led_strip.h"
+
+static const char* TAG = "System";
 
 // Assume this is an addressable RGB LED on GPIO pin 8
 static constexpr int BLINK_GPIO = 8;
 
-static led_strip_handle_t _ledStrip;
-
 void
 System::initLED()
 {
-//    led_strip_config_t stripConfig = {
-//        .strip_gpio_num = BLINK_GPIO,
-//        .max_leds = 1,
-//        .led_model = LED_MODEL_WS2812,
-//        .color_component_format = LED_STRIP_COLOR_COMPONENT_FMT_GRB,
-//        .flags = { }
-//    };
-//    led_strip_rmt_config_t rmtConfig = {
-//        .clk_src = RMT_CLK_SRC_DEFAULT,
-//        .resolution_hz = 10 * 1000 * 1000, // 10MHz
-//        .mem_block_symbols = 64,
-//        .flags = { },
-//    };
-//    ESP_ERROR_CHECK(led_strip_new_rmt_device(&stripConfig, &rmtConfig, &_ledStrip));
 }
 
 void
 System::setLED(uint32_t index, uint8_t r, uint8_t g, uint8_t b)
 {
-//    bool off = r == 0 && g == 0 && b == 0;
-//    if (!off) {
-//        /* Set the LED pixel using RGB from 0 (0%) to 255 (100%) for each color */
-//        led_strip_set_pixel(_ledStrip, index, r, g, b);
-//        led_strip_refresh(_ledStrip);
-//    } else {
-//        led_strip_clear(_ledStrip);
-//    }
 }
 
 void
