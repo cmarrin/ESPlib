@@ -415,17 +415,6 @@ IDFWiFiPortal::hasHTTPArg(const char* name)
     return _parser->hasHTTPArg(name);
 }
 
-bool
-IDFWiFiPortal::hasHTTPArg(const char* name)
-{
-    if (!_activeRequest || !_parser) {
-        ESP_LOGW(TAG, "hasHTTPArg can't get '%s' arg. No parser", name);
-        return "";
-    }
-
-    return _parser->hasHTTPArg(name);
-}
-
 const std::string
 IDFWiFiPortal::getHTTPHeader(const char* name)
 {
