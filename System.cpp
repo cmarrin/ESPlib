@@ -82,8 +82,6 @@ System::restart()
 
 #include "driver/gpio.h"
 
-static const char* TAG = "System";
-
 // Assume this is an addressable RGB LED on GPIO pin 8
 static constexpr int BLINK_GPIO = 8;
 
