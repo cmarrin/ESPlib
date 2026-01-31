@@ -211,6 +211,12 @@ ESPWiFiPortal::getHTTPArg(const char* name)
 }
 
 bool
+ESPWiFiPortal::hasHTTPArg(const char* name)
+{
+    return !getHTTPArg(name).empty();
+}
+
+bool
 ESPWiFiPortal::addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength)
 {
     // First we have to see if there is a saved value for this id. If so use it in place of the defaultValue

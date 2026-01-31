@@ -393,8 +393,7 @@ IDFWiFiPortal::httpUploadBuffer() const
 std::string
 IDFWiFiPortal::getHTTPArg(const char* name)
 {
-    if (!_activeRequest || !_parser) {
-        ESP_LOGW(TAG, "getHTTPArg can't get '%s' arg. No parser", name);
+    if (!hasHTTPArg(name)) {
         return "";
     }
 
@@ -403,6 +402,28 @@ IDFWiFiPortal::getHTTPArg(const char* name)
         ESP_LOGW(TAG, "getHTTPArg '%s' is empty", name);
     }
     return s;
+}
+
+bool
+IDFWiFiPortal::hasHTTPArg(const char* name)
+{
+    if (!_activeRequest || !_parser) {
+        ESP_LOGW(TAG, "hasHTTPArg can't get '%s' arg. No parser", name);
+        return false;
+    }
+    
+    return _parser->hasHTTPArg(name);
+}
+
+bool
+IDFWiFiPortal::hasHTTPArg(const char* name)
+{
+    if (!_activeRequest || !_parser) {
+        ESP_LOGW(TAG, "hasHTTPArg can't get '%s' arg. No parser", name);
+        return "";
+    }
+
+    return _parser->hasHTTPArg(name);
 }
 
 const std::string

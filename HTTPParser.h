@@ -91,7 +91,8 @@ class HTTPParser
     
     const std::string& method() const { return _method; }
     const std::string& path() const { return _path; }
-    const std::string getHTTPArg(const char* name) { return _args[name]; }
+    const std::string getHTTPArg(const char* name) { return hasHTTPArg(name) ? _args[name] : ""; }
+    bool hasHTTPArg(const char* name) { return _args.count(name); }
     const std::string getHeader(const char* name) { return _headers[name]; }
     
     WiFiPortal::HTTPUploadStatus httpUploadStatus() const { return _uploadStatus; }

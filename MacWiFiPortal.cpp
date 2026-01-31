@@ -175,6 +175,12 @@ MacWiFiPortal::getHTTPArg(const char* name)
 }
 
 bool
+MacWiFiPortal::hasHTTPArg(const char* name)
+{
+    return _server.hasHTTPArg(name);
+}
+
+bool
 MacWiFiPortal::addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength)
 {
 //    // First we have to see if there is a saved value for this id. If so use it in place of the defaultValue

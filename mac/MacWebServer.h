@@ -54,6 +54,7 @@ public:
     void streamHTTPResponse(fs::File& file, const char* mimetype, bool attach, const HTTPParser::ArgMap& extraHeaders = HTTPParser::ArgMap());
 
     std::string getHTTPArg(const char* name) { return _parser ? _parser->getHTTPArg(name) : ""; }
+    bool hasHTTPArg(const char* name) { return _parser ? _parser->hasHTTPArg(name) : false; }
     WiFiPortal::HTTPUploadStatus httpUploadStatus() const { return _parser ? _parser->httpUploadStatus() : WiFiPortal::HTTPUploadStatus::None; }
     std::string httpUploadFilename() const { return _parser ? _parser->httpUploadFilename() : ""; }
     size_t httpUploadTotalSize() const { return _parser ? _parser->httpUploadTotalSize() : 0; }
