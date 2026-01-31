@@ -378,7 +378,7 @@ WebFileSystem::open(const char* path, const char* mode, bool create)
 }
 
 std::string
-WebFileSystem::realPath(const std::string& path) const
+WebFileSystem::realPath(const std::string& path)
 {
 #if defined ARDUINO
     return "/littlefs" + path;
