@@ -9,12 +9,11 @@ All rights reserved.
 
 #include "Shell.h"
 
+#include "Application.h"
+#include "HTTPParser.h"
 #include "System.h"
-#include "lua.hpp"
-
-#include <sys/socket.h>
-#include<arpa/inet.h>
-#include<unistd.h>
+#include "WebFileSystem.h"
+#include "LuaManager.h"
 
 using namespace mil;
 
@@ -22,10 +21,9 @@ static const char* TAG = "Shell";
 static constexpr int TelnetPort = 23;
 
 bool
-Shell::begin()
+Shell::begin(Application* app)
 {
-    _thread = std::thread([this]() { serverTask(); });
-
+    app->addHTTPHandler("/shell", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p) { handleShellCommand(p); });
 
 //    // Test running a script
 //    lua_State* L = luaL_newstate();
@@ -54,77 +52,39 @@ Shell::begin()
 }
 
 void
-Shell::serverTask()
+Shell::handleShellCommand(WiFiPortal* p)
 {
-    int listenSocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (listenSocket < 0) {
-        System::logE(TAG, "Unable to create listen socket %i: errno %d", listenSocket, errno);
-        return;
-    }
-    
-    int opt = 1;
-    setsockopt(listenSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-    System::logI(TAG, "Listen socket %i created", listenSocket);
+    printf("******* handleShellCommand: enter\n");
+    if (p->hasHTTPArg("cmd")) {
+        std::string cmd = HTTPParser::urlDecode(p->getHTTPArg("cmd"));
+        printf("******* handleShellCommand: cmd='%s'\n", cmd.c_str());
 
-    struct sockaddr_in address;
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(TelnetPort);
-
-    int err = bind(listenSocket, (struct sockaddr *)&address, sizeof(address));
-    if (err != 0) {
-        System::logE(TAG, "Listen socket %i unable to bind: errno %d", listenSocket, errno);
-        close(listenSocket);
-        return;
-    }
-    System::logI(TAG, "Listen socket %i bound, port %d", listenSocket, TelnetPort);
-
-    err = listen(listenSocket, 1);
-    if (err != 0) {
-        System::logE(TAG, "Error occurred during listen socket %i: errno %d", listenSocket, errno);
-        close(listenSocket);
-        return;
-    }
-
-    while (1) {
-        System::logI(TAG, "Socket listening for new connection");
-        struct sockaddr_storage sourceAddr;
-        socklen_t addrLen = sizeof(sourceAddr);
-        int sock = accept(listenSocket, (struct sockaddr *)&sourceAddr, &addrLen);
-        
-        if (sock < 0) {
-            System::logE(TAG, "Unable to accept connection: errno %d", errno);
-            break;
+        // FIXME: for now expect command to be a single word. Eventually we need to split out args
+        if (cmd.empty()) {
+            p->sendHTTPResponse(400, "application/json", "{\"status\":\"error\",\"message\":\"Command not provided\"}");
+            return;
         }
-
-        struct sockaddr_in *sin = (struct sockaddr_in *)&sourceAddr;
-        unsigned char* ip = (unsigned char *)&sin->sin_addr.s_addr;
-        System::logI(TAG, "Accepted connection:ip=%d.%d.%d.%d, socket=%d", ip[0], ip[1], ip[2], ip[3], sock);
-
-        // Set tcp keepalive option
-        int keepAlive = 1;
-        int keepIdle = 5;
-        int keepInterval = 5;
-        int keepCount = 3;
-
-        setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &keepAlive, sizeof(int));
-        setsockopt(sock, IPPROTO_TCP, 5, &keepIdle, sizeof(int));
-        setsockopt(sock, IPPROTO_TCP, 5, &keepInterval, sizeof(int));
-        setsockopt(sock, IPPROTO_TCP, 3, &keepCount, sizeof(int));
         
-        // Start a thread with a shell for the client
-        //std::thread clientThread = std::thread([this, sock]() { clientTask(sock); });
-        
-        // FIXME: ultimately we need to keep all the client threads in a list
-        // along with their socket so we can kill them and stuff like that
-    }  
-}
+        // FIXME: for now all commands are .lua in the sys folder
+        std::string path("/sys/");
+        path += cmd + "lua";
+        if (!WebFileSystem::exists(path.c_str())) {
+            p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"Command not found\"}");
+            return;
+        }
+        printf("******* handleShellCommand: before execute");
 
-void
-Shell::clientTask(int sock)
-{
-    // FIXME: Allocate the buffer (and probably bigger) to avoid blowing the stack
-//    char buf[128];
-//    ssize_t result = read(sock, buf, 127);
-//    printf("******* received '%s'\n", buf);
+        // Execute command
+        LuaManager lua;
+    
+        if (lua.execute(WebFileSystem::realPath(path).c_str()) != LUA_OK) {
+            printf("%s\n", lua.toString(-1));
+            std::string err = "Lua file '" + path + "' failed to run: " + lua.toString(-1) + "\n";
+            p->sendHTTPResponse(404, "text/plain", err.c_str());
+        } else {
+            printf("***** Running Lua file '%s'\n", path.c_str());
+            p->sendHTTPResponse(200, "text/html", "<center><h1>Lua Runtime</h1><h2>No output</h2></center>");
+        }
+        printf("******* handleShellCommand: after execute");
+    }
 }

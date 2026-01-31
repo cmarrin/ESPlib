@@ -18,16 +18,16 @@ All rights reserved.
 
 namespace mil {
 
+class Application;
+class WiFiPortal;
+
 class Shell
 {
   public:    
-    bool begin();
+    bool begin(Application* app);
     
   private:
-    void serverTask();
-    void clientTask(int sock);
-    
-    std::thread _thread;
+    void handleShellCommand(WiFiPortal*);
 };
 
 }

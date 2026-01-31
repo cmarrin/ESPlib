@@ -15,23 +15,6 @@
         .error {
             color: rgb(248, 88, 88);
         }
-
-        .spinner:after {
-            animation: changeContent 0.8s linear infinite;
-            content: "⠋";
-        }
-
-        @keyframes changeContent {
-            10% { content: "⠙"; }
-            20% { content: "⠹"; }
-            30% { content: "⠸"; }
-            40% { content: "⠼"; }
-            50% { content: "⠴"; }
-            60% { content: "⠦"; }
-            70% { content: "⠧"; }
-            80% { content: "⠇"; }
-            90% { content: "⠏"; }
-        }
     </style>
 </head>
 
@@ -93,6 +76,16 @@
             window.addEventListener('unload', () => term.dispose());
         }
 
+        async function processCommand(command) {
+            return fetch(`/shell?cmd=` + command)
+                .then(response => response.text())
+                .then(data => {
+                    const items = parseData(data);
+                    displayItems(items);
+                })
+                .catch(error => console.error('Error processing command:', error));
+        }
+
         function createShell() {
 
             // Help
@@ -114,6 +107,7 @@
                 let args = command.split(' ');
                 let cmd = args.shift();
 
+                console.log("***** execute: command='" + command + "'");
                 // JavaScript Evaluation
                 if (cmd == 'js') {
                     return new Promise((res, rej) => {
@@ -134,9 +128,22 @@
                     term.clear();
                     return Promise.resolve(null);
                 } 
-                // Oopps!
+                // Send command to server
                 else {
-                    return Promise.reject(`sh: '${cmd}' command not found`);
+                    console.log("***** execute: sending command to server");
+                    return new Promise(async (res, rej) => {
+                        let output, error;
+                        term.write('<span class="spinner"></span> Processing...');
+                        await processCommand(command)
+                            .then(val => output = val)
+                            .catch(err => error = ':( Not found!')
+                            .finally(() => term.clearLast());
+                        if (error) {
+                            rej(error);
+                        } else {
+                            res(output);
+                        }
+                    });
                 }
             }
 
