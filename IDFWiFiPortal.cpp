@@ -67,24 +67,6 @@ IDFWiFiPortal::resetSettings()
 }
 
 void
-IDFWiFiPortal::setTitle(const char* title)
-{
-    _title = title;
-}
-
-void
-IDFWiFiPortal::setCustomMenuHTML(const char* html)
-{
-    _customHTML = html;
-}
-
-void
-IDFWiFiPortal::setHostname(const char* name)
-{
-    _hostname = name;
-}
-
-void
 IDFWiFiPortal::setConfigHandler(HandlerCB f)
 {
     printf("*** setConfigHandler not implemented\n");
@@ -212,13 +194,13 @@ IDFWiFiPortal::autoConnect(char const *apName, char const *apPassword)
         ESP_LOGI(TAG, "Found credentials, connecting to '%s'", _ssid.c_str());
         
         esp_netif_t *netif = esp_netif_create_default_wifi_sta();
-        if (!_hostname.empty()) {
-            ESP_LOGI(TAG, "Setting hostname to '%s'", _hostname.c_str());
-            esp_netif_set_hostname(netif, _hostname.c_str());
+        if (!getHostname().empty()) {
+            ESP_LOGI(TAG, "Setting hostname to '%s'", getHostname().c_str());
+            esp_netif_set_hostname(netif, getHostname().c_str());
 
             ESP_ERROR_CHECK(mdns_init());
-            ESP_LOGI(TAG, "Setting mdns hostname to '%s'", _hostname.c_str());
-            ESP_ERROR_CHECK(mdns_hostname_set(_hostname.c_str()));
+            ESP_LOGI(TAG, "Setting mdns hostname to '%s'", getHostname().c_str());
+            ESP_ERROR_CHECK(mdns_hostname_set(getHostname().c_str()));
         }
         
         wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
@@ -462,6 +444,76 @@ IDFWiFiPortal::getParamValue(const char* id, std::string& value)
     return getNVSParam(id, value);
 }
 
+std::string
+IDFWiFiPortal::getCPUModel() const
+{
+    // Get CPU Model
+    esp_chip_info_t chipInfo;
+    esp_chip_info(&chipInfo);
+    std::string cpuModel;
+
+    switch (chipInfo.model) {
+        case CHIP_ESP32:
+            cpuModel = "ESP32";
+            break;
+        case CHIP_ESP32S2:
+            cpuModel = "ESP32s2";
+            break;
+        case CHIP_ESP32S3:
+            cpuModel = "ESP32s3";
+            break;
+        case CHIP_ESP32C3:
+            cpuModel = "ESP32c3";
+            break;
+        case CHIP_ESP32C2:
+            cpuModel = "ESP32c2";
+            break;
+        case CHIP_ESP32C6:
+            cpuModel = "ESP32c6";
+            break;
+        case CHIP_ESP32H2:
+            cpuModel = "ESP32h2";
+            break;
+        case CHIP_ESP32P4:
+            cpuModel = "ESP32p4";
+            break;
+        case CHIP_POSIX_LINUX:
+            cpuModel = "Sim";
+            break;
+        default:
+            cpuModel = "Unknown";
+            break;
+    }
+    return cpuModel;
+}
+
+uint32_t
+IDFWiFiPortal::getCPUFrequency() const
+{
+    rtc_cpu_freq_config_t freq_config;
+    rtc_clk_cpu_freq_get_config(&freq_config);
+    return freq_config.freq_mhz;
+}
+
+float
+IDFWiFiPortal::getCPUTemperature() const
+{
+    temperature_sensor_handle_t tempSensor = nullptr;
+    temperature_sensor_config_t tempSensorConfig = TEMPERATURE_SENSOR_CONFIG_DEFAULT(10, 50);
+    ESP_ERROR_CHECK(temperature_sensor_install(&tempSensorConfig, &tempSensor));
+    ESP_ERROR_CHECK(temperature_sensor_enable(tempSensor));
+    float cpuTemp;
+    ESP_ERROR_CHECK(temperature_sensor_get_celsius(tempSensor, &cpuTemp));
+    ESP_ERROR_CHECK(temperature_sensor_disable(tempSensor));
+    ESP_ERROR_CHECK(temperature_sensor_uninstall(tempSensor));
+}
+
+uint32_t
+IDFWiFiPortal::getCPUUptime() const
+{
+    return esp_timer_get_time() / 1000000;
+}
+
 void
 IDFWiFiPortal::setNVSParam(const char* id, const std::string& value)
 {
@@ -611,7 +663,6 @@ IDFWiFiPortal::startWebServer(bool provision)
         addHTTPHandler("/connect", HTTPMethod::Post, connectPostHandler);
         addHTTPHandler("/reset", WiFiPortal::HTTPMethod::Get, resetGetHandler);
         addHTTPHandler("/get-wifi-setup", WiFiPortal::HTTPMethod::Get, getWifiSetupHandler);
-        addHTTPHandler("/get-landing-setup", WiFiPortal::HTTPMethod::Get, getLandingSetupHandler);
         addHTTPHandler("/favicon.ico", WiFiPortal::HTTPMethod::Get, faviconGetHandler);
     } else {
         ESP_LOGE(TAG, "Failed to start web server");
@@ -838,87 +889,6 @@ IDFWiFiPortal::getWifiSetupHandler(WiFiPortal* portal)
     }
     response += "]}";
 
-    httpd_resp_send(self->_activeRequest, response.c_str(), HTTPD_RESP_USE_STRLEN);
-}
-
-void
-IDFWiFiPortal::getLandingSetupHandler(WiFiPortal* portal)
-{
-    IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(portal);
-
-    // Get CPU Model
-    esp_chip_info_t chipInfo;
-    esp_chip_info(&chipInfo);
-    std::string cpuModel;
-
-    switch (chipInfo.model) {
-        case CHIP_ESP32:
-            cpuModel = "ESP32";
-            break;
-        case CHIP_ESP32S2:
-            cpuModel = "ESP32s2";
-            break;
-        case CHIP_ESP32S3:
-            cpuModel = "ESP32s3";
-            break;
-        case CHIP_ESP32C3:
-            cpuModel = "ESP32c3";
-            break;
-        case CHIP_ESP32C2:
-            cpuModel = "ESP32c2";
-            break;
-        case CHIP_ESP32C6:
-            cpuModel = "ESP32c6";
-            break;
-        case CHIP_ESP32H2:
-            cpuModel = "ESP32h2";
-            break;
-        case CHIP_ESP32P4:
-            cpuModel = "ESP32p4";
-            break;
-        case CHIP_POSIX_LINUX:
-            cpuModel = "Sim";
-            break;
-        default:
-            cpuModel = "Unknown";
-            break;
-    }
-
-    // Get CPU Freq
-    rtc_cpu_freq_config_t freq_config;
-    rtc_clk_cpu_freq_get_config(&freq_config);
-    uint32_t cpuFreq = freq_config.freq_mhz;
-    
-    // Get CPU Temp
-    temperature_sensor_handle_t tempSensor = nullptr;
-    temperature_sensor_config_t tempSensorConfig = TEMPERATURE_SENSOR_CONFIG_DEFAULT(10, 50);
-    ESP_ERROR_CHECK(temperature_sensor_install(&tempSensorConfig, &tempSensor));
-    ESP_ERROR_CHECK(temperature_sensor_enable(tempSensor));
-    float cpuTemp;
-    ESP_ERROR_CHECK(temperature_sensor_get_celsius(tempSensor, &cpuTemp));
-    ESP_ERROR_CHECK(temperature_sensor_disable(tempSensor));
-    ESP_ERROR_CHECK(temperature_sensor_uninstall(tempSensor));
-
-    // Get Uptime in seconds (esp_timer_get_time returns usec)
-    uint32_t cpuUptime = esp_timer_get_time() / 1000000;
-
-    std::string response = "{";
-    response += jsonParam("title", self->_title) + ",";
-    response += jsonParam("ssid", self->_ssid) + ",";
-    response += jsonParam("ip", self->_currentIP) + ",";
-    response += jsonParam("hostname", self->_hostname) + ",";
-    response += jsonParam("gw", self->_currentGW) + ",";
-    response += jsonParam("msk", self->_currentMSK) + ",";
-    response += jsonParam("dns", self->_currentDNS) + ",";
-    response += jsonParam("cpuModel", cpuModel) + ",";
-    response += jsonParam("cpuFreq", std::to_string(cpuFreq)) + ",";
-    response += jsonParam("cpuTemp", std::to_string(cpuTemp)) + ",";
-    response += jsonParam("cpuUptime", std::to_string(cpuUptime)) + ",";
-    response += jsonParam("flashTotal", std::to_string(self->_wfs->totalBytes())) + ",";
-    response += jsonParam("flashUsed", std::to_string(self->_wfs->usedBytes())) + ",";
-    
-    response += jsonParam("customMenuHTML", self->_customHTML);
-    response += "}";
     httpd_resp_send(self->_activeRequest, response.c_str(), HTTPD_RESP_USE_STRLEN);
 }
 

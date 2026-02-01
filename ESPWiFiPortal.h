@@ -24,14 +24,13 @@ public:
     virtual void resetSettings() override;
     virtual void setTitle(const char* title) override;
     virtual void setCustomMenuHTML(const char* html) override;
-    virtual void setHostname(const char*) override;
     virtual void setConfigHandler(HandlerCB) override;
     virtual int32_t addHTTPHandler(const char* endpoint, HTTPMethod method, HandlerCB requestCB) override;
     virtual void addStaticHTTPHandler(const char *uri, const char *path) override;
     virtual bool autoConnect(char const *apName, char const *apPassword = NULL) override;
     virtual void process() override;
     virtual void startWebPortal() override;
-    virtual std::string localIP() override;
+    virtual std::string getIP() override;
     virtual const char* getSSID() override;
     virtual void sendHTTPResponse(int code, const char* mimetype = nullptr, const char* data = "") override;
     virtual void sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip) override;
@@ -45,6 +44,7 @@ public:
     virtual bool hasHTTPArg(const char* name) override;
     virtual bool addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength) override;
     virtual bool getParamValue(const char* id, std::string& value) override;
+    virtual std::string getCPUModel() const override;
 
 private:
     WiFiManager _wifiManager;

@@ -66,16 +66,6 @@ public:
     // the captive portal will be started
     virtual void resetSettings() { }
     
-    // Set the title to be shown at the top of the front web page
-    virtual void setTitle(const char* title) { }
-
-    // Sets a string of static HTML that will be inserted into the front page at the
-    // "custom" menu item
-    virtual void setCustomMenuHTML(const char* html) { }
-
-    // Set the hostname to use for MDNS
-    virtual void setHostname(const char*) { }
-    
     // Set the callback that will be called when the system enters the captive portal
     virtual void setConfigHandler(HandlerCB) { }
 
@@ -111,7 +101,7 @@ public:
     virtual void startWebPortal() { }
     
     // Return the IP address. In config mode, this is the soft AP IP address.
-    virtual std::string localIP() { return ""; }
+    virtual std::string getIP() { return ""; }
 
     // Get the SSID of the captive portal if in config mode. Otherwise get the SSID of the network currently connected to
     virtual const char* getSSID() { return "unknown"; }
@@ -138,6 +128,39 @@ public:
     // Param handling
     virtual bool addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength) { return true; }
     virtual bool getParamValue(const char* id, std::string& value) { return false; }
+    
+    // Get Info
+    virtual std::string getCPUModel() const { return ""; }
+    virtual uint32_t getCPUFrequency() const { return 50; }
+    virtual float getCPUTemperature() const { return 25.0; }
+    virtual uint32_t getCPUUptime() const { return 0; }
+
+    // Set the title to be shown at the top of the front web page
+    void setTitle(const char* title) { _title = title; }
+    const std::string& getTitle() const { return _title; }
+
+    // Set the hostname to use for MDNS
+    void setHostname(const char* hostname) { _hostname = hostname; }
+    const std::string& getHostname() const { return _hostname; }
+    
+    // Sets a string of static HTML that will be inserted into the front page at the
+    // "custom" menu item
+    void setCustomMenuHTML(const char* html) { _customHTML = html; }
+    const std::string& getCustomMenuHTML() const { return _customHTML; }
+
+    const std::string& getGateway() const { return _currentGW; }
+    const std::string& getMask() const { return _currentMSK; }
+    const std::string& getDNS() const { return _currentDNS; }
+
+  protected:
+    std::string _currentGW = "0.0.0.0";
+    std::string _currentMSK = "255.255.255.255";
+    std::string _currentDNS = "0.0.0.0";
+
+  private:
+    std::string _title;
+    std::string _hostname;
+    std::string _customHTML;
 };
 
 }

@@ -61,7 +61,7 @@ Application::startNetwork()
 	}
 	
 	_portal->setConfigHandler([this](WiFiPortal* portal) {
-		printf("Entered config mode:ip=%s, ssid='%s'\n", portal->localIP().c_str(), portal->getSSID());
+		printf("Entered config mode:ip=%s, ssid='%s'\n", portal->getIP().c_str(), portal->getSSID());
 		_blinker.setRate(ConfigRate);
 		sendInput(Input::NetConfig, true);
 		_enteredConfigMode = true;
@@ -77,7 +77,7 @@ Application::startNetwork()
         return;
 	}
 
-	printf("Wifi connected, IP=%s\n", _portal->localIP().c_str());
+	printf("Wifi connected, IP=%s\n", _portal->getIP().c_str());
 
 	_enableNetwork = true;
 	_blinker.setRate(ConnectedRate);
@@ -86,8 +86,6 @@ Application::startNetwork()
     // we add a button for it at the top of the landing page.
     if (!_wfs.begin(this, true)) {
         System::logE(TAG, "file system initialization failed");
-    } else if (_wfs.exists("/sys/shell.html")) {
-        setCustomMenuHTML("<form action='/fs/sys/shell.html' method='get'><button class='btn'>Shell</button></form><br/>");
     }
     
     _portal->startWebPortal();

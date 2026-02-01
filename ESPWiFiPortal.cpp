@@ -48,12 +48,6 @@ ESPWiFiPortal::setCustomMenuHTML(const char* html)
 }
 
 void
-ESPWiFiPortal::setHostname(const char* name)
-{
-    _wifiManager.setHostname(name);
-}
-
-void
 ESPWiFiPortal::setConfigHandler(HandlerCB f)
 {
     _wifiManager.setAPCallback([this, f](WiFiManager*) { f(this); });
@@ -127,7 +121,7 @@ ESPWiFiPortal::startWebPortal()
 }
 
 std::string
-ESPWiFiPortal::localIP()
+ESPWiFiPortal::getIP()
 {
     return WiFi.localIP().toString().c_str();
 }
@@ -247,4 +241,10 @@ ESPWiFiPortal::getParamValue(const char* id, std::string& value)
         }
     }
     return false;
+}
+
+std::string
+ESPWiFiPortal::getCPUModel() const
+{
+    return "???";
 }

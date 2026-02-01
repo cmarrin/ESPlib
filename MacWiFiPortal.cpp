@@ -22,54 +22,12 @@ MacWiFiPortal::begin(WebFileSystem* wfs)
 
     addHTTPHandler("/", WiFiPortal::HTTPMethod::Get, [this, wfs](WiFiPortal* p) { wfs->sendLandingPage(p); });
 
-    addHTTPHandler("/get-landing-setup", WiFiPortal::HTTPMethod::Get, [this, wfs](WiFiPortal* p)
-    {
-        std::chrono::duration<double> uptime = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now() - _startTime);
-
-        std::string response = "{";
-        response += jsonParam("title", _title) + ",";
-        response += jsonParam("ssid", "My Network") + ",";
-        response += jsonParam("ip", localIP()) + ",";
-        response += jsonParam("hostname", _hostname) + ",";
-        response += jsonParam("gw", "0.0.0.0") + ",";
-        response += jsonParam("msk", "0.0.0.0") + ",";
-        response += jsonParam("dns", "0.0.0.0") + ",";
-        response += jsonParam("cpuModel", "Mac") + ",";
-        response += jsonParam("cpuFreq", "0") + ",";
-        response += jsonParam("cpuTemp", "0") + ",";
-        response += jsonParam("cpuUptime", std::to_string(uptime.count())) + ",";
-        response += jsonParam("flashTotal", std::to_string(wfs->totalBytes())) + ",";
-        response += jsonParam("flashUsed", std::to_string(wfs->usedBytes())) + ",";
-        
-        response += jsonParam("customMenuHTML", _customHTML);
-        response += "}";
-        sendHTTPResponse(200, "application/json", response.c_str(), response.length(), false);
-    });
-
     _server.start(wfs, 80);
 }
 
 void
 MacWiFiPortal::resetSettings()
 {
-}
-
-void
-MacWiFiPortal::setTitle(const char* title)
-{
-    _title = title;
-}
-
-void
-MacWiFiPortal::setCustomMenuHTML(const char* html)
-{
-    _customHTML = html;
-}
-
-void
-MacWiFiPortal::setHostname(const char* hostname)
-{
-    _hostname = hostname;
 }
 
 void
@@ -109,7 +67,7 @@ MacWiFiPortal::startWebPortal()
 }
 
 std::string
-MacWiFiPortal::localIP()
+MacWiFiPortal::getIP()
 {
     return "localhost";
 }
@@ -117,7 +75,7 @@ MacWiFiPortal::localIP()
 const char*
 MacWiFiPortal::getSSID()
 {
-    return "";
+    return "My Network";
 }
 
 void
@@ -212,6 +170,18 @@ MacWiFiPortal::getParamValue(const char* id, std::string& value)
 //    }
 //    return nullptr;
     return false;
+}
+
+std::string
+MacWiFiPortal::getCPUModel() const
+{
+    return "Mac";
+}
+
+uint32_t
+MacWiFiPortal::getCPUUptime() const
+{
+    return (std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now() - _startTime)).count();
 }
 
 #endif

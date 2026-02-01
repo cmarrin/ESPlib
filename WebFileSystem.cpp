@@ -86,6 +86,8 @@ WebFileSystem::sendWiFiPage(WiFiPortal* portal)
 bool
 WebFileSystem::begin(Application* app, bool format)
 {
+    app->addHTTPHandler("/get-landing-setup", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p) { handleLandingSetup(p); });
+    
     app->addHTTPHandler("/filemgr", [this](WiFiPortal* p)
     {
         p->sendHTTPResponse(200, "text/html", reinterpret_cast<const char*>(FILEMGR_NAME), FILEMGR_LEN_NAME, HTML_IS_GZIP);
@@ -369,6 +371,29 @@ WebFileSystem::handleUpload(WiFiPortal* p)
             printf("Reply sent: Upload Failed/Empty\n");
         }
     }
+}
+
+void
+WebFileSystem::handleLandingSetup(WiFiPortal* portal)
+{
+    std::string response = "{";
+    response += WiFiPortal::jsonParam("title", portal->getTitle()) + ",";
+    response += WiFiPortal::jsonParam("ssid", portal->getSSID()) + ",";
+    response += WiFiPortal::jsonParam("ip", portal->getIP()) + ",";
+    response += WiFiPortal::jsonParam("hostname", portal->getHostname()) + ",";
+    response += WiFiPortal::jsonParam("gw", portal->getGateway()) + ",";
+    response += WiFiPortal::jsonParam("msk", portal->getMask()) + ",";
+    response += WiFiPortal::jsonParam("dns", portal->getDNS()) + ",";
+    response += WiFiPortal::jsonParam("cpuModel", portal->getCPUModel()) + ",";
+    response += WiFiPortal::jsonParam("cpuFreq", std::to_string(portal->getCPUFrequency())) + ",";
+    response += WiFiPortal::jsonParam("cpuTemp", std::to_string(portal->getCPUTemperature())) + ",";
+    response += WiFiPortal::jsonParam("cpuUptime", std::to_string(portal->getCPUUptime())) + ",";
+    response += WiFiPortal::jsonParam("flashTotal", std::to_string(totalBytes())) + ",";
+    response += WiFiPortal::jsonParam("flashUsed", std::to_string(usedBytes())) + ",";
+    
+    response += WiFiPortal::jsonParam("customMenuHTML", portal->getCustomMenuHTML());
+    response += "}";
+    portal->sendHTTPResponse(200, "application/json", response.c_str(), response.length(), false);
 }
 
 fs::File

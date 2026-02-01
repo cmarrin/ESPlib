@@ -53,14 +53,13 @@ public:
     virtual void resetSettings() override;
     virtual void setTitle(const char* title) override;
     virtual void setCustomMenuHTML(const char* html) override;
-    virtual void setHostname(const char*) override;
     virtual void setConfigHandler(HandlerCB) override;
     virtual int32_t addHTTPHandler(const char* endpoint, HTTPMethod, HandlerCB requestCB) override;
     virtual void addStaticHTTPHandler(const char *uri, const char *path) override;
     virtual bool autoConnect(char const *apName, char const *apPassword = NULL) override;
     virtual void process() override;
     virtual void startWebPortal() override;
-    virtual std::string localIP() override { return _currentIP; }
+    virtual std::string getIP() override { return _currentIP; }
     virtual const char* getSSID() override { return _ssid.c_str(); }
     virtual void sendHTTPResponse(int code, const char* mimetype = nullptr, const char* data = "") override;
     virtual void sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip) override;
@@ -74,7 +73,11 @@ public:
     virtual bool hasHTTPArg(const char* name) override;
     virtual bool addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength) override;
     virtual bool getParamValue(const char* id, std::string& value) override;
-    
+    virtual std::string getCPUModel() const override;
+    virtual uint32_t getCPUFrequency() const override;
+    virtual float getCPUTemperature() const override;
+    virtual uint32_t getCPUUptime() const override;
+
   private:
     static constexpr EventBits_t WIFI_CONNECTED_BIT = BIT0;
     static constexpr EventBits_t WIFI_FAIL_BIT = BIT1;
@@ -92,7 +95,6 @@ public:
     static void restartGetHandler(WiFiPortal*);
     static void resetGetHandler(WiFiPortal*);
     static void getWifiSetupHandler(WiFiPortal*);
-    static void getLandingSetupHandler(WiFiPortal*);
     static void faviconGetHandler(WiFiPortal*);
     static void otaUpdateHandler(WiFiPortal*);
 
@@ -123,12 +125,9 @@ public:
     EventGroupHandle_t _eventGroup;
     httpd_handle_t _server = nullptr;
     uint8_t _retryNum = 0;
-    std::string _currentIP, _currentGW, _currentMSK, _currentDNS;
+    std::string _currentIP;
     std::string _ssid;
     std::string _pass;
-    std::string _hostname;
-    std::string _title;
-    std::string _customHTML;
     
     bool _otaUpdateAborted = false;
     esp_ota_handle_t _otaUpdateHandle = 0;
