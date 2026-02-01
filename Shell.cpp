@@ -42,7 +42,7 @@ Shell::handleShellCommand(WiFiPortal* p)
         
         // FIXME: for now all commands are .lua in the sys folder
         std::string path("/sys/");
-        path += cmd + "lua";
+        path += cmd + ".lua";
         if (!WebFileSystem::exists(path.c_str())) {
             p->sendHTTPResponse(404, "text/plain", (cmd + ": command not found").c_str());
             return;
