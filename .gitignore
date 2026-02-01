@@ -10,3 +10,5 @@ IDEFindNavigatorScopes.plist
 littlefs
 dependencies.lock
 settings.json
+*.gz.h
+*.html.gz
