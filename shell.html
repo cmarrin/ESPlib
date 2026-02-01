@@ -80,8 +80,7 @@
             return fetch(`/shell?cmd=` + command)
                 .then(response => response.text())
                 .then(data => {
-                    const items = parseData(data);
-                    displayItems(items);
+                    return data;
                 })
                 .catch(error => console.error('Error processing command:', error));
         }
@@ -112,9 +111,11 @@
                 if (cmd == 'js') {
                     return new Promise((res, rej) => {
                         try {
+                console.log("***** execute: output='" + output + "'");
                             let output = eval(args.join(' ')) + '\n';
                             res(output);
                         } catch (error) {
+                console.log("***** execute: error='" + error + "'");
                             rej(error);
                         }
                     });
@@ -130,7 +131,6 @@
                 } 
                 // Send command to server
                 else {
-                    console.log("***** execute: sending command to server");
                     return new Promise(async (res, rej) => {
                         let output, error;
                         term.write('<span class="spinner"></span> Processing...');

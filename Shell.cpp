@@ -17,62 +17,36 @@ All rights reserved.
 
 using namespace mil;
 
-static const char* TAG = "Shell";
-static constexpr int TelnetPort = 23;
-
 bool
 Shell::begin(Application* app)
 {
     app->addHTTPHandler("/shell", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p) { handleShellCommand(p); });
-
-//    // Test running a script
-//    lua_State* L = luaL_newstate();
-//	luaL_openlibs(L);
-//
-//	std::string sample = "print(\"Hello World from Lua inside c++!\")";
-// 
-// 	int err = luaL_loadbuffer(L, sample.c_str(), sample.length(), "mysample");
-//	if (err) {
-//		printf("Error initializing lua with hello world script: %i, %s\n", err, lua_tostring(L, -1));
-//		lua_close(L);
-//		return(0);
-//	}
-//
-//	err = lua_pcall(L, 0, 0, 0);
-//	if (err) {
-//		printf("Error running lua hello world script: %i, %s\n", err, lua_tostring(L, -1));
-//		lua_close(L);
-//		return(0);
-//	}
-//
-//	printf("Success running hello world script\n");
-//	lua_close(L);
-
     return true;
 }
 
 void
 Shell::handleShellCommand(WiFiPortal* p)
 {
-    printf("******* handleShellCommand: enter\n");
     if (p->hasHTTPArg("cmd")) {
         std::string cmd = HTTPParser::urlDecode(p->getHTTPArg("cmd"));
-        printf("******* handleShellCommand: cmd='%s'\n", cmd.c_str());
 
-        // FIXME: for now expect command to be a single word. Eventually we need to split out args
+        // FIXME: for now ignore the args
         if (cmd.empty()) {
-            p->sendHTTPResponse(400, "application/json", "{\"status\":\"error\",\"message\":\"Command not provided\"}");
+            p->sendHTTPResponse(400, "text/plain", "no command supplied");
             return;
         }
+
+        std::vector<std::string>args = HTTPParser::split(cmd, ' ');
+        cmd = args.front();
+        args.erase(args.begin());
         
         // FIXME: for now all commands are .lua in the sys folder
         std::string path("/sys/");
         path += cmd + "lua";
         if (!WebFileSystem::exists(path.c_str())) {
-            p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"Command not found\"}");
+            p->sendHTTPResponse(404, "text/plain", (cmd + ": command not found").c_str());
             return;
         }
-        printf("******* handleShellCommand: before execute");
 
         // Execute command
         LuaManager lua;
@@ -83,8 +57,7 @@ Shell::handleShellCommand(WiFiPortal* p)
             p->sendHTTPResponse(404, "text/plain", err.c_str());
         } else {
             printf("***** Running Lua file '%s'\n", path.c_str());
-            p->sendHTTPResponse(200, "text/html", "<center><h1>Lua Runtime</h1><h2>No output</h2></center>");
+            p->sendHTTPResponse(200, "text/plain", "...done");
         }
-        printf("******* handleShellCommand: after execute");
     }
 }
