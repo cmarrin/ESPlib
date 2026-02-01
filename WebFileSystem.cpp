@@ -373,26 +373,44 @@ WebFileSystem::handleUpload(WiFiPortal* p)
     }
 }
 
+std::string
+WebFileSystem::makeJSON(std::vector<std::pair<std::string, std::string>> json)
+{
+    std::string s = "{";
+    bool first = true;
+    for (const auto& it : json) {
+        if (first) {
+            first = false;
+        } else {
+            s += ",";
+        }
+        s += jsonParam(it.first, it.second);
+    }
+    s += "}";
+    return s;
+}
+
 void
 WebFileSystem::handleLandingSetup(WiFiPortal* portal)
 {
-    std::string response = "{";
-    response += WiFiPortal::jsonParam("title", portal->getTitle()) + ",";
-    response += WiFiPortal::jsonParam("ssid", portal->getSSID()) + ",";
-    response += WiFiPortal::jsonParam("ip", portal->getIP()) + ",";
-    response += WiFiPortal::jsonParam("hostname", portal->getHostname()) + ",";
-    response += WiFiPortal::jsonParam("gw", portal->getGateway()) + ",";
-    response += WiFiPortal::jsonParam("msk", portal->getMask()) + ",";
-    response += WiFiPortal::jsonParam("dns", portal->getDNS()) + ",";
-    response += WiFiPortal::jsonParam("cpuModel", portal->getCPUModel()) + ",";
-    response += WiFiPortal::jsonParam("cpuFreq", std::to_string(portal->getCPUFrequency())) + ",";
-    response += WiFiPortal::jsonParam("cpuTemp", std::to_string(portal->getCPUTemperature())) + ",";
-    response += WiFiPortal::jsonParam("cpuUptime", std::to_string(portal->getCPUUptime())) + ",";
-    response += WiFiPortal::jsonParam("flashTotal", std::to_string(totalBytes())) + ",";
-    response += WiFiPortal::jsonParam("flashUsed", std::to_string(usedBytes())) + ",";
-    
-    response += WiFiPortal::jsonParam("customMenuHTML", portal->getCustomMenuHTML());
-    response += "}";
+    std::string response = makeJSON(
+        {
+            { "title", portal->getTitle() },
+            { "ssid", portal->getSSID() },
+            { "ip", portal->getIP() },
+            { "hostname", portal->getHostname() },
+            { "gw", portal->getGateway() },
+            { "msk", portal->getMask() },
+            { "dns", portal->getDNS() },
+            { "cpuModel", portal->getCPUModel() },
+            { "cpuFreq", std::to_string(portal->getCPUFrequency()) },
+            { "cpuTemp", std::to_string(portal->getCPUTemperature()) },
+            { "cpuUptime", std::to_string(portal->getCPUUptime()) },
+            { "flashTotal", std::to_string(totalBytes()) },
+            { "flashUsed", std::to_string(usedBytes()) },
+            { "customMenuHTML", portal->getCustomMenuHTML() }
+        }
+    );
     portal->sendHTTPResponse(200, "application/json", response.c_str(), response.length(), false);
 }
 

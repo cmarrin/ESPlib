@@ -506,6 +506,7 @@ IDFWiFiPortal::getCPUTemperature() const
     ESP_ERROR_CHECK(temperature_sensor_get_celsius(tempSensor, &cpuTemp));
     ESP_ERROR_CHECK(temperature_sensor_disable(tempSensor));
     ESP_ERROR_CHECK(temperature_sensor_uninstall(tempSensor));
+    return cpuTemp;
 }
 
 uint32_t
@@ -871,8 +872,8 @@ IDFWiFiPortal::getWifiSetupHandler(WiFiPortal* portal)
     self->getNVSParam("wifi_ssid", ssid);
     self->getNVSParam("hostname", hostname);
 
-    std::string response = "{" + jsonParam("ssid", ssid) + "," + jsonParam("hostname", hostname) + ",";
-    response += quote("knownNetworks") + ":[";
+    std::string response = "{" + WebFileSystem::jsonParam("ssid", ssid) + "," + WebFileSystem::jsonParam("hostname", hostname) + ",";
+    response += WebFileSystem::quote("knownNetworks") + ":[";
 
     bool first = true;
     
@@ -883,9 +884,9 @@ IDFWiFiPortal::getWifiSetupHandler(WiFiPortal* portal)
             first = false;
         }
         
-        response += "{" + jsonParam("ssid", it.ssid) + ",";
-        response += jsonParam("rssi", std::to_string(it.rssi)) + ",";
-        response += jsonParam("open", std::string(it.open ? "true" : "false")) + "}";
+        response += "{" + WebFileSystem::jsonParam("ssid", it.ssid) + ",";
+        response += WebFileSystem::jsonParam("rssi", std::to_string(it.rssi)) + ",";
+        response += WebFileSystem::jsonParam("open", std::string(it.open ? "true" : "false")) + "}";
     }
     response += "]}";
 

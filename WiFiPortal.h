@@ -54,9 +54,6 @@ public:
 
     using HandlerCB = std::function<void(WiFiPortal*)>;
 
-    static inline std::string quote(const std::string& s) { return "\"" + s + "\""; }
-    static inline std::string jsonParam(const std::string& n, const std::string& v) { return quote(n) + ":" + quote(v); }
-    
     WiFiPortal() { }
     virtual ~WiFiPortal() { }
     

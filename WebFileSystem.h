@@ -47,6 +47,10 @@ class WebFileSystem
     void sendLandingPage(WiFiPortal*);
     void sendWiFiPage(WiFiPortal*);
 
+    static inline std::string quote(const std::string& s) { return "\"" + s + "\""; }
+    static inline std::string jsonParam(const std::string& n, const std::string& v) { return quote(n) + ":" + quote(v); }
+    static std::string makeJSON(std::vector<std::pair<std::string, std::string>> json);
+    
   private:
     bool prepareFile(WiFiPortal* p, std::string& path);
     std::string listDir(const char* dirname, uint8_t levels);
