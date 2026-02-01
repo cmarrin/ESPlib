@@ -51,8 +51,6 @@ public:
     virtual void begin(WebFileSystem*) override;
 
     virtual void resetSettings() override;
-    virtual void setTitle(const char* title) override;
-    virtual void setCustomMenuHTML(const char* html) override;
     virtual void setConfigHandler(HandlerCB) override;
     virtual int32_t addHTTPHandler(const char* endpoint, HTTPMethod, HandlerCB requestCB) override;
     virtual void addStaticHTTPHandler(const char *uri, const char *path) override;

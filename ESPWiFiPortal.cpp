@@ -36,18 +36,6 @@ ESPWiFiPortal::resetSettings()
 }
 
 void
-ESPWiFiPortal::setTitle(const char* title)
-{
-    _wifiManager.setTitle(title);
-}
-
-void
-ESPWiFiPortal::setCustomMenuHTML(const char* html)
-{
-    _wifiManager.setCustomMenuHTML(html);
-}
-
-void
 ESPWiFiPortal::setConfigHandler(HandlerCB f)
 {
     _wifiManager.setAPCallback([this, f](WiFiManager*) { f(this); });
