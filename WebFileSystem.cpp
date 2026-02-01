@@ -393,6 +393,12 @@ WebFileSystem::makeJSON(std::vector<std::pair<std::string, std::string>> json)
 void
 WebFileSystem::handleLandingSetup(WiFiPortal* portal)
 {
+    std::string customMenu;
+    if (exists("/sys/shell.html")) {
+        customMenu = "<form action='/fs/sys/shell.html' method='get'><button class='btn'>Shell</button></form><br/>";
+    }
+    customMenu += portal->getCustomMenuHTML();
+
     std::string response = makeJSON(
         {
             { "title", portal->getTitle() },
@@ -408,7 +414,7 @@ WebFileSystem::handleLandingSetup(WiFiPortal* portal)
             { "cpuUptime", std::to_string(portal->getCPUUptime()) },
             { "flashTotal", std::to_string(totalBytes()) },
             { "flashUsed", std::to_string(usedBytes()) },
-            { "customMenuHTML", portal->getCustomMenuHTML() }
+            { "customMenuHTML", customMenu }
         }
     );
     portal->sendHTTPResponse(200, "application/json", response.c_str(), response.length(), false);
