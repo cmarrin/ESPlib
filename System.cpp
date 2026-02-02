@@ -21,6 +21,13 @@ System::vformat(const char* fmt, va_list args)
     return s;
 }
 
+extern "C" {
+void printLua(const char* s, size_t l, int isError)
+{
+    printf("***** Lua:%s", s);
+}
+}
+
 #if defined ARDUINO
 
 //**************************************************************************
