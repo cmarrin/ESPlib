@@ -305,7 +305,7 @@
             <div class="menu-bar-item"><button id="new-folder-button">New Folder</button></div>
         </div>
         <div class="menu-bar-row">
-            <div class="menu-bar-item"><button id="run-button">Run</button></div>
+            <div class="menu-bar-item"><button id="tbd-button" disabled>TBD</button></div>
             <div class="menu-bar-item"><button id="download-button" disabled>Download</button></div>
             <div class="menu-bar-item"><button id="delete-button" disabled>Delete</button></div>
         </div>
@@ -358,7 +358,6 @@
         const viewButton = document.getElementById('view-button');
         const deleteButton = document.getElementById('delete-button');
         const downloadButton = document.getElementById('download-button');
-        const runButton = document.getElementById('run-button');
         const uploadButton = document.getElementById('upload-button');
         const newFolderButton = document.getElementById('new-folder-button');
         const uploadModal = document.getElementById('upload-modal');
@@ -435,7 +434,6 @@
             viewButton.disabled = item == null;
             deleteButton.disabled = item == null;
             downloadButton.disabled = item == null || item.isFolder;
-            // runButton.disabled = item == null || item.isFolder;
         }
         
         function selectItem(item)
@@ -650,7 +648,6 @@
 
         backButton.addEventListener('click', goBack);
         viewButton.addEventListener('click', viewSelectedItem);
-        runButton.addEventListener('click', runSelectedItem);
         deleteButton.addEventListener('click', deleteSelectedItem);
         downloadButton.addEventListener('click', downloadSelectedItem);
 

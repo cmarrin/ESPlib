@@ -178,29 +178,6 @@ WebFileSystem::begin(Application* app, bool format)
         return true;
     });
 
-    // Run the file if it is .lua or .luac
-    app->addHTTPHandler("/run", [this](WiFiPortal* p)
-    {
-        std::string path;
-        if (prepareFile(p, path)) {
-            std::string suffix = std::filesystem::path(path).extension();
-            if (suffix != ".lua" && suffix != ".luac") {
-                p->sendHTTPResponse(404, "text/html", "<center><h1>File cannot be run</h1><h2>Can only run .lua and .luac files</h2></center>");
-                return true;
-            }
-            
-            if (_lua.execute(realPath(path).c_str()) != LUA_OK) {
-                printf("%s\n", _lua.toString(-1));
-                std::string err = "Lua file '" + path + "' failed to run: " + _lua.toString(-1) + "\n";
-                p->sendHTTPResponse(404, "text/plain", err.c_str());
-            } else {
-                printf("***** Running Lua file '%s'\n", path.c_str());
-                p->sendHTTPResponse(200, "text/html", "<center><h1>Lua Runtime</h1><h2>No output</h2></center>");
-            }
-        }
-        return true;
-    });
-
     app->addHTTPHandler("/upload", WiFiPortal::HTTPMethod::Post, [this](WiFiPortal* p) { handleUpload(p); });
 
     bool retval = LittleFS.begin(format);
