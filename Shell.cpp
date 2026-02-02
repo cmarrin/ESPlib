@@ -24,12 +24,22 @@ Shell::begin(Application* app)
     return true;
 }
 
+// This is hackery. When trying to make a path in handleShellCommand the suffix would always get dropped
+// on espidf. moving the concat to a separate method fixes it. Until I get to the bottom of it, this
+// solution will do.
+static std::string makeCmdPath(const char* root, const char* cmd, const char* suffix)
+{
+    std::string s = std::string(root) + cmd + suffix;
+    return s;
+}
+
 void
 Shell::handleShellCommand(WiFiPortal* p)
 {
     if (p->hasHTTPArg("cmd")) {
-        std::string cmd = HTTPParser::urlDecode(p->getHTTPArg("cmd"));
-
+        std::string cmd;
+        cmd = HTTPParser::urlDecode(p->getHTTPArg("cmd"));
+        
         // FIXME: for now ignore the args
         if (cmd.empty()) {
             p->sendHTTPResponse(400, "text/plain", "no command supplied");
@@ -41,10 +51,10 @@ Shell::handleShellCommand(WiFiPortal* p)
         args.erase(args.begin());
         
         // FIXME: for now all commands are .lua in the sys folder
-        std::string path("/sys/");
-        path += cmd + ".lua";
+        std::string path = makeCmdPath("/sys/", cmd.c_str(), ".lua");
+        
         if (!WebFileSystem::exists(path.c_str())) {
-            p->sendHTTPResponse(404, "text/plain", (cmd + ": command not found").c_str());
+            p->sendHTTPResponse(404, "text/plain", (path + ": command not found").c_str());
             return;
         }
 
