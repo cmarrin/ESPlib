@@ -22,7 +22,7 @@ System::vformat(const char* fmt, va_list args)
 }
 
 extern "C" {
-void printLua(const char* s, size_t l, int isError)
+void printLua(const char* s, size_t l)
 {
     printf("***** Lua:%s", s);
 }
