@@ -86,6 +86,8 @@ WebFileSystem::sendWiFiPage(WiFiPortal* portal)
 bool
 WebFileSystem::begin(Application* app, bool format)
 {
+    app->addHTTPHandler("/", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p) { sendLandingPage(p); });
+    
     app->addHTTPHandler("/get-landing-setup", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p) { handleLandingSetup(p); });
     
     app->addHTTPHandler("/filemgr", [this](WiFiPortal* p)

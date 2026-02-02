@@ -20,8 +20,6 @@ MacWiFiPortal::begin(WebFileSystem* wfs)
 {
     _startTime = std::chrono::steady_clock::now();
 
-    addHTTPHandler("/", WiFiPortal::HTTPMethod::Get, [this, wfs](WiFiPortal* p) { wfs->sendLandingPage(p); });
-
     _server.start(wfs, 80);
 }
 
