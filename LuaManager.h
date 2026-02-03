@@ -22,7 +22,7 @@ class LuaManager
 public:
     using PrintHandlerCB = std::function<void(const char* s)>;
     
-    LuaManager(PrintHandlerCB);
+    LuaManager();
     ~LuaManager();
     
     int execute(const std::string& filename);
@@ -31,10 +31,32 @@ public:
     
     void printHandler(lua_State *);
     
+    bool getNextPrintString(std::string& s, bool append = false)
+    {
+        if (_printQueue.empty()) {
+            return false;
+        }
+        
+        if (append) {
+            s += _printQueue.front();
+        } else {
+            s = _printQueue.front();
+        }
+        _printQueue.pop();
+        return true;
+    }
+    
+    std::string getAllPrintStrings()
+    {
+        std::string s;
+        while (getNextPrintString(s, true)) ;
+        return s;
+    }
+    
 private:
     lua_State* _luaState = nullptr;
 
-    PrintHandlerCB _printHandler;
+    std::queue<std::string> _printQueue;
 };
 
 }

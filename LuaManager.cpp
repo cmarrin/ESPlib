@@ -14,13 +14,13 @@ using namespace mil;
 void
 LuaManager::printHandler(lua_State *L)
 {
-    // FIXME: Get string to print
-    std::string s;
+    int nargs = lua_gettop(L);
     
-    if (_printHandler) {
-        _printHandler(s.c_str());
-    } else {
-        printf("%s", s.c_str());
+    for (int i = 1; i <= nargs; i++) {
+        const char* s = lua_tostring(L, i);
+        if (s) {
+            _printQueue.push(s);
+        }
     }
 }
 
@@ -35,11 +35,9 @@ extern "C" {
     }
 }
 
-LuaManager::LuaManager(PrintHandlerCB cb)
+LuaManager::LuaManager()
 {
-    _printHandler = cb;
-    
-    _luaState = luaL_newstate();
+   _luaState = luaL_newstate();
     luaL_openlibs(_luaState);
     
     // Set this as a lua global
