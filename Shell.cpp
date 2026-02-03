@@ -17,6 +17,8 @@ All rights reserved.
 
 using namespace mil;
 
+static const char* TAG = "Shell";
+
 bool
 Shell::begin(Application* app)
 {
@@ -59,14 +61,14 @@ Shell::handleShellCommand(WiFiPortal* p)
         }
 
         // Execute command
-        LuaManager lua;
+        LuaManager lua([](const char* s) { printf("*****LUA:%s", s); });
     
         if (lua.execute(WebFileSystem::realPath(path).c_str()) != LUA_OK) {
             printf("%s\n", lua.toString(-1));
             std::string err = "Lua file '" + path + "' failed to run: " + lua.toString(-1) + "\n";
             p->sendHTTPResponse(404, "text/plain", err.c_str());
         } else {
-            printf("***** Running Lua file '%s'\n", path.c_str());
+            System::logI(TAG, "***** Ran Lua command '%s'\n", path.c_str());
             p->sendHTTPResponse(200, "text/plain", "...done");
         }
     }

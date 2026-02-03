@@ -20,15 +20,21 @@ namespace mil {
 class LuaManager
 {
 public:
-    LuaManager();
+    using PrintHandlerCB = std::function<void(const char* s)>;
+    
+    LuaManager(PrintHandlerCB);
     ~LuaManager();
     
     int execute(const std::string& filename);
     
     const char* toString(int idx) const { return lua_tostring(_luaState, idx); }
     
+    void printHandler(lua_State *);
+    
 private:
     lua_State* _luaState = nullptr;
+
+    PrintHandlerCB _printHandler;
 };
 
 }
