@@ -13,6 +13,8 @@ All rights reserved.
 
 #include "lua.hpp"
 
+#include <queue>
+
 // Lua Interface
 
 namespace mil {
