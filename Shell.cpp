@@ -61,7 +61,7 @@ Shell::handleShellCommand(WiFiPortal* p)
         }
 
         // Execute command
-        LuaManager lua([](const char* s) { printf("*****LUA:%s", s); });
+        LuaManager lua;
     
         if (lua.execute(WebFileSystem::realPath(path).c_str()) != LUA_OK) {
             printf("%s\n", lua.toString(-1));
@@ -69,7 +69,7 @@ Shell::handleShellCommand(WiFiPortal* p)
             p->sendHTTPResponse(404, "text/plain", err.c_str());
         } else {
             System::logI(TAG, "***** Ran Lua command '%s'\n", path.c_str());
-            p->sendHTTPResponse(200, "text/plain", "...done");
+            p->sendHTTPResponse(200, "text/plain", lua.getAllPrintStrings().c_str());
         }
     }
 }
