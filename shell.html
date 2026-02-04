@@ -46,6 +46,31 @@
                 term.focus();
             }
 
+            function writeResponse(response)
+            {
+                // String could be separated by \n, \r, \n\r or \r\n. Normalize to \n.
+                // For now assume the file is consistent, e.g., if it has a \r\n then
+                // split on \r\n, etc.
+                let sep = "";
+                if (response.indexOf("\r\n") != -1) {
+                    sep = "\r\n";
+                } else if (response.indexOf("\n\r") != -1) {
+                    sep = "\n\r";
+                } else if (response.indexOf("\r") != -1) {
+                    sep = "\r";
+                } else {
+                    sep = "\n";
+                }
+                
+                // Split the string on sep
+                const strings = response.split(sep);
+                
+                // Print each string
+                for (const it of strings) {
+                    term.writelnSafe(it);
+                }
+            }
+        
             // user input handler
             term.on("data", async input => {
 
@@ -54,7 +79,7 @@
 
                 // execute command
                 await shell.execute(term, input)
-                    .then(res => res && term.writeSafe(res))
+                    .then(res => res && writeResponse(res))
                     .catch(err => {
                         if (err) {
                             // sanitize error to prevent xss attacks
