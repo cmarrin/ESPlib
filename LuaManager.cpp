@@ -9,6 +9,9 @@ All rights reserved.
 
 #include "LuaManager.h"
 
+//#include "LuaLFS.h"
+#include "WebFileSystem.h"
+
 using namespace mil;
 
 void
@@ -37,8 +40,9 @@ extern "C" {
 
 LuaManager::LuaManager()
 {
-   _luaState = luaL_newstate();
+    _luaState = luaL_newstate();
     luaL_openlibs(_luaState);
+    //luaopen_lfs  (_luaState);
     
     // Set this as a lua global
     lua_pushlightuserdata(_luaState, this);
@@ -47,6 +51,12 @@ LuaManager::LuaManager()
     // Override the print method
     lua_pushcfunction(_luaState, printLua);
     lua_setglobal(_luaState, "print");
+    
+    // Set the cwd
+//    std::string chdir("os.chdir(\"");
+//    chdir += WebFileSystem::realPath("");
+//    chdir += "\")";
+//    luaL_dostring(_luaState, chdir.c_str());
 }
 
 LuaManager::~LuaManager()
@@ -57,5 +67,6 @@ LuaManager::~LuaManager()
 int
 LuaManager::execute(const std::string& filename)
 {
-    return luaL_dofile(_luaState, filename.c_str());
+    std::string realPath = WebFileSystem::realPath(filename);
+    return luaL_dofile(_luaState, realPath.c_str());
 }

@@ -54,7 +54,7 @@
 
                 // execute command
                 await shell.execute(term, input)
-                    .then(res => res && term.writeln(res))
+                    .then(res => res && term.writeSafe(res))
                     .catch(err => {
                         if (err) {
                             // sanitize error to prevent xss attacks

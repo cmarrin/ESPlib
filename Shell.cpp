@@ -63,7 +63,7 @@ Shell::handleShellCommand(WiFiPortal* p)
         // Execute command
         LuaManager lua;
     
-        if (lua.execute(WebFileSystem::realPath(path).c_str()) != LUA_OK) {
+        if (lua.execute(path.c_str()) != LUA_OK) {
             printf("%s\n", lua.toString(-1));
             std::string err = "Lua file '" + path + "' failed to run: " + lua.toString(-1) + "\n";
             p->sendHTTPResponse(404, "text/plain", err.c_str());

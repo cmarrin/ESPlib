@@ -2,4 +2,16 @@
 -- ls - list files
 --
 
-print("\nThis will soon be a nice file list\n", 123);
+-- print(lfs.currentdir().."\n")
+print("opening index.html\n")
+file = io.open("littlefs/index.html", "r")
+if file == nil then
+    print("error opening file")
+    return
+end
+
+print(file:read())
+print(file:read())
+print(file:read())
+print(file:read())
+print(file:read())
