@@ -69,7 +69,16 @@ Shell::handleShellCommand(WiFiPortal* p)
             p->sendHTTPResponse(404, "text/plain", err.c_str());
         } else {
             System::logI(TAG, "***** Ran Lua command '%s'\n", path.c_str());
-            p->sendHTTPResponse(200, "text/plain", lua.getAllPrintStrings().c_str());
+
+            // Send the string as plain text, but prepend it with a one character id.
+            // If it is 0x20 (space) then this is the last response. Values from 0x21
+            // to 0x7f are the id of the Lua command being executed. ID values start
+            // at 0, so the value sent is 0x21 + id. This allows for 95 simultaneous
+            // commands, which should be more than enough.
+            //
+            // FIXME: for now we only support 0x20 as the id.
+            std::string response = " " + lua.getAllPrintStrings();
+            p->sendHTTPResponse(200, "text/plain", response.c_str());
         }
     }
 }

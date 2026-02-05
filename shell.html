@@ -29,6 +29,8 @@
         function createTerminal(target)
         {
             const term = new XTerminal({ target });
+            
+            let status = " ";
 
             const state = { 
                 username: "user",
@@ -45,9 +47,28 @@
                 term.resume();
                 term.focus();
             }
+            
+            function handleExecComplete()
+            {
+                if (status == " ") {
+                    promptUser();
+                } else {
+                    // FIXME: Send a request for more data
+                }
+            }
 
             function writeResponse(response)
             {
+                // response is plain text, but with a prefix char that has a
+                // value of 0x20 to 0x7f. A value of 0x20 means this is the
+                // last response for this command. Otherwise it is the id of
+                // the Lua command being executed which needs to be sent in
+                // the request for more data.
+                status = response[0];
+                response = response.substring(1);
+                
+                // FIXME: for now assume status is always 0xff
+                
                 // String could be separated by \n, \r, \n\r or \r\n. Normalize to \n.
                 // For now assume the file is consistent, e.g., if it has a \r\n then
                 // split on \r\n, etc.
@@ -87,7 +108,7 @@
                             term.writeln(`<span class="error">${XTerminal.escapeHTML(err)}</span>\n`)
                         }
                     })
-                    .finally(promptUser);
+                    .finally(handleExecComplete);
             });
 
             // greeting message
@@ -118,8 +139,7 @@
         Type 'help' to see this list
           
         Commands:
-          
-          js [expr]       execute a JS expression
+          <cmd> <args>    execute lua command
           clear           clear the terminal screen
           help            display this list
         `;
@@ -131,22 +151,8 @@
                 let args = command.split(' ');
                 let cmd = args.shift();
 
-                console.log("***** execute: command='" + command + "'");
-                // JavaScript Evaluation
-                if (cmd == 'js') {
-                    return new Promise((res, rej) => {
-                        try {
-                console.log("***** execute: output='" + output + "'");
-                            let output = eval(args.join(' ')) + '\n';
-                            res(output);
-                        } catch (error) {
-                console.log("***** execute: error='" + error + "'");
-                            rej(error);
-                        }
-                    });
-                } 
                 // Help menu
-                else if (cmd == 'help') {
+                if (cmd == 'help') {
                     return Promise.resolve(manual);
                 } 
                 // Clear the terminal
