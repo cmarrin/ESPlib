@@ -17,6 +17,7 @@ using namespace mil;
 void
 LuaManager::printHandler(lua_State *L)
 {
+    // Lua print is equivalent to println in other languages, so add a '\n'
     int nargs = lua_gettop(L);
     
     for (int i = 1; i <= nargs; i++) {
@@ -25,6 +26,7 @@ LuaManager::printHandler(lua_State *L)
             _printQueue.push(s);
         }
     }
+    _printQueue.push("\n");
 }
 
 extern "C" {
