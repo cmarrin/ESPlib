@@ -125,19 +125,21 @@ LuaManager::execute(const std::string& filename)
 void
 LuaManager::finish()
 {
+    // Wait for the thread to exit
+    _thread.join();
+    
     // Tear it all down
     std::unique_lock<std::mutex> lk(_mutex);
 
-    // Grab a pointer to the mgr so it sticks around until we return
     const auto& it = _managers.find(_id);
     if (it == _managers.end()) {
         // Uh oh. Manager is gone. For now just leave
         return;
     }
     
+    // Grab a pointer to the mgr so it sticks around until we return
     std::shared_ptr<LuaManager> mgr = it->second;
-
-    clearId(_id);
+    _managers.erase(it);
 }
 
 void
