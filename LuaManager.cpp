@@ -70,6 +70,7 @@ extern "C" {
         // Get the LuaManager ptr
         lua_getglobal(L, "__LuaManager__");
         LuaManager* self = (LuaManager*) lua_touserdata(L, -1);
+        lua_pop(L, 1);
         self->printHandler(L);
         return 0;
     }
