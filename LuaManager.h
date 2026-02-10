@@ -13,7 +13,9 @@ All rights reserved.
 
 #include "lua.hpp"
 
+#include <bitset>
 #include <map>
+#include <condition_variable>
 #include <thread>
 
 // Lua Interface
