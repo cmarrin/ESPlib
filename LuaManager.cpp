@@ -12,6 +12,8 @@ All rights reserved.
 //#include "LuaLFS.h"
 #include "WebFileSystem.h"
 
+#include <cstring>
+
 using namespace mil;
 
 std::map<uint8_t, std::shared_ptr<LuaManager>> LuaManager::_managers;
@@ -28,40 +30,46 @@ LuaManager::printHandler(lua_State *L)
     std::string s;
     
     for (int i = 1; i <= nargs; i++) {
-        if (_printQueue.size() >= MaxPrintQueueSize) {
-            _status = Status::PrintBufferFull;
-            _statusCond.wait(lk);
+        char* nextString = strdup(lua_tostring(L, i));
+        size_t nextStringSize = strlen(nextString);
+
+        while (true) {
+            size_t currentSize = strlen(_printBuffer);
+            
+            if (currentSize + nextStringSize >= PrintBufferSize) {
+                // Put as much in as possible and then wait
+                size_t sizeToAdd = PrintBufferSize - currentSize;
+                strncat(_printBuffer, nextString, sizeToAdd);
+                _status = Status::PrintBufferFull;
+                _statusCond.wait(lk);
+                
+                // Now put as much of what's left in the buffer and loop
+                nextStringSize -= sizeToAdd;
+                nextString += sizeToAdd;
+            } else {
+                break;
+            }
         }
-        s += lua_tostring(L, i);
+        
+        strcat(_printBuffer, nextString);
+        free(nextString);
     }
-    s += "\n";
-    _printQueue.push_back(s);
+    strcat(_printBuffer, "\n");
 }
 
-std::string
-LuaManager::getPrintStrings()
+LuaManager::Status
+LuaManager::getPrintStrings(std::string& s)
 {
-    // Give the command some time
-    delay(500);
-    
     std::unique_lock<std::mutex> lk(_mutex);
     
-    if (_status == Status::NotStarted) {
-        _statusCond.wait(lk);
-    }
-
-    std::string s;
-    
-    for (const auto& it : _printQueue) {
-        s += it;
-    }
-    _printQueue.clear();
+    s = _printBuffer;
+    _printBuffer[0] = '\0';
     
     if (_status == Status::PrintBufferFull) {
         _status = Status::Running;
         _statusCond.notify_all();
     }
-    return s;
+    return _status;
 }
 
 extern "C" {

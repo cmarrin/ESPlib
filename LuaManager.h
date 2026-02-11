@@ -26,6 +26,7 @@ class LuaManager
 {
 public:
     using PrintHandlerCB = std::function<void(const char* s)>;
+    enum class Status { NotStarted, Running, PrintBufferFull, WaitingForInput, Done };
     
     LuaManager();
     ~LuaManager();
@@ -37,7 +38,7 @@ public:
     
     void printHandler(lua_State *);
     
-    std::string getPrintStrings();
+    Status getPrintStrings(std::string&);
     
     bool isDone() const
     {
@@ -54,9 +55,8 @@ public:
     uint8_t id() const { return _id; }
     
 private:
-    static constexpr int MaxPrintQueueSize = 5;
+    static constexpr int PrintBufferSize = 256;
     static constexpr int MaxIds = 32;
-    enum class Status { NotStarted, Running, PrintBufferFull, WaitingForInput, Done };
     
     void commandThread(const std::string& filename);
     
@@ -76,7 +76,7 @@ private:
     std::thread _thread;
     std::condition_variable _statusCond;
     
-    std::vector<std::string> _printQueue;
+    char _printBuffer[PrintBufferSize] = "";
     
     static std::map<uint8_t, std::shared_ptr<LuaManager>> _managers;
     static std::bitset<MaxIds> _usedIds;
