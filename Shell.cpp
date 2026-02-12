@@ -38,6 +38,8 @@ static std::string makeCmdPath(const char* root, const char* cmd, const char* su
 void
 Shell::handleShellCommand(WiFiPortal* p)
 {
+    std::shared_ptr<LuaManager> lua;
+    
     if (p->hasHTTPArg("cmd")) {
         std::string cmd;
         cmd = HTTPParser::urlDecode(p->getHTTPArg("cmd"));

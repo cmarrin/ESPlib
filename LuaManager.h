@@ -53,6 +53,9 @@ public:
     }
     
     uint8_t id() const { return _id; }
+    const std::string& command() const { return _command; }
+    
+    static std::shared_ptr<LuaManager> getManager(uint8_t id);
     
 private:
     static constexpr int PrintBufferSize = 256;
@@ -85,6 +88,7 @@ private:
     uint8_t _id;
     Status _status = Status::NotStarted;
     int _result = 0;
+    std::string _command;
 };
 
 }
