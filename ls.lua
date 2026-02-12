@@ -4,7 +4,7 @@
 
 -- print(lfs.currentdir().."\n")
 print("opening index.html\n")
-file = io.open("index.html", "r")
+file = io.open("/littlefs/swt.html", "r")
 if file == nil then
     print("error opening file")
     return
