@@ -134,14 +134,14 @@ WebFileSystem::begin(Application* app, bool format)
             fs::File file = open(path.c_str(), "r");
             if (file.isDirectory()) {
                 file.close();
-                if (LittleFS.rmdir(path.c_str())) {
+                if (rmdir(path.c_str())) {
                     p->sendHTTPResponse(200, "application/json", "{\"status\":\"success\",\"message\":\"Directory deleted successfully\"}");
                 } else {
                     p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"Could not delete directory\"}");
                 }
             } else {
                 file.close();
-                if (LittleFS.remove(path.c_str())) {
+                if (remove(path.c_str())) {
                     p->sendHTTPResponse(200, "application/json", "{\"status\":\"success\",\"message\":\"File deleted successfully\"}");
                 } else {
                     p->sendHTTPResponse(404, "application/json", "{\"status\":\"error\",\"message\":\"Could not delete file\"}");
