@@ -30,29 +30,23 @@ LuaManager::printHandler(lua_State *L)
     std::string s;
     
     for (int i = 1; i <= nargs; i++) {
-        char* nextString = strdup(lua_tostring(L, i));
+        const char* nextString = lua_tostring(L, i);
         size_t nextStringSize = strlen(nextString);
 
-        while (true) {
-            size_t currentSize = strlen(_printBuffer);
+        // If an incoming string is longer than PrintBufferSize, ignore it
+        if (nextStringSize >= PrintBufferSize) {
+            continue;
+        }
+        
+        size_t currentSize = strlen(_printBuffer);
             
-            if (currentSize + nextStringSize >= PrintBufferSize) {
-                // Put as much in as possible and then wait
-                size_t sizeToAdd = PrintBufferSize - currentSize;
-                strncat(_printBuffer, nextString, sizeToAdd);
-                _status = Status::PrintBufferFull;
-                _statusCond.wait(lk);
-                
-                // Now put as much of what's left in the buffer and loop
-                nextStringSize -= sizeToAdd;
-                nextString += sizeToAdd;
-            } else {
-                break;
-            }
+        if (currentSize + nextStringSize >= PrintBufferSize) {
+            // Mark buffer full and wait
+            _status = Status::PrintBufferFull;
+            _statusCond.wait(lk);
         }
         
         strcat(_printBuffer, nextString);
-        free(nextString);
     }
     strcat(_printBuffer, "\n");
 }
