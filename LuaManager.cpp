@@ -112,6 +112,8 @@ LuaManager::execute(const std::string& filename)
 {
     std::shared_ptr<LuaManager> mgr = std::make_shared<LuaManager>();
     std::unique_lock<std::mutex> lk(_mutex);
+    
+    mgr->_command = filename;
 
     _managers.emplace(mgr->_id, mgr);
     mgr->_thread = std::thread([mgr, filename]() { mgr->commandThread(filename); });
@@ -122,6 +124,19 @@ LuaManager::execute(const std::string& filename)
     }
     
     return mgr;
+}
+
+std::shared_ptr<LuaManager>
+LuaManager::getManager(uint8_t id)
+{
+    const auto& it = _managers.find(id);
+    if (it == _managers.end()) {
+        // Uh oh. Manager is gone. For now just leave
+        return nullptr;
+    }
+    
+    // Grab a pointer to the mgr so it sticks around until we return
+    return it->second;
 }
 
 void
