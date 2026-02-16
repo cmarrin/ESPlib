@@ -69,6 +69,10 @@ static WFSStream* newprefile(lua_State* L)
 {
     WFSStream* p = reinterpret_cast<WFSStream*>(lua_newuserdatauv(L, sizeof(WFSStream), 0));
     p->closef = nullptr;  /* mark file handle as 'closed' */
+    
+    // Since the fs::File is a c++ object we need to do a placement new on it
+    new (&(p->f)) fs::File();
+    
     luaL_setmetatable(L, LUA_WFSHANDLE);
     return p;
 }
@@ -99,6 +103,9 @@ static int f_gc (lua_State* L)
     if (!isclosed(p)) {
         aux_close(L);  /* ignore closed and incompletely open files */
     }
+    
+    // fs::File is a c++ object, but there's no need to call the dtor
+    // since it's just been closed
     return 0;
 }
 
