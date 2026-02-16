@@ -74,6 +74,14 @@ class File
     
     int error() const { return _error; }
     
+    void clearError()
+    {
+        _error = 0;
+        if (_file) {
+            clearerr(_file);
+        }
+    }
+    
   private:
     std::filesystem::directory_iterator _dir;
     bool _isDir = false;
