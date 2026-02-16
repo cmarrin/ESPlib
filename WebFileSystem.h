@@ -29,7 +29,7 @@ class WebFileSystem
 {
   public:
     bool begin(Application*, bool format);
-    fs::File open(const char* path, const char* mode = "r", bool create = false);
+    static fs::File open(const char* path, const char* mode = "r", bool create = false);
     
     static size_t totalBytes();
     static size_t usedBytes();

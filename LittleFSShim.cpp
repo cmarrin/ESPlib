@@ -192,16 +192,22 @@ File::isDirectory()
     return _isDir;
 }
 
-File
-File::openNextFile()
+std::string
+File::getNextDirectoryPath()
 {
     if (!_isDir || _dir == std::filesystem::end(_dir)) {
-        return File();
+        return "";
     }
     
     std::filesystem::path path = _dir->path();
+    
+    // This is the "real" path. We need to turn it back into a virtual path
+    std::string root = LittleFS.makePath("");
+    std::string virtualPath = path.string().erase(0, root.length() - 1);
+    path = virtualPath;
+    
     _dir++;
-    return File(path);
+    return path;
 }
 
 void
@@ -210,7 +216,7 @@ File::rewindDirectory()
     if (!_isDir) {
         return;
     }
-    _dir = std::filesystem::directory_iterator(_path);
+    _dir = std::filesystem::directory_iterator(LittleFS.makePath(_path.c_str()));
 }
 
 bool
@@ -300,7 +306,7 @@ FS::usedBytes()
 File
 FS::open(const char* path, const char* mode, bool create)
 {
-    return File(makePath(path), mode);
+    return File(path, mode);
 }
 
 bool

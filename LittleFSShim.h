@@ -63,7 +63,7 @@ class File
     const char* name() const;
     
     bool isDirectory();
-    File openNextFile();
+    std::string getNextDirectoryPath();
     void rewindDirectory();
     
     operator bool() const { return _isDir || (_file && _error == 0); }

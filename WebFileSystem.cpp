@@ -246,27 +246,33 @@ WebFileSystem::listDir(const char* dirname, uint8_t levels)
     }
 
     bool first_files = true;
-    fs::File file = root.openNextFile();
-    while(file){
-        if (first_files)
-            first_files = false;
-        else 
-            s += ":";
+    std::string path = root.getNextDirectoryPath();
+    if (!path.empty()) {
+        fs::File file = open(path.c_str());
+        while (true) {
+            if (first_files)
+                first_files = false;
+            else 
+                s += ":";
 
-        if (file.isDirectory()) {
-            s += "1,";
-            s += file.name();
-        } else {
-            s += "0,";
-            s += file.name();
-            s += ",";
-            s += std::to_string(file.size());
+            if (file.isDirectory()) {
+                s += "1,";
+                s += file.name();
+            } else {
+                s += "0,";
+                s += file.name();
+                s += ",";
+                s += std::to_string(file.size());
+            }
+            
+            path = root.getNextDirectoryPath();
+            if (path.empty()) {
+                break;
+            }
+            file = open(path.c_str());
         }
-        
-        file = root.openNextFile();
+        file.close();
     }
-
-    file.close();
     
     return s;
 }
