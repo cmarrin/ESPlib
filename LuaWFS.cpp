@@ -246,13 +246,117 @@ static int f_name(lua_State* L)
     return 1;
 }
 
+static int test_eof(lua_State *L, fs::File& f)
+{
+    int c = f.peek();
+    lua_pushliteral(L, "");
+    return (c != EOF);
+}
+
+static int read_line(lua_State* L, fs::File& f, bool chop)
+{
+    luaL_Buffer b;
+    int c = 0;
+    luaL_buffinit(L, &b);
+    
+    do {  /* may need to read several chunks to get whole line */
+        char *buff = luaL_prepbuffer(&b);  /* preallocate buffer space */
+        int i = 0;
+        while (i < LUAL_BUFFERSIZE && (c = f.read()) != EOF && c != '\n') {
+            buff[i++] = c;  /* read up to end of line or buffer limit */
+        }
+        luaL_addsize(&b, i);
+    } while (c != EOF && c != '\n');  /* repeat until end of line */
+    
+    if (!chop && c == '\n') {  /* want a newline and have one? */
+        luaL_addchar(&b, c);  /* add ending newline to result */
+    }
+    
+    luaL_pushresult(&b);  /* close buffer */
+    /* return ok if read something (either a newline or something else) */
+    return (c == '\n' || lua_rawlen(L, -1) > 0);
+}
+
+static int read_chars(lua_State* L, fs::File& f, size_t n)
+{
+    size_t nr;  /* number of chars actually read */
+    uint8_t* p;
+    luaL_Buffer b;
+    luaL_buffinit(L, &b);
+    p = reinterpret_cast<uint8_t*>(luaL_prepbuffsize(&b, n));  /* prepare buffer to read whole block */
+    nr = f.read(p, n);  /* try to read 'n' chars */
+    luaL_addsize(&b, nr);
+    luaL_pushresult(&b);  /* close buffer */
+    return (nr > 0);  /* true iff read something */
+}
+
+static int g_read(lua_State* L, fs::File& f, int first)
+{
+    int nargs = lua_gettop(L) - 1;
+    int n, success;
+    f.clearError();
+    errno = 0;
+    
+    if (nargs == 0) {  /* no arguments? */
+        success = read_line(L, f, 1);
+        n = first + 1;  /* to return 1 result */
+    } else {
+        /* ensure stack space for all results and for auxlib's buffer */
+        luaL_checkstack(L, nargs+LUA_MINSTACK, "too many arguments");
+        success = 1;
+        for (n = first; nargs-- && success; n++) {
+            if (lua_type(L, n) == LUA_TNUMBER) {
+                size_t l = (size_t)luaL_checkinteger(L, n);
+                success = (l == 0) ? test_eof(L, f) : read_chars(L, f, l);
+            } else {
+                const char *p = luaL_checkstring(L, n);
+                if (*p == '*') {
+                    p++;  /* skip optional '*' (for compatibility) */
+                }
+                
+                switch (*p) {
+                    case 'l':  /* line */
+                        success = read_line(L, f, 1);
+                        break;
+                    case 'L':  /* line with end-of-line */
+                        success = read_line(L, f, 0);
+                        break;
+                    default:
+                        return luaL_argerror(L, n, "invalid format");
+                }
+            }
+        }
+    }
+    
+    if (f.error()) {
+        return luaL_fileresult(L, 0, NULL);
+    }
+    if (!success) {
+        lua_pop(L, 1);  /* remove last result */
+        luaL_pushfail(L);  /* push nil instead */
+    }
+    return n - first;
+}
+
 static int f_read(lua_State* L)
 {
-    return 1;
+    return g_read(L, tofile(L), 2);
 }
 
 static int f_write(lua_State* L)
 {
+    return 1;
+}
+
+// peek at the next char and return it
+static int f_peek(lua_State* L)
+{
+    fs::File& f = tofile(L);
+    errno = 0;
+    if (!f) {
+        return luaL_fileresult(L, 0, nullptr);
+    }
+    lua_pushnumber(L, f.peek());
     return 1;
 }
 
@@ -261,11 +365,6 @@ static int f_flush(lua_State* L)
     fs::File& f = tofile(L);
     errno = 0;
     return luaL_fileresult(L, f.flush(), NULL);
-}
-
-static int f_peek(lua_State* L)
-{
-    return 1;
 }
 
 static int f_position(lua_State* L)

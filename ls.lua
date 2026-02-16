@@ -2,9 +2,8 @@
 -- ls - list files
 --
 
-print(lfs.currentdir().."\n")
 print("opening index.html\n")
-file = io.open("/littlefs/Wikimedia-2025.txt", "r")
+file = wfs.open("/Wikimedia-2025.txt", "r")
 if file == nil then
     print("error opening file")
     return
