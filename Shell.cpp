@@ -46,7 +46,7 @@ Shell::handleShellCommand(WiFiPortal* p)
         
         // FIXME: for now ignore the args
         if (cmd.empty()) {
-            p->sendHTTPResponse(400, "text/plain", "no command supplied");
+            p->sendHTTPResponse(400, "text/plain", " no command supplied");
             return;
         }
 
@@ -58,7 +58,7 @@ Shell::handleShellCommand(WiFiPortal* p)
         std::string path = makeCmdPath("/sys/", cmd.c_str(), ".lua");
         
         if (!WebFileSystem::exists(path.c_str())) {
-            p->sendHTTPResponse(404, "text/plain", (path + ": command not found").c_str());
+            p->sendHTTPResponse(404, "text/plain", (" " + path + ": command not found").c_str());
             return;
         }
 
@@ -84,7 +84,7 @@ Shell::handleShellCommand(WiFiPortal* p)
     // Either way, check for errors then get any strings and put them in the
     // response.
     if (status == LuaManager::Status::Done && lua->result() != LUA_OK) {
-        std::string err = "Lua file '" + lua->command() + "' failed to run: " + lua->toString(-1) + "\n";
+        std::string err = " Lua file '" + lua->command() + "' failed to run: " + lua->toString(-1) + "\n";
         p->sendHTTPResponse(404, "text/plain", err.c_str());
     } else {
         // We are either done or not. Either way, get any strings that have been
