@@ -50,10 +50,6 @@ const
 #define FILEMGR_LEN_NAME filemgr_html_len
 #endif
 
-#ifndef ARDUINO
-fs::FS LittleFS;
-#endif
-
 // If return is true path has path to use and the file or dir exists
 bool
 WebFileSystem::prepareFile(WiFiPortal* p, std::string& path)

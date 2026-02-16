@@ -32,19 +32,22 @@ All rights reserved.
 
 using namespace fs;
 
+fs::FS LittleFS;
+
 File::File(const std::filesystem::path& path, const char* mode)
 {
     close();
     
     _path = path;
     _name = _path.filename();
+    std::filesystem::path realPath = LittleFS.makePath(_path.c_str());
 
-    if (std::filesystem::is_directory(_path)) {
+    if (std::filesystem::is_directory(realPath)) {
         _isDir = true;
-        _dir = std::filesystem::directory_iterator(_path);
+        _dir = std::filesystem::directory_iterator(realPath);
     } else {
         _isDir = false;
-        _file = fopen(_path.c_str(), mode);
+        _file = fopen(realPath.c_str(), mode);
 
         // errno gets set by std::filesystem::is_directory, so clear it here
         _error = (_file != nullptr) ? 0 : errno;
@@ -107,15 +110,16 @@ File::peek()
     return c;
 }
 
-void
+bool
 File::flush()
 {
     if (_isDir) {
-        return;
+        return false;
     }
     
     fflush(_file);
     _error = errno;
+    return _error == 0;
 }
 
 bool
@@ -127,9 +131,9 @@ File::seek(uint32_t pos, SeekMode mode)
     
     int dir;
     switch(mode) {
-        default     : dir = SEEK_SET; break;
-        case SeekCur: dir = SEEK_CUR; break;
-        case SeekEnd: dir = SEEK_SET; break;
+        default           : dir = SEEK_SET; break;
+        case SeekMode::Cur: dir = SEEK_CUR; break;
+        case SeekMode::End: dir = SEEK_SET; break;
     }
     bool b = fseek(_file, pos, dir) == 0;
     _error = errno;
@@ -155,17 +159,19 @@ File::size() const
         return 0;
     }
     
-    return std::filesystem::file_size(path());
+    return std::filesystem::file_size(LittleFS.makePath(path()));
 }
 
-void
+bool
 File::close()
 {
     if (_file) {
         fclose(_file);
         _file = nullptr;
         _error = 0;
+        return true;
     }
+    return false;
 }
 
 const char*

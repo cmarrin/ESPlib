@@ -19,11 +19,7 @@ All rights reserved.
 
 namespace fs {
 
-enum SeekMode {
-    SeekSet = 0,
-    SeekCur = 1,
-    SeekEnd = 2
-};
+enum class SeekMode { Set = 0, Cur = 1, End = 2 };
 
 class File
 {
@@ -54,14 +50,14 @@ class File
     int write(const uint8_t* buf, size_t size);
     int read();
     int peek();
-    void flush();
+    bool flush();
     int read(uint8_t* buf, size_t size);
 
-    bool seek(uint32_t pos, SeekMode mode = SeekSet);
+    bool seek(uint32_t pos, SeekMode mode = SeekMode::Set);
     size_t position();
     size_t size() const;
     
-    void close();
+    bool close();
     
     const char* path() const;
     const char* name() const;
@@ -71,6 +67,12 @@ class File
     void rewindDirectory();
     
     operator bool() const { return _isDir || (_file && _error == 0); }
+    
+    bool isOpenFile() const { return *this && !_isDir; }
+    
+    FILE* filePtr() const { return _file; }
+    
+    int error() const { return _error; }
     
   private:
     std::filesystem::directory_iterator _dir;
@@ -119,3 +121,5 @@ class FS
 };
 
 }
+
+extern fs::FS LittleFS;
