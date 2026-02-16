@@ -9,7 +9,7 @@ All rights reserved.
 
 #include "LuaManager.h"
 
-//#include "LuaLFS.h"
+#include "LuaWFS.h"
 #include "WebFileSystem.h"
 
 #include <cstring>
@@ -84,7 +84,7 @@ LuaManager::LuaManager()
     
     _luaState = luaL_newstate();
     luaL_openlibs(_luaState);
-    //luaopen_lfs  (_luaState);
+    luaL_requiref(_luaState, "wfs", luaopen_wfs, 1);
     
     // Set this as a lua global
     lua_pushlightuserdata(_luaState, this);
@@ -93,12 +93,6 @@ LuaManager::LuaManager()
     // Override the print method
     lua_pushcfunction(_luaState, printLua);
     lua_setglobal(_luaState, "print");
-    
-    // Set the cwd
-//    std::string chdir("lfs.chdir(\"");
-//    chdir += WebFileSystem::realPath("");
-//    chdir += "\")";
-//    luaL_dostring(_luaState, chdir.c_str());
 }
 
 LuaManager::~LuaManager()

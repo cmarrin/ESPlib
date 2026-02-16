@@ -7,13 +7,11 @@
 ** (http://lunarmodules.github.io/luafilesystem)
 */
 
-#define chdir_error	strerror(errno)
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern int luaopen_lfs(lua_State * L);
+extern int luaopen_wfs(lua_State * L);
 
 #ifdef __cplusplus
 }
