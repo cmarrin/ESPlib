@@ -168,10 +168,11 @@ File::close()
     if (_file) {
         fclose(_file);
         _file = nullptr;
-        _error = 0;
-        return true;
+    } else if (_isDir) {
+        _dir = std::filesystem::directory_iterator();
     }
-    return false;
+    _error = 0;
+    return true;
 }
 
 const char*
