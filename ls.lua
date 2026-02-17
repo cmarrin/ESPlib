@@ -4,6 +4,8 @@
 
 print("listing files in '/'\n")
 
+print("********** cpl = ", __cpl__)
+
 local root = wfs.open("/")
 
 if not root:isdir() then

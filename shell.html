@@ -32,7 +32,34 @@
     <script src='https://unpkg.com/xterminal/dist/xterminal.umd.js'></script>
 
     <script>
-        window.onload = () => createTerminal('#app');        
+        // We want to get the number of chars that will fit on a line of the shell so
+        // we can send that to the server so the Lua commands can format a line of
+        // text. We need to compute the width of a character. Since we're using a
+        // fixed pitch font every character is the same width. So we just need a
+        // constant to convert from the font size to character width and then divide
+        // the pixel width of the shell by that. For the current font being used 
+        // (whatever that is) the constant below works.
+        //
+        // Constant for converting from font size to character width
+        const CharWidthConstant = 1.73;
+        
+        // Computing the characters per line:
+        //      CPL = width * CharWidthConstant / fontSize;
+        
+        window.onload = () => createTerminal('#app');
+        
+        let cpl = 0;
+        
+        const shell = document.getElementById('app');
+        const resizeObserver = new ResizeObserver((entries) => {
+            for (const entry of entries) {
+                const style = window.getComputedStyle(shell, null).getPropertyValue('font-size');
+                const fontSize = parseFloat(window.getComputedStyle(shell, null).getPropertyValue('font-size'));
+                const width = entry.contentRect.width;
+                cpl = Math.trunc(width * CharWidthConstant / fontSize);
+            }
+        });
+        resizeObserver.observe(shell);
         
         function createTerminal(target)
         {
@@ -126,7 +153,7 @@
         }
 
         async function processCommand(command) {
-            return fetch(`/shell?cmd=` + command)
+            return fetch(`/shell?cmd=${command}&cpl=${cpl}`)
                 .then(response => response.text())
                 .then(data => {
                     return data;
@@ -135,7 +162,7 @@
         }
         
        async function processCommandMoreData(id) {
-            return fetch(`/shell?id=` + id)
+            return fetch(`/shell?id=${id}`)
                 .then(response => response.text())
                 .then(data => {
                     return data;

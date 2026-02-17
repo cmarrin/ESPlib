@@ -102,12 +102,16 @@ LuaManager::~LuaManager()
 }
 
 std::shared_ptr<LuaManager>
-LuaManager::execute(const std::string& filename)
+LuaManager::execute(const std::string& filename, int cpl)
 {
     std::shared_ptr<LuaManager> mgr = std::make_shared<LuaManager>();
     std::unique_lock<std::mutex> lk(_mutex);
     
     mgr->_command = filename;
+
+    // Set the incoming cpl as a global
+    lua_pushinteger(mgr->_luaState, cpl);
+    lua_setglobal(mgr->_luaState, "__cpl__");
 
     _managers.emplace(mgr->_id, mgr);
     mgr->_thread = std::thread([mgr, filename]() { mgr->commandThread(filename); });

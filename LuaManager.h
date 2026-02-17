@@ -31,7 +31,7 @@ public:
     LuaManager();
     ~LuaManager();
     
-    static std::shared_ptr<LuaManager> execute(const std::string& filename);
+    static std::shared_ptr<LuaManager> execute(const std::string& filename, int cpl);
     void finish();
     
     const char* toString(int idx) const { return lua_tostring(_luaState, idx); }

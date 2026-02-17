@@ -41,8 +41,13 @@ Shell::handleShellCommand(WiFiPortal* p)
     std::shared_ptr<LuaManager> lua;
     
     if (p->hasHTTPArg("cmd")) {
-        std::string cmd;
-        cmd = HTTPParser::urlDecode(p->getHTTPArg("cmd"));
+        std::string cmd = HTTPParser::urlDecode(p->getHTTPArg("cmd"));
+        int cpl = std::stoi(HTTPParser::urlDecode(p->getHTTPArg("cpl")));
+        
+        // Failsafe
+        if (cpl <= 0 || cpl >= 10000) {
+            cpl = 80;
+        }
         
         // FIXME: for now ignore the args
         if (cmd.empty()) {
@@ -63,7 +68,7 @@ Shell::handleShellCommand(WiFiPortal* p)
         }
 
         // Execute command
-        lua = LuaManager::execute(path.c_str());
+        lua = LuaManager::execute(path.c_str(), cpl);
         
         // Let the command run a bit
         delay(200);
