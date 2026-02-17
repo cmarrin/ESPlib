@@ -350,9 +350,30 @@ static int f_read(lua_State* L)
     return g_read(L, tofile(L), 2);
 }
 
+// We support writing strings only
+static int g_write(lua_State* L, fs::File& f, int arg)
+{
+    int nargs = lua_gettop(L) - arg;
+    int status = 1;
+    errno = 0;
+    for ( ; nargs--; arg++) {
+        size_t l;
+        const uint8_t* s = reinterpret_cast<const uint8_t*>(luaL_checklstring(L, arg, &l));
+        status = status && (f.write(s, l) == l);
+    }
+    
+    if (l_likely(status)) {
+        return 1;  /* file handle already on stack top */
+    } else {
+        return luaL_fileresult(L, status, NULL);
+    }
+}
+
 static int f_write(lua_State* L)
 {
-    return 1;
+    fs::File& f = tofile(L);
+    lua_pushvalue(L, 1);  /* push file at the stack top (to be returned) */
+    return g_write(L, f, 2);
 }
 
 // peek at the next char and return it
