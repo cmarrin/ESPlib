@@ -2,15 +2,26 @@
 -- ls - list files
 --
 
-print("opening index.html\n")
-file = wfs.open("/Wikimedia-2025.txt", "r")
-if file == nil then
-    print("error opening file")
-    return
-end
+print("listing files in '/'\n")
 
-print(file:read())
-print(file:read())
-print(file:read())
-print(file:read())
-print(file:read())
+local root = wfs.open("/")
+
+if not root:isdir() then
+	print("'/' is not a directory'")
+else
+	local path = root:next_dir_path()
+	if path then
+		while true
+		do
+			local file = wfs.open(path)
+			local info = file:isdir() and "dir" or file:size()
+				
+			print ("\t " .. file:name() .. "\t" .. info)
+
+            path = root:next_dir_path();
+            if (path == "") then
+                break;
+            end
+		end
+	end
+end

@@ -15,18 +15,11 @@ All rights reserved.
 #include <cstring>
 
 static const char* LUA_WFSHANDLE = "wfs:File*";
-static const char* DIR_METATABLE = "directory metatable";
 
 struct WFSStream
 {
     fs::File f;  /* stream (NULL for incompletely created streams) */
     lua_CFunction closef;  /* to close stream (NULL for closed streams) */
-};
-
-struct dir_data
-{
-    bool closed;
-    fs::File dir;
 };
 
 static inline WFSStream* towfsstream(lua_State* L)	{ return reinterpret_cast<WFSStream*>(luaL_checkudata(L, 1, LUA_WFSHANDLE)); }
@@ -143,7 +136,7 @@ static int io_open(lua_State* L)
     luaL_argcheck(L, l_checkmode(md), 2, "invalid mode");
     errno = 0;
     p->f = mil::WebFileSystem::open(filename, mode);
-    return (!p->f.isOpenFile()) ? luaL_fileresult(L, 0, filename) : 1;
+    return (!p->f) ? luaL_fileresult(L, 0, filename) : 1;
 }
 
 static int io_remove (lua_State* L)
@@ -187,42 +180,6 @@ static int io_usedbytes(lua_State* L)
     return 1;
 }
 
-static int io_dir_iter(lua_State* L)
-{
-//    dir_data* d = reinterpret_cast<dir_data *>(luaL_checkudata(L, 1, DIR_METATABLE));
-//    luaL_argcheck(L, d->closed == 0, 1, "closed directory");
-//
-//    if ((entry = readdir(d->dir)) != NULL) {
-//        lua_pushstring(L, entry->d_name);
-//        return 1;
-//    } else {
-//        /* no more entries => close directory */
-//        closedir(d->dir);
-//        d->closed = 1;
-//        return 0;
-//    }
-    return 0;
-}
-
-static int io_dir_iter_factory(lua_State* L)
-{
-    const char *path = luaL_checkstring(L, 1);
-    lua_pushcfunction(L, io_dir_iter);
-    dir_data* d = reinterpret_cast<dir_data*>(lua_newuserdata(L, sizeof(dir_data)));
-    luaL_getmetatable(L, DIR_METATABLE);
-    lua_setmetatable(L, -2);
-    d->closed = false;
-    d->dir = mil::WebFileSystem::open(path);
-    if (!d->dir) {
-        luaL_error(L, "cannot open %s: %s", path, strerror(errno));
-    } else if (!d->dir.isDirectory()) {
-        luaL_error(L, "%s is not a directory", path);
-    }
-    lua_pushnil(L);
-    lua_pushvalue(L, -2);
-    return 4;
-}
-
 static int f_seek(lua_State* L)
 {
     static fs::SeekMode mode[] = { fs::SeekMode::Set, fs::SeekMode::Cur, fs::SeekMode::End };
@@ -250,6 +207,17 @@ static int f_name(lua_State* L)
         return luaL_fileresult(L, 0, nullptr);
     }
     lua_pushstring(L, f.name());
+    return 1;
+}
+
+static int f_nextdirpath(lua_State* L)
+{
+    fs::File& f = tofile(L);
+    errno = 0;
+    if (!f) {
+        return luaL_fileresult(L, 0, nullptr);
+    }
+    lua_pushstring(L, f.getNextDirectoryPath().c_str());
     return 1;
 }
 
@@ -440,7 +408,6 @@ static const luaL_Reg wfslib[] = {
   {"rename", io_rename},
   {"total_bytes", io_totalbytes},
   {"used_bytes", io_usedbytes},
-  {"dir", io_dir_iter_factory},
   {NULL, NULL}
 };
 
@@ -459,6 +426,7 @@ static const luaL_Reg meth[] = {
   {"size", f_size},
   {"isdir", f_isdir},
   {"close", f_close},
+  {"next_dir_path", f_nextdirpath},
   {NULL, NULL}
 };
 
