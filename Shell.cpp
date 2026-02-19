@@ -83,12 +83,12 @@ Shell::handleShellCommand(WiFiPortal* p)
     // Get any returned print strings. This not only gets the strings
     // but the does the proper waits and state changes
     std::string printString;
-    LuaManager::Status status = lua->getPrintStrings(printString);
+    LuaManager::Status status = lua ? lua->getPrintStrings(printString) : LuaManager::Status::Done;
 
     // Command is either still executing because buffer is full, or its finished
     // Either way, check for errors then get any strings and put them in the
     // response.
-    if (status == LuaManager::Status::Done && lua->result() != LUA_OK) {
+    if (status == LuaManager::Status::Done && lua && lua->result() != LUA_OK) {
         std::string err = " Lua file '" + lua->command() + "' failed to run: " + lua->toString(-1) + "\n";
         p->sendHTTPResponse(404, "text/plain", err.c_str());
     } else {
@@ -102,6 +102,7 @@ Shell::handleShellCommand(WiFiPortal* p)
         // 95 simultaneous commands, which should be more than enough.
         char idChar = lua->isDone() ? ' ' : 0x20 + lua->id() + 1;
         std::string response = std::string(1, idChar)  + printString;
+
         p->sendHTTPResponse(200, "text/plain", response.c_str());
         
         if (status == LuaManager::Status::Done) {

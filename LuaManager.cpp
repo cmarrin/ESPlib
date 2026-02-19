@@ -48,7 +48,6 @@ LuaManager::printHandler(lua_State *L)
         
         strcat(_printBuffer, nextString);
     }
-    strcat(_printBuffer, "\n");
 }
 
 LuaManager::Status
@@ -90,9 +89,8 @@ LuaManager::LuaManager()
     lua_pushlightuserdata(_luaState, this);
     lua_setglobal(_luaState, "__LuaManager__");
     
-    // Override the print method
-    lua_pushcfunction(_luaState, printLua);
-    lua_setglobal(_luaState, "print");
+    // add a print method
+    lua_register(_luaState, "__print__", printLua);
 }
 
 LuaManager::~LuaManager()
