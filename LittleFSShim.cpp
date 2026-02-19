@@ -62,6 +62,7 @@ File::write(const uint8_t* buf, size_t size)
         return -1;
     }
     
+    errno = 0;
     int r = int(fwrite(buf, 1, size, _file));
     _error = errno;
     return r;
