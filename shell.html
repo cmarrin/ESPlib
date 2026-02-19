@@ -105,20 +105,33 @@
                 // the request for more data.
                 status = response[0];
                 response = response.substring(1);
+                
+                // If the string ends in a newline it means we have 
+                // whole lines so we output them all with writeln.
+                // Otherwise we output the last line with write.
+                const wholeLine = response.slice(-1) == "\n"
+                
+                // Get rid of the last newline so we don't accidentally
+                // print a blank line
+                if (wholeLine) {
+                    response = response.slice(0, -1);
+                }
 
                 // Split the string on sep
                 const strings = response.split("\n");
-                
-                // If the last string is empty it means the response ended
-                // with a \n. So ignore it or we'll get an extra line
-                // printed
-                if (!strings[strings.length - 1]) {
-                    strings.pop();
+                let lastString = "";
+                if (!wholeLine) {
+                    lastString = strings.pop();
                 }
                 
                 // Print each string
                 for (const it of strings) {
                     term.writelnSafe(it);
+                }
+                
+                // Print the last string if any
+                if (!wholeLine) {
+                    term.writeSafe(lastString);
                 }
             }
         
