@@ -100,14 +100,20 @@ Shell::handleShellCommand(WiFiPortal* p)
         // Values from 0x21 to 0x7f are the id of the Lua command being executed.
         // Id values start at 0, so the value sent is 0x21 + id. This allows for
         // 95 simultaneous commands, which should be more than enough.
-        char idChar = lua->isDone() ? ' ' : 0x20 + lua->id() + 1;
+        char idChar = ' ';
+        if (lua) {
+            idChar = lua->isDone() ? ' ' : 0x20 + lua->id() + 1;
+        }
+        
         std::string response = std::string(1, idChar)  + printString;
 
         p->sendHTTPResponse(200, "text/plain", response.c_str());
         
         if (status == LuaManager::Status::Done) {
-           lua->finish();
-            System::logI(TAG, "***** Ran Lua command '%s'\n", lua->command().c_str());
+            if (lua) {
+                lua->finish();
+                System::logI(TAG, "***** Ran Lua command '%s'\n", lua->command().c_str());
+            }
         }
     }
 }
