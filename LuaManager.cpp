@@ -31,22 +31,24 @@ LuaManager::printHandler(lua_State *L)
     
     for (int i = 1; i <= nargs; i++) {
         const char* nextString = lua_tostring(L, i);
-        size_t nextStringSize = strlen(nextString);
+        if (nextString) {
+            size_t nextStringSize = strlen(nextString);
 
-        // If an incoming string is longer than PrintBufferSize, ignore it
-        if (nextStringSize >= PrintBufferSize) {
-            continue;
-        }
+            // If an incoming string is longer than PrintBufferSize, ignore it
+            if (nextStringSize >= PrintBufferSize) {
+                continue;
+            }
         
-        size_t currentSize = strlen(_printBuffer);
+            size_t currentSize = strlen(_printBuffer);
             
-        if (currentSize + nextStringSize >= PrintBufferSize) {
-            // Mark buffer full and wait
-            _status = Status::PrintBufferFull;
-            _statusCond.wait(lk);
+            if (currentSize + nextStringSize >= PrintBufferSize) {
+                // Mark buffer full and wait
+                _status = Status::PrintBufferFull;
+                _statusCond.wait(lk);
+            }
+            
+            strcat(_printBuffer, nextString);
         }
-        
-        strcat(_printBuffer, nextString);
     }
 }
 
@@ -100,7 +102,7 @@ LuaManager::~LuaManager()
 }
 
 std::shared_ptr<LuaManager>
-LuaManager::execute(const std::string& filename, int cpl)
+LuaManager::execute(const std::string& filename, int cpl, std::vector<std::string> args)
 {
     std::shared_ptr<LuaManager> mgr = std::make_shared<LuaManager>();
     std::unique_lock<std::mutex> lk(_mutex);
@@ -110,6 +112,23 @@ LuaManager::execute(const std::string& filename, int cpl)
     // Set the incoming cpl as a global
     lua_pushinteger(mgr->_luaState, cpl);
     lua_setglobal(mgr->_luaState, "__cpl__");
+    
+    // Set the require path
+    std::string realRequirePath = WebFileSystem::realPath("/sys/?.lua");
+    luaL_dostring(mgr->_luaState, (std::string("package.path = \"") + realRequirePath + "\"").c_str());
+    
+    // Set an 'arg' global with the args
+    lua_createtable(mgr->_luaState, int(args.size()), 0);
+    int i = 1;
+    
+    for (const auto& it : args) {
+        lua_pushnumber(mgr->_luaState, i);
+        lua_pushstring(mgr->_luaState, it.c_str());
+        lua_settable(mgr->_luaState, -3);
+        ++i;
+    }
+
+    lua_setglobal(mgr->_luaState, "arg");
 
     _managers.emplace(mgr->_id, mgr);
     mgr->_thread = std::thread([mgr, filename]() { mgr->commandThread(filename); });

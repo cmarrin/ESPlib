@@ -49,7 +49,6 @@ Shell::handleShellCommand(WiFiPortal* p)
             cpl = 80;
         }
         
-        // FIXME: for now ignore the args
         if (cmd.empty()) {
             p->sendHTTPResponse(400, "text/plain", " no command supplied");
             return;
@@ -68,7 +67,7 @@ Shell::handleShellCommand(WiFiPortal* p)
         }
 
         // Execute command
-        lua = LuaManager::execute(path.c_str(), cpl);
+        lua = LuaManager::execute(path.c_str(), cpl, args);
         
         // Let the command run a bit
         delay(200);
