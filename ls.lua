@@ -68,9 +68,11 @@ for _, dir in ipairs(dirs) do
 				
 				lineWidth = lineWidth + FilenameWidth
 				
-				__print__(filename)
 				if dir then
-					__print__("/")
+					local s = "\x1b[33m"..filename.."/\x1b[0m"
+					__print__(s)
+				else
+					__print__(filename)
 				end
 				space(extraSpace)
 

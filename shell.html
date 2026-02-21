@@ -23,7 +23,31 @@
         .error {
             color: rgb(248, 88, 88);
         }
-    </style>
+        .prompt1 {
+            color: rgb(88, 248, 248);
+        }
+        .prompt2 {
+            color: rgb(88, 248, 88);
+        }
+
+        .ansi-black-fg { color: #000; }             /* 30 */
+        .ansi-red-fg { color: #b00; }               /* 31 */
+        .ansi-green-fg { color: #0b0; }             /* 32 */
+        .ansi-yellow-fg { color: #bb0; }            /* 33 */
+        .ansi-blue-fg { color: #00b; }              /* 34 */
+        .ansi-magenta-fg { color: #b0b; }           /* 35 */
+        .ansi-cyan-fg { color: #0bb; }              /* 36 */
+        .ansi-white-fg { color: #fff; }             /* 37 */
+
+        .ansi-bright-black-fg { color: #555; }      /* 90 */
+        .ansi-bright-red-fg { color: #f55; }        /* 91 */
+        .ansi-bright-green-fg { color: #0f0; }      /* 92 */
+        .ansi-bright-yellow-fg { color: #ff5; }     /* 93 */
+        .ansi-bright-blue-fg { color: #55f }        /* 94 */
+        .ansi-bright-magenta-fg { color: #f5f }     /* 95 */
+        .ansi-bright-cyan-fg { color: #5ff }        /* 96 */
+        .ansi-bright-white-fg { color: #fff }       /* 97 */
+</style>
 </head>
 
 <body>
@@ -77,8 +101,8 @@
 
             // print prompt and get ready for user input
             function promptUser() {
-                term.write(`┌[${state.username}@${state.hostname}]\n`);
-                term.write("└$ ");
+                term.write(`<span class="prompt1">[${state.username}@${state.hostname}]</span>\n`);
+                term.write(`<span class="prompt2">$ </span>`);
                 term.resume();
                 term.focus();
             }
@@ -96,6 +120,88 @@
                 }
             }
 
+            const FirstNormalColor = 30;
+            const NormalColors = [
+                "ansi-black-fg",
+                "ansi-red-fg",
+                "ansi-green-fg",  
+                "ansi-yellow-fg", 
+                "ansi-blue-fg",   
+                "ansi-magenta-fg",
+                "ansi-cyan-fg",   
+                "ansi-white-fg"
+            ];
+            
+            const FirstBrightColor = 90;
+            const BrightColors = [
+                "ansi-bright-black-fg",
+                "ansi-bright-red-fg",
+                "ansi-bright-green-fg",  
+                "ansi-bright-yellow-fg", 
+                "ansi-bright-blue-fg",   
+                "ansi-bright-magenta-fg",
+                "ansi-bright-cyan-fg",   
+                "ansi-bright-white-fg"
+            ];
+            
+            function stringHasEscapes(s)
+            {
+                return s.indexOf("\x1b") != -1;
+            }
+            
+            function addColorToString(s)
+            {
+                // We currently handle simple color escapes (e.g., 0x1b[33m for yellow)
+                // Split the string by ansi escape char (ESC/0x1b)
+                const parts = s.split("\x1b");
+                let newString = "";
+                
+                // Construct a new string with spans inserted to set the style for the
+                // desired color
+                let first = true;
+                for (const it of parts) {
+                    // first string just goes in with a span
+                    if (first) {
+                        newString = it;
+                        first = false;
+                        continue;
+                    }
+                    
+                    // Ignore the entire string if the escape sequence is wrong
+                    let colorStyle = "";
+                    let endOfEscape = -1;
+                    
+                    if (it.charAt(0) == "[") {
+                        endOfEscape = it.indexOf("m");
+                        const numString = it.slice(1, endOfEscape);
+                        const colorNum = parseInt(numString);
+                        if (!isNaN(colorNum)) {
+                            if (colorNum >= FirstNormalColor && colorNum <= (FirstNormalColor + 7)) {
+                                colorStyle = NormalColors[colorNum - FirstNormalColor];
+                            } else if (colorNum >= FirstBrightColor && colorNum <= (FirstBrightColor + 7)) {
+                                colorStyle = BrightColors[colorNum - FirstBrightColor];
+                            } else if (colorNum == 0) {
+                                colorStyle = "default";
+                            }
+                        }
+                    }
+                    
+                    if (colorStyle.length == 0) {
+                        // Bad escape sequence, ignore this string
+                        continue;
+                    }
+                    
+                    if (colorStyle == "default") {
+                        // Default color, no span needed
+                        newString += it.slice(endOfEscape + 1);
+                    } else {
+                        // Add the span to the string
+                        newString += `<span class='${colorStyle}'>${it.slice(endOfEscape + 1)}</span>`;
+                    }
+                }
+                return newString;
+            }
+            
             function writeResponse(response)
             {
                 // response is plain text, but with a prefix char that has a
@@ -105,6 +211,11 @@
                 // the request for more data.
                 status = response[0];
                 response = response.substring(1);
+                
+                const hasColor = stringHasEscapes(response);
+                if (hasColor) {
+                    response = addColorToString(response);
+                }
                 
                 // If the string ends in a newline it means we have 
                 // whole lines so we output them all with writeln.
@@ -126,12 +237,20 @@
                 
                 // Print each string
                 for (const it of strings) {
-                    term.writelnSafe(it);
+                    if (hasColor) {
+                        term.writeln(it);
+                    } else {
+                        term.writelnSafe(it);
+                    }
                 }
                 
                 // Print the last string if any
                 if (!wholeLine) {
-                    term.writeSafe(lastString);
+                     if (hasColor) {
+                        term.write(lastString);
+                    } else {
+                        term.writeSafe(lastString);
+                    }
                 }
             }
         
