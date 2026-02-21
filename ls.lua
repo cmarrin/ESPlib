@@ -42,6 +42,9 @@ for _, dir in ipairs(dirs) do
 	elseif not root:isdir() then
 		__print__("'", dir, "' is not a directory\n")
 	else
+		-- show the directory name
+		__print__(root:name()..":\n")
+		
 		local FilenameWidth <const> = 34
 		
 		local path = root:next_dir_path()
