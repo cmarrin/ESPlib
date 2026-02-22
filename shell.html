@@ -97,6 +97,17 @@
                 hostname: "web"
             };
 
+            const matches = [];
+
+            term.setCompleter(str => {
+                if (!matches.length) {
+                    matches.push(
+                        ...term.history.filter(c => c.startsWith(str))
+                    );
+                }
+                return matches.pop();
+            });
+            
             // input evaluator
             const shell = createShell();
 
