@@ -21,6 +21,12 @@ MacWiFiPortal::begin(WebFileSystem* wfs)
     _startTime = std::chrono::steady_clock::now();
 
     _server.start(wfs, 80);
+    
+    // On Mac we'll store NVS params in a special /.nvs dir in the file system
+    // Each file is the key name and the contents are the value
+    if (!WebFileSystem::exists("/.nvs")) {
+        WebFileSystem::mkdir("/.nvs");
+    }
 }
 
 void
@@ -139,35 +145,27 @@ MacWiFiPortal::hasHTTPArg(const char* name)
 bool
 MacWiFiPortal::addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength)
 {
-//    // First we have to see if there is a saved value for this id. If so use it in place of the defaultValue
-//    std::string value = _prefs.getString(id).c_str();
-//    if (value.length() == 0) {
-//        value = defaultValue;
-//        printf("No '%s' saved. Setting it to default: '%s'\n", id, defaultValue);
-//    } else {
-//        printf("Setting '%s' to saved value: '%s'\n", id, value.c_str());
-//    }
-//
-//    _prefs.putString(id, value.c_str());
-//
-//    _wifiManager.addParameter(new WiFiManagerParameter(id, label, value.c_str(), maxLength));
-//    return true;
-    return false;
+    // First we have to see if there is a saved value for this id. If so use it in place of the defaultValue
+    std::string value;
+
+    if (!getNVSParam(id, value) || value.empty()) {
+        value = defaultValue;
+        printf("No '%s' saved. Setting it to default: '%s'\n", id, defaultValue);
+    } else {
+        printf("Setting '%s' to saved value: '%s'\n", id, value.c_str());
+    }
+
+    setNVSParam(id, value);
+
+    // FIXME: How will we add this to the web page params?
+
+    return true;
 }
 
 bool
 MacWiFiPortal::getParamValue(const char* id, std::string& value)
 {
-//    WiFiManagerParameter** params = _wifiManager.getParameters();
-//    int count = _wifiManager.getParametersCount();
-//    
-//    for (int i = 0; i < count; ++i) {
-//        if (strcmp(params[i]->getID(), id) == 0) {
-//            return params[i]->getValue();
-//        }
-//    }
-//    return nullptr;
-    return false;
+    return getNVSParam(id, value) && !value.empty();
 }
 
 std::string
@@ -181,5 +179,40 @@ MacWiFiPortal::getCPUUptime() const
 {
     return (std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now() - _startTime)).count();
 }
+
+
+void
+MacWiFiPortal::setNVSParam(const char* id, const std::string& value)
+{
+    std::string keyName = std::string("/.nvs/") + id;
+    fs::File f = WebFileSystem::open(keyName.c_str(), "w");
+    f.write(reinterpret_cast<const uint8_t*>(value.c_str()), value.length());
+    f.close();
+}
+
+bool
+MacWiFiPortal::getNVSParam(const char* id, std::string& value)
+{
+    std::string keyName = std::string("/.nvs/") + id;
+    if (!WebFileSystem::exists(keyName.c_str())) {
+        return false;
+    }
+    
+    fs::File f = WebFileSystem::open(keyName.c_str(), "r");
+    size_t size = f.size();
+    uint8_t* buf = new uint8_t[size];
+    f.read(buf, size);
+    f.close();
+    value = std::string(reinterpret_cast<char*>(buf), size);
+    return true;
+}
+
+void
+MacWiFiPortal::eraseNVSParam(const char* id)
+{
+    std::string keyName = std::string("/.nvs/") + id;
+    WebFileSystem::remove(keyName.c_str());
+}
+
 
 #endif

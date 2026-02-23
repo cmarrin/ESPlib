@@ -47,6 +47,10 @@ public:
     virtual std::string getCPUModel() const override;
     virtual uint32_t getCPUUptime() const override;
 
+    virtual void setNVSParam(const char* id, const std::string& value) override;
+    virtual bool getNVSParam(const char* id, std::string& value) override;
+    virtual void eraseNVSParam(const char* id) override;
+
 private:
     std::chrono::steady_clock::time_point _startTime;
 

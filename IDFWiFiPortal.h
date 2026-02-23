@@ -76,6 +76,10 @@ public:
     virtual float getCPUTemperature() const override;
     virtual uint32_t getCPUUptime() const override;
 
+    virtual void setNVSParam(const char* id, const std::string& value) override;
+    virtual bool getNVSParam(const char* id, std::string& value) override;
+    virtual void eraseNVSParam(const char* id) override;
+    
   private:
     static constexpr EventBits_t WIFI_CONNECTED_BIT = BIT0;
     static constexpr EventBits_t WIFI_FAIL_BIT = BIT1;
@@ -95,13 +99,6 @@ public:
     static void faviconGetHandler(WiFiPortal*);
     static void otaUpdateHandler(WiFiPortal*);
 
-    // Params are stored in nvs memory, but also need to be presented to the user in the web page.
-    // So we store a list here with the label to display and the max length. The key for each entry
-    // is the param id.
-    void setNVSParam(const char* id, const std::string& value);
-    bool getNVSParam(const char* id, std::string& value);
-    void eraseNVSParam(const char* id);
-    
     const std::string getHTTPHeader(const char* name);
 
     struct MapValue { std::string label; uint32_t maxLength; };

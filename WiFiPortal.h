@@ -132,6 +132,11 @@ public:
     virtual float getCPUTemperature() const { return 25.0; }
     virtual uint32_t getCPUUptime() const { return 0; }
 
+    // Get/Set/Erase params in non-volatile storage
+    virtual void setNVSParam(const char* id, const std::string& value) { }
+    virtual bool getNVSParam(const char* id, std::string& value) { return false; }
+    virtual void eraseNVSParam(const char* id) { }
+    
     // Set the title to be shown at the top of the front web page
     void setTitle(const char* title) { _title = title; }
     const std::string& getTitle() const { return _title; }
