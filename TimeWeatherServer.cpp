@@ -30,19 +30,7 @@ DAMAGE.
 
 #include "TimeWeatherServer.h"
 
-#if defined ARDUINO
-#if defined(ESP8266)
-#include <ESP8266WiFi.h>
-#include <ESP8266HTTPClient.h>
-#else
-#include <WiFi.h>
-#include <HTTPClient.h>
-#endif
-#elif defined ESP_PLATFORM
-#else
-#include <curl/curl.h>
-#endif
-
+#include "HTTPClient.h"
 #include "JsonStreamingParser.h"
 
 using namespace mil;
@@ -135,103 +123,40 @@ void TimeWeatherServer::MyJsonListener::endObject()
 	_state = State::None;
 }
 
-//		static const constexpr char* TimeAPIKey = "OFTZYMX4MSPG";
-//
-//
-//	std::string apiURL;
-//	apiURL += "http://api.timezonedb.com";
-//	apiURL += "/v2.1/get-time-zone?key=";
-//	apiURL += TimeAPIKey;
-//	apiURL +="&format=json&by=zone&zone=";
-//	apiURL += _city;
-//
-//
-//
-//http://api.timezonedb.com/v2.1/get-time-zone?key=OFTZYMX4MSPG&format=json&by=position&lat=35.2783&lng=-120.692
-//http://api.timezonedb.com/v2.1/get-time-zone?key=OFTZYMX4MSPG&format=json&by=zone&zone=America/Los_Angeles
-//1732379310
-
-#if defined ARDUINO
-bool
-TimeWeatherServer::fetchAndParse(const char* url, JsonStreamingParser* parser)
+bool TimeWeatherServer::update(const char* zipCode)
 {
-    bool success = true;
+	bool failed = false;
+
+	printf("Getting geolocation feed...\n");
+
+	std::string apiURL;
+	apiURL = "http://api.openweathermap.org/geo/1.0/zip?zip=";
+    apiURL += zipCode;
+	apiURL +="&appid=";
+	apiURL += GeoLocationAPIKey;
+
+	printf("URL='%s'\n", apiURL.c_str());
+
+    JsonStreamingParser parser;
+    MyJsonListener listener;
+    parser.setListener(&listener);
+    JsonStreamingParser* p = &parser;
     
-    WiFiClient client;
-	HTTPClient http;
+    {
+        HTTPClient client([p](const char* buf, uint32_t size)
+        {
+            for (size_t i = 0; i < size; ++i) {
+                p->parse(buf[i]);
+            }
+        });
 
-	http.begin(client, url);
-	int httpCode = http.GET();
-
-	if (httpCode > 0) {
-		printf("    got response: %d\n", int32_t(httpCode));
-
-		if (httpCode == HTTP_CODE_OK) {
-			std::string payload = http.getString().c_str();
-			printf("Got payload, parsing...\n");
-			for (int i = 0; i < payload.length(); ++i) {
-				parser->parse(payload.c_str()[i]);
-			}
-		} else {
-            printf("[HTTP] GET code not ok\n");
-            success = false;
+        if (client.fetch(apiURL.c_str()) && listener.latitude() && listener.longitude()) {
+            _latitude = *listener.latitude();
+            _longitude = *listener.longitude();
+        } else {
+            printf("**** Failed to get geolocation data...\n");
         }
-	} else {
-		printf("[HTTP] GET... failed, error: %s (%d)\n", http.errorToString(httpCode), int32_t(httpCode));
-		success = false;
-	}
-
-	http.end();
-    return success;
-}
-#elif defined ESP_PLATFORM
-bool
-TimeWeatherServer::fetchAndParse(const char* url, JsonStreamingParser* parser)
-{
-    return false;
-}
-#else
-// HTTP callback for Mac
-static size_t httpCB(char* p, size_t size, size_t nmemb, void* parser)
-{
-    size *= nmemb;
-    for (size_t i = 0; i < size; ++i) {
-        reinterpret_cast<JsonStreamingParser*>(parser)->parse(p[i]);
     }
-    return size;
-}
-
-bool
-TimeWeatherServer::fetchAndParse(const char* url, JsonStreamingParser* parser)
-{
-    bool success = true;
-
-    CURL* curl = curl_easy_init();
-    
-    if(curl) {
-        curl_easy_setopt(curl, CURLOPT_URL, url);
- 
-        // Use HTTP/3 but fallback to earlier HTTP if necessary
-        curl_easy_setopt(curl, CURLOPT_HTTP_VERSION, (long) CURL_HTTP_VERSION_3);
-
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, parser);
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, httpCB);
-         
-        // Perform the request, res gets the return code
-        CURLcode res = curl_easy_perform(curl);
-        
-        // Check for errors
-        if(res != CURLE_OK) {
-            printf("curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-        }
-        
-        // always cleanup
-        curl_easy_cleanup(curl);
-    }
-    return success;
-}
-#endif
-
 bool TimeWeatherServer::update(const char* zipCode)
 {
 	bool failed = false;

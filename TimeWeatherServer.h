@@ -122,8 +122,6 @@ namespace mil {
 		static constexpr const char* WeatherAPIKey = "4a5c6eaf78d449f88d5182555210312";
 		static const constexpr char* TimeAPIKey = "OFTZYMX4MSPG";
 
-        bool fetchAndParse(const char* url, JsonStreamingParser*);
-
 		Ticker _ticker;
 				
 		uint32_t _currentTime = 0;
