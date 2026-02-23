@@ -35,6 +35,18 @@ static std::string makeCmdPath(const char* root, const char* cmd, const char* su
     return s;
 }
 
+// There are several built-in commands (adapted from bash) but since we
+// don't current support most of bash's features, this is a small
+// subset:
+//
+//      cd          - Change to passed dir
+//      dirs        - Shows the dirs stack
+//      history     - Show history stack
+//      popd        - Pop the top of the dirs stack and go to the next entry in the stack
+//      pushd       - Go to the passed dire and push it onto the dirs stack
+//      pwd         - Show the current dir
+//      time        - Show the current time
+//
 void
 Shell::handleShellCommand(WiFiPortal* p)
 {
