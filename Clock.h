@@ -7,34 +7,6 @@ Copyright (c) 2021, Chris Marrin
 All rights reserved.
 -------------------------------------------------------------------------*/
 
-// Arduino IDE Setup:
-//
-// Board: LOLIN(WEMOS) D1 R2 & mini
-
-// Clock is the base class for ESP based clocks. It supports an ambient light sensor
-// on AO and a button on a passed in port number (D1 by default)
-//
-// It uses the mil::LocalTimeServer to get the time and mil::WeatherServer for
-// current conditions, current, low and high temps
-//
-// Subclasses must implement the display function to output text to the display.
-
-
-// Pinout
-//
-//      A0 - Light sensor
-//
-// Light sensor
-//
-//                             A0
-//                             |
-//                             |
-//		3.3v -------- 47KΩ ----|---- Sensor -------- GND
-//                                   ^
-//                                   |
-//                             Longer Lead
-//
-
 #include "mil.h"
 
 #include "TimeWeatherServer.h"
