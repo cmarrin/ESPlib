@@ -33,6 +33,44 @@ void Clock::setup()
     });
 }
 
+std::string
+Clock::prettyTime(uint32_t time)
+{
+    std::string s;
+    
+    s += strftime("%a %b ", time);
+    s += prettyDay(time);
+    s += " ";
+
+    struct tm timeinfo;
+    time_t ct = time;
+    gmtime_r(&ct, &timeinfo);
+
+    bool pm = false;
+    uint8_t hour = timeinfo.tm_hour;
+
+    if (hour == 0) {
+        hour = 12;
+    } else if (hour >= 12) {
+        pm = true;
+        if (hour > 12) {
+            hour -= 12;
+        }
+    }
+
+    s += std::to_string(hour);
+    s += ":";
+
+    uint8_t minute = timeinfo.tm_min;
+    if (minute < 10) {
+        s += "0";
+    }
+    s += std::to_string(minute);
+    s += pm ? "pm" : "am";
+    
+    return s;
+}
+
 void Clock::loop()
 {
 	if (_needsUpdate) {
@@ -50,38 +88,9 @@ void Clock::loop()
 				_app->sendInput(Input::Idle, false);
     
                 // Update the status on the webpage
-                _customMenuHTML = "<h3>Info from last request:</h3><p style=\"margin-left: 40px\"><b>Time/Date:</b> ";
-                _customMenuHTML += strftime("%a %b ", _currentTime);
-                _customMenuHTML += prettyDay(_currentTime);
-                _customMenuHTML += " ";
-
-                struct tm timeinfo;
-                time_t ct = _currentTime;
-                gmtime_r(&ct, &timeinfo);
-
-                bool pm = false;
-                uint8_t hour = timeinfo.tm_hour;
-
-                if (hour == 0) {
-                    hour = 12;
-                } else if (hour >= 12) {
-                    pm = true;
-                    if (hour > 12) {
-                        hour -= 12;
-                    }
-                }
-
-                _customMenuHTML += std::to_string(hour);
-                _customMenuHTML += ":";
-
-                uint8_t minute = timeinfo.tm_min;
-                if (minute < 10) {
-                    _customMenuHTML += "0";
-                }
-                _customMenuHTML += std::to_string(minute);
-                _customMenuHTML += pm ? "pm" : "am";
-
-                _customMenuHTML += "</p><p style=\"margin-left: 40px\"><b>weather:</b> ";
+                _customMenuHTML = "<span style='font-size:small;margin-top:0px;'><strong>Time/Date:</strong> ";
+                _customMenuHTML += prettyTime(_currentTime);
+                _customMenuHTML += "</span><br><span style='font-size:small'><strong>weather:</strong> ";
                 _customMenuHTML += weatherConditions();
                 _customMenuHTML += "  Cur:";
                 _customMenuHTML += std::to_string(currentTemp());
@@ -89,7 +98,7 @@ void Clock::loop()
                 _customMenuHTML += std::to_string(highTemp());
                 _customMenuHTML += "°  Lo:";
                 _customMenuHTML += std::to_string(lowTemp());
-                _customMenuHTML += "°</p><hr><br>";
+                _customMenuHTML += "°</span><br><br>";
                 
                 _app->setCustomMenuHTML(_customMenuHTML.c_str());
 			} else {
