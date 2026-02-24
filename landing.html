@@ -239,14 +239,14 @@
                 <strong>freq: </strong><span id="info-cpu-freq">000MHz</span>
                 <span style="padding:5px"> </span>
                 <strong>temp: </strong><span id="info-cpu-temp">00°C</span>
-                <span style="padding:5px"> </span>
-                <strong>uptime: </strong><span id="info-cpu-uptime">00hr</span>
             </span>
             <br>
             <span class="bannerLine3">
                 <strong>Flash size: </strong><span id="info-flash-total">00.0MB</span>
                 <span style="padding:5px"> </span>
                 <strong>used: </strong><span id="info-flash-used">00.0KB</span>
+                <span style="padding:5px"> </span>
+                <strong>uptime: </strong><span id="info-cpu-uptime">00hr</span>
             </span>
             <br>
             <span id="custom-info-html" class="bannerLine3"> <!-- Custom info item --></span>
@@ -355,12 +355,12 @@
         function prettyTime(t)
         {
             if (t < (5 * 60)) {
-                return t.toFixed(0) + "sec";
+                return t.toFixed(0) + "s";
             }
             if (t < (5 * 60 * 60)) {
-                return (t / 60).toFixed(0) + "min";
+                return (t / 60).toFixed(0) + "m";
             }
-            return (t / 3600).toFixed(0) + "hr";
+            return (t / 3600).toFixed(0) + "h";
         }
         
         function fetchLandingSetup()
