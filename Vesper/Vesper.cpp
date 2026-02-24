@@ -25,6 +25,24 @@ Vesper::setup()
 
     printf("Vesper Controller v%s\n", Version);
     
+    setCustomMenuHandler([this]()
+    {
+        std::string s;
+        s = "<span style='font-size:small;margin-top:0px;'><strong>Time/Date:</strong> ";
+        s += _clock->prettyTime();
+        s += " <span style='font-size:x-small'>(at last refresh)</span></span>";
+        s += "<br><span style='font-size:small'><strong>Weather:</strong> ";
+        s += _clock->weatherConditions();
+        s += "  Cur:";
+        s += std::to_string(_clock->currentTemp());
+        s += "°  Hi:";
+        s += std::to_string(_clock->highTemp());
+        s += "°  Lo:";
+        s += std::to_string(_clock->lowTemp());
+        s += "°</span><br><br>";
+        return s;
+    });
+    
     _clock->setup();
 }
 	

@@ -147,8 +147,8 @@ public:
     
     // Sets a string of static HTML that will be inserted into the front page at the
     // "custom" menu item
-    void setCustomMenuHTML(const char* html) { _customHTML = html; }
-    const std::string& getCustomMenuHTML() const { return _customHTML; }
+    void setCustomMenuHandler(std::function<std::string()> cb) { _customHTMLHandler = cb; }
+    const std::string getCustomMenuHTML() const { return _customHTMLHandler ? _customHTMLHandler() : ""; }
 
     const std::string& getGateway() const { return _currentGW; }
     const std::string& getMask() const { return _currentMSK; }
@@ -162,7 +162,7 @@ public:
   private:
     std::string _title;
     std::string _hostname;
-    std::string _customHTML;
+    std::function<std::string()> _customHTMLHandler;
 };
 
 }

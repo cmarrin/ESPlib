@@ -34,16 +34,16 @@ void Clock::setup()
 }
 
 std::string
-Clock::prettyTime(uint32_t time)
+Clock::prettyTime()
 {
     std::string s;
     
-    s += strftime("%a %b ", time);
-    s += prettyDay(time);
+    s += strftime("%a %b ", _currentTime);
+    s += prettyDay(_currentTime);
     s += " ";
 
     struct tm timeinfo;
-    time_t ct = time;
+    time_t ct = _currentTime;
     gmtime_r(&ct, &timeinfo);
 
     bool pm = false;
@@ -86,22 +86,6 @@ void Clock::loop()
 			if (_timeWeatherServer.update(zipcode.c_str())) {
 				_currentTime = _timeWeatherServer.currentTime();
 				_app->sendInput(Input::Idle, false);
-    
-                // Update the status on the webpage
-                _customMenuHTML = "<span style='font-size:small;margin-top:0px;'><strong>Time/Date:</strong> ";
-                _customMenuHTML += prettyTime(_currentTime);
-                _customMenuHTML += " <span style='font-size:x-small'>(at last update)</span></span>";
-                _customMenuHTML += "<br><span style='font-size:small'><strong>Weather:</strong> ";
-                _customMenuHTML += weatherConditions();
-                _customMenuHTML += "  Cur:";
-                _customMenuHTML += std::to_string(currentTemp());
-                _customMenuHTML += "°  Hi:";
-                _customMenuHTML += std::to_string(highTemp());
-                _customMenuHTML += "°  Lo:";
-                _customMenuHTML += std::to_string(lowTemp());
-                _customMenuHTML += "°</span><br><br>";
-                
-                _app->setCustomMenuHTML(_customMenuHTML.c_str());
 			} else {
 				_app->sendInput(Input::UpdateFail, false);
 			}

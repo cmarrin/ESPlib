@@ -110,7 +110,7 @@ public:
     bool getParamValue(const char* id, std::string& value) { return _portal->getParamValue(id, value); }
 
     void setTitle(const char* title) { _portal->setTitle(title); }
-    void setCustomMenuHTML(const char* s) { _portal->setCustomMenuHTML(s); }
+    void setCustomMenuHandler(std::function<std::string()> cb) { _portal->setCustomMenuHandler(cb); }
     void addHTTPHandler(const char* endpoint, WiFiPortal::HTTPMethod method, WiFiPortal::HandlerCB h)
     {
         _portal->addHTTPHandler(endpoint, method, h);
