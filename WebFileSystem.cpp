@@ -374,11 +374,10 @@ WebFileSystem::makeJSON(std::vector<std::pair<std::string, std::string>> json)
 void
 WebFileSystem::handleLandingSetup(WiFiPortal* portal)
 {
-    std::string customMenu;
+    std::string customMenu = portal->getCustomMenuHTML();
     if (exists("/sys/shell.html")) {
-        customMenu = "<form action='/fs/sys/shell.html' method='get'><button class='btn'>Shell</button></form><br/>";
+        customMenu += "<form action='/fs/sys/shell.html' method='get'><button class='btn'>Shell</button></form><br/>";
     }
-    customMenu += portal->getCustomMenuHTML();
 
     std::string response = makeJSON(
         {

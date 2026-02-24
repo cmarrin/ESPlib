@@ -8,6 +8,7 @@
 -------------------------------------------------------------------------*/
 
 #include "Application.h"
+#include "Clock.h"
 
 static constexpr const char* ConfigPortalName = "MT Vesper";
 static constexpr const char* Version = "0.2";
@@ -20,5 +21,9 @@ class Vesper : public mil::Application
 
     virtual void setup() override;
     virtual void loop() override;
+    
+  private:
+    std::unique_ptr<mil::Clock> _clock;
+
 };
 
