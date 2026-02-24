@@ -90,7 +90,8 @@ void Clock::loop()
                 // Update the status on the webpage
                 _customMenuHTML = "<span style='font-size:small;margin-top:0px;'><strong>Time/Date:</strong> ";
                 _customMenuHTML += prettyTime(_currentTime);
-                _customMenuHTML += "</span><br><span style='font-size:small'><strong>weather:</strong> ";
+                _customMenuHTML += " <span style='font-size:x-small'>(at last update)</span></span>";
+                _customMenuHTML += "<br><span style='font-size:small'><strong>Weather:</strong> ";
                 _customMenuHTML += weatherConditions();
                 _customMenuHTML += "  Cur:";
                 _customMenuHTML += std::to_string(currentTemp());
