@@ -18,12 +18,14 @@ static constexpr int MaxZipCodeLength = 40;
 Clock::Clock(Application* app)
         : _app(app)
 		, _timeWeatherServer([this]() { _needsUpdate = true; })
-	{
-        app->addParam("zipcode", "Zipcode/Postal Code, City Name, IP Address or Lat/Long (e.g., 54.851019,-8.140025)", "93405",  MaxZipCodeLength);
-	}
+{
+}
 	
 void Clock::setup()
 {
+    _app->addParam("zipcode", "Zipcode/Postal Code, City Name, IP Address or Lat/Long (e.g., 54.851019,-8.140025)", 
+                    "93405",  MaxZipCodeLength);
+
 	_secondTimer.attach_ms(1000, [this]() {
         _currentTime++;
         _app->sendInput(Input::Idle, true);
