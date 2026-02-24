@@ -79,10 +79,7 @@ static esp_err_t eventHandler(esp_http_client_event_t *evt)
             break;
         case HTTP_EVENT_ON_DATA:
             ESP_LOGD(TAG, "HTTP_EVENT_ON_DATA, len=%d", evt->data_len);
-            if (!esp_http_client_is_chunked_response(evt->client)) {
-                // Write data to a buffer or process it
-                // printf("%.*s", evt->data_len, (char*)evt->data);
-            }
+            reinterpret_cast<HTTPClient*>(evt->user_data)->_handler(reinterpret_cast<const char*>(evt->data), uint32_t(evt->data_len));
             break;
         case HTTP_EVENT_ON_FINISH:
             ESP_LOGD(TAG, "HTTP_EVENT_ON_FINISH");
@@ -104,6 +101,7 @@ HTTPClient::fetch(const char* url)
     esp_http_client_config_t config = { };
     config.url = url;
     config.event_handler = eventHandler;
+    config.user_data = this;
 
     ESP_LOGI(TAG, "HTTP request with url '%s'", url);
 
@@ -117,10 +115,11 @@ HTTPClient::fetch(const char* url)
         ESP_LOGI(TAG, "HTTP GET Status = %d, content_length = %lld",
                 esp_http_client_get_status_code(client),
                 esp_http_client_get_content_length(client));
+        return true;
     } else {
         ESP_LOGE(TAG, "HTTP GET request failed: %s", esp_err_to_name(err));
+        return false;
     }
-    return false;
 }
 #else
 // HTTP callback for Mac
