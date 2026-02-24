@@ -44,9 +44,6 @@ private:
 	uint32_t _currentTime = 0;
 	bool _needsUpdate = true;
 	
-	struct tm  _settingTime;
-	bool _settingTimeChanged = false;
-
     std::string _customMenuHTML;
 };
 
