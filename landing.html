@@ -129,7 +129,7 @@
             border-radius: .3rem;
             background-color: var(--bg-color);
             padding: 5px 5px;
-            margin: 5px 0;
+            margin: 20px 0;
             border: 1px solid #eee;
             border-left-width: 8px;
             border-left-color: #777;
@@ -230,7 +230,6 @@
         <hr>
         <br>
         <div class="update"><button id="update-button" class="btn">Update</button></div>
-        <br>
 
        <!-- Info banner -->
         <div class="msg X">
@@ -248,7 +247,9 @@
                 <strong>Flash size: </strong><span id="info-flash-total">00.0MB</span>
                 <span style="padding:5px"> </span>
                 <strong>used: </strong><span id="info-flash-used">00.0KB</span>
-              </span>
+            </span>
+            <br>
+            <span id="custom-info-html" class="bannerLine3"> <!-- Custom info item --></span>
         </div>
     </div>
     <div id="update-modal" class="update-modal">
@@ -276,6 +277,7 @@
         const infoFlashUsed = document.getElementById('info-flash-used');
         
         const customMenuHTML = document.getElementById('custom-menu-html');
+        const customInfoHTML = document.getElementById('custom-info-html');
 
         const updateButton = document.getElementById('update-button');
         const otaUpdateInput = document.getElementById('ota-update');
@@ -382,6 +384,7 @@
                     infoFlashUsed.innerText = prettySize(Number(items.flashUsed));
                     
                     customMenuHTML.innerHTML = items.customMenuHTML;
+                    customInfoHTML.innerHTML = items.customInfoHTML;
                 })
                 .catch(error => console.error('Error fetching landing setup:', error));
         }
