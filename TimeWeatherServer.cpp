@@ -42,18 +42,15 @@ void TimeWeatherServer::MyJsonListener::key(const std::string& key)
 		case State::None:
         if (key == "timestamp") {
             _state = State::Timestamp;
-        } else if (key == "location") {
-			_state = State::Location;
-		} else if (key == "current") {
+        } else if (key == "lat") {
+            _state = State::Latitude;
+        } else if (key == "lon") {
+            _state = State::Longitude;
+        } else if (key == "current") {
 			_state = State::Current;
 		} else if (key == "forecast") {
 			_state = State::Forecast;
 		}
-		break;
-        case State::Location:
-        if (key == "tz_id") {
-            _state = State::TimeZone;
-        }
 		break;
 		case State::Current:
 		if (key == "temp_f") {
@@ -95,11 +92,15 @@ void TimeWeatherServer::MyJsonListener::value(const std::string& value)
         _currentTime = uint32_t(atol(value.c_str()));
         _state = State::None;
         break;
-        case State::TimeZone:
-        _timeZone = value;
-        _state = State::Location;
+       case State::Latitude:
+        _latitude = float(atof(value.c_str()));
+        _state = State::None;
         break;
-		case State::ConditionText: 
+      case State::Longitude:
+        _longitude = float(atof(value.c_str()));
+        _state = State::None;
+        break;
+  		case State::ConditionText: 
 		_conditions = value;
 		_state = State::Current;
 		break;
@@ -157,32 +158,37 @@ bool TimeWeatherServer::update(const char* zipCode)
             printf("**** Failed to get geolocation data...\n");
         }
     }
-bool TimeWeatherServer::update(const char* zipCode)
-{
-	bool failed = false;
-
+    
 	printf("Getting weather feed...\n");
 
-	std::string apiURL;
 	apiURL = "http://api.weatherapi.com/v1/forecast.json?key=";
 	apiURL += WeatherAPIKey;
 	apiURL +="&q=";
-	apiURL += zipCode ? zipCode : "00000";
+	apiURL += std::to_string(_latitude);
+	apiURL +=",";
+	apiURL += std::to_string(_longitude);
 	apiURL +="&days=1";
 
 	printf("URL='%s'\n", apiURL.c_str());
 
-    JsonStreamingParser parser;
-    MyJsonListener listener;
-    parser.setListener(&listener);
+    parser.reset();
+    
+    {
+        HTTPClient client([p](const char* buf, uint32_t size)
+        {
+            for (size_t i = 0; i < size; ++i) {
+                p->parse(buf[i]);
+            }
+        });
 
-    if (fetchAndParse(apiURL.c_str(), &parser) && listener.currentTemp() && listener.lowTemp() && listener.highTemp() && listener.conditions()) {
-        _currentTemp = *listener.currentTemp();
-        _lowTemp = *listener.lowTemp();
-        _highTemp = *listener.highTemp();
-        _conditions = *listener.conditions();
-    } else {
-        printf("**** Failed to get weather, using old values...\n");
+        if (client.fetch(apiURL.c_str()) && listener.currentTemp() && listener.lowTemp() && listener.highTemp() && listener.conditions()) {
+            _currentTemp = *listener.currentTemp();
+            _lowTemp = *listener.lowTemp();
+            _highTemp = *listener.highTemp();
+            _conditions = *listener.conditions();
+        } else {
+            printf("**** Failed to get weather, using old values...\n");
+        }
     }
     
 	printf("Getting time feed...\n");
@@ -190,17 +196,30 @@ bool TimeWeatherServer::update(const char* zipCode)
 	apiURL = "http://api.timezonedb.com";
 	apiURL += "/v2.1/get-time-zone?key=";
 	apiURL += TimeAPIKey;
-	apiURL +="&format=json&by=zone&zone=";
+	apiURL +="&format=json&by=position&lat=";
+	apiURL += std::to_string(_latitude);
+	apiURL +="&lng=";
+	apiURL += std::to_string(_longitude);
  
 	apiURL += listener.timeZone() ? *listener.timeZone() : "00000";
 
 	printf("URL='%s'\n", apiURL.c_str());
 
     parser.reset();
-    if (fetchAndParse(apiURL.c_str(), &parser) && listener.currentTime() && listener.timeZone()) {
-        _currentTime = *listener.currentTime();
-    } else {
-        printf("**** Failed to get time, using old value...\n");
+
+    {
+        HTTPClient client([p](const char* buf, uint32_t size)
+        {
+            for (size_t i = 0; i < size; ++i) {
+                p->parse(buf[i]);
+            }
+        });
+
+        if (client.fetch(apiURL.c_str()) && listener.currentTime()) {
+            _currentTime = *listener.currentTime();
+        } else {
+            printf("**** Failed to get time, using old value...\n");
+        }
     }
     
 	// Check at interval of UpdateFrequency seconds

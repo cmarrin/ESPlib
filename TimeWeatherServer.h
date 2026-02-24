@@ -67,6 +67,8 @@ namespace mil {
 			virtual void startObject() override { }
    
             std::optional<uint32_t> currentTime() const { return _currentTime; }
+            std::optional<float> latitude() const { return _latitude; }
+            std::optional<float> longitude() const { return _longitude; }
             std::optional<int32_t> currentTemp() const { return _currentTemp; }
 			std::optional<int32_t> lowTemp() const { return _lowTemp; }
 			std::optional<int32_t> highTemp() const { return _highTemp; }
@@ -77,8 +79,8 @@ namespace mil {
 			enum class State {
 				None,
                 Timestamp,
-                Location,
-                    TimeZone,
+                Latitude,
+                Longitude,
 				Current,
 					CurrentTemp,
 					Condition,
@@ -93,6 +95,8 @@ namespace mil {
 			State _state = State::None;
 		
 			std::optional<uint32_t> _currentTime = std::nullopt;
+			std::optional<float> _longitude = std::nullopt;
+			std::optional<float> _latitude = std::nullopt;
 			std::optional<int32_t> _currentTemp = 0;
 			std::optional<int32_t> _lowTemp = 0;
 			std::optional<int32_t> _highTemp = 0;
@@ -111,6 +115,9 @@ namespace mil {
 		static std::string strftime(const char* format, const struct tm&);
 		static std::string prettyDay(uint32_t time);
 
+        float latitude() const { return _latitude; }
+        float longitude() const { return  _longitude; }
+        
 		uint32_t currentTemp() const { return _currentTemp; }
 		uint32_t lowTemp() const { return _lowTemp; }
 		uint32_t highTemp() const { return _highTemp; }
@@ -119,11 +126,15 @@ namespace mil {
 		bool update(const char* zipCode);
 		
 	private:
+		static constexpr const char* GeoLocationAPIKey = "f561ef7b384f3a56cb541c505b252e3a";
 		static constexpr const char* WeatherAPIKey = "4a5c6eaf78d449f88d5182555210312";
 		static const constexpr char* TimeAPIKey = "OFTZYMX4MSPG";
 
 		Ticker _ticker;
-				
+
+        float _latitude = 0;
+        float _longitude = 0;
+        
 		uint32_t _currentTime = 0;
 
 		int32_t _currentTemp = 0;
