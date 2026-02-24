@@ -60,7 +60,7 @@ private:
     static void _static_callback(void *arg);
 
     callback_function_t _cb = nullptr;
-    esp_timer_handle_t _timer;
+    esp_timer_handle_t _timer = nullptr;
 };
 
 #else // Mac
