@@ -1,32 +1,22 @@
-/*
-Copyright (c) 2009-2018 Chris Marrin (chris@marrin.com)
+/*-------------------------------------------------------------------------
+This source file is a part of mil
+
+For the latest info, see http://www.marrin.org/
+
+Copyright (c) 2021, Chris Marrin
 All rights reserved.
+-------------------------------------------------------------------------*/
 
-Redistribution and use in source and binary forms, with or without modification, 
-are permitted provided that the following conditions are met:
-
-    - Redistributions of source code must retain the above copyright notice, this 
-      list of conditions and the following disclaimer.
-
-    - Redistributions in binary form must reproduce the above copyright notice, 
-      this list of conditions and the following disclaimer in the documentation 
-      and/or other materials provided with the distribution.
-
-    - Neither the name of Marrinator nor the names of its contributors may be 
-      used to endorse or promote products derived from this software without 
-      specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
-EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
-OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
-SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
-TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR 
-BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
-CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
-ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH 
-DAMAGE.
-*/
+// The Time/Weather server accesses several servers to get the current
+// time and today's weather forecast. The process is as follows:
+//
+//  - Use the openweathermap geolocation api to get the current lat/long from zipcode
+//      (ex: http://api.openweathermap.org/geo/1.0/zip?zip=93405&appid=f561ef7b384f3a56cb541c505b252e3a)
+//  - Use the lat/long to get the weather forecast from weatherapi
+//      (ex: https://api.weatherapi.com/v1/forecast.json?key=4a5c6eaf78d449f88d5182555210312&q=35.2901,-120.6817)
+//  - Use the lat/long to get the current time from timezonedb
+//      (ex: http://api.timezonedb.com/v2.1/get-time-zone?key=OFTZYMX4MSPG&format=json&by=position&lat=35.2901&lng=-120.6817)
+//
 
 #pragma once
 
