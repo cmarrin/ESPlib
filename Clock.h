@@ -7,6 +7,8 @@ Copyright (c) 2021, Chris Marrin
 All rights reserved.
 -------------------------------------------------------------------------*/
 
+#pragma once
+
 #include "mil.h"
 
 #include "TimeWeatherServer.h"
