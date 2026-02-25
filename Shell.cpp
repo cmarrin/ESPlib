@@ -43,7 +43,7 @@ static std::string makeCmdPath(const char* root, const char* cmd, const char* su
 //      [ ] cd          - Change to passed dir
 //      [✓] date        - Shows the current date
 //      [ ] dirs        - Shows the dirs stack
-//      [ ] history     - Show history stack
+//      [✓] history     - Show history stack (implemented in shell.html)
 //      [ ] popd        - Pop the top of the dirs stack and go to the next entry in the stack
 //      [ ] pushd       - Go to the passed dire and push it onto the dirs stack
 //      [ ] pwd         - Show the current dir

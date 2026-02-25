@@ -97,7 +97,7 @@
                 hostname: "web"
             };
 
-            const matches = [];
+            const matches = [ "history", "clear", "help" ];
 
             term.setCompleter(str => {
                 if (!matches.length) {
@@ -325,6 +325,7 @@
         Commands:
           <cmd> <args>    execute lua command
           clear           clear the terminal screen
+          history         show history
           help            display this list
         `;
 
@@ -344,6 +345,15 @@
                     term.clear();
                     return Promise.resolve(null);
                 } 
+                // Show history
+                else if (cmd == "history") {
+                    let i = 1;
+                    for (it of term.history) {
+                        term.write(("   " + i++).slice(-4) + "  ");
+                        term.writeln(it);
+                    }
+                    return Promise.resolve(null);
+                }
                 // Send command to server
                 else {
                     return new Promise(async (res, rej) => {
