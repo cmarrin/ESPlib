@@ -76,7 +76,7 @@ Shell::handleShellCommand(WiFiPortal* p)
         if (cmd == "date") {
             std::string date(" ");
             date += _app->clock() ? _app->clock()->prettyTime().c_str() : "no clock";
-            date += "\n\n";
+            date += "\n";
             p->sendHTTPResponse(200, "text/plain", date.c_str());
             return;
         }

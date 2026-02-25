@@ -113,6 +113,7 @@
 
             // print prompt and get ready for user input
             function promptUser() {
+                term.writeSafe("\n");
                 term.write(`<span class="prompt1">[${state.username}@${state.hostname}]</span>\n`);
                 term.write(`<span class="prompt2">$ </span>`);
                 term.resume();

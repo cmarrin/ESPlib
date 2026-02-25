@@ -84,7 +84,7 @@ for _, dir in ipairs(dirs) do
 					break;
 				end
 			end
-			__print__("\n\n")
+			__print__("\n")
 		end
 	end
 end
