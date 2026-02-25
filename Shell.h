@@ -28,6 +28,8 @@ class Shell
     
   private:
     void handleShellCommand(WiFiPortal*);
+    
+    Application* _app = nullptr;
 };
 
 }

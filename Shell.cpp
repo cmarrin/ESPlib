@@ -22,7 +22,8 @@ static const char* TAG = "Shell";
 bool
 Shell::begin(Application* app)
 {
-    app->addHTTPHandler("/shell", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p) { handleShellCommand(p); });
+    _app = app;
+    _app->addHTTPHandler("/shell", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p) { handleShellCommand(p); });
     return true;
 }
 
@@ -39,13 +40,13 @@ static std::string makeCmdPath(const char* root, const char* cmd, const char* su
 // don't current support most of bash's features, this is a small
 // subset:
 //
-//      cd          - Change to passed dir
-//      dirs        - Shows the dirs stack
-//      history     - Show history stack
-//      popd        - Pop the top of the dirs stack and go to the next entry in the stack
-//      pushd       - Go to the passed dire and push it onto the dirs stack
-//      pwd         - Show the current dir
-//      time        - Show the current time
+//      [ ] cd          - Change to passed dir
+//      [✓] date        - Shows the current date
+//      [ ] dirs        - Shows the dirs stack
+//      [ ] history     - Show history stack
+//      [ ] popd        - Pop the top of the dirs stack and go to the next entry in the stack
+//      [ ] pushd       - Go to the passed dire and push it onto the dirs stack
+//      [ ] pwd         - Show the current dir
 //
 void
 Shell::handleShellCommand(WiFiPortal* p)
@@ -69,6 +70,16 @@ Shell::handleShellCommand(WiFiPortal* p)
         std::vector<std::string>args = HTTPParser::split(cmd, ' ');
         cmd = args.front();
         args.erase(args.begin());
+        
+        // See if it's a built-in command
+        // FIXME: For now just do an if cascade. Maybe we use a map at some time?
+        if (cmd == "date") {
+            std::string date(" ");
+            date += _app->clock() ? _app->clock()->prettyTime().c_str() : "no clock";
+            date += "\n\n";
+            p->sendHTTPResponse(200, "text/plain", date.c_str());
+            return;
+        }
         
         // FIXME: for now all commands are .lua in the sys folder
         std::string path = makeCmdPath("/sys/", cmd.c_str(), ".lua");
