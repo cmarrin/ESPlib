@@ -34,6 +34,7 @@ All rights reserved.
 #include <cstring>
 
 #include "mil.h"
+#include "Clock.h"
 #include "StateMachine.h"
 #include "Blinker.h"
 #include "System.h"
@@ -69,7 +70,7 @@ enum class Message { Startup, Connecting, NetConfig, NetFail, UpdateFail,
 class Application
 {
 public:
-	Application(WiFiPortal* portal, const char* configPortalName);
+	Application(WiFiPortal* portal, const char* configPortalName, bool haveClock);
 	
 	virtual void setup();
 	virtual void loop();
@@ -119,6 +120,8 @@ public:
     {
         _portal->addHTTPHandler(endpoint, WiFiPortal::HTTPMethod::Get, h);
     }
+    
+    Clock* clock() const { return _clock.get(); }
 
 protected:
     System _system;
@@ -145,6 +148,8 @@ private:
     
     bool _havePreUserQuestion = false;
     bool _havePostUserQuestion = false;
+    
+    std::unique_ptr<Clock> _clock;
 };
 
 }

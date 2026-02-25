@@ -14,12 +14,15 @@ using namespace mil;
 static constexpr int MaxHostnameLength = 40;
 static const char* TAG = "Application";
 
-Application::Application(WiFiPortal* portal, const char* configPortalName)
+Application::Application(WiFiPortal* portal, const char* configPortalName, bool haveClock)
     : _portal(portal)
     , _stateMachine({ { Input::LongPress, State::AskPreUserQuestion } })
     , _blinker(BlinkSampleRate)
     , _configPortalName(configPortalName)
 {
+    if (haveClock) {
+        _clock = std::make_unique<Clock>(this);
+    }
 }
 
 void
@@ -27,6 +30,28 @@ Application::setup()
 {
     _portal->begin(&_wfs);
 	startStateMachine();
+
+    setCustomInfoHandler([this]()
+    {
+        std::string s;
+        s = "<strong>Time/Date:</strong> ";
+        s += clock() ? clock()->prettyTime() : "no clock";
+        s += " (at last refresh)";
+        s += "<br><strong>Weather:</strong> ";
+        s += clock() ? clock()->weatherConditions() : "---";
+        s += "  Cur:";
+        s += std::to_string(clock() ? clock()->currentTemp() : 0);
+        s += "°  Hi:";
+        s += std::to_string(clock() ? clock()->highTemp() : 0);
+        s += "°  Lo:";
+        s += std::to_string(clock() ? clock()->lowTemp() : 0);
+        s += "°";
+        return s;
+    });
+    
+    if (clock()) {
+        clock()->setup();
+    }
 }
 
 void
@@ -36,6 +61,10 @@ Application::loop()
 		startNetwork();
 	}
     _portal->process();
+    
+    if (clock()) {
+        clock()->loop();
+    }
 }
 
 void

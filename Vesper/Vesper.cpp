@@ -10,9 +10,8 @@
 #include "Vesper.h"
 
 Vesper::Vesper(mil::WiFiPortal* portal)
-    : mil::Application(portal, ConfigPortalName)
+    : mil::Application(portal, ConfigPortalName, true)
 {
-    _clock = std::unique_ptr<mil::Clock>(new mil::Clock(this));
 }
 
 void
@@ -24,31 +23,10 @@ Vesper::setup()
     setTitle((std::string("<center>MarrinTech Vesper Controller v") + Version + "</center>").c_str());
 
     printf("Vesper Controller v%s\n", Version);
-    
-    setCustomInfoHandler([this]()
-    {
-        std::string s;
-        s = "<strong>Time/Date:</strong> ";
-        s += _clock->prettyTime();
-        s += " (at last refresh)";
-        s += "<br><strong>Weather:</strong> ";
-        s += _clock->weatherConditions();
-        s += "  Cur:";
-        s += std::to_string(_clock->currentTemp());
-        s += "°  Hi:";
-        s += std::to_string(_clock->highTemp());
-        s += "°  Lo:";
-        s += std::to_string(_clock->lowTemp());
-        s += "°";
-        return s;
-    });
-    
-    _clock->setup();
 }
 	
 void
 Vesper::loop()
 {
     Application::loop();
-    _clock->loop();
 }
