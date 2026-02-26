@@ -38,7 +38,7 @@ for _, dir in ipairs(dirs) do
 	local root = wfs.open(dir)
 
 	if not root then
-		__print__("'", dir, "' dpes not exist\n")
+		__print__("'", dir, "' does not exist\n")
 	elseif not root:isdir() then
 		__print__("'", dir, "' is not a directory\n")
 	else
