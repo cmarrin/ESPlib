@@ -24,7 +24,35 @@ Shell::begin(Application* app)
 {
     _app = app;
     _app->addHTTPHandler("/shell", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p) { handleShellCommand(p); });
+    
+    // Set cwd
+    _dirs.clear();
+    std::string cwd;
+    if (!_app->getNVSParam("cwd", cwd)) {
+        // Not found, set cwd to '/'
+        cwd = "/";
+        _app->setNVSParam("cwd", cwd);
+    }
+    
+    _dirs.push_back(cwd);
+    
     return true;
+}
+
+std::string
+Shell::makeAbsolutePath(const std::string& path) const
+{
+    if (path.empty()) {
+        return cwd();
+    }
+    if (path[0] == '/') {
+        return path;
+    }
+    if (path.length() >= 2 && path[0] == '.' && path[1] == '/') {
+        // Relative path
+        return cwd() + path.substr(1);
+    }
+    return std::filesystem::path(cwd() + "/" + path).lexically_normal().string();
 }
 
 // This is hackery. When trying to make a path in handleShellCommand the suffix would always get dropped

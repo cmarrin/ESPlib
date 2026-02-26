@@ -123,9 +123,14 @@ class FS
     
     // Create an absolute path starting with _cwd
     std::filesystem::path makePath(const char* path);
+    
+    std::filesystem::path rootDir() const { return _rootDir; }
+    
+    void setCWD(const char* cwd) { _cwd = cwd; }
 
   private:
     std::filesystem::path _rootDir;
+    std::filesystem::path _cwd = "/";
 };
 
 }

@@ -204,7 +204,7 @@ File::getNextDirectoryPath()
     std::filesystem::path path = _dir->path();
     
     // This is the "real" path. We need to turn it back into a virtual path
-    std::string root = LittleFS.makePath("");
+    std::string root = LittleFS.rootDir();
     std::string virtualPath = path.string().erase(0, root.length() - 1);
     path = virtualPath;
     
@@ -346,17 +346,20 @@ FS::rmdir(const char* path)
 std::filesystem::path
 FS::makePath(const char* path)
 {
-    // All paths must be absolute. If the incoming path starts with '/'
-    // prepend _cwd to it. Otherwise prepend with _cwd, then '/'.
+    std::filesystem::path realPath;
+    
     if (path == nullptr || path[0] == '\0') {
         // Empty path. just use _cwd
-        return _rootDir;
+        realPath = _rootDir.string() +  _cwd.string();
+    } else {
+        realPath = _rootDir;
+        if (path[0] != '/') {
+            realPath += _cwd;
+        }
+        realPath += std::string("/") + path;
     }
-    
-    auto p = _rootDir;
-    p += path;
-    p = p.lexically_normal();
-    return p;
+    std::filesystem::path n = realPath.lexically_normal();
+    return n;
 }
 
 #endif

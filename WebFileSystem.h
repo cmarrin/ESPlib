@@ -41,6 +41,7 @@ class WebFileSystem
     static bool rmdir(const char* path);
 
     static std::string realPath(const std::string& path);
+    static void setCWD(const char* cwd) { LittleFS.setCWD(cwd); }
     
     void sendLandingPage(WiFiPortal*);
     void sendWiFiPage(WiFiPortal*);
