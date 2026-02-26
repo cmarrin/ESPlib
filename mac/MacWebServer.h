@@ -67,7 +67,7 @@ private:
 
     void sendStaticFile(const char* filename, const char* path);
     
-    std::string buildHTTPHeader(int statuscode, size_t contentLength, std::string mimetype, const HTTPParser::ArgMap& extraHeaders = HTTPParser::ArgMap());
+    std::string buildHTTPHeader(int statuscode, size_t contentLength, const char* mimetype, const HTTPParser::ArgMap& extraHeaders = HTTPParser::ArgMap());
     
     struct HTTPHandler
     {

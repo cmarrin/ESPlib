@@ -122,11 +122,11 @@ static const char* responseCodeToString(int code)
 }
 
 std::string
-WebServer::buildHTTPHeader(int statuscode, size_t contentLength, std::string mimetype, const HTTPParser::ArgMap& extraHeaders)
+WebServer::buildHTTPHeader(int statuscode, size_t contentLength, const char* mimetype, const HTTPParser::ArgMap& extraHeaders)
 {
     std::ostringstream buffer;
     buffer << "HTTP/1.1 " << statuscode << " " << responseCodeToString(statuscode) << "\r\n";
-    buffer << "content-type" << ": " << mimetype << "\r\n";
+    buffer << "content-type" << ": " << (mimetype ?: "text/plain") << "\r\n";
     buffer << "content-length" << ": " << std::to_string(contentLength) << "\r\n";
     
     for (const auto& it : extraHeaders) {
@@ -145,7 +145,7 @@ WebServer::sendHTTPResponse(int code, const char* mimetype, const char* data, co
     }
     
     std::string body(data);
-    std::string response = buildHTTPHeader(code, body.size(), mimetype ?: "text/plain", extraHeaders);
+    std::string response = buildHTTPHeader(code, body.size(), mimetype, extraHeaders);
     response += body;
     write(_fdClient, response.c_str(), response.length());
 }

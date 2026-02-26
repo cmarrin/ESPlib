@@ -287,9 +287,8 @@ IDFWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const char* data
         ESP_LOGE(TAG, "Can't send HTTP response. No active request.");
         return;
     }
-
-
-    ESP_ERROR_CHECK(httpd_resp_set_type(_activeRequest, mimetype));
+    
+    ESP_ERROR_CHECK(httpd_resp_set_type(_activeRequest, mimetype ?: "text/plain"));
     ESP_ERROR_CHECK(httpd_resp_set_hdr(_activeRequest, "Content-Length", std::to_string(length).c_str()));
     if (gzip) {
         ESP_ERROR_CHECK(httpd_resp_set_hdr(_activeRequest, "Content-Encoding", "gzip"));
@@ -307,7 +306,7 @@ IDFWiFiPortal::streamHTTPResponse(fs::File& file, const char* mimetype, bool att
     disp += "\"";
     
     ESP_ERROR_CHECK(httpd_resp_set_hdr(_activeRequest, "Content-Disposition", disp.c_str()));
-    ESP_ERROR_CHECK(httpd_resp_set_type(_activeRequest, mimetype));
+    ESP_ERROR_CHECK(httpd_resp_set_type(_activeRequest, mimetype ?: "text/plain"));
     
     uint8_t buf[256];
 
