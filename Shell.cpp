@@ -76,6 +76,15 @@ static std::string makeCmdPath(const char* root, const char* cmd, const char* su
 //      [ ] pushd       - Go to the passed dire and push it onto the dirs stack
 //      [ ] pwd         - Show the current dir
 //
+
+// cd, dirs, popd, pushd and pwd all have to do with maintaining the current working
+// directory (cwd). When cd is executed the cwd is set to that and saved as an NVS
+// param. There is also a stack of directories. When 'pushd' is executed the cwd
+// is changed and saved like in 'cd' but it is also pushed onto the top of the
+// stack. When popd is called the top of the dirs stack is popped and the next
+// entry is made the cwd. The dirs stack is not preserved as an NVS param so at each
+// reboot it is reset to the cwd.
+
 void
 Shell::handleShellCommand(WiFiPortal* p)
 {
@@ -106,6 +115,35 @@ Shell::handleShellCommand(WiFiPortal* p)
             date += _app->clock() ? _app->clock()->prettyTime().c_str() : "no clock";
             date += "\n";
             p->sendHTTPResponse(200, "text/plain", date.c_str());
+            return;
+        }
+        
+        if (cmd == "pwd") {
+            p->sendHTTPResponse(200, "text/plain", (" " + _dirs.back() + "\n").c_str());
+            return;
+        }
+        
+        if (cmd == "cd") {
+            // cd pops the top of the dirs stack and replaces it
+            std::string cwd = makeAbsolutePath(args.empty() ? "/" : args[0]);
+
+            if (!WebFileSystem::exists(cwd.c_str())) {
+                p->sendHTTPResponse(200, "text/plain", (" cd: " + cwd + ": No such file or directory\n").c_str());
+            } else {
+                _dirs.pop_back();
+                _dirs.push_back(cwd);
+                WebFileSystem::setCWD(cwd.c_str());
+                p->sendHTTPResponse(200);
+            }
+            return;
+        }
+        
+        if (cmd == "dirs") {
+            std::string dirs;
+            for (const auto& it : _dirs) {
+                dirs += it + " ";
+            }
+            p->sendHTTPResponse(200, "text/plain", (" " + dirs + "\n").c_str());
             return;
         }
         
