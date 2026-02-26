@@ -191,7 +191,7 @@ MacWiFiPortal::setNVSParam(const char* id, const std::string& value)
 }
 
 bool
-MacWiFiPortal::getNVSParam(const char* id, std::string& value)
+MacWiFiPortal::getNVSParam(const char* id, std::string& value) const
 {
     std::string keyName = std::string("/.nvs/") + id;
     if (!WebFileSystem::exists(keyName.c_str())) {

@@ -134,7 +134,7 @@ public:
 
     // Get/Set/Erase params in non-volatile storage
     virtual void setNVSParam(const char* id, const std::string& value) { }
-    virtual bool getNVSParam(const char* id, std::string& value) { return false; }
+    virtual bool getNVSParam(const char* id, std::string& value) const { return false; }
     virtual void eraseNVSParam(const char* id) { }
     
     // Set the title to be shown at the top of the front web page

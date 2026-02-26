@@ -526,7 +526,7 @@ IDFWiFiPortal::setNVSParam(const char* id, const std::string& value)
 }
 
 bool
-IDFWiFiPortal::getNVSParam(const char* id, std::string& value)
+IDFWiFiPortal::getNVSParam(const char* id, std::string& value) const
 {
     nvs_handle_t paramHandle;
 
@@ -544,6 +544,7 @@ IDFWiFiPortal::getNVSParam(const char* id, std::string& value)
         }
     } else {
         value = "";
+        err = ESP_ERR_NOT_FOUND;
     }
 
     nvs_close(paramHandle);

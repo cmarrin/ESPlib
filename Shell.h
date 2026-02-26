@@ -11,6 +11,7 @@ All rights reserved.
 
 #include <string>
 #include <thread>
+#include <vector>
 
 // Cross platform shell server. Uses sockets to open port 23 and when
 // connected runs a shell based on linenoise. Executes lua programs
@@ -29,7 +30,13 @@ class Shell
   private:
     void handleShellCommand(WiFiPortal*);
     
+    std::string makeAbsolutePath(const std::string& path) const;
+    
+    std::string cwd() const { return _dirs.empty() ? "/" : _dirs.back(); }
+    
     Application* _app = nullptr;
+    
+    std::vector<std::string> _dirs;
 };
 
 }
