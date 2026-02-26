@@ -31,6 +31,12 @@ Application::setup()
     _portal->begin(&_wfs);
 	startStateMachine();
 
+    // Setup the top level web page. If there is a /sys/shell.html in the filesystem
+    // we add a button for it at the top of the landing page.
+    if (!_wfs.begin(this, true)) {
+        System::logE(TAG, "file system initialization failed");
+    }
+    
     setCustomInfoHandler([this]()
     {
         std::string s;
@@ -111,12 +117,6 @@ Application::startNetwork()
 	_enableNetwork = true;
 	_blinker.setRate(ConnectedRate);
  
-    // Setup the top level web page. If there is a /sys/shell.html in the filesystem
-    // we add a button for it at the top of the landing page.
-    if (!_wfs.begin(this, true)) {
-        System::logE(TAG, "file system initialization failed");
-    }
-    
     _portal->startWebPortal();
 	delay(500);
  

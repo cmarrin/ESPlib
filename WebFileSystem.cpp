@@ -82,6 +82,11 @@ WebFileSystem::sendWiFiPage(WiFiPortal* portal)
 bool
 WebFileSystem::begin(Application* app, bool format)
 {
+    bool retval = LittleFS.begin(format);
+    if (!retval) {
+        printf("***** error mounting littlefs\n");
+    }
+    
     app->addHTTPHandler("/", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p) { sendLandingPage(p); });
     
     app->addHTTPHandler("/get-landing-setup", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p) { handleLandingSetup(p); });
@@ -178,11 +183,6 @@ WebFileSystem::begin(Application* app, bool format)
 
     app->addHTTPHandler("/upload", WiFiPortal::HTTPMethod::Post, [this](WiFiPortal* p) { handleUpload(p); });
 
-    bool retval = LittleFS.begin(format);
-    if (!retval) {
-        printf("***** error mounting littlefs\n");
-    }
-    
     return retval;
 }
 
