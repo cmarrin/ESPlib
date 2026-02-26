@@ -68,13 +68,13 @@ static std::string makeCmdPath(const char* root, const char* cmd, const char* su
 // don't current support most of bash's features, this is a small
 // subset:
 //
-//      [ ] cd          - Change to passed dir
-//      [✓] date        - Shows the current date
-//      [ ] dirs        - Shows the dirs stack
-//      [✓] history     - Show history stack (implemented in shell.html)
-//      [ ] popd        - Pop the top of the dirs stack and go to the next entry in the stack
-//      [ ] pushd       - Go to the passed dire and push it onto the dirs stack
-//      [ ] pwd         - Show the current dir
+//      cd          - Change to passed dir
+//      date        - Shows the current date
+//      dirs        - Shows the dirs stack
+//      history     - Show history stack (implemented in shell.html)
+//      popd        - Pop the top of the dirs stack and go to the next entry in the stack
+//      pushd       - Go to the passed dire and push it onto the dirs stack
+//      pwd         - Show the current dir
 //
 
 // cd, dirs, popd, pushd and pwd all have to do with maintaining the current working
@@ -84,6 +84,16 @@ static std::string makeCmdPath(const char* root, const char* cmd, const char* su
 // stack. When popd is called the top of the dirs stack is popped and the next
 // entry is made the cwd. The dirs stack is not preserved as an NVS param so at each
 // reboot it is reset to the cwd.
+
+void
+Shell::showDirs(WiFiPortal* p) const
+{
+    std::string dirs;
+    for (int i = int(_dirs.size() - 1); i >= 0; --i) {
+        dirs += _dirs[i] + " ";
+    };
+    p->sendHTTPResponse(200, "text/plain", (" " + dirs + "\n").c_str());
+}
 
 void
 Shell::handleShellCommand(WiFiPortal* p)
@@ -123,27 +133,41 @@ Shell::handleShellCommand(WiFiPortal* p)
             return;
         }
         
-        if (cmd == "cd") {
+        if (cmd == "cd" || cmd == "pushd") {
             // cd pops the top of the dirs stack and replaces it
+            // pushd just pushes the dir onto the top of the stack
             std::string cwd = makeAbsolutePath(args.empty() ? "/" : args[0]);
 
             if (!WebFileSystem::exists(cwd.c_str())) {
-                p->sendHTTPResponse(200, "text/plain", (" cd: " + cwd + ": No such file or directory\n").c_str());
+                p->sendHTTPResponse(200, "text/plain", (" " + cmd + ": " + cwd + ": No such file or directory\n").c_str());
             } else {
-                _dirs.pop_back();
+                if (cmd == "cd") {
+                    _dirs.pop_back();
+                }
                 _dirs.push_back(cwd);
                 WebFileSystem::setCWD(cwd.c_str());
-                p->sendHTTPResponse(200);
+                if (cmd == "cd") {
+                    p->sendHTTPResponse(200);
+                } else {
+                    showDirs(p);
+                }
+            }
+            return;
+        }
+        
+        if (cmd == "popd") {
+            if (_dirs.size() == 1) {
+                p->sendHTTPResponse(200, "text/plain", " popd: directory stack empty\n");
+            } else {
+                _dirs.pop_back();
+                WebFileSystem::setCWD(_dirs.back().c_str());
+                showDirs(p);
             }
             return;
         }
         
         if (cmd == "dirs") {
-            std::string dirs;
-            for (const auto& it : _dirs) {
-                dirs += it + " ";
-            }
-            p->sendHTTPResponse(200, "text/plain", (" " + dirs + "\n").c_str());
+            showDirs(p);
             return;
         }
         

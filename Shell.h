@@ -34,6 +34,8 @@ class Shell
     
     std::string cwd() const { return _dirs.empty() ? "/" : _dirs.back(); }
     
+    void showDirs(WiFiPortal* p) const;
+    
     Application* _app = nullptr;
     
     std::vector<std::string> _dirs;
