@@ -120,6 +120,7 @@ HTTPClient::fetch(const char* url)
         ESP_LOGE(TAG, "HTTP GET request failed: %s", esp_err_to_name(err));
         return false;
     }
+    esp_http_client_cleanup(client);
 }
 #else
 // HTTP callback for Mac
