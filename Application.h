@@ -50,7 +50,7 @@ namespace mil {
 static constexpr uint32_t ConnectingRate = 500;
 static constexpr uint32_t ConfigRate = 200;
 static constexpr uint32_t ConnectedRate = 2000;
-static constexpr uint32_t BlinkSampleRate = 1;
+static constexpr uint32_t BlinkSampleRate = 50;
 
 enum class State {
 	Connecting, NetConfig, NetFail, UpdateFail, 

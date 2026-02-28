@@ -9,6 +9,8 @@ All rights reserved.
 
 #include "System.h"
 
+static const char* TAG = "System";
+
 // Logging
 std::string
 System::vformat(const char* fmt, va_list args)
@@ -81,18 +83,52 @@ System::restart()
 //**************************************************************************
 
 #include "driver/gpio.h"
+#include "led_strip.h"
 
 // Assume this is an addressable RGB LED on GPIO pin 8
 static constexpr int BLINK_GPIO = 8;
 
+static led_strip_handle_t ledStrip;
+
 void
 System::initLED()
 {
+    led_strip_config_t strip_config = {
+        .strip_gpio_num = BLINK_GPIO, // The GPIO that connected to the LED strip's data line
+        .max_leds = 1,      // The number of LEDs in the strip,
+        .led_model = LED_MODEL_WS2812,        // LED strip model
+        // set the color order of the strip: GRB
+        .color_component_format = {
+            .format = {
+                .r_pos = 1, // red is the second byte in the color data
+                .g_pos = 0, // green is the first byte in the color data
+                .b_pos = 2, // blue is the third byte in the color data
+                .num_components = 3, // total 3 color components
+            },
+        },
+        .flags = {
+            .invert_out = false, // don't invert the output signal
+        }
+    };
+
+    // LED strip backend configuration: SPI
+    led_strip_spi_config_t spi_config = {
+        .clk_src = SPI_CLK_SRC_DEFAULT, // different clock source can lead to different power consumption
+        .spi_bus = SPI2_HOST,           // SPI bus ID
+        .flags = {
+            .with_dma = true, // Using DMA can improve performance and help drive more LEDs
+        }
+    };
+
+    // LED Strip object handle
+    ESP_ERROR_CHECK(led_strip_new_spi_device(&strip_config, &spi_config, &ledStrip));
 }
 
 void
 System::setLED(uint32_t index, uint8_t r, uint8_t g, uint8_t b)
 {
+    ESP_ERROR_CHECK(led_strip_set_pixel(ledStrip, index, r, g, b));
+    ESP_ERROR_CHECK(led_strip_refresh(ledStrip));
 }
 
 void

@@ -71,6 +71,7 @@ Application::loop()
     if (clock()) {
         clock()->loop();
     }
+    _blinker.update();
 }
 
 void

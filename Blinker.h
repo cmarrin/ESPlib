@@ -52,26 +52,38 @@ DAMAGE.
 
 namespace mil {
 
-static constexpr uint32_t OnCounts = 5;
+static constexpr uint32_t OnCounts = 1;
 class Blinker
 {
 public:
     Blinker(uint32_t sampleRate)
         : _sampleRate(sampleRate)
     {
-        System::initLED();
-        System::setLED(0, 0, 0, 0);
     }
 
     void setRate(uint32_t rate)
     {
         if (!_isAttached) {
-            _ticker.attach_ms(_sampleRate, [this]() { blink(); });
+            _ticker.attach_ms(_sampleRate, [this]() { _needUpdate = true; });
             _isAttached = true;
         }
         
         _rate = (rate + (_sampleRate / 2)) / _sampleRate;
         _count = 0;
+    }
+    
+    void update()
+    {
+        if (_needInit) {
+            System::initLED();
+            System::setLED(0, 0, 0, 0);
+            _needInit = false;
+        }
+
+        if (_needUpdate) { 
+            blink();
+            _needUpdate = false;
+        }
     }
 
 private:
@@ -96,6 +108,8 @@ private:
     uint32_t _count = 0;
     uint32_t _sampleRate;
     bool _isAttached = false;
+    bool _needInit = true;
+    bool _needUpdate = false;
 };
 
 }
