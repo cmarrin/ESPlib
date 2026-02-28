@@ -453,7 +453,7 @@
 		49E65B8C2E9C3A7600D3C6C5 /* Shell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Shell.h; path = ../Shell.h; sourceTree = SOURCE_ROOT; };
 		49E65B8D2E9C3A7600D3C6C5 /* Shell.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Shell.cpp; path = ../Shell.cpp; sourceTree = SOURCE_ROOT; };
 		49E65B8E2E9C3A7600D3C6C5 /* WiFiPortal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WiFiPortal.h; path = ../WiFiPortal.h; sourceTree = SOURCE_ROOT; };
-		49EE649F2F5389FD00EDA9AA /* testLED.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = testLED.lua; path = ../testLED.lua; sourceTree = SOURCE_ROOT; };
+		49EE64A22F53B20B00EDA9AA /* testLED.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = testLED.lua; path = ../testLED.lua; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -1185,7 +1185,7 @@
 				4934EB132F0B50460054B78E /* lua.xcodeproj */,
 				491673B82EA7D06B0028A6F0 /* LuaBridge */,
 				49CAA5C92F11E434005B1107 /* cvtHTML.sh */,
-				49EE649F2F5389FD00EDA9AA /* testLED.lua */,
+				49EE64A22F53B20B00EDA9AA /* testLED.lua */,
 				499E4C282F3C0B19006BD9C1 /* test.lua */,
 				4968BB552F2FC46A0038B8A9 /* ls.lua */,
 				4968BB432F2823C00038B8A9 /* shell.html */,
