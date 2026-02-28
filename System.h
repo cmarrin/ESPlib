@@ -128,11 +128,12 @@ class System
     static bool gpioReadPin(uint8_t pin);
     static uint32_t gpioReadAnalog(uint8_t pin);
     
-    // This manages the LED, allowing both GPIO based and LED strip based lights
-    // In the case of a GPIO based light, index is ignored and if r or g or b are
-    // all 0 then the light is off, otherwise it is on.
-    static void initLED();
-    static void setLED(uint32_t index, uint8_t r, uint8_t g, uint8_t b);
+    // This interfaces to LEDs. It can be a single LED connected to a GPIO
+    // pin, an addressable RGB LED, or a strip of addressable LEDs.
+    //static void initLED(uint8_t channel, ledPin);
+    static void initLED(uint8_t channel, uint8_t pin, uint32_t numLEDs);
+    static void setLED(uint8_t channel, uint32_t index, uint8_t r, uint8_t g, uint8_t b);
+    static void refreshLEDs(uint8_t channel);
     
     static void restart();
     

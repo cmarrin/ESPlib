@@ -83,47 +83,57 @@ System::restart()
 #include "driver/gpio.h"
 #include "led_strip.h"
 
-// Assume this is an addressable RGB LED on GPIO pin 8
-static constexpr int BLINK_GPIO = 8;
+static constexpr int NumLEDChannels = 4;
 
-static led_strip_handle_t ledStrip;
+static led_strip_handle_t ledStrip[NumLEDChannels];
 
 void
-System::initLED()
+System::initLED(uint8_t channel, uint8_t pin, uint32_t numLeds)
 {
-    led_strip_config_t strip_config = { };
-    strip_config.strip_gpio_num = BLINK_GPIO; // The GPIO that connected to the LED strip's data line
-    strip_config.max_leds = 1;      // The number of LEDs in the strip,
-    strip_config.led_model = LED_MODEL_WS2812;        // LED strip model
-        // set the color order of the strip: GRB
-    strip_config.color_component_format = { };
-    strip_config.color_component_format.format = { };
-    strip_config.color_component_format.format.r_pos = 1; // red is the second byte in the color data
-    strip_config.color_component_format.format.g_pos = 0; // green is the first byte in the color data
-    strip_config.color_component_format.format.b_pos = 2; // blue is the third byte in the color data
-    strip_config.color_component_format.format.num_components = 3; // total 3 color components
-    strip_config.flags = { };
-    strip_config.flags.invert_out = false; // don't invert the output signal
+    if (channel >= NumLEDChannels) {
+        return;
+    }
+
+    led_strip_config_t strip_config = {
+        .strip_gpio_num = pin,
+        .max_leds = numLeds,
+        .led_model = LED_MODEL_WS2812,
+        .color_component_format = LED_STRIP_COLOR_COMPONENT_FMT_GRB,
+        .flags = { .invert_out = false },
+    };
 
     // LED strip backend configuration: RMT
     led_strip_rmt_config_t rmt_config = {
         .clk_src = RMT_CLK_SRC_DEFAULT, // different clock source can lead to different power consumption
         .resolution_hz = 10 * 1000 * 1000,
-        .mem_block_symbols = 64,
+        .mem_block_symbols = 0,
         .flags = {
             .with_dma = false,
         }
     };
 
     // LED Strip object handle
-    ESP_ERROR_CHECK(led_strip_new_rmt_device(&strip_config, &rmt_config, &ledStrip));
+    ESP_ERROR_CHECK(led_strip_new_rmt_device(&strip_config, &rmt_config, &ledStrip[channel]));
 }
 
 void
-System::setLED(uint32_t index, uint8_t r, uint8_t g, uint8_t b)
+System::setLED(uint8_t channel, uint32_t index, uint8_t r, uint8_t g, uint8_t b)
 {
-    ESP_ERROR_CHECK(led_strip_set_pixel(ledStrip, index, r, g, b));
-    ESP_ERROR_CHECK(led_strip_refresh(ledStrip));
+    if (channel >= NumLEDChannels) {
+        return;
+    }
+    
+    ESP_ERROR_CHECK(led_strip_set_pixel(ledStrip[channel], index, r, g, b));
+}
+
+void
+System::refreshLEDs(uint8_t channel)
+{
+    if (channel >= NumLEDChannels) {
+        return;
+    }
+    
+    ESP_ERROR_CHECK(led_strip_refresh(ledStrip[channel]));
 }
 
 void
@@ -219,12 +229,17 @@ Ticker::_static_callback(void *arg)
 //**************************************************************************
 
 void
-System::initLED()
+System::initLED(uint8_t channel, uint8_t pin, uint32_t numLeds)
 {
 }
 
 void
-System::setLED(uint32_t index, uint8_t r, uint8_t g, uint8_t b)
+System::setLED(uint8_t channel, uint32_t index, uint8_t r, uint8_t g, uint8_t b)
+{
+}
+
+void
+System::refreshLEDs(uint8_t channel)
 {
 }
 

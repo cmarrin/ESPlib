@@ -60,8 +60,6 @@ static inline uint32_t millis() { return uint32_t((double) clock() / CLOCKS_PER_
 
 static inline void delay(uint32_t ms) { useconds_t us = useconds_t(ms) * 1000; usleep(us); }
 
-static constexpr uint8_t LED_BUILTIN = 0;
-
 #define NEO_GRB 0
 #define NEO_KHZ800 0
 

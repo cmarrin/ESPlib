@@ -53,11 +53,13 @@ DAMAGE.
 namespace mil {
 
 static constexpr uint32_t OnCounts = 1;
+
 class Blinker
 {
 public:
-    Blinker(uint32_t sampleRate)
+    Blinker(uint32_t sampleRate, uint8_t pin)
         : _sampleRate(sampleRate)
+        , _pin(pin)
     {
     }
 
@@ -80,15 +82,17 @@ private:
         }
         
         if (_needInit) {
-            System::initLED();
-            System::setLED(0, 0, 0, 0);
+            System::initLED(0, _pin, 1);
+            System::setLED(0, 0, 0, 0, 0);
             _needInit = false;
         }
 
         if (_count == 0) {
-            System::setLED(0, 0, 0, 1);
+            System::setLED(0, 0, 0, 0, 1);
+            System::refreshLEDs(0);
         } else if (_count == OnCounts){
-            System::setLED(0, 0, 0, 0);
+            System::setLED(0, 0, 0, 0, 0);
+            System::refreshLEDs(0);
         }
         if (++_count >= _rate) {
             _count = 0;
@@ -96,9 +100,10 @@ private:
     }
 
     Ticker _ticker;
+    uint32_t _sampleRate;
+    uint8_t _pin = 0;
     uint32_t _rate = 0;
     uint32_t _count = 0;
-    uint32_t _sampleRate;
     bool _isAttached = false;
     bool _needInit = true;
 };

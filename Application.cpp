@@ -11,13 +11,14 @@ All rights reserved.
 
 using namespace mil;
 
+static constexpr uint8_t LED_BUILTIN = 8;
 static constexpr int MaxHostnameLength = 40;
 static const char* TAG = "Application";
 
 Application::Application(WiFiPortal* portal, const char* configPortalName, bool haveClock)
     : _portal(portal)
     , _stateMachine({ { Input::LongPress, State::AskPreUserQuestion } })
-    , _blinker(BlinkSampleRate)
+    , _blinker(BlinkSampleRate, LED_BUILTIN)
     , _configPortalName(configPortalName)
 {
     if (haveClock) {
