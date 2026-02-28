@@ -64,7 +64,7 @@ public:
     void setRate(uint32_t rate)
     {
         if (!_isAttached) {
-            _ticker.attach_ms(_sampleRate, [this]() { _needUpdate = true; });
+            _ticker.attach_ms(_sampleRate, [this]() { blink(); });
             _isAttached = true;
         }
         
@@ -72,20 +72,6 @@ public:
         _count = 0;
     }
     
-    void update()
-    {
-        if (_needInit) {
-            System::initLED();
-            System::setLED(0, 0, 0, 0);
-            _needInit = false;
-        }
-
-        if (_needUpdate) { 
-            blink();
-            _needUpdate = false;
-        }
-    }
-
 private:
     void blink()
     {
@@ -93,6 +79,12 @@ private:
             return;
         }
         
+        if (_needInit) {
+            System::initLED();
+            System::setLED(0, 0, 0, 0);
+            _needInit = false;
+        }
+
         if (_count == 0) {
             System::setLED(0, 0, 0, 1);
         } else if (_count == OnCounts){
@@ -109,7 +101,6 @@ private:
     uint32_t _sampleRate;
     bool _isAttached = false;
     bool _needInit = true;
-    bool _needUpdate = false;
 };
 
 }
