@@ -105,17 +105,18 @@ System::initLED()
     strip_config.flags = { };
     strip_config.flags.invert_out = false; // don't invert the output signal
 
-    // LED strip backend configuration: SPI
-    led_strip_spi_config_t spi_config = {
-        .clk_src = SPI_CLK_SRC_DEFAULT, // different clock source can lead to different power consumption
-        .spi_bus = SPI2_HOST,           // SPI bus ID
+    // LED strip backend configuration: RMT
+    led_strip_rmt_config_t rmt_config = {
+        .clk_src = RMT_CLK_SRC_DEFAULT, // different clock source can lead to different power consumption
+        .resolution_hz = 10 * 1000 * 1000,
+        .mem_block_symbols = 64,
         .flags = {
-            .with_dma = true, // Using DMA can improve performance and help drive more LEDs
+            .with_dma = false,
         }
     };
 
     // LED Strip object handle
-    ESP_ERROR_CHECK(led_strip_new_spi_device(&strip_config, &spi_config, &ledStrip));
+    ESP_ERROR_CHECK(led_strip_new_rmt_device(&strip_config, &rmt_config, &ledStrip));
 }
 
 void
