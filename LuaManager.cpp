@@ -10,6 +10,7 @@ All rights reserved.
 #include "LuaManager.h"
 
 #include "LuaWFS.h"
+#include "System.h"
 #include "WebFileSystem.h"
 
 #include <cstring>
@@ -101,6 +102,45 @@ LuaManager::~LuaManager()
     lua_close(_luaState);
 }
 
+// Access the LEDs from Lua
+static int luaInitLED(lua_State* L)
+{
+    lua_Number numLEDs = lua_tonumber(L, -1);
+    lua_Number pin = lua_tonumber(L, -2);
+    lua_Number channel = lua_tonumber(L, -3);
+    
+    System::initLED(channel, pin, numLEDs);
+    return 0;
+}
+
+static int luaSetLED(lua_State* L)
+{
+    lua_Number b = lua_tonumber(L, -1);
+    lua_Number g = lua_tonumber(L, -2);
+    lua_Number r = lua_tonumber(L, -3);
+    lua_Number index = lua_tonumber(L, -4);
+    lua_Number channel = lua_tonumber(L, -5);
+    
+    System::setLED(channel, index, r, g, b);
+    return 0;
+}
+
+static int luaRefreshLEDs(lua_State* L)
+{
+    lua_Number channel = lua_tonumber(L, -1);
+    
+    System::refreshLEDs(channel);
+    return 0;
+}
+
+static int luaDelay(lua_State* L)
+{
+    lua_Number ms = lua_tonumber(L, -1);
+    
+    delay(ms);
+    return 0;
+}
+
 std::shared_ptr<LuaManager>
 LuaManager::execute(const std::string& filename, int cpl, std::vector<std::string> args)
 {
@@ -116,7 +156,17 @@ LuaManager::execute(const std::string& filename, int cpl, std::vector<std::strin
     // Set the require path
     std::string realRequirePath = WebFileSystem::realPath("/sys/?.lua");
     luaL_dostring(mgr->_luaState, (std::string("package.path = \"") + realRequirePath + "\"").c_str());
-    
+
+    // Set the LED and delay functions
+    lua_pushcfunction(mgr->_luaState, luaInitLED);
+    lua_setglobal(mgr->_luaState, "initLED");
+    lua_pushcfunction(mgr->_luaState, luaSetLED);
+    lua_setglobal(mgr->_luaState, "setLED");
+    lua_pushcfunction(mgr->_luaState, luaRefreshLEDs);
+    lua_setglobal(mgr->_luaState, "refreshLEDs");
+    lua_pushcfunction(mgr->_luaState, luaDelay);
+    lua_setglobal(mgr->_luaState, "delay");
+
     // Set an 'arg' global with the args
     lua_createtable(mgr->_luaState, int(args.size()), 0);
     int i = 1;
