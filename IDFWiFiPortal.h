@@ -123,6 +123,8 @@ public:
     std::string _ssid;
     std::string _pass;
     
+    HandlerCB _configHandler;
+    
     bool _otaUpdateAborted = false;
     esp_ota_handle_t _otaUpdateHandle = 0;
     const esp_partition_t* _updatePartition = nullptr;

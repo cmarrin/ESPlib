@@ -69,7 +69,7 @@ IDFWiFiPortal::resetSettings()
 void
 IDFWiFiPortal::setConfigHandler(HandlerCB f)
 {
-    printf("*** setConfigHandler not implemented\n");
+    _configHandler = f;
 }
 
 esp_err_t
@@ -591,6 +591,10 @@ static void dhcpSetCaptivePortalURL()
 void
 IDFWiFiPortal::startProvisioning()
 {
+    // Call the config handler
+    if (_configHandler) {
+        _configHandler(this);
+    }
     esp_netif_create_default_wifi_ap();
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
