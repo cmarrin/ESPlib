@@ -86,12 +86,18 @@ System::restart()
 static constexpr int NumLEDChannels = 4;
 
 static led_strip_handle_t ledStrip[NumLEDChannels];
+static bool ledStripInited[NumLEDChannels] = { 0 };
 
 void
 System::initLED(uint8_t channel, uint8_t pin, uint32_t numLeds)
 {
     if (channel >= NumLEDChannels) {
         return;
+    }
+    
+    if (ledStripInited[channel]) {
+        led_strip_del(ledStrip[channel]);
+        ledStripInited[channel] = false;
     }
 
     led_strip_config_t strip_config = {
@@ -114,6 +120,7 @@ System::initLED(uint8_t channel, uint8_t pin, uint32_t numLeds)
 
     // LED Strip object handle
     ESP_ERROR_CHECK(led_strip_new_rmt_device(&strip_config, &rmt_config, &ledStrip[channel]));
+    ledStripInited[channel] = true;
 }
 
 void
