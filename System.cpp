@@ -9,8 +9,6 @@ All rights reserved.
 
 #include "System.h"
 
-static const char* TAG = "System";
-
 // Logging
 std::string
 System::vformat(const char* fmt, va_list args)
@@ -93,23 +91,19 @@ static led_strip_handle_t ledStrip;
 void
 System::initLED()
 {
-    led_strip_config_t strip_config = {
-        .strip_gpio_num = BLINK_GPIO, // The GPIO that connected to the LED strip's data line
-        .max_leds = 1,      // The number of LEDs in the strip,
-        .led_model = LED_MODEL_WS2812,        // LED strip model
+    led_strip_config_t strip_config = { };
+    strip_config.strip_gpio_num = BLINK_GPIO; // The GPIO that connected to the LED strip's data line
+    strip_config.max_leds = 1;      // The number of LEDs in the strip,
+    strip_config.led_model = LED_MODEL_WS2812;        // LED strip model
         // set the color order of the strip: GRB
-        .color_component_format = {
-            .format = {
-                .r_pos = 1, // red is the second byte in the color data
-                .g_pos = 0, // green is the first byte in the color data
-                .b_pos = 2, // blue is the third byte in the color data
-                .num_components = 3, // total 3 color components
-            },
-        },
-        .flags = {
-            .invert_out = false, // don't invert the output signal
-        }
-    };
+    strip_config.color_component_format = { };
+    strip_config.color_component_format.format = { };
+    strip_config.color_component_format.format.r_pos = 1; // red is the second byte in the color data
+    strip_config.color_component_format.format.g_pos = 0; // green is the first byte in the color data
+    strip_config.color_component_format.format.b_pos = 2; // blue is the third byte in the color data
+    strip_config.color_component_format.format.num_components = 3; // total 3 color components
+    strip_config.flags = { };
+    strip_config.flags.invert_out = false; // don't invert the output signal
 
     // LED strip backend configuration: SPI
     led_strip_spi_config_t spi_config = {
