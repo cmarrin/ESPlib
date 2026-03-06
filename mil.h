@@ -56,8 +56,6 @@ DAMAGE.
 #include <chrono>
 #include <functional>
 
-static inline uint32_t millis() { return uint32_t((double) clock() / CLOCKS_PER_SEC * 1000); }
-
 static inline void delay(uint32_t ms) { useconds_t us = useconds_t(ms) * 1000; usleep(us); }
 
 #define NEO_GRB 0

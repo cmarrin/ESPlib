@@ -135,6 +135,8 @@ class System
     static void setLED(uint8_t channel, uint32_t index, uint8_t r, uint8_t g, uint8_t b);
     static void refreshLEDs(uint8_t channel);
     
+    static uint32_t millis();
+    
     static void restart();
     
     static std::string vformat(const char* fmt, va_list);

@@ -68,6 +68,12 @@ System::gpioReadAnalog(uint8_t pin)
 	return analogRead(pin);
 }
 
+uint32_t
+System::millis()
+{
+    return millis();
+}
+
 void
 System::restart()
 {
@@ -167,6 +173,12 @@ System::gpioReadAnalog(uint8_t pin)
 {
     // FIXME: Implement
 	return 0;
+}
+
+uint32_t
+System::millis()
+{
+    return uint32_t(esp_timer_get_time() / 1000);
 }
 
 void
@@ -270,6 +282,13 @@ uint32_t
 System::gpioReadAnalog(uint8_t pin)
 {
 	return 0;
+}
+
+uint32_t
+System::millis()
+{
+    printf("***** time=%f, %d\n", double(clock()), int(CLOCKS_PER_SEC));
+    return uint32_t(double(clock()) / CLOCKS_PER_SEC * 1000);
 }
 
 void
