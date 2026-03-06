@@ -141,6 +141,12 @@ static int luaDelay(lua_State* L)
     return 0;
 }
 
+static int luaMillis(lua_State* L)
+{
+    lua_pushnumber(L, System::millis());
+    return 1;
+}
+
 std::shared_ptr<LuaManager>
 LuaManager::execute(const std::string& filename, int cpl, std::vector<std::string> args)
 {
@@ -166,6 +172,8 @@ LuaManager::execute(const std::string& filename, int cpl, std::vector<std::strin
     lua_setglobal(mgr->_luaState, "refreshLEDs");
     lua_pushcfunction(mgr->_luaState, luaDelay);
     lua_setglobal(mgr->_luaState, "delay");
+    lua_pushcfunction(mgr->_luaState, luaMillis);
+    lua_setglobal(mgr->_luaState, "millis");
 
     // Set an 'arg' global with the args
     lua_createtable(mgr->_luaState, int(args.size()), 0);
