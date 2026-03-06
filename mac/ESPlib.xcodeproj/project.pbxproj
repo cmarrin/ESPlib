@@ -408,11 +408,12 @@
 		4968BB432F2823C00038B8A9 /* shell.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = shell.html; path = ../shell.html; sourceTree = SOURCE_ROOT; };
 		4968BB552F2FC46A0038B8A9 /* ls.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = ls.lua; path = ../ls.lua; sourceTree = SOURCE_ROOT; };
 		496D0E282F4A92FB005772FD /* libcurl.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libcurl.tbd; path = usr/lib/libcurl.tbd; sourceTree = SDKROOT; };
-		499E4C282F3C0B19006BD9C1 /* test.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = test.lua; path = ../test.lua; sourceTree = SOURCE_ROOT; };
+		499E4C282F3C0B19006BD9C1 /* LEDRace.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = LEDRace.lua; path = ../LEDRace.lua; sourceTree = SOURCE_ROOT; };
 		49CAA5C92F11E434005B1107 /* cvtHTML.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = cvtHTML.sh; path = ../cvtHTML.sh; sourceTree = SOURCE_ROOT; };
 		49CAA5CA2F15F5B9005B1107 /* landing.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = landing.html; path = ../landing.html; sourceTree = SOURCE_ROOT; };
 		49D723E62F329F1D0057DE87 /* LuaWFS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LuaWFS.h; path = ../LuaWFS.h; sourceTree = "<group>"; };
 		49D723E82F329F2D0057DE87 /* LuaWFS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = LuaWFS.cpp; path = ../LuaWFS.cpp; sourceTree = "<group>"; };
+		49DBBCCD2F5A6217001930A0 /* LEDCylon.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = LEDCylon.lua; path = ../LEDCylon.lua; sourceTree = SOURCE_ROOT; };
 		49E65B012E9C36F800D3C6C5 /* libESPlib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libESPlib.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		49E65B632E9C3A7600D3C6C5 /* Application.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Application.h; path = ../Application.h; sourceTree = SOURCE_ROOT; };
 		49E65B642E9C3A7600D3C6C5 /* Application.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Application.cpp; path = ../Application.cpp; sourceTree = SOURCE_ROOT; };
@@ -453,7 +454,7 @@
 		49E65B8C2E9C3A7600D3C6C5 /* Shell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Shell.h; path = ../Shell.h; sourceTree = SOURCE_ROOT; };
 		49E65B8D2E9C3A7600D3C6C5 /* Shell.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Shell.cpp; path = ../Shell.cpp; sourceTree = SOURCE_ROOT; };
 		49E65B8E2E9C3A7600D3C6C5 /* WiFiPortal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WiFiPortal.h; path = ../WiFiPortal.h; sourceTree = SOURCE_ROOT; };
-		49EE64A22F53B20B00EDA9AA /* testLED.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = testLED.lua; path = ../testLED.lua; sourceTree = SOURCE_ROOT; };
+		49EE64A22F53B20B00EDA9AA /* LEDTest.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = LEDTest.lua; path = ../LEDTest.lua; sourceTree = SOURCE_ROOT; };
 		49EE64A32F56298D00EDA9AA /* instcoo.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = instcoo.sh; path = ../instcoo.sh; sourceTree = SOURCE_ROOT; };
 		49EE64A42F562B5900EDA9AA /* instlcl.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = instlcl.sh; path = ../instlcl.sh; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -1189,8 +1190,9 @@
 				49CAA5C92F11E434005B1107 /* cvtHTML.sh */,
 				49EE64A32F56298D00EDA9AA /* instcoo.sh */,
 				49EE64A42F562B5900EDA9AA /* instlcl.sh */,
-				49EE64A22F53B20B00EDA9AA /* testLED.lua */,
-				499E4C282F3C0B19006BD9C1 /* test.lua */,
+				49EE64A22F53B20B00EDA9AA /* LEDTest.lua */,
+				49DBBCCD2F5A6217001930A0 /* LEDCylon.lua */,
+				499E4C282F3C0B19006BD9C1 /* LEDRace.lua */,
 				4968BB552F2FC46A0038B8A9 /* ls.lua */,
 				4968BB432F2823C00038B8A9 /* shell.html */,
 				49E65B712E9C3A7600D3C6C5 /* filemgr.html */,

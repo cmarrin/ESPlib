@@ -7,7 +7,7 @@ initLED(1, 10, 8)
 
 local down = false
 
-for j = 1, 10, 1 do
+for j = 1, 4, 1 do
 	for i = 0, 50, 1 do
 		local brightness = down and (50 - i) or i
 		setLED(1, 0, 0, 0, brightness)
@@ -19,7 +19,7 @@ for j = 1, 10, 1 do
 		setLED(1, 6, brightness, brightness, brightness)
 		setLED(1, 7, brightness, 0, 0)
 		refreshLEDs(1)
-		delay(40)
+		delay(20)
 	end
 	down = not down
 end
@@ -38,7 +38,7 @@ for j = 1, 4, 1 do
 			setLED(1, b, 0, 0, brightness)
 		end
 		refreshLEDs(1)
-		delay(40)
+		delay(20)
 	end
 	down = not down
 end
@@ -59,7 +59,7 @@ for j = 1, 4, 1 do
 			end
 		end
 		refreshLEDs(1)
-		delay(40)
+		delay(20)
 	end
 	down = not down
 end
