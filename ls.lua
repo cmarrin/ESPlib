@@ -22,10 +22,10 @@ for opt, arg in getopt(arg, 'l', dirs) do
 	if opt == 'a' then
 		long = true
     elseif opt == '?' then
-        print('error: unknown option: ' .. arg)
+        __print__('error: unknown option: ' .. arg .. "\n")
         os.exit(1)
     elseif opt == ':' then
-        print('error: missing argument: ' .. arg)
+        __print__('error: missing argument: ' .. arg .. "\n")
         os.exit(1)
     end
 end
