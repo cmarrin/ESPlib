@@ -26,61 +26,23 @@ LuaManager::printHandler(lua_State *L)
 {
     std::unique_lock<std::mutex> lk(_mutex);
 
-    // Lua print is equivalent to println in other languages, so add a '\n'
     int nargs = lua_gettop(L);
-    std::string s;
     
     for (int i = 1; i <= nargs; i++) {
-        const char* nextString = lua_tostring(L, i);
-        if (nextString) {
-            size_t nextStringSize = strlen(nextString);
-
-            // If an incoming string is longer than PrintBufferSize, ignore it
-            if (nextStringSize >= PrintBufferSize) {
-                continue;
+        const char* s = lua_tostring(L, i);
+        if (s) {
+            size_t size = strlen(s);
+            if (_printCB) {
+                _printCB(s, size);
+            } else {
+                printf("%s", s);
             }
-        
-            size_t currentSize = strlen(_printBuffer);
-            
-            if (currentSize + nextStringSize >= PrintBufferSize) {
-                // Mark buffer full and wait
-                _status = Status::PrintBufferFull;
-                _statusCond.wait(lk);
-            }
-            
-            strcat(_printBuffer, nextString);
         }
     }
 }
 
-LuaManager::Status
-LuaManager::getPrintStrings(std::string& s)
-{
-    std::unique_lock<std::mutex> lk(_mutex);
-    
-    s = _printBuffer;
-    _printBuffer[0] = '\0';
-    
-    if (_status == Status::PrintBufferFull) {
-        _status = Status::Running;
-        _statusCond.notify_all();
-    }
-    return _status;
-}
-
-extern "C" {
-    int printLua(lua_State *L)
-    {
-        // Get the LuaManager ptr
-        lua_getglobal(L, "__LuaManager__");
-        LuaManager* self = (LuaManager*) lua_touserdata(L, -1);
-        lua_pop(L, 1);
-        self->printHandler(L);
-        return 0;
-    }
-}
-
-LuaManager::LuaManager()
+LuaManager::LuaManager(PrintCB printCB)
+    : _printCB(printCB)
 {
     _id = nextId();
     
@@ -91,15 +53,22 @@ LuaManager::LuaManager()
     // Set this as a lua global
     lua_pushlightuserdata(_luaState, this);
     lua_setglobal(_luaState, "__LuaManager__");
-    
-    // add a print method
-    lua_register(_luaState, "__print__", printLua);
 }
 
 LuaManager::~LuaManager()
 {
     clearId(_id);
     lua_close(_luaState);
+}
+
+static int printLua(lua_State *L)
+{
+    // Get the LuaManager ptr
+    lua_getglobal(L, "__LuaManager__");
+    LuaManager* self = (LuaManager*) lua_touserdata(L, -1);
+    lua_pop(L, 1);
+    self->printHandler(L);
+    return 0;
 }
 
 // Access the LEDs from Lua
@@ -148,9 +117,10 @@ static int luaMillis(lua_State* L)
 }
 
 std::shared_ptr<LuaManager>
-LuaManager::execute(const std::string& filename, int cpl, std::vector<std::string> args)
+LuaManager::execute(const std::string& filename, int cpl, std::vector<std::string> args,
+                    std::function<void(const char*, size_t)> printCB)
 {
-    std::shared_ptr<LuaManager> mgr = std::make_shared<LuaManager>();
+    std::shared_ptr<LuaManager> mgr = std::make_shared<LuaManager>(printCB);
     std::unique_lock<std::mutex> lk(_mutex);
     
     mgr->_command = filename;
@@ -162,6 +132,9 @@ LuaManager::execute(const std::string& filename, int cpl, std::vector<std::strin
     // Set the require path
     std::string realRequirePath = WebFileSystem::realPath("/sys/?.lua");
     luaL_dostring(mgr->_luaState, (std::string("package.path = \"") + realRequirePath + "\"").c_str());
+
+    // add a print method
+    lua_register(mgr->_luaState, "__print__", printLua);
 
     // Set the LED and delay functions
     lua_pushcfunction(mgr->_luaState, luaInitLED);
@@ -244,10 +217,21 @@ LuaManager::commandThread(const std::string& filename)
     }
 
     std::string realPath = WebFileSystem::realPath(filename);
-    int result = luaL_dofile(_luaState, realPath.c_str());
-
-    std::unique_lock<std::mutex> lk(_mutex);
-    _status = Status::Done;
+    if (luaL_dofile(_luaState, realPath.c_str()) != LUA_OK) {
+        std::unique_lock<std::mutex> lk(_mutex);
+        _status = Status::Error;
+        _errorString = lua_tostring(_luaState, -1);
+        std::string err = " Lua file '" + command() + "' failed to run: " + _errorString + "\n";
+        if (_printCB) {
+            _printCB(err.c_str(), err.length());
+        } else {
+            printf("%s", err.c_str());
+        }
+    } else {
+        std::unique_lock<std::mutex> lk(_mutex);
+        _status = Status::Done;
+        _errorString = "";
+    }
+    
     _statusCond.notify_all();
-    _result = result;
 }

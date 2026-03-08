@@ -13,6 +13,9 @@ All rights reserved.
 #include <thread>
 #include <vector>
 
+#include "LuaManager.h"
+#include "libtelnet.h"
+
 // Cross platform shell server. Uses sockets to open port 23 and when
 // connected runs a shell based on linenoise. Executes lua programs
 // from the file system, along with some built-in commands
@@ -28,17 +31,38 @@ class Shell
     bool begin(Application* app);
     
   private:
-    void handleShellCommand(WiFiPortal*);
+    void handleShellCommand(const std::string& cmd, PrintCB);
+    void tcpServerTask();
+    void tcpClientTask(int sock);
+    void telnetHandler(int sock, telnet_t* telnet, telnet_event_t* event);
     
+    static void _telnetHandler(telnet_t* telnet, telnet_event_t* ev, void* userData)
+    {
+        TelnetClient* client = reinterpret_cast<TelnetClient*>(userData);
+        client->_shell->telnetHandler(client->_sock, telnet, ev);
+    }
+        
     std::string makeAbsolutePath(const std::string& path) const;
     
     std::string cwd() const { return _dirs.empty() ? "/" : _dirs.back(); }
     
-    void showDirs(WiFiPortal* p) const;
+    void showDirs(PrintCB) const;
     
     Application* _app = nullptr;
     
     std::vector<std::string> _dirs;
+    
+    std::thread _serverThread;
+    
+    struct TelnetClient
+    {
+        TelnetClient(int sock, Shell* shell) : _sock(sock), _shell(shell) { }
+        int _sock;
+        Shell* _shell;
+    };
+    
+    int _termChars = 80;
+    int _termLines = 24;
 };
 
 }

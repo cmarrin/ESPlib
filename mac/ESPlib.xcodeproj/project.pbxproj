@@ -24,6 +24,8 @@
 		496D0E292F4A92FB005772FD /* libcurl.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 496D0E282F4A92FB005772FD /* libcurl.tbd */; };
 		49D723E72F329F270057DE87 /* LuaWFS.h in Headers */ = {isa = PBXBuildFile; fileRef = 49D723E62F329F1D0057DE87 /* LuaWFS.h */; };
 		49D723EA2F329FFC0057DE87 /* LuaWFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49D723E82F329F2D0057DE87 /* LuaWFS.cpp */; };
+		49DBBCDD2F5B546B001930A0 /* libtelnet.h in Headers */ = {isa = PBXBuildFile; fileRef = 49DBBCDB2F5B546B001930A0 /* libtelnet.h */; };
+		49DBBCDE2F5B546B001930A0 /* libtelnet.c in Sources */ = {isa = PBXBuildFile; fileRef = 49DBBCDC2F5B546B001930A0 /* libtelnet.c */; };
 		49E65B902E9C3A7600D3C6C5 /* Font_8x8_8pt.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B742E9C3A7600D3C6C5 /* Font_8x8_8pt.h */; };
 		49E65B912E9C3A7600D3C6C5 /* Font_Compact_5pt.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B752E9C3A7600D3C6C5 /* Font_Compact_5pt.h */; };
 		49E65B932E9C3A7600D3C6C5 /* Blinker.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E65B652E9C3A7600D3C6C5 /* Blinker.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -414,6 +416,8 @@
 		49D723E62F329F1D0057DE87 /* LuaWFS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LuaWFS.h; path = ../LuaWFS.h; sourceTree = "<group>"; };
 		49D723E82F329F2D0057DE87 /* LuaWFS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = LuaWFS.cpp; path = ../LuaWFS.cpp; sourceTree = "<group>"; };
 		49DBBCCD2F5A6217001930A0 /* LEDCylon.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = LEDCylon.lua; path = ../LEDCylon.lua; sourceTree = SOURCE_ROOT; };
+		49DBBCDB2F5B546B001930A0 /* libtelnet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = libtelnet.h; path = ../libtelnet.h; sourceTree = SOURCE_ROOT; };
+		49DBBCDC2F5B546B001930A0 /* libtelnet.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = libtelnet.c; path = ../libtelnet.c; sourceTree = SOURCE_ROOT; };
 		49E65B012E9C36F800D3C6C5 /* libESPlib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libESPlib.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		49E65B632E9C3A7600D3C6C5 /* Application.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Application.h; path = ../Application.h; sourceTree = SOURCE_ROOT; };
 		49E65B642E9C3A7600D3C6C5 /* Application.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Application.cpp; path = ../Application.cpp; sourceTree = SOURCE_ROOT; };
@@ -1237,6 +1241,8 @@
 				49E65B8B2E9C3A7600D3C6C5 /* WebFileSystem.cpp */,
 				49E65B8C2E9C3A7600D3C6C5 /* Shell.h */,
 				49E65B8D2E9C3A7600D3C6C5 /* Shell.cpp */,
+				49DBBCDB2F5B546B001930A0 /* libtelnet.h */,
+				49DBBCDC2F5B546B001930A0 /* libtelnet.c */,
 				49E65B8E2E9C3A7600D3C6C5 /* WiFiPortal.h */,
 				492744432E9DBF6F00AF8FA1 /* MacWebServer.cpp */,
 				492744452E9DBF9900AF8FA1 /* MacWebServer.h */,
@@ -1289,6 +1295,7 @@
 				49E65BA12E9C3A7600D3C6C5 /* Application.h in Headers */,
 				49E65BA22E9C3A7600D3C6C5 /* JsonStreamingParser.h in Headers */,
 				49E65BA32E9C3A7600D3C6C5 /* System.h in Headers */,
+				49DBBCDD2F5B546B001930A0 /* libtelnet.h in Headers */,
 				49E65BA42E9C3A7600D3C6C5 /* JsonListener.h in Headers */,
 				49E65BA52E9C3A7600D3C6C5 /* LittleFSShim.h in Headers */,
 				492744462E9DBFA100AF8FA1 /* MacWebServer.h in Headers */,
@@ -1475,6 +1482,7 @@
 				49D723EA2F329FFC0057DE87 /* LuaWFS.cpp in Sources */,
 				49E65BB02E9C3A7600D3C6C5 /* ButtonManager.cpp in Sources */,
 				49E65BB12E9C3A7600D3C6C5 /* Clock.cpp in Sources */,
+				49DBBCDE2F5B546B001930A0 /* libtelnet.c in Sources */,
 				49E65BB22E9C3A7600D3C6C5 /* System.cpp in Sources */,
 				491673DC2EA865410028A6F0 /* LuaManager.cpp in Sources */,
 				49E65BB32E9C3A7600D3C6C5 /* Application.cpp in Sources */,

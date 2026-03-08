@@ -22,35 +22,32 @@ All rights reserved.
 
 namespace mil {
 
+using PrintCB = std::function<void(const char* buf, size_t size)>;
+
 class LuaManager
 {
 public:
-    using PrintHandlerCB = std::function<void(const char* s)>;
-    enum class Status { NotStarted, Running, PrintBufferFull, WaitingForInput, Done };
+    using PrintHandlerCB = std::function<void(const char* s, size_t size)>;
+    enum class Status { NotStarted, Running, PrintBufferFull, WaitingForInput, Done, Error };
     
-    LuaManager();
+    LuaManager(PrintCB printCB);
     ~LuaManager();
     
-    static std::shared_ptr<LuaManager> execute(const std::string& filename, int cpl, std::vector<std::string> args);
+    static std::shared_ptr<LuaManager> execute(const std::string& filename, int cpl, std::vector<std::string> args,
+                                                std::function<void(const char*, size_t)> printCB);
     void finish();
     
     const char* toString(int idx) const { return lua_tostring(_luaState, idx); }
     
     void printHandler(lua_State *);
-    
-    Status getPrintStrings(std::string&);
-    
+
     bool isDone() const
     {
         std::unique_lock<std::mutex> lk(_mutex);
-        return _status == Status::Done;
+        return _status == Status::Done || _status == Status::Error;
     }
     
-    int result() const
-    {
-        std::unique_lock<std::mutex> lk(_mutex);
-        return _result;
-    }
+    const std::string& errorString() const { return _errorString; }
     
     uint8_t id() const { return _id; }
     const std::string& command() const { return _command; }
@@ -58,7 +55,6 @@ public:
     static std::shared_ptr<LuaManager> getManager(uint8_t id);
     
 private:
-    static constexpr int PrintBufferSize = 256;
     static constexpr int MaxIds = 32;
     
     void commandThread(const std::string& filename);
@@ -78,17 +74,18 @@ private:
     lua_State* _luaState = nullptr;
     std::thread _thread;
     std::condition_variable _statusCond;
-    
-    char _printBuffer[PrintBufferSize] = "";
-    
+
     static std::map<uint8_t, std::shared_ptr<LuaManager>> _managers;
     static std::bitset<MaxIds> _usedIds;
     static std::mutex _mutex;
     
     uint8_t _id;
     Status _status = Status::NotStarted;
-    int _result = 0;
+    std::string _errorString;
+    
     std::string _command;
+    
+    PrintCB _printCB;
 };
 
 }

@@ -13,17 +13,20 @@ All rights reserved.
 #include "HTTPParser.h"
 #include "System.h"
 #include "WebFileSystem.h"
-#include "LuaManager.h"
+
+#include <sys/socket.h>
+#include<arpa/inet.h>
+#include<unistd.h>
 
 using namespace mil;
 
 static const char* TAG = "Shell";
+static constexpr int TelnetPort = 23;
 
 bool
 Shell::begin(Application* app)
 {
     _app = app;
-    _app->addHTTPHandler("/shell", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p) { handleShellCommand(p); });
     
     // Set cwd
     _dirs.clear();
@@ -36,6 +39,8 @@ Shell::begin(Application* app)
     
     _dirs.push_back(cwd);
     
+    _serverThread = std::thread([this]() { tcpServerTask(); });
+
     return true;
 }
 
@@ -55,7 +60,7 @@ Shell::makeAbsolutePath(const std::string& path) const
     return std::filesystem::path(cwd() + "/" + path).lexically_normal().string();
 }
 
-// This is hackery. When trying to make a path in handleShellCommand the suffix would always get dropped
+// This is hackery. When trying to make a path in handleHTTPRequest the suffix would always get dropped
 // on espidf. moving the concat to a separate method fixes it. Until I get to the bottom of it, this
 // solution will do.
 static std::string makeCmdPath(const char* root, const char* cmd, const char* suffix)
@@ -86,146 +91,239 @@ static std::string makeCmdPath(const char* root, const char* cmd, const char* su
 // reboot it is reset to the cwd.
 
 void
-Shell::showDirs(WiFiPortal* p) const
+Shell::showDirs(PrintCB printCB) const
 {
     std::string dirs;
     for (int i = int(_dirs.size() - 1); i >= 0; --i) {
         dirs += _dirs[i] + " ";
     };
-    p->sendHTTPResponse(200, "text/plain", (" " + dirs + "\n").c_str());
+    printCB((dirs + "\n").c_str(), dirs.length() + 1);
 }
 
 void
-Shell::handleShellCommand(WiFiPortal* p)
+Shell::handleShellCommand(const std::string& incomingCmd, PrintCB printCB)
 {
-    std::shared_ptr<LuaManager> lua;
+    std::string cmd = incomingCmd;
+    if (cmd.back() == '\n') {
+        cmd.pop_back();
+    }
+    if (cmd.back() == '\r') {
+        cmd.pop_back();
+    }
+    if (cmd.empty()) {
+        std::string s = "no command supplied";
+        printCB(s.c_str(), s.length());
+        return;
+    }
+
+    std::vector<std::string>args = HTTPParser::split(cmd, ' ');
+    cmd = args.front();
+    args.erase(args.begin());
     
-    if (p->hasHTTPArg("cmd")) {
-        std::string cmd = HTTPParser::urlDecode(p->getHTTPArg("cmd"));
-        int cpl = std::stoi(HTTPParser::urlDecode(p->getHTTPArg("cpl")));
-        
-        // Failsafe
-        if (cpl <= 0 || cpl >= 10000) {
-            cpl = 80;
-        }
-        
-        if (cmd.empty()) {
-            p->sendHTTPResponse(400, "text/plain", " no command supplied");
-            return;
-        }
+    // See if it's a built-in command
+    // FIXME: For now just do an if cascade. Maybe we use a map at some time?
+    if (cmd == "date") {
+        std::string date(" ");
+        date += _app->clock() ? _app->clock()->prettyTime().c_str() : "no clock";
+        date += "\n";
+        printCB(date.c_str(), date.length());
+        return;
+    }
+    
+    if (cmd == "pwd") {
+        printCB((_dirs.back() + "\n").c_str(), _dirs.back().length() + 1);
+        return;
+    }
+    
+    if (cmd == "cd" || cmd == "pushd") {
+        // cd pops the top of the dirs stack and replaces it
+        // pushd just pushes the dir onto the top of the stack
+        std::string cwd = makeAbsolutePath(args.empty() ? "/" : args[0]);
 
-        std::vector<std::string>args = HTTPParser::split(cmd, ' ');
-        cmd = args.front();
-        args.erase(args.begin());
-        
-        // See if it's a built-in command
-        // FIXME: For now just do an if cascade. Maybe we use a map at some time?
-        if (cmd == "date") {
-            std::string date(" ");
-            date += _app->clock() ? _app->clock()->prettyTime().c_str() : "no clock";
-            date += "\n";
-            p->sendHTTPResponse(200, "text/plain", date.c_str());
-            return;
-        }
-        
-        if (cmd == "pwd") {
-            p->sendHTTPResponse(200, "text/plain", (" " + _dirs.back() + "\n").c_str());
-            return;
-        }
-        
-        if (cmd == "cd" || cmd == "pushd") {
-            // cd pops the top of the dirs stack and replaces it
-            // pushd just pushes the dir onto the top of the stack
-            std::string cwd = makeAbsolutePath(args.empty() ? "/" : args[0]);
-
-            if (!WebFileSystem::exists(cwd.c_str())) {
-                p->sendHTTPResponse(200, "text/plain", (" " + cmd + ": " + cwd + ": No such file or directory\n").c_str());
-            } else {
-                if (cmd == "cd") {
-                    _dirs.pop_back();
-                }
-                _dirs.push_back(cwd);
-                WebFileSystem::setCWD(cwd.c_str());
-                if (cmd == "cd") {
-                    p->sendHTTPResponse(200);
-                } else {
-                    showDirs(p);
-                }
-            }
-            return;
-        }
-        
-        if (cmd == "popd") {
-            if (_dirs.size() == 1) {
-                p->sendHTTPResponse(200, "text/plain", " popd: directory stack empty\n");
-            } else {
+        if (!WebFileSystem::exists(cwd.c_str())) {
+            std::string response = cmd + ": " + cwd + ": No such file or directory\n";
+            printCB(response.c_str(), response.length());
+        } else {
+            if (cmd == "cd") {
                 _dirs.pop_back();
-                WebFileSystem::setCWD(_dirs.back().c_str());
-                showDirs(p);
             }
-            return;
+            _dirs.push_back(cwd);
+            WebFileSystem::setCWD(cwd.c_str());
+            if (cmd != "cd") {
+                showDirs(printCB);
+            }
         }
-        
-        if (cmd == "dirs") {
-            showDirs(p);
-            return;
-        }
-        
-        // FIXME: for now all commands are .lua in the sys folder
-        std::string path = makeCmdPath("/sys/", cmd.c_str(), ".lua");
-        
-        if (!WebFileSystem::exists(path.c_str())) {
-            p->sendHTTPResponse(404, "text/plain", (" " + path + ": command not found").c_str());
-            return;
-        }
-
-        // Execute command
-        lua = LuaManager::execute(path.c_str(), cpl, args);
-        
-        // Let the command run a bit
-        delay(200);
-    } else if (p->hasHTTPArg("id")) {
-        std::string idChar;
-        idChar = HTTPParser::urlDecode(p->getHTTPArg("id"));
-        uint8_t id = idChar[0] - 0x21;
-        
-        lua = LuaManager::getManager(id);
+        return;
     }
     
-    // Get any returned print strings. This not only gets the strings
-    // but the does the proper waits and state changes
-    std::string printString;
-    LuaManager::Status status = lua ? lua->getPrintStrings(printString) : LuaManager::Status::Done;
-
-    // Command is either still executing because buffer is full, or its finished
-    // Either way, check for errors then get any strings and put them in the
-    // response.
-    if (status == LuaManager::Status::Done && lua && lua->result() != LUA_OK) {
-        std::string err = " Lua file '" + lua->command() + "' failed to run: " + lua->toString(-1) + "\n";
-        p->sendHTTPResponse(404, "text/plain", err.c_str());
-    } else {
-        // We are either done or not. Either way, get any strings that have been
-        // buffered and send them in the response.
-        //
-        // Send the string as plain text, but prepend it with a one character id.
-        // If it is 0x20 (space) then this is the last response (isDone == true).
-        // Values from 0x21 to 0x7f are the id of the Lua command being executed.
-        // Id values start at 0, so the value sent is 0x21 + id. This allows for
-        // 95 simultaneous commands, which should be more than enough.
-        char idChar = ' ';
-        if (lua) {
-            idChar = lua->isDone() ? ' ' : 0x20 + lua->id() + 1;
+    if (cmd == "popd") {
+        if (_dirs.size() == 1) {
+            std::string s = "popd: directory stack empty\n";
+            printCB(s.c_str(), s.length());
+        } else {
+            _dirs.pop_back();
+            WebFileSystem::setCWD(_dirs.back().c_str());
+            showDirs(printCB);
         }
-        
-        std::string response = std::string(1, idChar)  + printString;
-
-        p->sendHTTPResponse(200, "text/plain", response.c_str());
-        
-        if (status == LuaManager::Status::Done) {
-            if (lua) {
-                lua->finish();
-                System::logI(TAG, "***** Ran Lua command '%s'\n", lua->command().c_str());
-            }
-        }
+        return;
     }
+    
+    if (cmd == "dirs") {
+        showDirs(printCB);
+        return;
+    }
+    
+    // FIXME: for now all commands are .lua in the sys folder
+    std::string path = makeCmdPath("/sys/", cmd.c_str(), ".lua");
+    
+    if (!WebFileSystem::exists(path.c_str())) {
+        std::string s = path + ": command not found";
+        printCB(s.c_str(), s.length());
+        return;
+    }
+
+    // Execute command
+    LuaManager::execute(path.c_str(), _termChars, args, printCB);
+}
+
+void
+Shell::tcpServerTask()
+{
+    int listenSocket = socket(AF_INET, SOCK_STREAM, 0);
+    if (listenSocket < 0) {
+        System::logE(TAG, "Unable to create listen socket %i: errno %d", listenSocket, errno);
+        return;
+    }
+    
+    int opt = 1;
+    setsockopt(listenSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    System::logI(TAG, "Listen socket %i created", listenSocket);
+
+    struct sockaddr_in address;
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(TelnetPort);
+
+    int err = bind(listenSocket, (struct sockaddr *)&address, sizeof(address));
+    if (err != 0) {
+        System::logE(TAG, "Listen socket %i unable to bind: errno %d", listenSocket, errno);
+        close(listenSocket);
+        return;
+    }
+    System::logI(TAG, "Listen socket %i bound, port %d", listenSocket, TelnetPort);
+
+    err = listen(listenSocket, 1);
+    if (err != 0) {
+        System::logE(TAG, "Error occurred during listen socket %i: errno %d", listenSocket, errno);
+        close(listenSocket);
+        return;
+    }
+
+    while (1) {
+        System::logI(TAG, "Socket listening for new connection");
+        struct sockaddr_storage sourceAddr;
+        socklen_t addrLen = sizeof(sourceAddr);
+        int sock = accept(listenSocket, (struct sockaddr *)&sourceAddr, &addrLen);
+        
+        if (sock < 0) {
+            System::logE(TAG, "Unable to accept connection: errno %d", errno);
+            break;
+        }
+
+        struct sockaddr_in *sin = (struct sockaddr_in *)&sourceAddr;
+        unsigned char* ip = (unsigned char *)&sin->sin_addr.s_addr;
+        System::logI(TAG, "Accepted connection:ip=%d.%d.%d.%d, socket=%d", ip[0], ip[1], ip[2], ip[3], sock);
+
+        // Set tcp keepalive option
+        int keepAlive = 1;
+        int keepIdle = 5;
+        int keepInterval = 5;
+        int keepCount = 3;
+
+        setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &keepAlive, sizeof(int));
+        setsockopt(sock, IPPROTO_TCP, 5, &keepIdle, sizeof(int));
+        setsockopt(sock, IPPROTO_TCP, 5, &keepInterval, sizeof(int));
+        setsockopt(sock, IPPROTO_TCP, 3, &keepCount, sizeof(int));
+        
+        // Start a thread with a shell for the client
+        std::thread clientThread = std::thread([this, sock]() { tcpClientTask(sock); });
+        clientThread.detach();
+        
+        // FIXME: ultimately we need to keep all the client threads in a list
+        // along with their socket so we can kill them and stuff like that
+        
+        delay(20);
+    }  
+}
+
+static const telnet_telopt_t telopts[] = {
+    { TELNET_TELOPT_NAWS, TELNET_WONT,   TELNET_DO},
+    { TELNET_TELOPT_ECHO, TELNET_WONT,   TELNET_DO},
+    { TELNET_TELOPT_NEW_ENVIRON, TELNET_WILL, TELNET_DONT },
+    { TELNET_TELOPT_TTYPE,		TELNET_WILL, TELNET_DONT },
+    { -1, 0, 0 }
+};
+
+void
+Shell::telnetHandler(int sock, telnet_t *telnet, telnet_event_t *event)
+{
+    if (event->type == TELNET_EV_WILL && event->iac.cmd == TELNET_TELOPT_NAWS) {
+        telnet_iac(telnet, TELNET_TELOPT_NAWS);
+        return;
+    }
+    if (event->type == TELNET_EV_SUBNEGOTIATION && event->sub.telopt == TELNET_TELOPT_NAWS) {
+        // Should have a buffer with 4 bytes. First two are width (msb first), second is height
+        // Ignore if not 2 bytes and set to a default
+        if (event->sub.size != 4) {
+            _termChars = 80;
+            _termLines = 24;
+        } else {
+            _termChars = (int(uint8_t(event->sub.buffer[0])) << 8) | uint8_t(event->sub.buffer[1]);
+            _termLines = (int(uint8_t(event->sub.buffer[2])) << 8) | uint8_t(event->sub.buffer[3]);
+        }
+        return;
+    }
+    if (event->type == TELNET_EV_DATA) {
+        handleShellCommand(std::string(event->data.buffer, event->data.size), [telnet](const char* buf, size_t size)
+        {
+            telnet_send(telnet, buf, size);
+        });
+        return;
+    }
+    if (event->type == TELNET_EV_SEND) {
+        ssize_t result = send(sock, event->data.buffer, event->data.size, 0);
+        if (result < 0) {
+            System::logE(TAG, "Error sending data:%s", strerror(errno));
+        }
+        return;
+    }
+}
+
+void
+Shell::tcpClientTask(int sock)
+{
+    // Create the telnet handler
+    TelnetClient client(sock, this);
+    telnet_t* telnet = telnet_init(telopts, _telnetHandler, 0, &client);
+    if (!telnet) {
+        System::logE(TAG, "Failed to initialize libtelnet=%s", strerror(errno));
+        return;
+    }
+        
+    // FIXME: Allocate the buffer (and probably bigger) to avoid blowing the stack
+    char buf[128];
+    while (true) {
+        ssize_t result = recv(sock, buf, 127, 0);
+        if (result == 0) {
+            System::logI(TAG, "Connection closed");
+            break;
+        }
+        if (result < 0) {
+            System::logE(TAG, "Error receiving data, result=%d", int(result));
+            break;
+        }
+        
+        telnet_recv(telnet, buf, result);
+    }
+    telnet_free(telnet);
 }
