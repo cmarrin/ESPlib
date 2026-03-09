@@ -7,6 +7,8 @@
 ** (http://lunarmodules.github.io/luafilesystem)
 */
 
+#pragma once
+
 #ifdef __cplusplus
 extern "C" {
 #endif
