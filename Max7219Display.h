@@ -13,9 +13,11 @@ All rights reserved.
 
 #include "System.h"
 
-#include <Adafruit_GFX.h>
-#include <Max72xxPanel.h>
-#include <time.h>
+// Control Max7219 8x8 matrix displays. For how we assume 4 displays in a
+// horizontal row. We will create a bitmap that is 32x8x1 pixels. We will
+// write characters into this display and then send it to the hardware.
+// We'll adapt the AdafruitGFX library to manage the font used to write
+// characters.
 
 namespace mil {
 
@@ -42,8 +44,9 @@ private:
     // Look for control chars. \a means to use the compact font, \v means to scroll.
     // Returns offset into string past control chars
     uint32_t getControlChars(const char* s, bool& scroll);
+    
+    void writePixel(uint32_t x, uint32_t y, bool on);
 
-    Max72xxPanel _matrix;
     const GFXfont* _currentFont = nullptr;
     Ticker _scrollTimer;
     std::string _scrollString;
@@ -52,6 +55,9 @@ private:
     int32_t _scrollW;
     ScrollType _scrollType;
     std::function<void()> _scrollDone;
+    
+    // Frame buffer is 32 x 8 x 1 pixels
+    uint8_t _frameBuffer[32];
 };
 
 }

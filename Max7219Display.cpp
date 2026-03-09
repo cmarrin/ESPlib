@@ -15,8 +15,7 @@ All rights reserved.
 using namespace mil;
 
 Max7219Display::Max7219Display(std::function<void()> scrollDone)
-	: _matrix(SS, 4, 1)
-	, _scrollDone(scrollDone)
+	: _scrollDone(scrollDone)
 {
 	pinMode(SS, OUTPUT);
 	digitalWrite(SS, LOW);
@@ -194,4 +193,21 @@ void Max7219Display::scroll()
 	}
 	
 	_matrix.write(); // Send bitmap to display
+}
+
+void
+Max7219Display::writePixel(uint32_t x, uint32_t y, bool on)
+{
+    // 0,0 is upper left
+    if (x >= 32 || y >= 8) {
+        return;
+    }
+    
+    uint32_t byte = y * 4 + x / 8;
+    uint8_t bit = 0x80 >> (x % 8);
+    if (on) {
+        _frameBuffer[byte] |= bit;
+    } else {
+        _frameBuffer[byte] &= ~bit;
+    }
 }
