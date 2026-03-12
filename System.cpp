@@ -189,7 +189,7 @@ System::restart()
 
 Ticker::~Ticker()
 {
-    detach();
+    stop();
 }
 
 void
@@ -213,7 +213,7 @@ Ticker::_attach_us(uint64_t micros, bool repeat, callback_with_arg_t callback, v
 }
 
 void
-Ticker::detach()
+Ticker::stop()
 {
     if (_timer) {
         esp_timer_stop(_timer);
@@ -221,15 +221,6 @@ Ticker::detach()
         _timer = nullptr;
         _cb = nullptr;
     }
-}
-
-bool
-Ticker::active() const
-{
-    if (!_timer) {
-        return false;
-    }
-    return esp_timer_is_active(_timer);
 }
 
 void
@@ -275,7 +266,7 @@ System::gpioWritePin(uint8_t pin, bool state)
 bool
 System::gpioReadPin(uint8_t pin)
 {
-    return 0;
+    return true;
 }
 
 uint32_t

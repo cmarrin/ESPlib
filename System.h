@@ -52,8 +52,7 @@ public:
     }
 
     // These are functions used by the Max7219 scroll function, so we will not implement them yet
-    void detach();
-    bool active() const;
+    void stop();
 
 private:
     void _attach_us(uint64_t micros, bool repeat, callback_with_arg_t callback, void *arg);
@@ -71,6 +70,7 @@ private:
 
 #include <functional>
 #include <thread>
+#include <atomic>
 
 class Ticker
 {
@@ -81,6 +81,7 @@ public:
     {
         _ms = ms;
         _cb = callback;
+        _run = true;
 
         std::thread([this]() { 
             std::this_thread::sleep_for(std::chrono::milliseconds(_ms));
@@ -92,23 +93,48 @@ public:
     {
         _ms = ms;
         _cb = callback;
+        _run = true;
 
-        std::thread([this]() { 
-            while (true) { 
+        _thread = std::thread([this]() {
+            _id = std::this_thread::get_id();
+            while (true) {
                 auto x = std::chrono::steady_clock::now() + std::chrono::milliseconds(_ms);
                 _cb();
+                {
+                    std::unique_lock<std::mutex> lk(_mutex);
+                    if (!_run) {
+                        break;
+                    }
+                }
                 std::this_thread::sleep_until(x);
             }
-        }).detach();
+        });
     }
 
-    // These are functions used by the Max7219 scroll function, so we will not implement them yet
-    void detach() { }
-    bool active() const { return false; }
-
+    void stop()
+    {
+        {
+            std::unique_lock<std::mutex> lk(_mutex);
+            _run = false;
+        }
+        
+        // Don't try to join ourselves
+        if (_id == std::this_thread::get_id()) {
+            return;
+        }
+        
+        if (_thread.joinable()) {
+            _thread.join();
+        }
+    }
+    
 private:
     uint32_t _ms = 0;
     callback_t _cb = nullptr;
+    std::thread _thread;
+    std::thread::id _id;
+    std::mutex _mutex;
+    bool _run = false;
 };
 
 #endif
@@ -130,7 +156,6 @@ class System
     
     // This interfaces to LEDs. It can be a single LED connected to a GPIO
     // pin, an addressable RGB LED, or a strip of addressable LEDs.
-    //static void initLED(uint8_t channel, ledPin);
     static void initLED(uint8_t channel, uint8_t pin, uint32_t numLEDs);
     static void setLED(uint8_t channel, uint32_t index, uint8_t r, uint8_t g, uint8_t b);
     static void refreshLEDs(uint8_t channel);
