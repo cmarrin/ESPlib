@@ -85,34 +85,6 @@ private:
  
 };
 
-class Max7219Display
-{
-public:
-    Max7219Display(std::function<void()> scrollDone) : _scrollDone(scrollDone) { }
-
-    void clear() { }
-    void setBrightness(uint32_t b) { printf("*** Brightness set to %d\n", (int) b); }
-    
-    void showString(const char* str, uint32_t underscoreStart = 0, uint32_t underscoreLength = 0)
-    {
-        // String might start with \a or \v. Skip them
-        const char* s = str;
-        if (s[0] == '\a' || s[0] == '\v') {
-            s += 1;
-        }
-        printf("\n[[ %s ]]\n\n", s);
-        
-        // If we're scrolling we need to call _scrollDone
-        if (str[0] == '\v') {
-            _scrollDone();
-        }
-    }
-
-private:
-    std::function<void()> _scrollDone;
-
-};
-
 }
 
 #endif
