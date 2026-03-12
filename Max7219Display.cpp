@@ -19,7 +19,7 @@ All rights reserved.
 
 // These values are for the ESP32C3
 static constexpr int CASCADE_SIZE = 4;
-static constexpr int HOST = SPI2_HOST;
+static constexpr spi_host_device_t HOST = SPI2_HOST;
 static constexpr int MOSI = 4;
 static constexpr int CLK = 1;
 static constexpr int CS = 5;
@@ -36,8 +36,8 @@ static max7219_t dev =
 using namespace mil;
 
 Max7219Display::Max7219Display(std::function<void()> scrollDone, std::function<void(const uint8_t* buffer)> renderCB)
-	: _scrollDone(scrollDone)
-    , _matrix(32, 8)
+	: _matrix(32, 8)
+    , _scrollDone(scrollDone)
     , _renderCB(renderCB)
 {
 #if defined ESP_PLATFORM
@@ -75,7 +75,7 @@ void Max7219Display::setBrightness(uint32_t level)
 		level = 15;
 	}
 #if defined ESP_PLATFORM
-    max7219_set_brightness(dev, level);
+    max7219_set_brightness(&dev, level);
 #endif
 }
 	
