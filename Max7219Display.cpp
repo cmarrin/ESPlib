@@ -197,7 +197,8 @@ Max7219Display::refresh()
     uint8_t* buffer = _matrix.getBuffer();
     
     for (int i = 0; i < 32; ++i) {
-        max7219_set_digit(&dev, i, buffer[i]);
+        uint32_t row = (3 - (i % 4)) * 8 + (i / 4);
+        max7219_set_digit(&dev, row, buffer[i]);
     }
 #else
     if (_renderCB) {
