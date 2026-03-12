@@ -65,9 +65,6 @@ void BrightnessManager::start(uint32_t sampleRate)
 void BrightnessManager::computeBrightness()
 {
 	uint32_t ambientLightLevel = System::gpioReadAnalog(_lightSensor);
-#ifdef DEBUG_BRIGHTNESS
-	printf("**** Raw ambientLightLevel=%d\n", ambientLightLevel);
-#endif
 
 	if (_invert) {
 		ambientLightLevel = 1024 - ambientLightLevel;
@@ -89,7 +86,7 @@ void BrightnessManager::computeBrightness()
 		int32_t currentAmbientLightLevel = static_cast<int32_t>(_currentAmbientLightLevel);
 
 #ifdef DEBUG_BRIGHTNESS
-		printf("**** New average ambientLightLevel=%d, old level=%d\n", averageAmbientLightLevel, currentAmbientLightLevel);
+		printf("**** New average ambientLightLevel=%d, old level=%d\n", int(averageAmbientLightLevel), int(currentAmbientLightLevel));
 #endif
 
 		if (averageAmbientLightLevel <= currentAmbientLightLevel + ambientLightStepSize &&
@@ -106,7 +103,7 @@ void BrightnessManager::computeBrightness()
 		}
 
 #ifdef DEBUG_BRIGHTNESS
-		printf("**** Sending brightnessLevel=%d\n", brightnessLevel);
+		printf("**** Sending brightnessLevel=%d\n", int(brightnessLevel));
 #endif
 
 		_handler(brightnessLevel);
