@@ -9,57 +9,62 @@ All rights reserved.
 
 #include "Max7219Display.h"
 
+// Ignore PROGMEM in fonts
+#define PROGMEM
 #include "Font_8x8_8pt.h"
 #include "Font_Compact_5pt.h"
 
+#if defined ESP_PLATFORM
+#include <max7219.h>
+
+// These values are for the ESP32C3
+static constexpr int CASCADE_SIZE = 4;
+static constexpr int HOST = SPI2_HOST;
+static constexpr int MOSI = 4;
+static constexpr int CLK = 1;
+static constexpr int CS = 5;
+
+static max7219_t dev =
+{
+    .digits = 0,
+    .cascade_size = CASCADE_SIZE,
+    .mirrored = true
+};
+
+#endif
+
 using namespace mil;
 
-Max7219Display::Max7219Display(std::function<void()> scrollDone)
+Max7219Display::Max7219Display(std::function<void()> scrollDone, std::function<void(const uint8_t* buffer)> renderCB)
 	: _scrollDone(scrollDone)
+    , _matrix(32, 8)
+    , _renderCB(renderCB)
 {
-	pinMode(SS, OUTPUT);
-	digitalWrite(SS, LOW);
+#if defined ESP_PLATFORM
+    // Configure SPI bus
+    spi_bus_config_t cfg =
+    {
+        .mosi_io_num = MOSI,
+        .miso_io_num = -1,
+        .sclk_io_num = CLK,
+        .quadwp_io_num = -1,
+        .quadhd_io_num = -1,
+        .max_transfer_sz = 0,
+        .flags = 0
+    };
+    ESP_ERROR_CHECK(spi_bus_initialize(HOST, &cfg, SPI_DMA_CH_AUTO));
 
-	_matrix.setTextWrap(false);
-
-	_matrix.setIntensity(0); // Use a value between 0 and 15 for brightness
-
-	_matrix.setPosition(0, 0, 0); // The first display is at <0, 0>
-	_matrix.setPosition(1, 1, 0); // The second display is at <1, 0>
-	_matrix.setPosition(2, 2, 0); // The third display is at <2, 0>
-	_matrix.setPosition(3, 3, 0); // And the last display is at <3, 0>
-
-	_matrix.setRotation(0, 1);    // The first display is position upside down
-	_matrix.setRotation(1, 1);    // The first display is position upside down
-	_matrix.setRotation(2, 1);    // The first display is position upside down
-	_matrix.setRotation(3, 1);    // The same hold for the last display
-
+    // Configure device
+    ESP_ERROR_CHECK(max7219_init_desc(&dev, HOST, MAX7219_MAX_CLOCK_SPEED_HZ, (gpio_num_t) CS));
+    ESP_ERROR_CHECK(max7219_init(&dev));
+ #endif
 	clear();
-}
-
-uint32_t Max7219Display::getControlChars(const char* s, bool& scroll)
-{
-	scroll = false;
-	
-	for (int i = 0; ; ++i) {
-        if (s[i] == '\0') {
-            break;
-        } else if (s[i] == '\a') {
-			_matrix.setFont(&Font_Compact_5pt);
-			_currentFont = &Font_Compact_5pt;
-		} else if (s[i] == '\v') {
-			scroll = true;
-		} else {
-			return i;
-		}
-	}
-    return 0;
 }
 
 void Max7219Display::clear()
 {
-	_matrix.fillScreen(LOW);
-	_matrix.write(); // Send bitmap to display
+    _matrix.fillScreen(0);
+    refresh();
 }
 
 void Max7219Display::setBrightness(uint32_t level)
@@ -67,18 +72,17 @@ void Max7219Display::setBrightness(uint32_t level)
 	if (level > 15) {
 		level = 15;
 	}
-	_matrix.setIntensity(level);
+#if defined ESP_PLATFORM
+    max7219_set_brightness(dev, level);
+#endif
 }
 	
-void Max7219Display::showString(const char* s, uint32_t underscoreStart, uint32_t underscoreLength)
+void Max7219Display::showString(const char* s)
 {
     std::string string(s);
-	if (_scrollTimer.active()) {
-		_scrollTimer.detach();
-	}
+    _scrollTimer.stop();
 	
 	_matrix.setFont(&Font_8x8_8pt);
-	_currentFont = &Font_8x8_8pt;
 
 	bool scroll;
 	uint32_t charStart = getControlChars(string.c_str(), scroll);
@@ -90,7 +94,7 @@ void Max7219Display::showString(const char* s, uint32_t underscoreStart, uint32_
 	// center the string
 	int16_t x1, y1;
 	uint16_t w, h;
-	_matrix.getTextBounds((char*) string.c_str() + charStart, 0, 0, &x1, &y1, &w, &h);
+	_matrix.getTextBounds((char*) string.c_str() + charStart, 0, 0, x1, y1, w, h);
 	
 	if (w > _matrix.width()) {
 		// Text is too wide. Do the watusi
@@ -100,68 +104,56 @@ void Max7219Display::showString(const char* s, uint32_t underscoreStart, uint32_
 
 
 	_matrix.setCursor((_matrix.width() - w) / 2, -y1);
-	_matrix.fillScreen(LOW);
-	
-	// Add underscores if needed
-	bool needUnderscore = false;
-	if (underscoreLength > 0 && underscoreStart < string.length() - charStart) {
-		needUnderscore = true;
-		if (underscoreLength + underscoreStart > string.length() - charStart) {
-			underscoreLength = string.length() - charStart - underscoreStart;
-		}
-	}
+	_matrix.fillScreen(0);
 	
 	for (int index = 0; index < string.length() - charStart; ++index) {
-		int16_t cursorX = _matrix.getCursorX();
-		_matrix.Adafruit_GFX::write(string[index + charStart]);
-		if (needUnderscore && index >= underscoreStart && index < underscoreStart + underscoreLength) {
-		    _matrix.drawFastHLine(cursorX, _matrix.height() - 1, _matrix.getCursorX() - cursorX, 0xffff);
-		}
+		_matrix.writeChar(string[index + charStart]);
 	}
 	
-	_matrix.write(); // Send bitmap to display
+    refresh(); // Send bitmap to display
 }
 
 void Max7219Display::scrollString(const char* s, uint32_t scrollRate, ScrollType scrollType)
 {
-	if (_scrollTimer.active()) {
-		_scrollTimer.detach();
-	}
+    _scrollTimer.stop();
 
 	_scrollString = s;
 
 	int16_t x1, y1;
 	uint16_t w, h;
-	_matrix.getTextBounds((char*) _scrollString.c_str(), 0, 0, &x1, &y1, &w, &h);
+	_matrix.getTextBounds((char*) _scrollString.c_str(), 0, 0, x1, y1, w, h);
 	_scrollY = -y1;
 	_scrollW = w;
 	_scrollType = scrollType;
 	
 	// If we're doing a full scroll, start offscreen
 	_scrollOffset = (scrollType == ScrollType::Scroll) ? _matrix.width() : WatusiMargin;
-	_scrollTimer.attach_ms(scrollRate, _scroll, this);
+	_scrollTimer.attach_ms(scrollRate, [this]() { scroll(); });
 }
 
-static uint8_t getXAdvance(char c, const GFXfont* font)
- {
-	 if (!font) {
-		 return 0;
-	 }
-	 
-     uint8_t first = pgm_read_byte(&(font->first)),
-             last  = pgm_read_byte(&(font->last));
-     if((c >= first) && (c <= last)) { // Char present in this font?
-         GFXglyph *glyph = font->glyph + (c - first);
-         return pgm_read_byte(&glyph->xAdvance);
- 	}
- 	return 0;
- }
+uint32_t Max7219Display::getControlChars(const char* s, bool& scroll)
+{
+	scroll = false;
+	
+	for (int i = 0; ; ++i) {
+        if (s[i] == '\0') {
+            break;
+        } else if (s[i] == '\a') {
+			_matrix.setFont(&Font_Compact_5pt);
+		} else if (s[i] == '\v') {
+			scroll = true;
+		} else {
+			return i;
+		}
+	}
+    return 0;
+}
 
 void Max7219Display::scroll()
 {
 	if (_scrollType == ScrollType::Scroll) {
 		if (_scrollOffset-- + _scrollW <= 0) {
-			_scrollTimer.detach();
+			_scrollTimer.stop();
 			_scrollDone();
 			return;
 		}
@@ -175,39 +167,39 @@ void Max7219Display::scroll()
 	
 	size_t length = _scrollString.length();
 	int16_t x = _scrollOffset;
-	_matrix.fillScreen(LOW);
+	_matrix.fillScreen(0);
 
 	for (int i = 0; i < length; ++i) {
 		if (x >= _matrix.width()) {
 			break;
 		}
 
-		uint8_t xAdvance = getXAdvance(_scrollString[i], _currentFont);
+		uint8_t xAdvance = _matrix.getXAdvance(_scrollString[i]);
 		
 		if (x + xAdvance > 0) {
 			_matrix.setCursor(x, _scrollY);
-			_matrix.Adafruit_GFX::write(_scrollString[i]);
+			_matrix.writeChar(_scrollString[i]);
 		}
 		
 		x += xAdvance;
 	}
 	
-	_matrix.write(); // Send bitmap to display
+	refresh(); // Send bitmap to display
 }
 
 void
-Max7219Display::writePixel(uint32_t x, uint32_t y, bool on)
+Max7219Display::refresh()
 {
-    // 0,0 is upper left
-    if (x >= 32 || y >= 8) {
-        return;
-    }
+#if defined ESP_PLATFORM
+    // Write to the display
+    uint8_t* buffer = _matrix.getBuffer();
     
-    uint32_t byte = y * 4 + x / 8;
-    uint8_t bit = 0x80 >> (x % 8);
-    if (on) {
-        _frameBuffer[byte] |= bit;
-    } else {
-        _frameBuffer[byte] &= ~bit;
+    for (int i = 0; i < 32; ++i) {
+        max7219_set_digit(&dev, i, buffer[i]);
     }
+#else
+    if (_renderCB) {
+        _renderCB(_matrix.getBuffer());
+    }
+#endif
 }

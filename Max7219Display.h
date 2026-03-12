@@ -11,6 +11,7 @@ All rights reserved.
 
 #include <mil.h>
 
+#include "Graphics.h"
 #include "System.h"
 
 // Control Max7219 8x8 matrix displays. For how we assume 4 displays in a
@@ -24,11 +25,13 @@ namespace mil {
 class Max7219Display
 {
 public:
-    Max7219Display(std::function<void()> scrollDone);
+    Max7219Display(std::function<void()> scrollDone, std::function<void(const uint8_t* buffer)> renderCB);
 
     void clear();
     void setBrightness(uint32_t level);
-    void showString(const char* str, uint32_t underscoreStart = 0, uint32_t underscoreLength = 0);
+    void showString(const char* str);
+
+    void refresh();
 
 private:
     static constexpr uint32_t ScrollRate = 50;
@@ -39,15 +42,12 @@ private:
 
     void scrollString(const char* s, uint32_t scrollRate, ScrollType);
     void scroll();
-    static void _scroll(Max7219Display* self) { self->scroll(); }
 
     // Look for control chars. \a means to use the compact font, \v means to scroll.
     // Returns offset into string past control chars
     uint32_t getControlChars(const char* s, bool& scroll);
     
-    void writePixel(uint32_t x, uint32_t y, bool on);
-
-    const GFXfont* _currentFont = nullptr;
+    GraphicsCanvas1 _matrix;
     Ticker _scrollTimer;
     std::string _scrollString;
     int32_t _scrollOffset;
@@ -55,9 +55,7 @@ private:
     int32_t _scrollW;
     ScrollType _scrollType;
     std::function<void()> _scrollDone;
-    
-    // Frame buffer is 32 x 8 x 1 pixels
-    uint8_t _frameBuffer[32];
+    std::function<void(const uint8_t* buffer)> _renderCB;
 };
 
 }
