@@ -142,8 +142,8 @@
 		491673D92EA865290028A6F0 /* LuaManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LuaManager.h; path = ../LuaManager.h; sourceTree = "<group>"; };
 		491673DB2EA8653D0028A6F0 /* LuaManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = LuaManager.cpp; path = ../LuaManager.cpp; sourceTree = "<group>"; };
 		4927442B2E9D94D000AF8FA1 /* webby */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = webby; sourceTree = BUILT_PRODUCTS_DIR; };
-		492744432E9DBF6F00AF8FA1 /* MacWebServer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MacWebServer.cpp; sourceTree = "<group>"; };
-		492744452E9DBF9900AF8FA1 /* MacWebServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MacWebServer.h; sourceTree = "<group>"; };
+		492744432E9DBF6F00AF8FA1 /* MacWebServer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MacWebServer.cpp; path = ../MacWebServer.cpp; sourceTree = "<group>"; };
+		492744452E9DBF9900AF8FA1 /* MacWebServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MacWebServer.h; path = ../MacWebServer.h; sourceTree = "<group>"; };
 		492744632E9F185D00AF8FA1 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = index.html; path = ../littlefs/index.html; sourceTree = "<group>"; };
 		4934EB112F0B19280054B78E /* IDFWiFiPortal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IDFWiFiPortal.h; path = ../IDFWiFiPortal.h; sourceTree = SOURCE_ROOT; };
 		4934EB122F0B19280054B78E /* IDFWiFiPortal.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = IDFWiFiPortal.cpp; path = ../IDFWiFiPortal.cpp; sourceTree = SOURCE_ROOT; };
@@ -685,6 +685,7 @@
 				49E65BB02E9C3A7600D3C6C5 /* ButtonManager.cpp in Sources */,
 				49E65BB12E9C3A7600D3C6C5 /* Clock.cpp in Sources */,
 				49DBBCDE2F5B546B001930A0 /* libtelnet.c in Sources */,
+				49F81A232F60D3F0006B36FE /* Max7219Display.cpp in Sources */,
 				49E65BB22E9C3A7600D3C6C5 /* System.cpp in Sources */,
 				491673DC2EA865410028A6F0 /* LuaManager.cpp in Sources */,
 				49E65BB32E9C3A7600D3C6C5 /* Application.cpp in Sources */,
