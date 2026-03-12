@@ -53,6 +53,10 @@
 		49E65BB22E9C3A7600D3C6C5 /* System.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B872E9C3A7600D3C6C5 /* System.cpp */; };
 		49E65BB32E9C3A7600D3C6C5 /* Application.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B642E9C3A7600D3C6C5 /* Application.cpp */; };
 		49E65BB42E9C3A7600D3C6C5 /* JsonStreamingParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B7A2E9C3A7600D3C6C5 /* JsonStreamingParser.cpp */; };
+		49F81A222F60D132006B36FE /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4934EB1A2F0B50460054B78E /* liblua.a */; };
+		49F81A232F60D3F0006B36FE /* Max7219Display.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B7F2E9C3A7600D3C6C5 /* Max7219Display.cpp */; };
+		49FDEBA92F606CEF001D6A6A /* Graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49FDEBA82F606CEF001D6A6A /* Graphics.cpp */; };
+		49FDEBAA2F606CEF001D6A6A /* Graphics.h in Headers */ = {isa = PBXBuildFile; fileRef = 49FDEBA72F606CEF001D6A6A /* Graphics.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -83,6 +87,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 49E65B002E9C36F800D3C6C5;
 			remoteInfo = ESPlib;
+		};
+		49F81A202F60D126006B36FE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4934EB132F0B50460054B78E /* lua.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 495AB47B2E9D6BBF00C4C2C4;
+			remoteInfo = lua;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -222,6 +233,8 @@
 		49EE64A22F53B20B00EDA9AA /* LEDTest.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = LEDTest.lua; path = ../LEDTest.lua; sourceTree = SOURCE_ROOT; };
 		49EE64A32F56298D00EDA9AA /* instcoo.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = instcoo.sh; path = ../instcoo.sh; sourceTree = SOURCE_ROOT; };
 		49EE64A42F562B5900EDA9AA /* instlcl.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = instlcl.sh; path = ../instlcl.sh; sourceTree = SOURCE_ROOT; };
+		49FDEBA72F606CEF001D6A6A /* Graphics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Graphics.h; path = ../Graphics.h; sourceTree = "<group>"; };
+		49FDEBA82F606CEF001D6A6A /* Graphics.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Graphics.cpp; path = ../Graphics.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -255,6 +268,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				49F81A222F60D132006B36FE /* liblua.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -417,6 +431,8 @@
 				49E65B6D2E9C3A7600D3C6C5 /* DSP7S04B.cpp */,
 				49E65B742E9C3A7600D3C6C5 /* Font_8x8_8pt.h */,
 				49E65B752E9C3A7600D3C6C5 /* Font_Compact_5pt.h */,
+				49FDEBA72F606CEF001D6A6A /* Graphics.h */,
+				49FDEBA82F606CEF001D6A6A /* Graphics.cpp */,
 				495604962F4BA47300A665A8 /* HTTPClient.h */,
 				495604972F4BA47300A665A8 /* HTTPClient.cpp */,
 				49E65B782E9C3A7600D3C6C5 /* JsonListener.h */,
@@ -489,6 +505,7 @@
 				49D723E72F329F270057DE87 /* LuaWFS.h in Headers */,
 				4968BAE62F19CAE00038B8A9 /* HTTPParser.h in Headers */,
 				49E65B982E9C3A7600D3C6C5 /* WiFiPortal.h in Headers */,
+				49FDEBAA2F606CEF001D6A6A /* Graphics.h in Headers */,
 				49E65B992E9C3A7600D3C6C5 /* Clock.h in Headers */,
 				49E65B9B2E9C3A7600D3C6C5 /* StateMachine.h in Headers */,
 				49E65B9C2E9C3A7600D3C6C5 /* TimeWeatherServer.h in Headers */,
@@ -565,6 +582,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				49F81A212F60D126006B36FE /* PBXTargetDependency */,
 			);
 			name = ESPlib;
 			packageProductDependencies = (
@@ -683,6 +701,7 @@
 				492744442E9DBF6F00AF8FA1 /* MacWebServer.cpp in Sources */,
 				49D723EA2F329FFC0057DE87 /* LuaWFS.cpp in Sources */,
 				49E65BB02E9C3A7600D3C6C5 /* ButtonManager.cpp in Sources */,
+				49FDEBA92F606CEF001D6A6A /* Graphics.cpp in Sources */,
 				49E65BB12E9C3A7600D3C6C5 /* Clock.cpp in Sources */,
 				49DBBCDE2F5B546B001930A0 /* libtelnet.c in Sources */,
 				49F81A232F60D3F0006B36FE /* Max7219Display.cpp in Sources */,
@@ -711,6 +730,11 @@
 			isa = PBXTargetDependency;
 			target = 49E65B002E9C36F800D3C6C5 /* ESPlib */;
 			targetProxy = 495AB4672E9C753D00C4C2C4 /* PBXContainerItemProxy */;
+		};
+		49F81A212F60D126006B36FE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = lua;
+			targetProxy = 49F81A202F60D126006B36FE /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
