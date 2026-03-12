@@ -11,7 +11,6 @@
 
 static constexpr const char* ConfigPortalName = "MT Vesper";
 static constexpr const char* Version = "0.2";
-static constexpr int LEDPin = 10;
 
 class Vesper : public mil::Application
 {
