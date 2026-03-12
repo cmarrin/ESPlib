@@ -60,6 +60,7 @@ class Graphics {
     enum class Rotation { Angle0, Angle90, Angle180, Angle270 };
     
     void setRotation(Rotation r);
+    void setFlip(bool flipX, bool flipY) { _flipX = flipX; _flipY = flipY; }
     void setCursor(int16_t x, int16_t y) { _cursorX = x; _cursorY = y; }
     int16_t getCursorX(void) const { return _cursorX; }
     int16_t getCursorY(void) const { return _cursorY; }
@@ -86,6 +87,8 @@ class Graphics {
     int16_t _cursorX = 0;   ///< x location to start print()ing text
     int16_t _cursorY = 0;   ///< y location to start print()ing text
     Rotation _rotation = Rotation::Angle0;
+    bool _flipX = false;
+    bool _flipY = false;
 
     const GFXfont* _font = nullptr;
 };

@@ -9,6 +9,8 @@ All rights reserved.
 
 #include "Graphics.h"
 
+#include <cstring>
+
 using namespace mil;
 
 Graphics::Graphics(int16_t w, int16_t h)
@@ -188,6 +190,13 @@ GraphicsCanvas1::drawPixel(int16_t x, int16_t y, uint16_t color)
 {
     if (!_buffer || x < 0 || y < 0 || x >= _width || y >= _height) {
         return;
+    }
+    
+    if (_flipX) {
+        x = _width - x;
+    }
+    if (_flipY) {
+        y = _height - y;
     }
 
     int16_t t;

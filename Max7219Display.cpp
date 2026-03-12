@@ -57,6 +57,8 @@ Max7219Display::Max7219Display(std::function<void()> scrollDone, std::function<v
     // Configure device
     ESP_ERROR_CHECK(max7219_init_desc(&dev, HOST, MAX7219_MAX_CLOCK_SPEED_HZ, (gpio_num_t) CS));
     ESP_ERROR_CHECK(max7219_init(&dev));
+    
+    _matrix.setFlip(true, false);
  #endif
 	clear();
 }
