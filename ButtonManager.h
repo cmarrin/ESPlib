@@ -55,10 +55,6 @@ namespace mil {
 		friend class ButtonManager;
 		
 	public:
-		// For Arduino, only Float or Pullup can be used. For ESP8266 Float or Pullup
-		// can be used for all pins except GPIO16 which can be FLoat or Pulldown only
-		enum class PinMode { Float, Pullup, Pulldown };
-		
 		Button(uint8_t pin, uint32_t id, bool activeHigh = false, System::GPIOPinMode = System::GPIOPinMode::InputWithPullup);
 		
 		uint32_t id() const { return _id; }
