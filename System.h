@@ -150,9 +150,12 @@ class System
     // NeoPixel
     
     enum class GPIOPinMode { Output, Input, InputWithPullup };
-    static void gpioSetPinMode(uint8_t pin, GPIOPinMode mode);
+    static void gpioSetPinMode(uint8_t pin, GPIOPinMode mode, bool activeHigh = true);
     static void gpioWritePin(uint8_t pin, bool state);
     static bool gpioReadPin(uint8_t pin);
+    
+    // Button Simulator for Mac
+    static void setButtonDown(bool down);
     
     // This interfaces to LEDs. It can be a single LED connected to a GPIO
     // pin, an addressable RGB LED, or a strip of addressable LEDs.

@@ -41,7 +41,7 @@ System::setLED(uint32_t index, uint8_t r, uint8_t g, uint8_t b)
 }
 
 void
-System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode)
+System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode, bool)
 {
     switch(mode) {
         case GPIOPinMode::Output: pinMode(pin, OUTPUT); return;
@@ -60,6 +60,11 @@ bool
 System::gpioReadPin(uint8_t pin)
 {
     return digitalRead(pin) != 0;
+}
+
+void
+System::setButtonDown(bool down)
+{
 }
 
 void 
@@ -155,7 +160,7 @@ System::refreshLEDs(uint8_t channel)
 }
 
 void
-System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode)
+System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode, bool
 {
     gpio_reset_pin(gpio_num_t(pin));
     gpio_set_direction(gpio_num_t(pin), (mode == GPIOPinMode::Output) ? GPIO_MODE_OUTPUT : GPIO_MODE_INPUT);
@@ -171,6 +176,11 @@ bool
 System::gpioReadPin(uint8_t pin)
 {
     return gpio_get_level(gpio_num_t(pin)) != 0;
+}
+
+void
+System::setButtonDown(bool down)
+{
 }
 
 void 
@@ -262,9 +272,16 @@ System::refreshLEDs(uint8_t channel)
 {
 }
 
+// Simulate a button
+static uint8_t _buttonPin = 0;
+static bool _buttonIsDown = false;
+static bool _activeHigh = true;
+
 void
-System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode)
+System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode, bool activeHigh)
 {
+    _buttonPin = pin;
+    _activeHigh = activeHigh;
 }
 
 void
@@ -275,7 +292,16 @@ System::gpioWritePin(uint8_t pin, bool state)
 bool
 System::gpioReadPin(uint8_t pin)
 {
-    return true;
+    bool v = (pin == _buttonPin) ? _buttonIsDown : false;
+    return _activeHigh ? v : !v;
+}
+
+void
+System::setButtonDown(bool down)
+{
+    _buttonIsDown = down;
+}
+
 void 
 System::initAnalog(int pin)
 {
