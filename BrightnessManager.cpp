@@ -55,6 +55,7 @@ BrightnessManager::BrightnessManager(std::function<void(uint32_t brightness)> ha
 	, _numSamples(numSamples)
 	, _handler(handler)
 {
+    System::initAnalog(lightSensor);
 }
 
 void BrightnessManager::start(uint32_t sampleRate)
@@ -64,7 +65,7 @@ void BrightnessManager::start(uint32_t sampleRate)
 
 void BrightnessManager::computeBrightness()
 {
-	uint32_t ambientLightLevel = System::gpioReadAnalog(_lightSensor);
+	uint32_t ambientLightLevel = System::readAnalog(_lightSensor);
 
 	if (_invert) {
 		ambientLightLevel = 1024 - ambientLightLevel;
