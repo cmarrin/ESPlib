@@ -28,6 +28,7 @@ All rights reserved.
 #include "esp_system.h"
 #include "esp_log.h"
 #include "esp_timer.h"
+#include "esp_adc/adc_continuous.h"
 
 #include <functional>
 
@@ -152,13 +153,16 @@ class System
     static void gpioSetPinMode(uint8_t pin, GPIOPinMode mode);
     static void gpioWritePin(uint8_t pin, bool state);
     static bool gpioReadPin(uint8_t pin);
-    static uint32_t gpioReadAnalog(uint8_t pin);
     
     // This interfaces to LEDs. It can be a single LED connected to a GPIO
     // pin, an addressable RGB LED, or a strip of addressable LEDs.
     static void initLED(uint8_t channel, uint8_t pin, uint32_t numLEDs);
     static void setLED(uint8_t channel, uint32_t index, uint8_t r, uint8_t g, uint8_t b);
     static void refreshLEDs(uint8_t channel);
+    
+    // Analog
+    static void initAnalog(int pin);
+    static uint32_t readAnalog(uint8_t pin);
     
     static uint32_t millis();
     

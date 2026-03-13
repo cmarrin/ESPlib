@@ -62,8 +62,13 @@ System::gpioReadPin(uint8_t pin)
     return digitalRead(pin) != 0;
 }
 
+void 
+System::initAnalog(int pin)
+{
+}
+
 uint32_t
-System::gpioReadAnalog(uint8_t pin)
+System::readAnalog(uint8_t pin)
 {
 	return analogRead(pin);
 }
@@ -168,10 +173,14 @@ System::gpioReadPin(uint8_t pin)
     return gpio_get_level(gpio_num_t(pin)) != 0;
 }
 
-uint32_t
-System::gpioReadAnalog(uint8_t pin)
+void 
+System::initAnalog(int pin)
 {
-    // FIXME: Implement
+}
+
+uint32_t
+System::readAnalog(uint8_t pin)
+{
 	return 0;
 }
 
@@ -267,10 +276,13 @@ bool
 System::gpioReadPin(uint8_t pin)
 {
     return true;
+void 
+System::initAnalog(int pin)
+{
 }
 
 uint32_t
-System::gpioReadAnalog(uint8_t pin)
+System::readAnalog(uint8_t pin)
 {
 	return 0;
 }
