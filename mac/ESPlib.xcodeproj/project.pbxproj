@@ -169,7 +169,6 @@
 		495613122F4D187400A665A8 /* idf_component.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = idf_component.yml; sourceTree = "<group>"; };
 		495613132F4D187400A665A8 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		4956142D2F4D187400A665A8 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
-		495614302F4D187400A665A8 /* partitions.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = partitions.csv; sourceTree = "<group>"; };
 		495614312F4D187400A665A8 /* sdkconfig */ = {isa = PBXFileReference; lastKnownFileType = text; path = sdkconfig; sourceTree = "<group>"; };
 		495AB4572E9C730A00C4C2C4 /* Vesper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Vesper; sourceTree = BUILT_PRODUCTS_DIR; };
 		495AB4652E9C753400C4C2C4 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
@@ -372,7 +371,6 @@
 				495613102F4D187400A665A8 /* components */,
 				495613142F4D187400A665A8 /* main */,
 				4956142D2F4D187400A665A8 /* CMakeLists.txt */,
-				495614302F4D187400A665A8 /* partitions.csv */,
 				495614312F4D187400A665A8 /* sdkconfig */,
 			);
 			name = espidf;
