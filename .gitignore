@@ -12,3 +12,4 @@ dependencies.lock
 settings.json
 *.gz.h
 *.html.gz
+sdkconfig

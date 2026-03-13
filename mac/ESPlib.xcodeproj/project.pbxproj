@@ -169,13 +169,11 @@
 		495613122F4D187400A665A8 /* idf_component.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = idf_component.yml; sourceTree = "<group>"; };
 		495613132F4D187400A665A8 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		4956142D2F4D187400A665A8 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
-		495614312F4D187400A665A8 /* sdkconfig */ = {isa = PBXFileReference; lastKnownFileType = text; path = sdkconfig; sourceTree = "<group>"; };
 		495AB4572E9C730A00C4C2C4 /* Vesper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Vesper; sourceTree = BUILT_PRODUCTS_DIR; };
 		495AB4652E9C753400C4C2C4 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		495AB46A2E9C777C00C4C2C4 /* Vesper.ino */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; name = Vesper.ino; path = ../Vesper/Vesper.ino; sourceTree = "<group>"; };
 		495AB46B2E9C77FE00C4C2C4 /* Vesper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Vesper.h; path = ../Vesper/Vesper.h; sourceTree = SOURCE_ROOT; };
 		495AB46C2E9C77FE00C4C2C4 /* Vesper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Vesper.cpp; path = ../Vesper/Vesper.cpp; sourceTree = SOURCE_ROOT; };
-		495AB4722E9C7D1800C4C2C4 /* partitions.csv */ = {isa = PBXFileReference; lastKnownFileType = text; name = partitions.csv; path = ../Vesper/partitions.csv; sourceTree = SOURCE_ROOT; };
 		4968BAE52F19CAD40038B8A9 /* HTTPParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HTTPParser.h; path = ../HTTPParser.h; sourceTree = "<group>"; };
 		4968BAE72F19CAE90038B8A9 /* HTTPParser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = HTTPParser.cpp; path = ../HTTPParser.cpp; sourceTree = "<group>"; };
 		4968BB432F2823C00038B8A9 /* shell.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = shell.html; path = ../shell.html; sourceTree = SOURCE_ROOT; };
@@ -184,6 +182,7 @@
 		499E4C282F3C0B19006BD9C1 /* LEDRace.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = LEDRace.lua; path = ../LEDRace.lua; sourceTree = SOURCE_ROOT; };
 		49CAA5C92F11E434005B1107 /* cvtHTML.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = cvtHTML.sh; path = ../cvtHTML.sh; sourceTree = SOURCE_ROOT; };
 		49CAA5CA2F15F5B9005B1107 /* landing.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = landing.html; path = ../landing.html; sourceTree = SOURCE_ROOT; };
+		49D3664C2F64C56F0047CAC6 /* sdkconfig.defaults */ = {isa = PBXFileReference; lastKnownFileType = text; path = sdkconfig.defaults; sourceTree = "<group>"; };
 		49D723E62F329F1D0057DE87 /* LuaWFS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LuaWFS.h; path = ../LuaWFS.h; sourceTree = "<group>"; };
 		49D723E82F329F2D0057DE87 /* LuaWFS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = LuaWFS.cpp; path = ../LuaWFS.cpp; sourceTree = "<group>"; };
 		49DBBCCD2F5A6217001930A0 /* LEDCylon.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = LEDCylon.lua; path = ../LEDCylon.lua; sourceTree = SOURCE_ROOT; };
@@ -368,10 +367,10 @@
 		495614332F4D187400A665A8 /* espidf */ = {
 			isa = PBXGroup;
 			children = (
+				49D3664C2F64C56F0047CAC6 /* sdkconfig.defaults */,
 				495613102F4D187400A665A8 /* components */,
 				495613142F4D187400A665A8 /* main */,
 				4956142D2F4D187400A665A8 /* CMakeLists.txt */,
-				495614312F4D187400A665A8 /* sdkconfig */,
 			);
 			name = espidf;
 			path = ../Vesper/espidf;
@@ -383,7 +382,6 @@
 				495614332F4D187400A665A8 /* espidf */,
 				491673D82EA80A0D0028A6F0 /* timing.lua */,
 				492744632E9F185D00AF8FA1 /* index.html */,
-				495AB4722E9C7D1800C4C2C4 /* partitions.csv */,
 				495AB46B2E9C77FE00C4C2C4 /* Vesper.h */,
 				495AB46C2E9C77FE00C4C2C4 /* Vesper.cpp */,
 				495AB46A2E9C777C00C4C2C4 /* Vesper.ino */,
