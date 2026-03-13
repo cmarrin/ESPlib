@@ -193,10 +193,10 @@ GraphicsCanvas1::drawPixel(int16_t x, int16_t y, uint16_t color)
     }
     
     if (_flipX) {
-        x = _width - x;
+        x = _width - x - 1;
     }
     if (_flipY) {
-        y = _height - y;
+        y = _height - y - 1;
     }
 
     int16_t t;
