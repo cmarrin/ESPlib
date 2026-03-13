@@ -20,9 +20,9 @@ All rights reserved.
 // These values are for the ESP32C3
 static constexpr int CASCADE_SIZE = 4;
 static constexpr spi_host_device_t HOST = SPI2_HOST;
-static constexpr int MOSI = 4;
-static constexpr int CLK = 1;
-static constexpr int CS = 5;
+static constexpr int MOSI = 10;
+static constexpr int CLK = 11;
+static constexpr int CS = 7;
 
 static max7219_t dev =
 {
@@ -103,7 +103,6 @@ void Max7219Display::showString(const char* s)
 		scrollString(string.c_str() + charStart, WatusiRate, ScrollType::WatusiLeft);
 		return;
 	}
-
 
 	_matrix.setCursor((_matrix.width() - w) / 2, -y1);
 	_matrix.fillScreen(0);
