@@ -30,7 +30,7 @@ System::vformat(const char* fmt, va_list args)
 void
 System::initLED()
 {
-    System::gpioSetPinMode(LED_BUILTIN, System::GPIOPinMode::Output);
+    System::gpioSetPinMode(LED_BUILTIN, System::GPIOPinMode::Output, bool);
 }
 
 void
@@ -160,7 +160,7 @@ System::refreshLEDs(uint8_t channel)
 }
 
 void
-System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode, bool
+System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode, bool)
 {
     gpio_reset_pin(gpio_num_t(pin));
     gpio_set_direction(gpio_num_t(pin), (mode == GPIOPinMode::Output) ? GPIO_MODE_OUTPUT : GPIO_MODE_INPUT);
