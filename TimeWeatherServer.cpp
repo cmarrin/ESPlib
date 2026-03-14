@@ -202,8 +202,8 @@ bool TimeWeatherServer::update(const char* zipCode)
     }
     
 	// Check at interval of UpdateFrequency seconds
-	int32_t timeToNextCheck = UpdateFrequency * 1000;
-	_ticker.once_ms(timeToNextCheck, [this]() { _handler(); });
+	int32_t timeToNextCheck = UpdateFrequency;
+	_ticker.once_ms(timeToNextCheck * 1000, [this]() { _handler(); });
  
     printf("Epoch: %u\n", (unsigned int) _currentTime);
     printf("Weather: conditions='%s'\n", _conditions.c_str());
