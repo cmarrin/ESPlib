@@ -28,7 +28,6 @@ All rights reserved.
 #include "esp_system.h"
 #include "esp_log.h"
 #include "esp_timer.h"
-#include "esp_adc/adc_continuous.h"
 
 #include <functional>
 
@@ -90,7 +89,7 @@ public:
         }).detach();
     }
     
-    void attach_ms(uint32_t ms, callback_t callback)
+    void attach_ms(uint64_t ms, callback_t callback)
     {
         _ms = ms;
         _cb = callback;
@@ -130,7 +129,7 @@ public:
     }
     
 private:
-    uint32_t _ms = 0;
+    uint64_t _ms = 0;
     callback_t _cb = nullptr;
     std::thread _thread;
     std::thread::id _id;

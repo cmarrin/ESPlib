@@ -98,6 +98,7 @@ System::restart()
 
 #include "driver/gpio.h"
 #include "led_strip.h"
+#include "esp_adc/adc_oneshot.h"
 
 static constexpr int NumLEDChannels = 4;
 
@@ -183,15 +184,33 @@ System::setButtonDown(bool down)
 {
 }
 
+static constexpr adc_channel_t ADCChannel = ADC_CHANNEL_3;
+static adc_oneshot_unit_handle_t adcHandle;
+
 void 
 System::initAnalog(int pin)
 {
+    adc_oneshot_unit_init_cfg_t init_config1 = {
+        .unit_id = ADC_UNIT_1,
+    };
+    ESP_ERROR_CHECK(adc_oneshot_new_unit(&init_config1, &adcHandle));
+    adc_oneshot_chan_cfg_t config = {
+        .atten = ADC_ATTEN_DB_12,
+        .bitwidth = ADC_BITWIDTH_DEFAULT,
+    };
+    ESP_ERROR_CHECK(adc_oneshot_config_channel(adcHandle, ADCChannel, &config));
 }
 
 uint32_t
 System::readAnalog(uint8_t pin)
 {
-	return 0;
+    int raw;
+    ESP_ERROR_CHECK(adc_oneshot_read(adcHandle, ADCChannel, &raw));
+    if (raw < 0) {
+        raw = 0;
+    }
+    
+    return uint32_t(raw);
 }
 
 uint32_t
