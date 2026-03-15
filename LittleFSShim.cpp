@@ -49,7 +49,7 @@ Dir::next()
         return false;
     }
     _dir++;
-    return  _dir != std::filesystem::end(_dir);
+    return _dir != std::filesystem::end(_dir);
 }
 
 const char*
@@ -69,31 +69,29 @@ Dir::fileSize() const
     return _open ? _dir->file_size() : 0;
 }
 
+bool
+Dir::isDirectory() const
+{
+    return _open ? _dir->is_directory() : false;
+}
+
 File::File(const std::filesystem::path& path, const char* mode)
 {
     close();
     
     _path = path;
     _name = _path.filename();
-    std::filesystem::path realPath = LittleFS.makePath(_path.c_str());
+    _file = fopen(path.c_str(), mode);
 
-    if (std::filesystem::is_directory(realPath)) {
-        _isDir = true;
-        _dir = Dir(realPath.c_str());
-    } else {
-        _isDir = false;
-        _file = fopen(realPath.c_str(), mode);
-
-        // errno gets set by std::filesystem::is_directory, so clear it here
-        _error = (_file != nullptr) ? 0 : errno;
-        errno = 0;
-    }
+    // errno gets set by std::filesystem::is_directory, so clear it here
+    _error = (_file != nullptr) ? 0 : errno;
+    errno = 0;
 }
 
 int
 File::write(const uint8_t* buf, size_t size)
 {
-    if (_isDir) {
+    if (isDirectory()) {
         return -1;
     }
     
@@ -112,7 +110,7 @@ File::write(uint8_t c)
 int
 File::read(uint8_t* buf, size_t size)
 {
-    if (_isDir) {
+    if (isDirectory()) {
         return -1;
     }
     
@@ -124,7 +122,7 @@ File::read(uint8_t* buf, size_t size)
 int
 File::read()
 {
-    if (_isDir) {
+    if (isDirectory()) {
         return -1;
     }
     
@@ -136,7 +134,7 @@ File::read()
 int
 File::peek()
 {
-    if (_isDir) {
+    if (isDirectory()) {
         return -1;
     }
     
@@ -149,7 +147,7 @@ File::peek()
 bool
 File::flush()
 {
-    if (_isDir) {
+    if (isDirectory()) {
         return false;
     }
     
@@ -161,7 +159,7 @@ File::flush()
 bool
 File::seek(uint32_t pos, SeekMode mode)
 {
-    if (_isDir) {
+    if (isDirectory()) {
         return -1;
     }
     
@@ -179,7 +177,7 @@ File::seek(uint32_t pos, SeekMode mode)
 size_t
 File::position()
 {
-    if (_isDir) {
+    if (isDirectory()) {
         return -1;
     }
     
@@ -191,11 +189,11 @@ File::position()
 size_t
 File::size() const
 {
-    if (_isDir) {
+    if (isDirectory()) {
         return 0;
     }
     
-    return std::filesystem::file_size(LittleFS.makePath(path()));
+    return std::filesystem::file_size(_path);
 }
 
 bool
@@ -204,29 +202,21 @@ File::close()
     if (_file) {
         fclose(_file);
         _file = nullptr;
-    } else if (_isDir) {
-        _dir = Dir();
     }
     _error = 0;
     return true;
 }
 
 const char*
-File::path() const
-{
-    return _path.c_str();
-}
-
-const char*
 File::fileName() const
 {
-    return _isDir ? _dir.fileName() : _name.c_str();
+    return _name.c_str();
 }
 
 bool
-File::isDirectory()
+File::isDirectory() const
 {
-    return _isDir;
+    return std::filesystem::is_directory(_path);
 }
 
 bool
@@ -322,48 +312,33 @@ FS::open(const char* path, const char* mode, bool create)
 bool
 FS::exists(const char* path)
 {
-    return std::filesystem::exists(makePath(path));
+    return std::filesystem::exists(path);
 }
 
 bool
 FS::remove(const char* path)
 {
-    return (path && path[0] != '\0') ? std::filesystem::remove(makePath(path)) : false;
+    return (path && path[0] != '\0') ? std::filesystem::remove(path) : false;
 }
 
 bool
 FS::rename(const char* fromPath, const char* toPath)
 {
     std::error_code ec;
-    std::filesystem::rename(makePath(fromPath), makePath(toPath), ec);
+    std::filesystem::rename(fromPath, toPath, ec);
     return bool(ec);
 }
 
 bool
 FS::mkdir(const char* path)
 {
-    return (path && path[0] != '\0') ? std::filesystem::create_directory(makePath(path)) : false;
+    return (path && path[0] != '\0') ? std::filesystem::create_directory(path) : false;
 }
 
 bool
 FS::rmdir(const char* path)
 {
     return remove(path);
-}
-
-std::filesystem::path
-FS::makePath(const char* path)
-{
-    std::filesystem::path realPath;
-    
-    if (path == nullptr || path[0] == '\0') {
-        // Empty path. just use _cwd
-        realPath = _rootDir.string();
-    } else {
-        realPath = _rootDir;
-        realPath += std::string("/") + path;
-    }
-    return realPath.lexically_normal();
 }
 
 #endif

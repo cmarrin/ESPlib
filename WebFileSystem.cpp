@@ -203,31 +203,31 @@ WebFileSystem::usedBytes()
 bool
 WebFileSystem::exists(const char* path)
 {
-    return LittleFS.exists(path);
+    return LittleFS.exists(realPath(path).c_str());
 }
 
 bool
 WebFileSystem::remove(const char* path)
 {
-    return LittleFS.remove(path);
+    return LittleFS.remove(realPath(path).c_str());
 }
 
 bool
 WebFileSystem::rename(const char* fromPath, const char* toPath)
 {
-    return LittleFS.rename(fromPath, toPath);
+    return LittleFS.rename(realPath(fromPath).c_str(), realPath(toPath).c_str());
 }
 
 bool
 WebFileSystem::mkdir(const char* path)
 {
-    return LittleFS.mkdir(path);
+    return LittleFS.mkdir(realPath(path).c_str());
 }
 
 bool
 WebFileSystem::rmdir(const char* path)
 {
-    return LittleFS.rmdir(path);
+    return LittleFS.rmdir(realPath(path).c_str());
 }
 
 std::string
@@ -405,7 +405,7 @@ WebFileSystem::handleLandingSetup(WiFiPortal* portal)
 fs::File
 WebFileSystem::open(const char* path, const char* mode, bool create)
 {
-    return LittleFS.open(path, mode);
+    return LittleFS.open(realPath(path).c_str(), mode);
 }
 
 std::string
@@ -421,11 +421,11 @@ WebFileSystem::realPath(const char* path)
         }
         p += std::string("/") + path;
     }
-    p = std::filesystem::path(p).lexically_normal().string();
 
 #if defined ARDUINO
-    return "/littlefs" + p;
+    p = "/littlefs" + p;
 #else
-    return LittleFS.makePath(p.c_str());
+    p = LittleFS.rootDir() + p;
 #endif
+    return std::filesystem::path(p).lexically_normal().string();
 }

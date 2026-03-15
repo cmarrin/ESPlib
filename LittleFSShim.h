@@ -28,6 +28,8 @@ class Dir
     bool next();
     const char* fileName() const;
     size_t fileSize() const;
+    bool isDirectory() const;
+    bool rewind() { return true; }
     
   private:
     std::filesystem::directory_iterator _dir;
@@ -50,8 +52,6 @@ class File
     File& operator=(File&& other)
     {
         close();
-        _dir = std::move(other._dir);
-        _isDir = other._isDir;
         _path = std::move(other._path);
         _name = std::move(other._name);
         _error = other._error;
@@ -73,17 +73,13 @@ class File
     
     bool close();
     
-    const char* path() const;
     const char* fileName() const;
-    size_t fileSize() const { return _isDir ? _dir.fileSize() : 0; }
+    size_t fileSize() const { return std::filesystem::file_size(_path); }
     
-    bool isDirectory();
-    bool next() { return _isDir ? _dir.next() : false; }
+    bool isDirectory() const;
     
-    operator bool() const { return _isDir || (_file && _error == 0); }
-    
-    bool isOpenFile() const { return *this && !_isDir; }
-    
+    operator bool() const { return _file && _error == 0; }
+
     FILE* filePtr() const { return _file; }
     
     int error() const { return _error; }
@@ -97,8 +93,6 @@ class File
     }
     
   private:
-    Dir _dir;
-    bool _isDir = false;
     std::filesystem::path _path;
     std::string _name; // We need to keep this so we can return it as a const char*
     int _error = 0;
@@ -115,8 +109,8 @@ class FS
 #if defined ESP_PLATFORM
         _rootDir = "/littlefs/";
 #else
-        _rootDir = std::filesystem::current_path() / "littlefs" / "";
-        if (!exists("")) {
+        _rootDir = (std::filesystem::current_path() / "littlefs" / "").string();
+        if (!exists(_rootDir.c_str())) {
             mkdir(_rootDir.c_str());
         }
 #endif
@@ -134,13 +128,11 @@ class FS
     bool rename(const char* fromPath, const char* toPath);
     bool mkdir(const char* path);
     bool rmdir(const char* path);
-    
-    std::filesystem::path makePath(const char* path);
-    
-    std::filesystem::path rootDir() const { return _rootDir; }
+
+    std::string rootDir() const { return _rootDir; }
     
   private:
-    std::filesystem::path _rootDir;
+    std::string _rootDir;
 };
 
 }
