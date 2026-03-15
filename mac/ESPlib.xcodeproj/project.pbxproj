@@ -183,6 +183,14 @@
 		49CAA5C92F11E434005B1107 /* cvtHTML.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = cvtHTML.sh; path = ../cvtHTML.sh; sourceTree = SOURCE_ROOT; };
 		49CAA5CA2F15F5B9005B1107 /* landing.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = landing.html; path = ../landing.html; sourceTree = SOURCE_ROOT; };
 		49D3664C2F64C56F0047CAC6 /* sdkconfig.defaults */ = {isa = PBXFileReference; lastKnownFileType = text; path = sdkconfig.defaults; sourceTree = "<group>"; };
+		49D372972F65D7D90047CAC6 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
+		49D372982F65D7D90047CAC6 /* idf_component.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = idf_component.yml; sourceTree = "<group>"; };
+		49D372992F65D7D90047CAC6 /* Kconfig.projbuild */ = {isa = PBXFileReference; lastKnownFileType = text; path = Kconfig.projbuild; sourceTree = "<group>"; };
+		49D3729A2F65D7D90047CAC6 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		49D386BB2F65D7D90047CAC6 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
+		49D386BF2F65D7D90047CAC6 /* sdkconfig */ = {isa = PBXFileReference; lastKnownFileType = text; path = sdkconfig; sourceTree = "<group>"; };
+		49D386C02F65D7D90047CAC6 /* sdkconfig.defaults */ = {isa = PBXFileReference; lastKnownFileType = text; path = sdkconfig.defaults; sourceTree = "<group>"; };
+		49D386C52F65D7D90047CAC6 /* sdkconfig.defaults.esp32c6 */ = {isa = PBXFileReference; lastKnownFileType = text; path = sdkconfig.defaults.esp32c6; sourceTree = "<group>"; };
 		49D723E62F329F1D0057DE87 /* LuaWFS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LuaWFS.h; path = ../LuaWFS.h; sourceTree = "<group>"; };
 		49D723E82F329F2D0057DE87 /* LuaWFS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = LuaWFS.cpp; path = ../LuaWFS.cpp; sourceTree = "<group>"; };
 		49DBBCCD2F5A6217001930A0 /* LEDCylon.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = LEDCylon.lua; path = ../LEDCylon.lua; sourceTree = SOURCE_ROOT; };
@@ -379,6 +387,7 @@
 		495AB4692E9C756400C4C2C4 /* Vesper */ = {
 			isa = PBXGroup;
 			children = (
+				49D386CB2F65D7D90047CAC6 /* arduino */,
 				495614332F4D187400A665A8 /* espidf */,
 				491673D82EA80A0D0028A6F0 /* timing.lua */,
 				492744632E9F185D00AF8FA1 /* index.html */,
@@ -397,6 +406,30 @@
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
+		};
+		49D3729B2F65D7D90047CAC6 /* main */ = {
+			isa = PBXGroup;
+			children = (
+				49D372972F65D7D90047CAC6 /* CMakeLists.txt */,
+				49D372982F65D7D90047CAC6 /* idf_component.yml */,
+				49D372992F65D7D90047CAC6 /* Kconfig.projbuild */,
+				49D3729A2F65D7D90047CAC6 /* main.cpp */,
+			);
+			path = main;
+			sourceTree = "<group>";
+		};
+		49D386CB2F65D7D90047CAC6 /* arduino */ = {
+			isa = PBXGroup;
+			children = (
+				49D3729B2F65D7D90047CAC6 /* main */,
+				49D386BB2F65D7D90047CAC6 /* CMakeLists.txt */,
+				49D386BF2F65D7D90047CAC6 /* sdkconfig */,
+				49D386C02F65D7D90047CAC6 /* sdkconfig.defaults */,
+				49D386C52F65D7D90047CAC6 /* sdkconfig.defaults.esp32c6 */,
+			);
+			name = arduino;
+			path = ../Vesper/arduino;
+			sourceTree = SOURCE_ROOT;
 		};
 		49E65AF82E9C36F800D3C6C5 = {
 			isa = PBXGroup;
