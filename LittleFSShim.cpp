@@ -36,10 +36,13 @@ fs::FS LittleFS;
 
 Dir::Dir(const char* path)
 {
-    if (std::filesystem::is_directory(path)) {
-        _dir = std::filesystem::directory_iterator(path);
-        _open = true;
+    if (!std::filesystem::is_directory(path)) {
+        _open = false;
+        return;
     }
+    
+    _dir = std::filesystem::directory_iterator(path);
+    _open = (_dir != std::filesystem::end(_dir));
 }
 
 bool
@@ -48,8 +51,18 @@ Dir::next()
     if (!_open) {
         return false;
     }
+
+    if (first) {
+        // We're already at the first file
+        first = false;
+        return true;
+    }
+    
     _dir++;
-    return _dir != std::filesystem::end(_dir);
+    if (_dir == std::filesystem::end(_dir)) {
+        _open = false;
+    }
+    return _open;
 }
 
 const char*
@@ -81,6 +94,14 @@ File::File(const std::filesystem::path& path, const char* mode)
     
     _path = path;
     _name = _path.filename();
+    
+    // If this is a directory, don't try to open it as a file.
+    if (std::filesystem::is_directory(path)) {
+        _isDir = true;
+        return;
+    }
+
+    _isDir = false;
     _file = fopen(path.c_str(), mode);
 
     // errno gets set by std::filesystem::is_directory, so clear it here
@@ -216,7 +237,7 @@ File::fileName() const
 bool
 File::isDirectory() const
 {
-    return std::filesystem::is_directory(_path);
+    return _isDir;
 }
 
 bool
@@ -307,6 +328,12 @@ File
 FS::open(const char* path, const char* mode, bool create)
 {
     return File(path, mode);
+}
+
+Dir
+FS::openDir(const char* path)
+{
+    return Dir(path);
 }
 
 bool

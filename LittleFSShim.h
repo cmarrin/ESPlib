@@ -29,12 +29,16 @@ class Dir
     const char* fileName() const;
     size_t fileSize() const;
     bool isDirectory() const;
-    bool rewind() { return true; }
     
   private:
     std::filesystem::directory_iterator _dir;
     mutable std::string _name;
     bool _open = false;
+    
+    // LittleFS starts it dir object not pointing at the first file,
+    // but directory_iterator does. So we need to handle the first
+    // call to next() specially
+    bool first = true;
 };
     
 class File
@@ -77,8 +81,9 @@ class File
     size_t fileSize() const { return std::filesystem::file_size(_path); }
     
     bool isDirectory() const;
+    bool next() { return false; }
     
-    operator bool() const { return _file && _error == 0; }
+    operator bool() const { return _isDir || (_file && _error == 0); }
 
     FILE* filePtr() const { return _file; }
     
@@ -97,6 +102,7 @@ class File
     std::string _name; // We need to keep this so we can return it as a const char*
     int _error = 0;
     FILE* _file = nullptr;
+    bool _isDir = false;
 };
 
 class FS
@@ -122,6 +128,7 @@ class FS
     size_t usedBytes();
 
     File open(const char* path, const char* mode = "r", bool create = false);
+    Dir openDir(const char* path);
     
     bool exists(const char* path);
     bool remove(const char* path);

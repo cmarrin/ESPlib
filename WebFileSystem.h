@@ -30,6 +30,7 @@ class WebFileSystem
   public:
     bool begin(Application*, bool format);
     static fs::File open(const char* path, const char* mode = "r", bool create = false);
+    static fs::Dir openDir(const char* path);
     
     static size_t totalBytes();
     static size_t usedBytes();

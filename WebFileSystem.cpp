@@ -51,6 +51,7 @@ const
 #endif
 
 std::string WebFileSystem::_cwd = "/";
+static const char* TAG = "WebFileSystem";
 
 // If return is true path has path to use and the file or dir exists
 bool
@@ -235,9 +236,10 @@ WebFileSystem::listDir(const char* dirname, uint8_t levels)
 {
     std::string s;
     
+    // First see if it's a directory
     fs::File root = open(dirname);
     if (!root){
-        printf("Failed to open directory\n");
+        System::logE(TAG, "Failed to open directory\n");
         return "";
     }
     
@@ -246,11 +248,14 @@ WebFileSystem::listDir(const char* dirname, uint8_t levels)
         root.close();
         return "";
     }
+    
+    root.close();
 
     bool first_files = true;
+    fs::Dir dir = openDir(dirname);
     
-    while (true) {
-        std::string path = root.fileName();
+    while (dir.next()) {
+        std::string path = dir.fileName();
         if (path.empty()) {
             break;
         }
@@ -260,18 +265,14 @@ WebFileSystem::listDir(const char* dirname, uint8_t levels)
         else 
             s += ":";
 
-        if (root.isDirectory()) {
+        if (dir.isDirectory()) {
             s += "1,";
             s += path;
         } else {
             s += "0,";
             s += path;
             s += ",";
-            s += std::to_string(root.fileSize());
-        }
-        
-        if (!root.next()) {
-            break;
+            s += std::to_string(dir.fileSize());
         }
     }
     
@@ -406,6 +407,12 @@ fs::File
 WebFileSystem::open(const char* path, const char* mode, bool create)
 {
     return LittleFS.open(realPath(path).c_str(), mode);
+}
+
+fs::Dir
+WebFileSystem::openDir(const char* path)
+{
+    return LittleFS.openDir(realPath(path).c_str());
 }
 
 std::string
