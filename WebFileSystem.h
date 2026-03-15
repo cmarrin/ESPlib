@@ -40,8 +40,8 @@ class WebFileSystem
     static bool mkdir(const char* path);
     static bool rmdir(const char* path);
 
-    static std::string realPath(const std::string& path);
-    static void setCWD(const char* cwd) { LittleFS.setCWD(cwd); }
+    static std::string realPath(const char* path);
+    static void setCWD(const char* cwd) { _cwd = cwd; }
     
     void sendLandingPage(WiFiPortal*);
     void sendWiFiPage(WiFiPortal*);
@@ -60,6 +60,9 @@ class WebFileSystem
     fs::File _uploadFile;
     bool _uploadAborted = false;
     std::string _uploadFilename;
+    
+    static std::string _cwd;
+
 };
 
 }

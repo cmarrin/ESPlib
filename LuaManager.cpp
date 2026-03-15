@@ -216,7 +216,7 @@ LuaManager::commandThread(const std::string& filename)
         _statusCond.notify_all();
     }
 
-    std::string realPath = WebFileSystem::realPath(filename);
+    std::string realPath = WebFileSystem::realPath(filename.c_str());
     if (luaL_dofile(_luaState, realPath.c_str()) != LUA_OK) {
         std::unique_lock<std::mutex> lk(_mutex);
         _status = Status::Error;

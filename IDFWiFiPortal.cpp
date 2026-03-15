@@ -302,7 +302,7 @@ IDFWiFiPortal::streamHTTPResponse(fs::File& file, const char* mimetype, bool att
     // For now assume this is a file download. So set Content-Disposition
     std::string disp = attach ? "attachment" : "inline";
     disp += "; filename=\"";
-    disp += file.name();
+    disp += file.fileName();
     disp += "\"";
     
     ESP_ERROR_CHECK(httpd_resp_set_hdr(_activeRequest, "Content-Disposition", disp.c_str()));

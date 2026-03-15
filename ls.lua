@@ -43,48 +43,44 @@ for _, dir in ipairs(dirs) do
 		__print__("'", dir, "' is not a directory\n")
 	else
 		-- show the directory name
-		__print__(root:name()..":\n")
+		__print__(dir..":\n")
 		
 		local FilenameWidth <const> = 34
 		
-		local path = root:next_dir_path()
+		local path = root:next_dir_entry()
 		
 		local lineWidth = 0;
 		
-		if path then
-			while true
-			do
-				local file = wfs.open(path)
-				local dir = file:isdir()
-				local filename = file:name()
-				local extraSpace = FilenameWidth - filename:len()
-				
-				if dir then
-					extraSpace = extraSpace - 1
-				end
-				
-				-- Will this filename fit on this line?
-				if lineWidth + FilenameWidth >= __cpl__ then
-					__print__("\n")
-					lineWidth = 0
-				end
-				
-				lineWidth = lineWidth + FilenameWidth
-				
-				if dir then
-					local s = "\x1b[33m"..filename.."/\x1b[0m"
-					__print__(s)
-				else
-					__print__(filename)
-				end
-				space(extraSpace)
-
-				path = root:next_dir_path();
-				if (path == "") then
-					break;
-				end
+		while true
+		do
+			local filename = root:filename()
+			local dir = root:isdir()
+			local extraSpace = FilenameWidth - filename:len()
+			
+			if dir then
+				extraSpace = extraSpace - 1
 			end
-			__print__("\n")
+			
+			-- Will this filename fit on this line?
+			if lineWidth + FilenameWidth >= __cpl__ then
+				__print__("\n")
+				lineWidth = 0
+			end
+			
+			lineWidth = lineWidth + FilenameWidth
+			
+			if dir then
+				local s = "\x1b[33m"..filename.."/\x1b[0m"
+				__print__(s)
+			else
+				__print__(filename)
+			end
+			space(extraSpace)
+
+			if not root:next_dir_entry() then
+				break;
+			end
 		end
+		__print__("\n")
 	end
 end

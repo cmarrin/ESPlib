@@ -172,7 +172,7 @@ WebServer::streamHTTPResponse(fs::File& file, const char* mimetype, bool attach,
     // For now assume this is a file download. So set Content-Disposition
     std::string disp = attach ? "attachment" : "inline";
     disp += "; filename=\"";
-    disp += file.name();
+    disp += file.fileName();
     disp += "\"";
     
     headers["Content-Disposition"] = disp;

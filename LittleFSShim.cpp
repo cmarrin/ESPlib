@@ -34,6 +34,41 @@ using namespace fs;
 
 fs::FS LittleFS;
 
+Dir::Dir(const char* path)
+{
+    if (std::filesystem::is_directory(path)) {
+        _dir = std::filesystem::directory_iterator(path);
+        _open = true;
+    }
+}
+
+bool
+Dir::next()
+{
+    if (!_open) {
+        return false;
+    }
+    _dir++;
+    return  _dir != std::filesystem::end(_dir);
+}
+
+const char*
+Dir::fileName() const
+{
+    if (!_open) {
+        return "";
+    }
+    std::filesystem::path path = _dir != std::filesystem::end(_dir) ? _dir->path() : "";
+    _name = path.filename();
+    return _name.c_str();
+}
+
+size_t
+Dir::fileSize() const
+{
+    return _open ? _dir->file_size() : 0;
+}
+
 File::File(const std::filesystem::path& path, const char* mode)
 {
     close();
@@ -44,7 +79,7 @@ File::File(const std::filesystem::path& path, const char* mode)
 
     if (std::filesystem::is_directory(realPath)) {
         _isDir = true;
-        _dir = std::filesystem::directory_iterator(realPath);
+        _dir = Dir(realPath.c_str());
     } else {
         _isDir = false;
         _file = fopen(realPath.c_str(), mode);
@@ -170,7 +205,7 @@ File::close()
         fclose(_file);
         _file = nullptr;
     } else if (_isDir) {
-        _dir = std::filesystem::directory_iterator();
+        _dir = Dir();
     }
     _error = 0;
     return true;
@@ -183,42 +218,15 @@ File::path() const
 }
 
 const char*
-File::name() const
+File::fileName() const
 {
-    return _name.c_str();
+    return _isDir ? _dir.fileName() : _name.c_str();
 }
 
 bool
 File::isDirectory()
 {
     return _isDir;
-}
-
-std::string
-File::getNextDirectoryPath()
-{
-    if (!_isDir || _dir == std::filesystem::end(_dir)) {
-        return "";
-    }
-    
-    std::filesystem::path path = _dir->path();
-    
-    // This is the "real" path. We need to turn it back into a virtual path
-    std::string root = LittleFS.rootDir();
-    std::string virtualPath = path.string().erase(0, root.length() - 1);
-    path = virtualPath;
-    
-    _dir++;
-    return path;
-}
-
-void
-File::rewindDirectory()
-{
-    if (!_isDir) {
-        return;
-    }
-    _dir = std::filesystem::directory_iterator(LittleFS.makePath(_path.c_str()));
 }
 
 bool
@@ -320,7 +328,7 @@ FS::exists(const char* path)
 bool
 FS::remove(const char* path)
 {
-    return std::filesystem::remove(makePath(path));
+    return (path && path[0] != '\0') ? std::filesystem::remove(makePath(path)) : false;
 }
 
 bool
@@ -334,7 +342,7 @@ FS::rename(const char* fromPath, const char* toPath)
 bool
 FS::mkdir(const char* path)
 {
-    return std::filesystem::create_directory(makePath(path));
+    return (path && path[0] != '\0') ? std::filesystem::create_directory(makePath(path)) : false;
 }
 
 bool
@@ -350,16 +358,12 @@ FS::makePath(const char* path)
     
     if (path == nullptr || path[0] == '\0') {
         // Empty path. just use _cwd
-        realPath = _rootDir.string() +  _cwd.string();
+        realPath = _rootDir.string();
     } else {
         realPath = _rootDir;
-        if (path[0] != '/') {
-            realPath += _cwd;
-        }
         realPath += std::string("/") + path;
     }
-    std::filesystem::path n = realPath.lexically_normal();
-    return n;
+    return realPath.lexically_normal();
 }
 
 #endif

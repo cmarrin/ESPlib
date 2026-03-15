@@ -11,7 +11,6 @@ All rights reserved.
 
 #include "mil.h"
 
-#include <fstream>
 #include <filesystem>
 
 // File System classes for Mac and esp-idf that duplicates the functionality 
@@ -21,6 +20,21 @@ namespace fs {
 
 enum class SeekMode { Set = 0, Cur = 1, End = 2 };
 
+class Dir
+{
+  public:
+    Dir() { }
+    Dir(const char* path);
+    bool next();
+    const char* fileName() const;
+    size_t fileSize() const;
+    
+  private:
+    std::filesystem::directory_iterator _dir;
+    mutable std::string _name;
+    bool _open = false;
+};
+    
 class File
 {
   public:
@@ -60,11 +74,11 @@ class File
     bool close();
     
     const char* path() const;
-    const char* name() const;
+    const char* fileName() const;
+    size_t fileSize() const { return _isDir ? _dir.fileSize() : 0; }
     
     bool isDirectory();
-    std::string getNextDirectoryPath();
-    void rewindDirectory();
+    bool next() { return _isDir ? _dir.next() : false; }
     
     operator bool() const { return _isDir || (_file && _error == 0); }
     
@@ -83,14 +97,14 @@ class File
     }
     
   private:
-    std::filesystem::directory_iterator _dir;
+    Dir _dir;
     bool _isDir = false;
     std::filesystem::path _path;
     std::string _name; // We need to keep this so we can return it as a const char*
     int _error = 0;
     FILE* _file = nullptr;
 };
-    
+
 class FS
 {
   public:
@@ -121,16 +135,12 @@ class FS
     bool mkdir(const char* path);
     bool rmdir(const char* path);
     
-    // Create an absolute path starting with _cwd
     std::filesystem::path makePath(const char* path);
     
     std::filesystem::path rootDir() const { return _rootDir; }
     
-    void setCWD(const char* cwd) { _cwd = cwd; }
-
   private:
     std::filesystem::path _rootDir;
-    std::filesystem::path _cwd = "/";
 };
 
 }

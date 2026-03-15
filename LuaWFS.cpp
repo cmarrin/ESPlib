@@ -199,25 +199,26 @@ static int f_seek(lua_State* L)
     return 1;
 }
 
-static int f_name(lua_State* L)
+static int f_filename(lua_State* L)
 {
     fs::File& f = tofile(L);
     errno = 0;
     if (!f) {
         return luaL_fileresult(L, 0, nullptr);
     }
-    lua_pushstring(L, f.name());
+    lua_pushstring(L, f.fileName());
     return 1;
 }
 
-static int f_nextdirpath(lua_State* L)
+static int f_nextdirentry(lua_State* L)
 {
     fs::File& f = tofile(L);
     errno = 0;
-    if (!f) {
+    if (!f || !f.isDirectory()) {
         return luaL_fileresult(L, 0, nullptr);
     }
-    lua_pushstring(L, f.getNextDirectoryPath().c_str());
+    
+    lua_pushboolean(L, f.next());
     return 1;
 }
 
@@ -416,7 +417,7 @@ static const luaL_Reg wfslib[] = {
 ** methods for file handles
 */
 static const luaL_Reg meth[] = {
-  {"name", f_name},
+  {"filename", f_filename},
   {"read", f_read},
   {"write", f_write},
   {"flush", f_flush},
@@ -426,7 +427,7 @@ static const luaL_Reg meth[] = {
   {"size", f_size},
   {"isdir", f_isdir},
   {"close", f_close},
-  {"next_dir_path", f_nextdirpath},
+  {"next_dir_entry", f_nextdirentry},
   {NULL, NULL}
 };
 

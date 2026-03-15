@@ -50,6 +50,8 @@ const
 #define FILEMGR_LEN_NAME filemgr_html_len
 #endif
 
+std::string WebFileSystem::_cwd = "/";
+
 // If return is true path has path to use and the file or dir exists
 bool
 WebFileSystem::prepareFile(WiFiPortal* p, std::string& path)
@@ -246,32 +248,31 @@ WebFileSystem::listDir(const char* dirname, uint8_t levels)
     }
 
     bool first_files = true;
-    std::string path = root.getNextDirectoryPath();
-    if (!path.empty()) {
-        fs::File file = open(path.c_str());
-        while (true) {
-            if (first_files)
-                first_files = false;
-            else 
-                s += ":";
-
-            if (file.isDirectory()) {
-                s += "1,";
-                s += file.name();
-            } else {
-                s += "0,";
-                s += file.name();
-                s += ",";
-                s += std::to_string(file.size());
-            }
-            
-            path = root.getNextDirectoryPath();
-            if (path.empty()) {
-                break;
-            }
-            file = open(path.c_str());
+    
+    while (true) {
+        std::string path = root.fileName();
+        if (path.empty()) {
+            break;
         }
-        file.close();
+
+        if (first_files)
+            first_files = false;
+        else 
+            s += ":";
+
+        if (root.isDirectory()) {
+            s += "1,";
+            s += path;
+        } else {
+            s += "0,";
+            s += path;
+            s += ",";
+            s += std::to_string(root.fileSize());
+        }
+        
+        if (!root.next()) {
+            break;
+        }
     }
     
     return s;
@@ -325,7 +326,7 @@ WebFileSystem::handleUpload(WiFiPortal* p)
             printf("handleUpload: Upload Aborted\n");
             if (_uploadFile) {
                // Delete the file
-                std::string filename = _uploadFile.name();
+                std::string filename = _uploadFile.fileName();
                 _uploadFile.close();
                 remove(filename.c_str());
             }
@@ -408,11 +409,23 @@ WebFileSystem::open(const char* path, const char* mode, bool create)
 }
 
 std::string
-WebFileSystem::realPath(const std::string& path)
+WebFileSystem::realPath(const char* path)
 {
+    std::string p;
+    if (path == nullptr || path[0] == '\0') {
+        // Empty path. just use _cwd
+        p = _cwd;
+    } else {
+        if (path[0] != '/') {
+            p = _cwd;
+        }
+        p += std::string("/") + path;
+    }
+    p = std::filesystem::path(p).lexically_normal().string();
+
 #if defined ARDUINO
-    return "/littlefs" + path;
+    return "/littlefs" + p;
 #else
-    return LittleFS.makePath(path.c_str());
+    return LittleFS.makePath(p.c_str());
 #endif
 }
