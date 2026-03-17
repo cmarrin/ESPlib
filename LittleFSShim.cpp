@@ -181,7 +181,7 @@ size_t
 File::size() const
 {
     if (isDirectory()) {
-        return 0;
+        return _dir->file_size();
     }
     
     return std::filesystem::file_size(_path);
