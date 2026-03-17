@@ -11,7 +11,6 @@ All rights reserved.
 
 using namespace mil;
 
-static constexpr uint8_t LED_BUILTIN = 8;
 static constexpr int MaxHostnameLength = 40;
 static const char* TAG = "Application";
 

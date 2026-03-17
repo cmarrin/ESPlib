@@ -47,7 +47,6 @@ DAMAGE.
 #if defined ARDUINO
 #include <Arduino.h>
 #include <Printable.h>
-
 #else
 #include <cstdint>
 #include <cstdlib>
@@ -55,6 +54,8 @@ DAMAGE.
 #include <iostream>
 #include <chrono>
 #include <functional>
+
+static constexpr uint8_t LED_BUILTIN = 8;
 
 static inline void delay(uint32_t ms) { useconds_t us = useconds_t(ms) * 1000; usleep(us); }
 
