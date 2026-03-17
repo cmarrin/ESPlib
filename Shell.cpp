@@ -116,6 +116,9 @@ Shell::handleShellCommand(const std::string& incomingCmd, PrintCB printCB)
         return;
     }
 
+    // Make sure the WebFileSystem has the right cwd
+    WebFileSystem::setCWD(_dirs.back().c_str());
+
     std::vector<std::string>args = HTTPParser::split(cmd, ' ');
     cmd = args.front();
     args.erase(args.begin());
