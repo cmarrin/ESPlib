@@ -49,9 +49,13 @@ for _, dir in ipairs(dirs) do
 
 		local lineWidth = 0;
 		
-		while root:next_dir_entry() do
-			local filename = root:filename()
-			local dir = root:is_entry_dir()
+		while true do
+			local f = root:open_next_file()
+			local filename = f:filename()
+			if filename:len() == 0 then
+				break
+			end
+			local dir = f:isdir()
 			local extraSpace = FilenameWidth - filename:len()
 			
 			if dir then

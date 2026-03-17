@@ -32,60 +32,6 @@ All rights reserved.
 
 fs::FS LittleFS;
 
-Dir::Dir(const char* path)
-{
-    if (!std::filesystem::is_directory(path)) {
-        _open = false;
-        return;
-    }
-    
-    _dir = std::filesystem::directory_iterator(path);
-    _open = (_dir != std::filesystem::end(_dir));
-}
-
-bool
-Dir::next()
-{
-    if (!_open) {
-        return false;
-    }
-
-    if (first) {
-        // We're already at the first file
-        first = false;
-        return true;
-    }
-    
-    _dir++;
-    if (_dir == std::filesystem::end(_dir)) {
-        _open = false;
-    }
-    return _open;
-}
-
-const char*
-Dir::fileName() const
-{
-    if (!_open) {
-        return "";
-    }
-    std::filesystem::path path = _dir != std::filesystem::end(_dir) ? _dir->path() : "";
-    _name = path.filename();
-    return _name.c_str();
-}
-
-size_t
-Dir::fileSize() const
-{
-    return _open ? _dir->file_size() : 0;
-}
-
-bool
-Dir::isDirectory() const
-{
-    return _open ? _dir->is_directory() : false;
-}
-
 File::File(const std::filesystem::path& path, const char* mode)
 {
     close();
@@ -95,6 +41,8 @@ File::File(const std::filesystem::path& path, const char* mode)
     
     // If this is a directory, don't try to open it as a file.
     if (std::filesystem::is_directory(path)) {
+        _dir = std::filesystem::directory_iterator(path);
+        _dirOpen = (_dir != std::filesystem::end(_dir));
         _isDir = true;
         return;
     }
@@ -106,6 +54,30 @@ File::File(const std::filesystem::path& path, const char* mode)
     _error = (_file != nullptr) ? 0 : errno;
     errno = 0;
 }
+
+File
+File::openNextFile()
+{
+    if (!_isDir || !_dirOpen || _dir == std::filesystem::end(_dir)) {
+        _dirOpen = false;
+        return File();
+    }
+    
+    if (_dirFirst) {
+        // We're already at the first file
+        _dirFirst = false;
+    } else {
+        _dir++;
+    }
+    
+    if (_dir == std::filesystem::end(_dir)) {
+        _dirOpen = false;
+        return File();
+    }
+    
+    return File(_dir->path());
+}
+
 
 int
 File::write(const uint8_t* buf, size_t size)
@@ -233,12 +205,6 @@ File::fileName() const
 }
 
 bool
-File::isDirectory() const
-{
-    return _isDir;
-}
-
-bool
 fs::FS::begin(bool format)
 {
 #if defined ESP_PLATFORM
@@ -326,12 +292,6 @@ File
 fs::FS::open(const char* path, const char* mode, bool create)
 {
     return File(path, mode);
-}
-
-Dir
-fs::FS::openDir(const char* path)
-{
-    return Dir(path);
 }
 
 bool

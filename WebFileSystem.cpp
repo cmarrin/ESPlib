@@ -249,13 +249,11 @@ WebFileSystem::listDir(const char* dirname, uint8_t levels)
         return "";
     }
     
-    root.close();
-
     bool first_files = true;
-    Dir dir = openDir(dirname);
     
-    while (dir.next()) {
-        std::string path = dir.fileName();
+    while (true) {
+        File f = root.openNextFile();
+        std::string path = f.fileName();
         if (path.empty()) {
             break;
         }
@@ -265,14 +263,14 @@ WebFileSystem::listDir(const char* dirname, uint8_t levels)
         else 
             s += ":";
 
-        if (dir.isDirectory()) {
+        if (f.isDirectory()) {
             s += "1,";
             s += path;
         } else {
             s += "0,";
             s += path;
             s += ",";
-            s += std::to_string(dir.fileSize());
+            s += std::to_string(f.fileSize());
         }
     }
     
@@ -407,12 +405,6 @@ File
 WebFileSystem::open(const char* path, const char* mode, bool create)
 {
     return LittleFS.open(realPath(path).c_str(), mode);
-}
-
-Dir
-WebFileSystem::openDir(const char* path)
-{
-    return LittleFS.openDir(realPath(path).c_str());
 }
 
 std::string

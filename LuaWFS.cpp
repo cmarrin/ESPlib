@@ -14,92 +14,11 @@ All rights reserved.
 #include "lua.hpp"
 #include <cstring>
 
-static const char* LUA_WFSHANDLE = "LuaFileDir*";
-
-// Class which represents a File/Directory object for Lua
-class LuaFileDir
-{
-  public:
-    LuaFileDir() { }
-    LuaFileDir(const char* path, const char* mode)
-    {
-        if (mil::WebFileSystem::isDirectory(path)) {
-            _isDir = true;
-            _dir = mil::WebFileSystem::openDir(path);
-        } else {
-            _file = mil::WebFileSystem::open(path, mode);
-        }
-    }
-    
-    bool seek(uint32_t pos, SeekMode mode = SeekMode::Set)
-    {
-        if (!isFile()) {
-            return false;
-        }
-        return _file.seek(pos, mode);
-    }
-
-    size_t position()
-    {
-        if (!isFile()) {
-            return 0;
-        }
-        return _file.position();
-    }
-    
-    size_t size() const
-    {
-        if (isFile()) {
-            return _file.size();
-        } else if (isDir()) {
-            return _dir.fileSize();
-        }
-        return 0;
-    }
-
-    bool close()
-    {
-        if (_file) {
-            _file.close();
-            return true;
-        }
-        return false;
-    }
-    
-    bool isFile() const { return _file && !_isDir; }
-    bool isDir() const { return _isDir; }
-    
-    bool isEntryDir() const { return isDir() ? _dir.isDirectory() : false; }
-
-    const char* fileName() const
-    {
-        if (isFile()) {
-            _name = _file.fileName();
-        } else if (isDir()) {
-            _name = _dir.fileName();
-        }
-        return _name.c_str();
-    }
-    
-    bool next() { return isDir() ? _dir.next() : false; }
-    int peek() { return isFile() ? _file.peek() : EOF; }
-    int read() { return isFile() ? _file.read() : EOF; }
-    int read(uint8_t* buf, size_t size) { return isFile() ? _file.read(buf, size) : -1; }
-    int write(const uint8_t* buf, size_t size) { return isFile() ? _file.write(buf, size) : 0; }
-    bool flush() { return isFile() ? _file.flush() : false; }
-    void clearError() { if (isFile()) _file.clearError(); }
-    int error() { return isFile() ? _file.error() : 0; }
-    
-  private:
-    File _file;
-    Dir _dir;
-    bool _isDir = false;
-    mutable std::string _name;
-};
+static const char* LUA_WFSHANDLE = "File*";
 
 struct WFSStream
 {
-    LuaFileDir f;  /* stream (NULL for incompletely created streams) */
+    File f;  /* stream (NULL for incompletely created streams) */
     lua_CFunction closef;  /* to close stream (NULL for closed streams) */
 };
 
@@ -124,7 +43,7 @@ static int f_tostring (lua_State *L)
     return 1;
 }
 
-static LuaFileDir& tofile(lua_State *L)
+static File& tofile(lua_State *L)
 {
     WFSStream* p = towfsstream(L);
     if (l_unlikely(isclosed(p))) {
@@ -144,8 +63,8 @@ static WFSStream* newprefile(lua_State* L)
     WFSStream* p = reinterpret_cast<WFSStream*>(lua_newuserdatauv(L, sizeof(WFSStream), 0));
     p->closef = nullptr;  /* mark file handle as 'closed' */
     
-    // Since the LuaFileDir is a c++ object we need to do a placement new on it
-    new (&(p->f)) LuaFileDir();
+    // Since the File is a c++ object we need to do a placement new on it
+    new (&(p->f)) File();
     
     luaL_setmetatable(L, LUA_WFSHANDLE);
     return p;
@@ -178,7 +97,7 @@ static int f_gc (lua_State* L)
         aux_close(L);  /* ignore closed and incompletely open files */
     }
     
-    // LuaFileDir is a c++ object, but there's no need to call the dtor
+    // File is a c++ object, but there's no need to call the dtor
     // since it's just been closed
     return 0;
 }
@@ -216,8 +135,8 @@ static int io_open(lua_State* L)
     const char* md = mode;  /* to traverse/check mode */
     luaL_argcheck(L, l_checkmode(md), 2, "invalid mode");
     errno = 0;
-    p->f = LuaFileDir(filename, mode);
-    return (!p->f.isFile() && !p->f.isDir()) ? luaL_fileresult(L, 0, filename) : 1;
+    p->f = mil::WebFileSystem::open(filename, mode);
+    return (!p->f.isFile() && !p->f.isDirectory()) ? luaL_fileresult(L, 0, filename) : 1;
 }
 
 static int io_remove (lua_State* L)
@@ -265,7 +184,7 @@ static int f_seek(lua_State* L)
 {
     static SeekMode mode[] = { SeekMode::Set, SeekMode::Cur, SeekMode::End };
     static const char *const modenames[] = {"set", "cur", "end", NULL};
-    LuaFileDir& f = tofile(L);
+    File& f = tofile(L);
     int op = luaL_checkoption(L, 2, "cur", modenames);
     lua_Integer p3 = luaL_optinteger(L, 3, 0);
     uint32_t offset = uint32_t(p3);
@@ -282,43 +201,34 @@ static int f_seek(lua_State* L)
 
 static int f_filename(lua_State* L)
 {
-    LuaFileDir& f = tofile(L);
+    File& f = tofile(L);
     errno = 0;
-    if (!f.isFile() && !f.isDir()) {
-        return luaL_fileresult(L, 0, nullptr);
-    }
     lua_pushstring(L, f.fileName());
     return 1;
 }
 
-static int f_nextdirentry(lua_State* L)
+static int f_opennextfile(lua_State* L)
 {
-    LuaFileDir& f = tofile(L);
+    File& f = tofile(L);
     errno = 0;
-    if (!f.isDir()) {
+    if (!f.isDirectory()) {
         return luaL_fileresult(L, 0, nullptr);
     }
     
-    lua_pushboolean(L, f.next());
-    return 1;
-}
-
-static int f_isentrydir(lua_State* L)
-{
-    LuaFileDir& f = tofile(L);
+    WFSStream* p = newfile(L);
     errno = 0;
-    lua_pushboolean(L, f.isEntryDir());
+    p->f = f.openNextFile();
     return 1;
 }
 
-static int test_eof(lua_State *L, LuaFileDir& f)
+static int test_eof(lua_State *L, File& f)
 {
     int c = f.peek();
     lua_pushliteral(L, "");
     return (c != EOF);
 }
 
-static int read_line(lua_State* L, LuaFileDir& f, bool chop)
+static int read_line(lua_State* L, File& f, bool chop)
 {
     luaL_Buffer b;
     int c = 0;
@@ -342,7 +252,7 @@ static int read_line(lua_State* L, LuaFileDir& f, bool chop)
     return (c == '\n' || lua_rawlen(L, -1) > 0);
 }
 
-static int read_chars(lua_State* L, LuaFileDir& f, size_t n)
+static int read_chars(lua_State* L, File& f, size_t n)
 {
     size_t nr;  /* number of chars actually read */
     uint8_t* p;
@@ -355,7 +265,7 @@ static int read_chars(lua_State* L, LuaFileDir& f, size_t n)
     return (nr > 0);  /* true iff read something */
 }
 
-static int g_read(lua_State* L, LuaFileDir& f, int first)
+static int g_read(lua_State* L, File& f, int first)
 {
     int nargs = lua_gettop(L) - 1;
     int n, success;
@@ -409,7 +319,7 @@ static int f_read(lua_State* L)
 }
 
 // We support writing strings only
-static int g_write(lua_State* L, LuaFileDir& f, int arg)
+static int g_write(lua_State* L, File& f, int arg)
 {
     int nargs = lua_gettop(L) - arg;
     int status = 1;
@@ -429,7 +339,7 @@ static int g_write(lua_State* L, LuaFileDir& f, int arg)
 
 static int f_write(lua_State* L)
 {
-    LuaFileDir& f = tofile(L);
+    File& f = tofile(L);
     lua_pushvalue(L, 1);  /* push file at the stack top (to be returned) */
     return g_write(L, f, 2);
 }
@@ -437,7 +347,7 @@ static int f_write(lua_State* L)
 // peek at the next char and return it
 static int f_peek(lua_State* L)
 {
-    LuaFileDir& f = tofile(L);
+    File& f = tofile(L);
     errno = 0;
     if (!f.isFile()) {
         return luaL_fileresult(L, 0, nullptr);
@@ -448,14 +358,14 @@ static int f_peek(lua_State* L)
 
 static int f_flush(lua_State* L)
 {
-    LuaFileDir& f = tofile(L);
+    File& f = tofile(L);
     errno = 0;
     return luaL_fileresult(L, f.flush(), NULL);
 }
 
 static int f_position(lua_State* L)
 {
-    LuaFileDir& f = tofile(L);
+    File& f = tofile(L);
     errno = 0;
     if (!f.isFile()) {
         return luaL_fileresult(L, 0, nullptr);
@@ -466,7 +376,7 @@ static int f_position(lua_State* L)
 
 static int f_size(lua_State* L)
 {
-    LuaFileDir& f = tofile(L);
+    File& f = tofile(L);
     errno = 0;
     if (!f.isFile()) {
         return luaL_fileresult(L, 0, nullptr);
@@ -477,9 +387,9 @@ static int f_size(lua_State* L)
 
 static int f_isdir(lua_State* L)
 {
-    LuaFileDir& f = tofile(L);
+    File& f = tofile(L);
     errno = 0;
-    lua_pushboolean(L, lua_Integer(f.isDir()));
+    lua_pushboolean(L, lua_Integer(f.isDirectory()));
     return 1;
 }
 
@@ -513,8 +423,7 @@ static const luaL_Reg meth[] = {
   {"size", f_size},
   {"isdir", f_isdir},
   {"close", f_close},
-  {"next_dir_entry", f_nextdirentry},
-  {"is_entry_dir", f_isentrydir},
+  {"open_next_file", f_opennextfile},
   {NULL, NULL}
 };
 

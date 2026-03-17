@@ -30,7 +30,7 @@ class WebFileSystem
   public:
     bool begin(Application*, bool format);
     static File open(const char* path, const char* mode = "r", bool create = false);
-    static Dir openDir(const char* path);
+    static File openNextFile();
     
     static bool isDirectory(const char* path) { return std::filesystem::is_directory(realPath(path)); }
     

@@ -18,27 +18,6 @@ All rights reserved.
 
 enum class SeekMode { Set = 0, Cur = 1, End = 2 };
 
-class Dir
-{
-  public:
-    Dir() { }
-    Dir(const char* path);
-    bool next();
-    const char* fileName() const;
-    size_t fileSize() const;
-    bool isDirectory() const;
-    
-  private:
-    std::filesystem::directory_iterator _dir;
-    mutable std::string _name;
-    bool _open = false;
-    
-    // LittleFS starts it dir object not pointing at the first file,
-    // but directory_iterator does. So we need to handle the first
-    // call to next() specially
-    bool first = true;
-};
-    
 class File
 {
   public:
@@ -58,6 +37,10 @@ class File
         _name = std::move(other._name);
         _error = other._error;
         _file = other._file;
+        _isDir = other._isDir;
+        _dir = other._dir;
+        _dirOpen = other._dirOpen;
+        _dirFirst = other._dirFirst;
         other._file = nullptr;
         return *this;
     }
@@ -78,8 +61,9 @@ class File
     const char* fileName() const;
     size_t fileSize() const { return std::filesystem::file_size(_path); }
     
-    bool isDirectory() const;
-    bool next() { return false; }
+    bool isFile() const { return _file; }
+    bool isDirectory() const { return _isDir; }
+    File openNextFile();
     
     operator bool() const { return _isDir || (_file && _error == 0); }
 
@@ -99,6 +83,14 @@ class File
     int _error = 0;
     FILE* _file = nullptr;
     bool _isDir = false;
+
+    std::filesystem::directory_iterator _dir;
+    bool _dirOpen = false;
+    
+    // LittleFS starts it dir object not pointing at the first file,
+    // but directory_iterator does. So we need to handle the first
+    // call to next() specially
+    bool _dirFirst = true;
 };
 
 namespace fs {
@@ -126,7 +118,6 @@ class FS
     size_t usedBytes();
 
     File open(const char* path, const char* mode = "r", bool create = false);
-    Dir openDir(const char* path);
     
     bool exists(const char* path);
     bool remove(const char* path);
