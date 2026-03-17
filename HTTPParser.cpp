@@ -379,8 +379,11 @@ SuffixToTypeEntry suffixToTypeArray[ ] = {
 std::string
 HTTPParser::suffixToMimeType(const std::string& filename)
 {
-    std::string suffix = std::filesystem::path(filename).extension();
-    suffix.erase(0, 1);
+    std::string suffix;
+    size_t pos = filename.rfind('.');
+    if (pos != std::string::npos) {
+        suffix = filename.substr(pos + 1);
+    }
     
     for_each(suffix.begin(), suffix.end(), [](char& c) {
         c = std::tolower(c);
