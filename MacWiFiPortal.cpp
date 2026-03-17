@@ -95,7 +95,7 @@ MacWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const char* data
 }    
 
 void
-MacWiFiPortal::streamHTTPResponse(fs::File& file, const char* mimetype, bool attach)
+MacWiFiPortal::streamHTTPResponse(File& file, const char* mimetype, bool attach)
 {
     _server.streamHTTPResponse(file, mimetype, attach);
 }
@@ -185,7 +185,7 @@ void
 MacWiFiPortal::setNVSParam(const char* id, const std::string& value)
 {
     std::string keyName = std::string("/.nvs/") + id;
-    fs::File f = WebFileSystem::open(keyName.c_str(), "w");
+    File f = WebFileSystem::open(keyName.c_str(), "w");
     f.write(reinterpret_cast<const uint8_t*>(value.c_str()), value.length());
     f.close();
 }
@@ -198,7 +198,7 @@ MacWiFiPortal::getNVSParam(const char* id, std::string& value) const
         return false;
     }
     
-    fs::File f = WebFileSystem::open(keyName.c_str(), "r");
+    File f = WebFileSystem::open(keyName.c_str(), "r");
     size_t size = f.size();
     uint8_t* buf = new uint8_t[size];
     f.read(buf, size);

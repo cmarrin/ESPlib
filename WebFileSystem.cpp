@@ -135,7 +135,7 @@ WebFileSystem::begin(Application* app, bool format)
     {
         std::string path;
         if (prepareFile(p, path)) {
-            fs::File file = open(path.c_str(), "r");
+            File file = open(path.c_str(), "r");
             if (file.isDirectory()) {
                 file.close();
                 if (rmdir(path.c_str())) {
@@ -160,7 +160,7 @@ WebFileSystem::begin(Application* app, bool format)
     {
         std::string path;
         if (prepareFile(p, path)) {
-            fs::File file = open(path.c_str(), "r");
+            File file = open(path.c_str(), "r");
             p->streamHTTPResponse(file, "application/octet-stream", true);
         }
         return true;
@@ -171,7 +171,7 @@ WebFileSystem::begin(Application* app, bool format)
     {
         std::string path;
         if (prepareFile(p, path)) {
-            fs::File file = open(path.c_str(), "r");
+            File file = open(path.c_str(), "r");
             std::string mime = HTTPParser::suffixToMimeType(path);
             printf("***** File: path='%s', mime-type='%s'\n", path.c_str(), mime.c_str());
                 
@@ -237,7 +237,7 @@ WebFileSystem::listDir(const char* dirname, uint8_t levels)
     std::string s;
     
     // First see if it's a directory
-    fs::File root = open(dirname);
+    File root = open(dirname);
     if (!root){
         System::logE(TAG, "Failed to open directory\n");
         return "";
@@ -252,7 +252,7 @@ WebFileSystem::listDir(const char* dirname, uint8_t levels)
     root.close();
 
     bool first_files = true;
-    fs::Dir dir = openDir(dirname);
+    Dir dir = openDir(dirname);
     
     while (dir.next()) {
         std::string path = dir.fileName();
@@ -403,13 +403,13 @@ WebFileSystem::handleLandingSetup(WiFiPortal* portal)
     portal->sendHTTPResponse(200, "application/json", response.c_str(), response.length(), false);
 }
 
-fs::File
+File
 WebFileSystem::open(const char* path, const char* mode, bool create)
 {
     return LittleFS.open(realPath(path).c_str(), mode);
 }
 
-fs::Dir
+Dir
 WebFileSystem::openDir(const char* path)
 {
     return LittleFS.openDir(realPath(path).c_str());

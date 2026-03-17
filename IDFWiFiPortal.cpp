@@ -167,7 +167,7 @@ IDFWiFiPortal::addStaticHTTPHandler(const char *uri, const char *path)
             httpd_resp_send(self->_activeRequest, "<h1><b>Page not found</b></h1>", HTTPD_RESP_USE_STRLEN);
             ESP_LOGI(TAG, "%s page not found", self->_activeRequest->uri);
         } else {
-            fs::File file = self->_wfs->open(f.c_str(), "r");
+            File file = self->_wfs->open(f.c_str(), "r");
             self->streamHTTPResponse(file, HTTPParser::suffixToMimeType(f).c_str(), false);
             file.close();
         }
@@ -297,7 +297,7 @@ IDFWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const char* data
 }    
 
 void
-IDFWiFiPortal::streamHTTPResponse(fs::File& file, const char* mimetype, bool attach)
+IDFWiFiPortal::streamHTTPResponse(File& file, const char* mimetype, bool attach)
 {
     // For now assume this is a file download. So set Content-Disposition
     std::string disp = attach ? "attachment" : "inline";

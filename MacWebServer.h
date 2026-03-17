@@ -51,7 +51,7 @@ public:
 
     void sendHTTPResponse(int code, const char* mimetype = nullptr, const char* data = "", const HTTPParser::ArgMap& extraHeaders = HTTPParser::ArgMap());
     void sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip, const HTTPParser::ArgMap& extraHeaders = HTTPParser::ArgMap());
-    void streamHTTPResponse(fs::File& file, const char* mimetype, bool attach, const HTTPParser::ArgMap& extraHeaders = HTTPParser::ArgMap());
+    void streamHTTPResponse(File& file, const char* mimetype, bool attach, const HTTPParser::ArgMap& extraHeaders = HTTPParser::ArgMap());
 
     std::string getHTTPArg(const char* name) { return _parser ? _parser->getHTTPArg(name) : ""; }
     bool hasHTTPArg(const char* name) { return _parser ? _parser->hasHTTPArg(name) : false; }

@@ -16,8 +16,6 @@ All rights reserved.
 // File System classes for Mac and esp-idf that duplicates the functionality 
 // of the LittleFS filesystem for Arduino ESP32
 
-namespace fs {
-
 enum class SeekMode { Set = 0, Cur = 1, End = 2 };
 
 class Dir
@@ -85,8 +83,6 @@ class File
     
     operator bool() const { return _isDir || (_file && _error == 0); }
 
-    FILE* filePtr() const { return _file; }
-    
     int error() const { return _error; }
     
     void clearError()
@@ -104,6 +100,8 @@ class File
     FILE* _file = nullptr;
     bool _isDir = false;
 };
+
+namespace fs {
 
 class FS
 {

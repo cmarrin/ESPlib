@@ -30,8 +30,6 @@ All rights reserved.
 #include <ftw.h>
 #endif
 
-using namespace fs;
-
 fs::FS LittleFS;
 
 Dir::Dir(const char* path)
@@ -241,7 +239,7 @@ File::isDirectory() const
 }
 
 bool
-FS::begin(bool format)
+fs::FS::begin(bool format)
 {
 #if defined ESP_PLATFORM
     static const char *TAG = "LittleFSShim";
@@ -282,7 +280,7 @@ FS::begin(bool format)
 }
 
 size_t
-FS::totalBytes()
+fs::FS::totalBytes()
 {
 #if defined ESP_PLATFORM
     size_t total = 0, used = 0;
@@ -297,7 +295,7 @@ FS::totalBytes()
 }
 
 size_t
-FS::usedBytes()
+fs::FS::usedBytes()
 {
 #if defined ESP_PLATFORM
     size_t total = 0, used = 0;
@@ -325,31 +323,31 @@ FS::usedBytes()
 }
 
 File
-FS::open(const char* path, const char* mode, bool create)
+fs::FS::open(const char* path, const char* mode, bool create)
 {
     return File(path, mode);
 }
 
 Dir
-FS::openDir(const char* path)
+fs::FS::openDir(const char* path)
 {
     return Dir(path);
 }
 
 bool
-FS::exists(const char* path)
+fs::FS::exists(const char* path)
 {
     return std::filesystem::exists(path);
 }
 
 bool
-FS::remove(const char* path)
+fs::FS::remove(const char* path)
 {
     return (path && path[0] != '\0') ? std::filesystem::remove(path) : false;
 }
 
 bool
-FS::rename(const char* fromPath, const char* toPath)
+fs::FS::rename(const char* fromPath, const char* toPath)
 {
     std::error_code ec;
     std::filesystem::rename(fromPath, toPath, ec);
@@ -357,13 +355,13 @@ FS::rename(const char* fromPath, const char* toPath)
 }
 
 bool
-FS::mkdir(const char* path)
+fs::FS::mkdir(const char* path)
 {
     return (path && path[0] != '\0') ? std::filesystem::create_directory(path) : false;
 }
 
 bool
-FS::rmdir(const char* path)
+fs::FS::rmdir(const char* path)
 {
     return remove(path);
 }
