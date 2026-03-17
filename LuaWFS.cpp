@@ -203,7 +203,7 @@ static int f_filename(lua_State* L)
 {
     File& f = tofile(L);
     errno = 0;
-    lua_pushstring(L, f.fileName());
+    lua_pushstring(L, f.name());
     return 1;
 }
 

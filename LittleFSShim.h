@@ -55,11 +55,9 @@ class File
     bool seek(uint32_t pos, SeekMode mode = SeekMode::Set);
     size_t position();
     size_t size() const;
+    const char* name() const { return _name.c_str(); }
     
     bool close();
-    
-    const char* fileName() const;
-    size_t fileSize() const { return std::filesystem::file_size(_path); }
     
     bool isFile() const { return _file; }
     bool isDirectory() const { return _isDir; }

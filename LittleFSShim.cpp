@@ -198,12 +198,6 @@ File::close()
     return true;
 }
 
-const char*
-File::fileName() const
-{
-    return _name.c_str();
-}
-
 bool
 fs::FS::begin(bool format)
 {

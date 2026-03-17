@@ -253,7 +253,7 @@ WebFileSystem::listDir(const char* dirname, uint8_t levels)
     
     while (true) {
         File f = root.openNextFile();
-        std::string path = f.fileName();
+        std::string path = f.name();
         if (path.empty()) {
             break;
         }
@@ -270,7 +270,7 @@ WebFileSystem::listDir(const char* dirname, uint8_t levels)
             s += "0,";
             s += path;
             s += ",";
-            s += std::to_string(f.fileSize());
+            s += std::to_string(f.size());
         }
     }
     
@@ -325,7 +325,7 @@ WebFileSystem::handleUpload(WiFiPortal* p)
             printf("handleUpload: Upload Aborted\n");
             if (_uploadFile) {
                // Delete the file
-                std::string filename = _uploadFile.fileName();
+                std::string filename = _uploadFile.name();
                 _uploadFile.close();
                 remove(filename.c_str());
             }
