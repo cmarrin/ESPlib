@@ -31,9 +31,7 @@ class WebFileSystem
     bool begin(Application*, bool format);
     static File open(const char* path, const char* mode = "r", bool create = false);
     static File openNextFile();
-    
-    static bool isDirectory(const char* path) { return std::filesystem::is_directory(realPath(path)); }
-    
+
     static size_t totalBytes();
     static size_t usedBytes();
     
