@@ -9,12 +9,8 @@
 
 #pragma once
 
-#ifdef __cplusplus
 extern "C" {
-#endif
 
 extern int luaopen_wfs(lua_State * L);
 
-#ifdef __cplusplus
 }
-#endif

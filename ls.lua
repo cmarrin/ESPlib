@@ -37,7 +37,7 @@ end
 for _, dir in ipairs(dirs) do
 	local root = wfs.open(dir)
 
-	if not root then
+	if not root:isdir() then
 		__print__("'", dir, "' does not exist\n")
 	elseif not root:isdir() then
 		__print__("'", dir, "' is not a directory\n")
@@ -46,15 +46,12 @@ for _, dir in ipairs(dirs) do
 		__print__(dir..":\n")
 		
 		local FilenameWidth <const> = 34
-		
-		local path = root:next_dir_entry()
-		
+
 		local lineWidth = 0;
 		
-		while true
-		do
+		while root:next_dir_entry() do
 			local filename = root:filename()
-			local dir = root:isdir()
+			local dir = root:is_entry_dir()
 			local extraSpace = FilenameWidth - filename:len()
 			
 			if dir then
@@ -76,10 +73,6 @@ for _, dir in ipairs(dirs) do
 				__print__(filename)
 			end
 			space(extraSpace)
-
-			if not root:next_dir_entry() then
-				break;
-			end
 		end
 		__print__("\n")
 	end
