@@ -426,5 +426,65 @@ WebFileSystem::realPath(const char* path)
 #else
     p = LittleFS.rootDir() + p;
 #endif
-    return std::filesystem::path(p).lexically_normal().string();
+    return lexicallyNormal(p);
+}
+
+std::string
+WebFileSystem::lexicallyNormal(const std::string& path)
+{
+    // We only deal with absolute paths
+    if (path.empty() || path[0] != '/') {
+        return path;
+    }
+    
+    // First split the string into a vector of strings, splitting at
+    // slashes. For instance:
+    //
+    //      '/abc/def/../ghi/.//foo.bar'
+    //
+    // Would produce:
+    //
+    //      "abc", "def", "..", "ghi", ".", "foo.bar"
+    //
+    std::vector<std::string> parts;
+    size_t cur = 1; // Skip the leading slash
+    
+    while (true) {
+        const char* slash = std::strchr(path.c_str() + cur, '/');
+        if (!slash) {
+            break;
+        }
+
+        // Ignore "." and ""
+        size_t pos = slash - path.c_str();
+        if (pos == cur || ((pos == (cur + 1)) && path[cur] == '.')) {
+            cur = pos + 1;
+            continue;
+        }
+        
+        std::string part = path.substr(cur, pos - cur);
+
+        // Back up one directory on "..". There's an edge case. What does
+        // '/../foo' mean? Just ignore the ".." in that case
+        if (part == "..") {
+            if (parts.size() > 0) {
+                parts.pop_back();
+            }
+            cur = pos + 1;
+            continue;
+        }
+        parts.push_back(part);
+        cur = pos + 1;
+    }
+    
+    // Now assemble the path
+    std::string dest;
+    for (const auto& s : parts) {
+        dest += "/" + s;
+    }
+    
+    // Add in the trailing part
+    dest += "/" + path.substr(cur);
+    
+    return dest;
 }

@@ -46,6 +46,8 @@ class WebFileSystem
     static std::string realPath(const char* path);
     static void setCWD(const char* cwd) { _cwd = cwd; }
     
+    static std::string lexicallyNormal(const std::string& path);
+    
     void sendLandingPage(WiFiPortal*);
     void sendWiFiPage(WiFiPortal*);
 

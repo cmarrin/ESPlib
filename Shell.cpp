@@ -57,7 +57,7 @@ Shell::makeAbsolutePath(const std::string& path) const
         // Relative path
         return cwd() + path.substr(1);
     }
-    return std::filesystem::path(cwd() + "/" + path).lexically_normal().string();
+    return WebFileSystem::lexicallyNormal(cwd() + "/" + path);
 }
 
 // This is hackery. When trying to make a path in handleHTTPRequest the suffix would always get dropped
