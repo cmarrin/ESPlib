@@ -109,7 +109,8 @@ static int io_fclose(lua_State* L)
 {
     WFSStream* p = towfsstream(L);
     errno = 0;
-    return luaL_fileresult(L, p->f.close(), nullptr);
+    p->f.close();
+    return luaL_fileresult(L, 1, nullptr);
 }
 
 static WFSStream* newfile(lua_State* L)
@@ -136,7 +137,7 @@ static int io_open(lua_State* L)
     luaL_argcheck(L, l_checkmode(md), 2, "invalid mode");
     errno = 0;
     p->f = mil::WebFileSystem::open(filename, mode);
-    return (!p->f.isFile() && !p->f.isDirectory()) ? luaL_fileresult(L, 0, filename) : 1;
+    return (!p->f && !p->f.isDirectory()) ? luaL_fileresult(L, 0, filename) : 1;
 }
 
 static int io_remove (lua_State* L)
@@ -182,7 +183,7 @@ static int io_usedbytes(lua_State* L)
 
 static int f_seek(lua_State* L)
 {
-    static SeekMode mode[] = { SeekMode::Set, SeekMode::Cur, SeekMode::End };
+    static SeekMode mode[] = { SeekSet, SeekCur, SeekEnd };
     static const char *const modenames[] = {"set", "cur", "end", NULL};
     File& f = tofile(L);
     int op = luaL_checkoption(L, 2, "cur", modenames);
@@ -269,7 +270,6 @@ static int g_read(lua_State* L, File& f, int first)
 {
     int nargs = lua_gettop(L) - 1;
     int n, success;
-    f.clearError();
     errno = 0;
     
     if (nargs == 0) {  /* no arguments? */
@@ -303,7 +303,7 @@ static int g_read(lua_State* L, File& f, int first)
         }
     }
     
-    if (f.error()) {
+    if (!f) {
         return luaL_fileresult(L, 0, NULL);
     }
     if (!success) {
@@ -349,7 +349,7 @@ static int f_peek(lua_State* L)
 {
     File& f = tofile(L);
     errno = 0;
-    if (!f.isFile()) {
+    if (!f) {
         return luaL_fileresult(L, 0, nullptr);
     }
     lua_pushnumber(L, f.peek());
@@ -360,14 +360,15 @@ static int f_flush(lua_State* L)
 {
     File& f = tofile(L);
     errno = 0;
-    return luaL_fileresult(L, f.flush(), NULL);
+    f.flush();
+    return luaL_fileresult(L, 1, nullptr);
 }
 
 static int f_position(lua_State* L)
 {
     File& f = tofile(L);
     errno = 0;
-    if (!f.isFile()) {
+    if (!f) {
         return luaL_fileresult(L, 0, nullptr);
     }
     lua_pushinteger(L, lua_Integer(f.position()));
@@ -378,7 +379,7 @@ static int f_size(lua_State* L)
 {
     File& f = tofile(L);
     errno = 0;
-    if (!f.isFile()) {
+    if (!f) {
         return luaL_fileresult(L, 0, nullptr);
     }
     lua_pushinteger(L, lua_Integer(f.size()));

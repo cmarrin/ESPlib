@@ -135,16 +135,15 @@ File::peek()
     return c;
 }
 
-bool
+void
 File::flush()
 {
     if (isDirectory()) {
-        return false;
+        return;
     }
     
     fflush(_file);
     _error = errno;
-    return _error == 0;
 }
 
 bool
@@ -156,9 +155,9 @@ File::seek(uint32_t pos, SeekMode mode)
     
     int dir;
     switch(mode) {
-        default           : dir = SEEK_SET; break;
-        case SeekMode::Cur: dir = SEEK_CUR; break;
-        case SeekMode::End: dir = SEEK_SET; break;
+        default     : dir = SEEK_SET; break;
+        case SeekCur: dir = SEEK_CUR; break;
+        case SeekEnd: dir = SEEK_SET; break;
     }
     bool b = fseek(_file, pos, dir) == 0;
     _error = errno;
@@ -187,7 +186,7 @@ File::size() const
     return std::filesystem::file_size(_path);
 }
 
-bool
+void
 File::close()
 {
     if (_file) {
@@ -195,7 +194,6 @@ File::close()
         _file = nullptr;
     }
     _error = 0;
-    return true;
 }
 
 bool
