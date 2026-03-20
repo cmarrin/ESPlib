@@ -9,7 +9,9 @@ All rights reserved.
 
 #pragma once
 
-#include "mil.h"
+#include "System.h"
+
+#include <map>
 
 // WiFiPortal is a generic class for handling connecting to WiFi. If
 // there are saved WiFi credentials an attempt will be made to connect
@@ -83,8 +85,6 @@ public:
     // next returns. If the user enters an SSID and password in the portal the system
     // reboots and attempts to connect.If this method returns false it means that starting
     // the captive portal was unsuccessfil.
-    //
-    // FIXME: We need to call MDNS.begin(hostname) when connection to the network is successful
     virtual bool autoConnect(char const *apName, char const *apPassword = NULL) { return true; }
 
     // This method is called on every time through the loop if the web server is running in
@@ -120,10 +120,6 @@ public:
     virtual std::string getHTTPArg(const char* name) { return ""; }
     virtual bool hasHTTPArg(const char* name) { return false; }
 
-    // Param handling
-    virtual bool addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength) { return true; }
-    virtual bool getParamValue(const char* id, std::string& value) { return false; }
-    
     // Get Info
     virtual std::string getCPUModel() const { return ""; }
     virtual uint32_t getCPUFrequency() const { return 50; }
@@ -152,14 +148,46 @@ public:
     const std::string& getMask() const { return _currentMSK; }
     const std::string& getDNS() const { return _currentDNS; }
 
+    std::string value;
+
+  private:
+    // Param Map
+    // FIXME: We're saving the param info, but not adding it to the web page yet
+    struct ParamMapValue { std::string label; uint32_t maxLength; };
+    std::map<std::string, ParamMapValue> _paramMap;
+
+  public:
+    void addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength)
+    {
+        // First we have to see if there is a saved value for this id. If so use it in place of the defaultValue
+        std::string value;
+
+        if (!getNVSParam(id, value) || value.empty()) {
+            value = defaultValue;
+            System::logI("WiFiPortal", "No '%s' saved. Setting it to default: '%s'\n", id, defaultValue);
+        } else {
+            System::logI("WiFiPortal", "Setting '%s' to saved value: '%s'\n", id, value.c_str());
+        }
+        setNVSParam(id, value);
+
+        // Now fill in the param map. This will save the default value and max length of the type-in field
+        auto entry = _paramMap.find(id);
+        if (entry == _paramMap.end()) {
+            // New map entry
+            _paramMap.insert({ id, { label, maxLength } });
+        }
+    }
+    
   protected:
+    std::string _ssid;
+    std::string _pass;
+    std::string _hostname;
     std::string _currentGW = "0.0.0.0";
     std::string _currentMSK = "255.255.255.255";
     std::string _currentDNS = "0.0.0.0";
 
   private:
     std::string _title;
-    std::string _hostname;
     std::function<std::string()> _customInfoHTMLHandler;
 };
 

@@ -142,32 +142,6 @@ MacWiFiPortal::hasHTTPArg(const char* name)
     return _server.hasHTTPArg(name);
 }
 
-bool
-MacWiFiPortal::addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength)
-{
-    // First we have to see if there is a saved value for this id. If so use it in place of the defaultValue
-    std::string value;
-
-    if (!getNVSParam(id, value) || value.empty()) {
-        value = defaultValue;
-        printf("No '%s' saved. Setting it to default: '%s'\n", id, defaultValue);
-    } else {
-        printf("Setting '%s' to saved value: '%s'\n", id, value.c_str());
-    }
-
-    setNVSParam(id, value);
-
-    // FIXME: How will we add this to the web page params?
-
-    return true;
-}
-
-bool
-MacWiFiPortal::getParamValue(const char* id, std::string& value)
-{
-    return getNVSParam(id, value) && !value.empty();
-}
-
 std::string
 MacWiFiPortal::getCPUModel() const
 {

@@ -24,7 +24,6 @@ All rights reserved.
 
 using namespace mil;
 
-static const char* TAG = "WiFiPortal";
 static const char* PROV_AP_SSID = "ESP32-Provisioning";
 static const char* PROV_AP_PASS = "password123";
 static constexpr uint32_t PROV_AP_MAX_CONN = 4;
@@ -415,31 +414,6 @@ IDFWiFiPortal::getHTTPHeader(const char* name)
         return "";
     }
     return std::string(buf.data(), size - 1);
-}
-
-bool
-IDFWiFiPortal::addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength)
-{
-    std::string value;
-
-    auto entry = _paramMap.find(id);
-    if (entry == _paramMap.end()) {
-        // New map entry
-        _paramMap.insert({ id, { label, maxLength } });
-    }
-    
-    // If we don't have a param entry yet, set it to the default
-    if (!getNVSParam(id, value)) {
-        setNVSParam(id, defaultValue);
-    }
-    
-    return true;
-}
-
-bool
-IDFWiFiPortal::getParamValue(const char* id, std::string& value)
-{
-    return getNVSParam(id, value);
 }
 
 std::string

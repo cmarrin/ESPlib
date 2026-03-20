@@ -86,7 +86,7 @@ Application::startNetwork()
     addParam("hostname", "Hostname", "esp32",  MaxHostnameLength);
     
     std::string hostname;
-    if (getParamValue("hostname", hostname)) {
+    if (getNVSParam("hostname", hostname)) {
         _portal->setHostname(hostname.c_str());
     }
     

@@ -108,8 +108,6 @@ public:
         _portal->addParam(id, label, defaultValue, length);
     }
     
-    bool getParamValue(const char* id, std::string& value) { return _portal->getParamValue(id, value); }
-
     void setNVSParam(const char* id, const std::string& value) { _portal->setNVSParam(id, value); }
     bool getNVSParam(const char* id, std::string& value) const { return _portal->getNVSParam(id, value); }
     void eraseNVSParam(const char* id) { _portal->eraseNVSParam(id); }

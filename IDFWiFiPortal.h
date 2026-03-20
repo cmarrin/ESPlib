@@ -69,8 +69,6 @@ public:
     virtual const uint8_t* httpUploadBuffer() const override;
     virtual std::string getHTTPArg(const char* name) override;
     virtual bool hasHTTPArg(const char* name) override;
-    virtual bool addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength) override;
-    virtual bool getParamValue(const char* id, std::string& value) override;
     virtual std::string getCPUModel() const override;
     virtual uint32_t getCPUFrequency() const override;
     virtual float getCPUTemperature() const override;
@@ -101,10 +99,6 @@ public:
 
     const std::string getHTTPHeader(const char* name);
 
-    struct MapValue { std::string label; uint32_t maxLength; };
-    
-    std::map<std::string, MapValue> _paramMap;
-    
     struct KnownNetwork
     {
         bool operator==(const KnownNetwork& other) const { return ssid == other.ssid; }

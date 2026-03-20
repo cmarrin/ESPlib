@@ -77,7 +77,7 @@ void Clock::loop()
 		
 		if (_app && _app->isNetworkEnabled()) {
             std::string zipcode;
-            if (!_app->getParamValue("zipcode", zipcode)) {
+            if (!_app->getNVSParam("zipcode", zipcode)) {
                 printf("*** Zipcode not set, using default\n");
                 zipcode = "93405";
             }
