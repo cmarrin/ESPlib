@@ -9,6 +9,8 @@ All rights reserved.
 
 #include "System.h"
 
+bool System::_activeHigh = false;
+
 // Logging
 std::string
 System::vformat(const char* fmt, va_list args)
@@ -28,21 +30,22 @@ System::vformat(const char* fmt, va_list args)
 //**************************************************************************
 
 void
-System::initLED()
+System::initLED(uint8_t channel, uint8_t pin, uint32_t numLEDs)
 {
-    System::gpioSetPinMode(LED_BUILTIN, System::GPIOPinMode::Output, bool);
+    System::gpioSetPinMode(LED_BUILTIN, System::GPIOPinMode::Output, InvertLed);
 }
 
 void
-System::setLED(uint32_t index, uint8_t r, uint8_t g, uint8_t b)
+System::setLED(uint8_t channel, uint32_t index, uint8_t r, uint8_t g, uint8_t b)
 {
-    bool b = r == 0 && g == 0 && b == 0;
-    System::gpioWritePin(LED_BUILTIN, b);
+    bool on = r == 0 && g == 0 && b == 0;
+    System::gpioWritePin(LED_BUILTIN, on);
 }
 
 void
-System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode, bool)
+System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode, bool activeHigh)
 {
+    _activeHigh = activeHigh;
     switch(mode) {
         case GPIOPinMode::Output: pinMode(pin, OUTPUT); return;
         case GPIOPinMode::Input: pinMode(pin, INPUT); return;
@@ -53,6 +56,7 @@ System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode, bool)
 void
 System::gpioWritePin(uint8_t pin, bool state)
 {
+    state = state ^ _activeHigh;
     digitalWrite(pin, state ? HIGH : LOW);
 }
 
@@ -108,61 +112,73 @@ static bool ledStripInited[NumLEDChannels] = { 0 };
 void
 System::initLED(uint8_t channel, uint8_t pin, uint32_t numLeds)
 {
-    if (channel >= NumLEDChannels) {
-        return;
-    }
-    
-    if (ledStripInited[channel]) {
-        led_strip_del(ledStrip[channel]);
-        ledStripInited[channel] = false;
-    }
-
-    led_strip_config_t strip_config = {
-        .strip_gpio_num = pin,
-        .max_leds = numLeds,
-        .led_model = LED_MODEL_WS2812,
-        .color_component_format = LED_STRIP_COLOR_COMPONENT_FMT_GRB,
-        .flags = { .invert_out = false },
-    };
-
-    // LED strip backend configuration: RMT
-    led_strip_rmt_config_t rmt_config = {
-        .clk_src = RMT_CLK_SRC_DEFAULT, // different clock source can lead to different power consumption
-        .resolution_hz = 10 * 1000 * 1000,
-        .mem_block_symbols = 0,
-        .flags = {
-            .with_dma = false,
+    if (HaveAddressableRGB) {
+        if (channel >= NumLEDChannels) {
+            return;
         }
-    };
+        
+        if (ledStripInited[channel]) {
+            led_strip_del(ledStrip[channel]);
+            ledStripInited[channel] = false;
+        }
 
-    // LED Strip object handle
-    ESP_ERROR_CHECK(led_strip_new_rmt_device(&strip_config, &rmt_config, &ledStrip[channel]));
-    ledStripInited[channel] = true;
+        led_strip_config_t strip_config = {
+            .strip_gpio_num = pin,
+            .max_leds = numLeds,
+            .led_model = LED_MODEL_WS2812,
+            .color_component_format = LED_STRIP_COLOR_COMPONENT_FMT_GRB,
+            .flags = { .invert_out = false },
+        };
+
+        // LED strip backend configuration: RMT
+        led_strip_rmt_config_t rmt_config = {
+            .clk_src = RMT_CLK_SRC_DEFAULT, // different clock source can lead to different power consumption
+            .resolution_hz = 10 * 1000 * 1000,
+            .mem_block_symbols = 0,
+            .flags = {
+                .with_dma = false,
+            }
+        };
+
+        // LED Strip object handle
+        ESP_ERROR_CHECK(led_strip_new_rmt_device(&strip_config, &rmt_config, &ledStrip[channel]));
+        ledStripInited[channel] = true;
+    } else {
+        gpioSetPinMode(LED_BUILTIN, GPIOPinMode::Output, InvertLed);
+    }
 }
 
 void
 System::setLED(uint8_t channel, uint32_t index, uint8_t r, uint8_t g, uint8_t b)
 {
-    if (channel >= NumLEDChannels) {
-        return;
+    if (HaveAddressableRGB) {
+        if (channel >= NumLEDChannels) {
+            return;
+        }
+        
+        ESP_ERROR_CHECK(led_strip_set_pixel(ledStrip[channel], index, r, g, b));
+    } else {
+        bool on = r == 0 && g == 0 && b == 0;
+        gpioWritePin(LED_BUILTIN, on);
     }
-    
-    ESP_ERROR_CHECK(led_strip_set_pixel(ledStrip[channel], index, r, g, b));
 }
 
 void
 System::refreshLEDs(uint8_t channel)
 {
-    if (channel >= NumLEDChannels) {
-        return;
+    if (HaveAddressableRGB) {
+        if (channel >= NumLEDChannels) {
+            return;
+        }
+        
+        ESP_ERROR_CHECK(led_strip_refresh(ledStrip[channel]));
     }
-    
-    ESP_ERROR_CHECK(led_strip_refresh(ledStrip[channel]));
 }
 
 void
-System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode, bool)
+System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode, bool activeHigh)
 {
+    _activeHigh = activeHigh;
     gpio_reset_pin(gpio_num_t(pin));
     gpio_set_direction(gpio_num_t(pin), (mode == GPIOPinMode::Output) ? GPIO_MODE_OUTPUT : GPIO_MODE_INPUT);
 }
@@ -170,6 +186,7 @@ System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode, bool)
 void
 System::gpioWritePin(uint8_t pin, bool state)
 {
+    state = state ^ _activeHigh;
     gpio_set_level(gpio_num_t(pin), state);
 }
 
@@ -294,7 +311,6 @@ System::refreshLEDs(uint8_t channel)
 // Simulate a button
 static uint8_t _buttonPin = 0;
 static bool _buttonIsDown = false;
-static bool _activeHigh = true;
 
 void
 System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode, bool activeHigh)

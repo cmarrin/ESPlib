@@ -226,4 +226,6 @@ private:
     {
         printf("%c %s: %s\n", type, tag, vformat(fmt, args).c_str());
     }
+    
+    static bool _activeHigh;
 };
