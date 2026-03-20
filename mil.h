@@ -44,6 +44,18 @@ DAMAGE.
 
 #include <string>
 
+#if defined(CONFIG_USER_HAVE_ADDRESSABLE_LED)
+static constexpr bool HaveAddressableRGB = CONFIG_USER_HAVE_ADDRESSABLE_LED;
+#else
+static constexpr bool HaveAddressableRGB = false; // ESP32 (D1 Mini)
+#endif
+
+#if defined(CONFIG_USER_INVERT_LED)
+static constexpr bool InvertLed = CONFIG_USER_INVERT_LED;
+#else
+static constexpr bool InvertLed = true; // ESP32 (D1 Mini)
+#endif
+
 #if defined ARDUINO
 #include <Arduino.h>
 #include <Printable.h>
@@ -55,7 +67,11 @@ DAMAGE.
 #include <chrono>
 #include <functional>
 
-static constexpr uint8_t LED_BUILTIN = 8;
+#if defined(CONFIG_USER_LED_BUILTIN)
+static constexpr uint8_t LED_BUILTIN = CONFIG_USER_LED_BUILTIN;
+#else
+static constexpr uint8_t LED_BUILTIN = 2; // ESP32 (D1 Mini)
+#endif
 
 static inline void delay(uint32_t ms) { useconds_t us = useconds_t(ms) * 1000; usleep(us); }
 
