@@ -9,49 +9,48 @@ All rights reserved.
 
 #include "ESPWiFiPortal.h"
 
-#if defined(ESP8266)
-#include <ESP8266mDNS.h>
-#else
 #include <ESPmDNS.h>
-#endif
+#include <DNSServer.h>
 
 #include "LittleFS.h"
 
 using namespace mil;
 
+static const char* PROV_AP_SSID = "ESP32-Provisioning";
+static const char* PROV_AP_PASS = "password123";
+
 void
-ESPWiFiPortal::begin(WebFileSystem*)
+ESPWiFiPortal::begin(WebFileSystem* wfs)
 {
+    _wfs = wfs;
     _prefs.begin("ESPLib");
-    _wifiManager.setDebugOutput(true);
-    _wifiManager.setMenu({ "custom", "wifi", "info", "restart", "sep", "update" });
-    _wifiManager.setDarkMode(true);
-    _wifiManager.setShowInfoErase(true);
 }
 
 void
 ESPWiFiPortal::resetSettings()
 {
-    _wifiManager.resetSettings();			
+    eraseNVSParam("wifi_ssid");
+    eraseNVSParam("wifi_pass");
 }
 
 void
 ESPWiFiPortal::setConfigHandler(HandlerCB f)
 {
-    _wifiManager.setAPCallback([this, f](WiFiManager*) { f(this); });
+    _configHandler = f;
 }
 
 int32_t
-ESPWiFiPortal::addHTTPHandler(const char* endpoint, HTTPMethod, HandlerCB requestCB)
+ESPWiFiPortal::addHTTPHandler(const char* endpoint, HTTPMethod method, HandlerCB requestCB)
 {
-    // If the method is POST then WebServer expects a requestCB, which is called after the upload is
-    // finished, and an uploadCB which is called multiple times during the upload. We will 
-    // call the requestCB for upload and a null requestCB. We'll handle all the end stuff in
-    // the uploadCB when we hit a status of END or ABORT.
+    if (!_server) {
+        System::logE(TAG, "addHTTPHandler: server not running");
+        return -1;
+    }
+    
     if (method == HTTPMethod::Post) {
-        _wifiManager.server->on(endpoint, HTTP_ANY, nullptr, [this, requestCB]() { requestCB(this); });
+        _server->on(endpoint, HTTP_POST, []() { _server->send("texxt/plain", ""); } []() { requestCB(); });
     } else {
-        _wifiManager.server->on(endpoint, HTTP_ANY, [this, requestCB]() { requestCB(this); }, nullptr);
+        _server->on(endpoint, []() { requestCB(); });
     }
     return 0;
 }
@@ -59,53 +58,230 @@ ESPWiFiPortal::addHTTPHandler(const char* endpoint, HTTPMethod, HandlerCB reques
 void
 ESPWiFiPortal::addStaticHTTPHandler(const char *uri, const char *path)
 {
-    _wifiManager.server->serveStatic(uri, LittleFS, path);
+    _server->serveStatic(uri, LittleFS, path);
+}
+
+void
+ESPWiFiPortal::scanNetworks()
+{
+    _knownNetworks.clear();
+    int n = WiFi.scanNetworks();
+    if (n == 0) {
+        System::logI(TAG, "No networks found during scan");
+    } else {
+        for (int i = 0; i < n; ++i) {
+            _knownNetworks.push_back({ WiFi.SSID(i).c_str(), WiFi.RSSI(i), WiFi.encryptionType(i) == WIFI_AUTH_OPEN });
+        }
+
+        // Get rid of duplicates
+        std::sort(_knownNetworks.begin(), _knownNetworks.end());
+        _knownNetworks.erase(std::unique(_knownNetworks.begin(), _knownNetworks.end()), _knownNetworks.end());
+    
+        for (auto& it : _knownNetworks) {
+            ESP_LOGI(TAG, "ssid='%s', rssi=%d, open=%s", it.ssid.c_str(), int(it.rssi), it.open ? "true" : "false");
+        }
+    }
+    WiFi.scanDelete();
 }
 
 bool
 ESPWiFiPortal::autoConnect(char const *apName, char const *apPassword)
 {
-    bool result = _wifiManager.autoConnect(apName, apPassword);
+    scanNetworks();
 
-    _wifiManager.setSaveParamsCallback([this]()
-    {
-        WiFiManagerParameter** params = _wifiManager.getParameters();
-        int count = _wifiManager.getParametersCount();
+    getParamValue("wifi_ssid", _ssid);
+    getParamValue("wifi_pass", _pass);
+    
+    WiFi.onEvent([this](arduino_event_id_t ev, arduino_event_info_t info) { handleWiFiEvent(ev, info); });
+
+    if (!_ssid.empty()) {
+        // Try connecting
+        WiFi.mode(WIFI_STA);
+        WiFi.begin(_ssid, _pass);
         
-        for (int i = 0; i < count; ++i) {
-            _prefs.putString(params[i]->getID(), params[i]->getValue());
+        System::logI(TAG, "Found credentials, connecting to '%s'", _ssid.c_str());
+        
+        int result = WiFi.WaitForConnectResult();
+        if (result != WL_CONNECTED) {
+            System::logI(TAG, "Failed to connect with stored credentials:%d", result);
+        } else {
+            System::logI(TAG, "Connection succeeded", result);
+            return true;
         }
-        
-        // Restart so the new settings take effect
-        ESP.restart();
-        delay(1000);
+    } else {
+        System::logI(TAG, "Credentials not found");
+    }
+    
+    System::logI(TAG, "Starting captive portal");
+    startProvisioning();
+    return true;
+}
+
+void
+ESPWiFiPortal::startProvisioning()
+{
+    WiFi.mode(WIFI_AP);
+
+    WiFi.softAP(PROV_AP_SSID);
+    System::logI(TAG, "AP IP: %s", WiFi.softAPIP().toString().c_str());
+
+    DNSServer dnsServer;
+    dnsServer.start(53, "*", WiFi.softAPIP());
+    startWebServer(true);
+}
+
+void
+ESPWiFiPortal::connectHandler(WiFiPortal*)
+{
+    if (!_server.hasArg("ssid") || !_server.hasArg("password")) {
+        sendHTTPResponse(400, "application/json", "{\"status\":\"error\",\"message\":\"ssid and password\"}");
+    }
+    
+    std::string ssid = HTTPParser::urlDecode(_server.arg("ssid"));
+    str::string pass = HTTPParser::urlDecode(_server.arg("password"));
+    std::string hostname = HTTPParser::urlDecode(_server.arg("hostname"));
+
+    if (ssid.empty()) {
+        getNVSParam("wifi_ssid", ssid);
+        getNVSParam("wifi_pass", pass);
+    }
+    
+    if (hostname.empty()) {
+        getNVSParam("hostname", hostname);
+    }
+
+    std::string response = "<h1>Connecting to '";
+    response += ssid;
+    response += "'...</h1><p>If successful, the device will connect to the network. If failed, it will remain in provisioning mode.</p>";
+    sendHTTPResponse(400, "text/html", response.c_str());
+
+    _ssid = ssid;
+    _pass = _pass
+    _hostname = hostname;
+    setNVSParam("wifi_ssid", _ssid);
+    setNVSParam("wifi_pass", _pass);
+    setNVSParam("hostname", _hostname);
+    System::restart();
+}
+
+void
+ESPWiFiPortal::redirectRoot()
+{
+    _server.send(200,"text/html", "<html><body><script>location.href='/'</script></body></html>");
+}
+
+void
+ESPWiFiPortal::startWebServer(bool provision)
+{
+    if (_server) {
+        return;
+    }
+
+    if (provision) {
+        addHTTPHandler("/", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal*) { _wfs->sendWiFiPage(); });
+        addHTTPHandler("/generate_204", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal*) { redirectRoot(); });
+        addHTTPHandler("/hotspot-detect.html", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal*) { redirectRoot(); });
+        addHTTPHandler("/ncsi.txt", WiFiPortal::HTTPMethod::Get, [](){ server.send(200,"text/plain","Microsoft NCSI"); });
+        addHTTPHandler("/connecttest.txt", WiFiPortal::HTTPMethod::Get, [](){ server.send(200,"text/plain",""); });
+        addHTTPHandler("/fwlink", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal*) { redirectRoot(); });
+        _server.onNotFound([this](WiFiPortal*) { _wfs->sendWiFiPage(); });
+    } else {
+        addHTTPHandler("/wifi", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal*) { _wfs->sendWiFiPage(); });
+    }
+    addHTTPHandler("/connect", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal*) { connectHandler(); });
+    addHTTPHandler("/restart", HTTPMethod::Get, [this](WiFiPortal*) { restartGetHandler(); });
+    addHTTPHandler("/reset", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal*) { resetGetHandler(); });
+    addHTTPHandler("/get-wifi-setup", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal*) { getWifiSetupHandler(); });
+    addHTTPHandler("/favicon.ico", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal*)
+    {
+        sendHTTPResponse(204, "text/plain", "No Content");
     });
 
-    return result;
+    if (!getHostname().empty()) {
+        // Setup mDNS
+        if (!MDNS.begin(_hostname.c_str())) {
+            System::logE(TAG, "Error setting up MDNS responder for hostname '%s'", _hostname.c_str());
+        }
+    }
+
+    _server.begin();
+}
+
+static std::string makeRestartPage(const char* text)
+{
+    // Send a page that shows the text string for 3 seconds and then goes back to the landing page.
+    // Assuming it has already restarted going to that page will fail but when you refresh it
+    // will show the landing page rather than restarting again!
+    const char* response1 =
+        "<html>\n"
+            "<body>\n";
+    const char* response2 =
+                "<script>\n"
+                    "let timer = setTimeout(function() {\n"
+                        "window.location='http://example.com'\n"
+                    "}, 3000);\n"
+                "</script>\n"
+            "</body>\n"
+        "</html>\n";
+
+    return std::string(response1) + text + respponse2;
+}
+
+void
+ESPWiFiPortal::restartGetHandler(WiFiPortal* portal)
+{
+    sendHTTPResponse(200, "text/html", makeRestartPage("<h1>Restarting...</h1>").c_str());
+    delay(2000);
+    System::restart();
+}
+
+void
+ESPWiFiPortal::resetGetHandler(WiFiPortal* portal)
+{
+    sendHTTPResponse(200, "text/html", makeRestartPage("<h1>Credentials Cleared</h1><p>The device will restart and enter provisioning mode.</p>").c_str());
+    resetSettings();
+    delay(2000);
+    System::restart();
+}
+
+void
+ESPWiFiPortal::getWifiSetupHandler(WiFiPortal* portal)
+{
+    std::string ssid, hostname;
+    self->getNVSParam("wifi_ssid", ssid);
+    self->getNVSParam("hostname", hostname);
+
+    std::string response = "{" + WebFileSystem::jsonParam("ssid", ssid) + "," + WebFileSystem::jsonParam("hostname", hostname) + ",";
+    response += WebFileSystem::quote("knownNetworks") + ":[";
+
+    bool first = true;
+    
+    for (const auto& it : self->_knownNetworks) {
+        if (!first) {
+            response += ",";
+        } else {
+            first = false;
+        }
+        
+        response += "{" + WebFileSystem::jsonParam("ssid", it.ssid) + ",";
+        response += WebFileSystem::jsonParam("rssi", std::to_string(it.rssi)) + ",";
+        response += WebFileSystem::jsonParam("open", std::string(it.open ? "true" : "false")) + "}";
+    }
+    response += "]}";
+
+    sendHTTPResponse(200, application/json, response.c_str());
 }
 
 void
 ESPWiFiPortal::process()
 {
-#if defined(ESP8266)
-    MDNS.update();
-#endif
-    _wifiManager.process();
+    _server.handleClient();
 }
 
 void
 ESPWiFiPortal::startWebPortal()
 {
-    _wifiManager.startWebPortal();
-
-    std::string hostname;
-    if (!getParamValue("hostname", hostname)) {
-        printf("***** can't start mDNS. No hostname\n");
-    } else if (!MDNS.begin(hostname.c_str()))  {             
-        printf("***** Error starting mDNS\n");
-    } else {
-        printf("mDNS started, hostname=%s\n", hostname.c_str());
-    }
+    startWebServer(false);
 }
 
 std::string
@@ -123,19 +299,19 @@ ESPWiFiPortal::getSSID()
 void
 ESPWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const char* data)
 {
-    _wifiManager.server->send(code, mimetype, data);
+    _server->send(code, mimetype, data);
 }
 
 void
 ESPWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const char* data, size_t length, bool gzip)
 {
     if (gzip) {
-        _wifiManager.server->sendHeader("Content-Encoding", "gzip", true);
+        _server->sendHeader("Content-Encoding", "gzip", true);
     }
     
-    _wifiManager.server->setContentLength(length);
-    _wifiManager.server->send(code, mimetype);
-    _wifiManager.server->sendContent(data, length);
+    _server->setContentLength(length);
+    _server->send(code, mimetype);
+    _server->sendContent(data, length);
 }    
 
 void
@@ -146,14 +322,14 @@ ESPWiFiPortal::streamHTTPResponse(File& file, const char* mimetype, bool attach)
     disp += "; filename=\"";
     disp += file.name();
     disp += "\"";
-    _wifiManager.server->sendHeader("Content-Disposition", disp.c_str(), true);
-    _wifiManager.server->streamFile(file, mimetype);
+    _server->sendHeader("Content-Disposition", disp.c_str(), true);
+    _server->streamFile(file, mimetype);
 }
 
 WiFiPortal::HTTPUploadStatus
 ESPWiFiPortal::httpUploadStatus() const
 {
-    switch(_wifiManager.server->upload().status) {
+    switch(_server->upload().status) {
         default: return HTTPUploadStatus::None;
         case UPLOAD_FILE_START: return HTTPUploadStatus::Start;
         case UPLOAD_FILE_WRITE: return HTTPUploadStatus::Write;
@@ -165,31 +341,31 @@ ESPWiFiPortal::httpUploadStatus() const
 std::string
 ESPWiFiPortal::httpUploadFilename() const
 {
-    return _wifiManager.server->upload().filename.c_str();
+    return _server->upload().filename.c_str();
 }
 
 size_t
 ESPWiFiPortal::httpUploadTotalSize() const
 {
-    return _wifiManager.server->upload().totalSize;
+    return _server->upload().totalSize;
 }
 
 size_t
 ESPWiFiPortal::httpUploadCurrentSize() const
 {
-    return _wifiManager.server->upload().currentSize;
+    return _server->upload().currentSize;
 }
 
 const uint8_t*
 ESPWiFiPortal::httpUploadBuffer() const
 {
-    return _wifiManager.server->upload().buf;
+    return _server->upload().buf;
 }
 
 std::string
 ESPWiFiPortal::getHTTPArg(const char* name)
 {
-    return _wifiManager.server->arg(name).c_str();
+    return _server->arg(name).c_str();
 }
 
 bool
@@ -198,41 +374,48 @@ ESPWiFiPortal::hasHTTPArg(const char* name)
     return !getHTTPArg(name).empty();
 }
 
-bool
-ESPWiFiPortal::addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength)
-{
-    // First we have to see if there is a saved value for this id. If so use it in place of the defaultValue
-    std::string value = _prefs.getString(id).c_str();
-    if (value.length() == 0) {
-        value = defaultValue;
-        printf("No '%s' saved. Setting it to default: '%s'\n", id, defaultValue);
-    } else {
-        printf("Setting '%s' to saved value: '%s'\n", id, value.c_str());
-    }
-
-    _prefs.putString(id, value.c_str());
-
-    _wifiManager.addParameter(new WiFiManagerParameter(id, label, value.c_str(), maxLength));
-    return true;
-}
-
-bool
-ESPWiFiPortal::getParamValue(const char* id, std::string& value)
-{
-    WiFiManagerParameter** params = _wifiManager.getParameters();
-    int count = _wifiManager.getParametersCount();
-    
-    for (int i = 0; i < count; ++i) {
-        if (strcmp(params[i]->getID(), id) == 0) {
-            value = params[i]->getValue();
-            return true;
-        }
-    }
-    return false;
-}
-
 std::string
 ESPWiFiPortal::getCPUModel() const
 {
-    return "???";
+    return ESP.getChipModel();
+}
+
+uint32_t
+ESPWiFiPortal::getCPUFrequency() const
+{
+    return ESP.getCpuFreqMHz();
+}
+
+float
+ESPWiFiPortal::getCPUTemperature() const
+{
+    return temperatureRead();
+}
+
+uint32_t
+ESPWiFiPortal::getCPUUptime() const
+{
+    return millis / 1000;
+}
+
+void
+ESPWiFiPortal::setNVSParam(const char* id, const std::string& value)
+{
+    _prefs.putString(id, value.c_str());
+}
+
+bool
+ESPWiFiPortal::getNVSParam(const char* id, std::string& value) const
+{
+    if (!_prefs.isKey(id)) {
+        return false;
+    }
+    value = _prefs.getString(id).c_str();
+    return true;
+}
+
+void
+ESPWiFiPortal::eraseNVSParam(const char* id)
+{
+    _prefs.remove(id);
 }

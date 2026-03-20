@@ -11,8 +11,8 @@ All rights reserved.
 
 #include "WiFiPortal.h"
 
-#include <WiFiManager.h>
-#include "Preferences.h"
+#include <WebServer.h>
+#include <Preferences.h>
 
 namespace mil {
 
@@ -40,15 +40,40 @@ public:
     virtual const uint8_t* httpUploadBuffer() const override;
     virtual std::string getHTTPArg(const char* name) override;
     virtual bool hasHTTPArg(const char* name) override;
-    virtual bool addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength) override;
-    virtual bool getParamValue(const char* id, std::string& value) override;
     virtual std::string getCPUModel() const override;
+    virtual uint32_t getCPUFrequency() const override;
+    virtual float getCPUTemperature() const override;
+    virtual uint32_t getCPUUptime() const override;
+
+    virtual void setNVSParam(const char* id, const std::string& value) override;
+    virtual bool getNVSParam(const char* id, std::string& value) const override;
+    virtual void eraseNVSParam(const char* id) override;
 
 private:
-    WiFiManager _wifiManager;
+    void scanNetworks();
+    void startProvisioning();
+    void startWebServer(bool provision);
+    void connectHandler(WiFiPortal*);
+    void restartGetHandler(WiFiPortal*);
+    void resetGetHandler(WiFiPortal*);
+    void getWifiSetupHandler(WiFiPortal*);
+    
+    void redirectRoot();
+    
     Preferences _prefs;
+    std::unique_ptr<WebServer> _server;
+    WebFileSystem& _wfs = nullptr;
+    HandlerCB _configHandler;
 
-
+    struct KnownNetwork
+    {
+        bool operator==(const KnownNetwork& other) const { return ssid == other.ssid; }
+        bool operator<(const KnownNetwork& other) const { return ssid < other.ssid; }
+        std::string ssid; 
+        int8_t rssi; 
+        bool open;
+    };
+    std::vector<KnownNetwork> _knownNetworks;
 };
 
 }
