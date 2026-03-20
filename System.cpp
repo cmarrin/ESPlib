@@ -85,7 +85,7 @@ System::readAnalog(uint8_t pin)
 uint32_t
 System::millis()
 {
-    return millis();
+    return ::millis();
 }
 
 void
