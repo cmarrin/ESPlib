@@ -11,17 +11,17 @@ All rights reserved.
 
 #include "mil.h"
 
-// HTTPClient
+// HTTPFetchClient
 //
 // Handle simple REST requests. This uses HTTPClient on Arduino, curl on
 // Mac and esp_http_client on espidf
 
 namespace mil {
 
-class HTTPClient
+class HTTPFetchClient
 {
 public:
-    HTTPClient(std::function<void(const char* buf, uint32_t size)> cb) : _handler(cb) { }
+    HTTPFetchClient(std::function<void(const char* buf, uint32_t size)> cb) : _handler(cb) { }
     
     bool fetch(const char* url);
     

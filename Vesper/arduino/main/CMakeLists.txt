@@ -2,7 +2,7 @@ set(ESPlib ${COMPONENT_DIR}/../../../)
 set(esplibFiles
     Application.cpp JsonStreamingParser.cpp BrightnessManager.cpp ButtonManager.cpp
     Clock.cpp HTTPParser.cpp LuaManager.cpp System.cpp TimeWeatherServer.cpp 
-    WebFileSystem.cpp Shell.cpp IDFWiFiPortal.cpp LuaWFS.cpp HTTPClient.cpp
+    WebFileSystem.cpp Shell.cpp ESPWiFiPortal.cpp LuaWFS.cpp HTTPFetchClient.cpp
 )
 list(TRANSFORM esplibFiles PREPEND ${ESPlib}/)
 

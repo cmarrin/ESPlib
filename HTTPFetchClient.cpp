@@ -7,7 +7,7 @@ Copyright (c) 2026, Chris Marrin
 All rights reserved.
 -------------------------------------------------------------------------*/
 
-#include "HTTPClient.h"
+#include "HTTPFetchClient.h"
 
 #if defined ARDUINO
 #if defined(ESP8266)
@@ -27,18 +27,17 @@ using namespace mil;
 
 #if defined ARDUINO
 bool
-HTTPClient::fetch(const char* url)
+HTTPFetchClient::fetch(const char* url)
 {
     bool success = true;
     
-    WiFiClient client;
 	HTTPClient http;
 
-	http.begin(client, url);
+	http.begin(url);
 	int httpCode = http.GET();
 
 	if (httpCode > 0) {
-		printf("    got response: %d\n", int32_t(httpCode));
+		printf("    got response: %d\n", int(httpCode));
 
 		if (httpCode == HTTP_CODE_OK) {
 			std::string payload = http.getString().c_str();
@@ -49,7 +48,7 @@ HTTPClient::fetch(const char* url)
             success = false;
         }
 	} else {
-		printf("[HTTP] GET... failed, error: %s (%d)\n", http.errorToString(httpCode), int32_t(httpCode));
+		printf("[HTTP] GET... failed, error: %s (%d)\n", http.errorToString(httpCode).c_str(), int(httpCode));
 		success = false;
 	}
 
@@ -60,7 +59,7 @@ HTTPClient::fetch(const char* url)
 
 #include "esp_log.h"
 
-static const char* TAG = "HTTPClient";
+static const char* TAG = "HTTPFetchClient";
 
 static esp_err_t eventHandler(esp_http_client_event_t *evt)
 {
@@ -79,7 +78,7 @@ static esp_err_t eventHandler(esp_http_client_event_t *evt)
             break;
         case HTTP_EVENT_ON_DATA:
             ESP_LOGD(TAG, "HTTP_EVENT_ON_DATA, len=%d", evt->data_len);
-            reinterpret_cast<HTTPClient*>(evt->user_data)->_handler(reinterpret_cast<const char*>(evt->data), uint32_t(evt->data_len));
+            reinterpret_cast<HTTPFetchClient*>(evt->user_data)->_handler(reinterpret_cast<const char*>(evt->data), uint32_t(evt->data_len));
             break;
         case HTTP_EVENT_ON_FINISH:
             ESP_LOGD(TAG, "HTTP_EVENT_ON_FINISH");
@@ -96,7 +95,7 @@ static esp_err_t eventHandler(esp_http_client_event_t *evt)
 }
 
 bool
-HTTPClient::fetch(const char* url)
+HTTPFetchClient::fetch(const char* url)
 {
     esp_http_client_config_t config = { };
     config.url = url;
@@ -127,12 +126,12 @@ HTTPClient::fetch(const char* url)
 static size_t httpCB(char* p, size_t size, size_t nmemb, void* data)
 {
     size *= nmemb;
-    reinterpret_cast<HTTPClient*>(data)->_handler(p, uint32_t(size));
+    reinterpret_cast<HTTPFetchClient*>(data)->_handler(p, uint32_t(size));
     return size;
 }
 
 bool
-HTTPClient::fetch(const char* url)
+HTTPFetchClient::fetch(const char* url)
 {
     bool success = true;
 

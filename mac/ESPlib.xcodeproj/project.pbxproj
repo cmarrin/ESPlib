@@ -14,8 +14,8 @@
 		492744492E9DC41800AF8FA1 /* libESPlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49E65B012E9C36F800D3C6C5 /* libESPlib.a */; };
 		492744602E9E929500AF8FA1 /* MacWiFiPortal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B772E9C3A7600D3C6C5 /* MacWiFiPortal.cpp */; };
 		4934EB1D2F0C2C370054B78E /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4934EB1A2F0B50460054B78E /* liblua.a */; };
-		495604982F4BA47300A665A8 /* HTTPClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 495604962F4BA47300A665A8 /* HTTPClient.h */; };
-		495604992F4BA47300A665A8 /* HTTPClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 495604972F4BA47300A665A8 /* HTTPClient.cpp */; };
+		495604982F4BA47300A665A8 /* HTTPFetchClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 495604962F4BA47300A665A8 /* HTTPFetchClient.h */; };
+		495604992F4BA47300A665A8 /* HTTPFetchClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 495604972F4BA47300A665A8 /* HTTPFetchClient.cpp */; };
 		495AB4662E9C753400C4C2C4 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 495AB4652E9C753400C4C2C4 /* main.cpp */; };
 		495AB46D2E9C77FE00C4C2C4 /* Vesper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 495AB46C2E9C77FE00C4C2C4 /* Vesper.cpp */; };
 		495AB4712E9C7BE800C4C2C4 /* libESPlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49E65B012E9C36F800D3C6C5 /* libESPlib.a */; };
@@ -160,8 +160,8 @@
 		4934EB122F0B19280054B78E /* IDFWiFiPortal.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = IDFWiFiPortal.cpp; path = ../IDFWiFiPortal.cpp; sourceTree = SOURCE_ROOT; };
 		4934EB132F0B50460054B78E /* lua.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = lua.xcodeproj; path = "../lua/lua-5.4.8/mac/lua.xcodeproj"; sourceTree = SOURCE_ROOT; };
 		4934EB1F2F1170950054B78E /* wifi.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = wifi.html; path = ../wifi.html; sourceTree = SOURCE_ROOT; };
-		495604962F4BA47300A665A8 /* HTTPClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HTTPClient.h; path = ../HTTPClient.h; sourceTree = SOURCE_ROOT; };
-		495604972F4BA47300A665A8 /* HTTPClient.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = HTTPClient.cpp; path = ../HTTPClient.cpp; sourceTree = SOURCE_ROOT; };
+		495604962F4BA47300A665A8 /* HTTPFetchClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HTTPFetchClient.h; path = ../HTTPFetchClient.h; sourceTree = SOURCE_ROOT; };
+		495604972F4BA47300A665A8 /* HTTPFetchClient.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = HTTPFetchClient.cpp; path = ../HTTPFetchClient.cpp; sourceTree = SOURCE_ROOT; };
 		4956130B2F4D187400A665A8 /* dns_server.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = dns_server.h; sourceTree = "<group>"; };
 		4956130D2F4D187400A665A8 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		4956130E2F4D187400A665A8 /* dns_server.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = dns_server.c; sourceTree = "<group>"; };
@@ -462,8 +462,8 @@
 				49E65B752E9C3A7600D3C6C5 /* Font_Compact_5pt.h */,
 				49FDEBA72F606CEF001D6A6A /* Graphics.h */,
 				49FDEBA82F606CEF001D6A6A /* Graphics.cpp */,
-				495604962F4BA47300A665A8 /* HTTPClient.h */,
-				495604972F4BA47300A665A8 /* HTTPClient.cpp */,
+				495604962F4BA47300A665A8 /* HTTPFetchClient.h */,
+				495604972F4BA47300A665A8 /* HTTPFetchClient.cpp */,
 				49E65B782E9C3A7600D3C6C5 /* JsonListener.h */,
 				49E65B792E9C3A7600D3C6C5 /* JsonStreamingParser.h */,
 				49E65B7A2E9C3A7600D3C6C5 /* JsonStreamingParser.cpp */,
@@ -548,7 +548,7 @@
 				49E65BA52E9C3A7600D3C6C5 /* LittleFSShim.h in Headers */,
 				492744462E9DBFA100AF8FA1 /* MacWebServer.h in Headers */,
 				49E65BA72E9C3A7600D3C6C5 /* WebFileSystem.h in Headers */,
-				495604982F4BA47300A665A8 /* HTTPClient.h in Headers */,
+				495604982F4BA47300A665A8 /* HTTPFetchClient.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -737,7 +737,7 @@
 				49E65BB22E9C3A7600D3C6C5 /* System.cpp in Sources */,
 				491673DC2EA865410028A6F0 /* LuaManager.cpp in Sources */,
 				49E65BB32E9C3A7600D3C6C5 /* Application.cpp in Sources */,
-				495604992F4BA47300A665A8 /* HTTPClient.cpp in Sources */,
+				495604992F4BA47300A665A8 /* HTTPFetchClient.cpp in Sources */,
 				49E65BB42E9C3A7600D3C6C5 /* JsonStreamingParser.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

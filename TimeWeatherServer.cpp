@@ -9,7 +9,7 @@ All rights reserved.
 
 #include "TimeWeatherServer.h"
 
-#include "HTTPClient.h"
+#include "HTTPFetchClient.h"
 #include "JsonStreamingParser.h"
 
 using namespace mil;
@@ -123,7 +123,7 @@ bool TimeWeatherServer::update(const char* zipCode)
     JsonStreamingParser* p = &parser;
     
     {
-        HTTPClient client([p](const char* buf, uint32_t size)
+        HTTPFetchClient client([p](const char* buf, uint32_t size)
         {
             for (size_t i = 0; i < size; ++i) {
                 p->parse(buf[i]);
@@ -153,7 +153,7 @@ bool TimeWeatherServer::update(const char* zipCode)
     parser.reset();
     
     {
-        HTTPClient client([p](const char* buf, uint32_t size)
+        HTTPFetchClient client([p](const char* buf, uint32_t size)
         {
             for (size_t i = 0; i < size; ++i) {
                 p->parse(buf[i]);
@@ -187,7 +187,7 @@ bool TimeWeatherServer::update(const char* zipCode)
     parser.reset();
 
     {
-        HTTPClient client([p](const char* buf, uint32_t size)
+        HTTPFetchClient client([p](const char* buf, uint32_t size)
         {
             for (size_t i = 0; i < size; ++i) {
                 p->parse(buf[i]);
