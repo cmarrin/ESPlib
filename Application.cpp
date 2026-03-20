@@ -17,7 +17,7 @@ static const char* TAG = "Application";
 Application::Application(WiFiPortal* portal, const char* configPortalName, bool haveClock)
     : _portal(portal)
     , _stateMachine({ { Input::LongPress, State::AskPreUserQuestion } })
-    , _blinker(BlinkSampleRate, LED_BUILTIN)
+    , _blinker(BlinkSampleRate, LED_BUILTIN, InvertLed)
     , _configPortalName(configPortalName)
 {
     if (haveClock) {

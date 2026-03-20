@@ -57,7 +57,7 @@ static constexpr uint32_t OnCounts = 1;
 class Blinker
 {
 public:
-    Blinker(uint32_t sampleRate, uint8_t pin)
+    Blinker(uint32_t sampleRate, uint8_t pin, bool invert)
         : _sampleRate(sampleRate)
         , _pin(pin)
     {
