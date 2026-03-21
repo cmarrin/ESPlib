@@ -18,6 +18,7 @@ set(luaFiles lapi.c lauxlib.c lbaselib.c lcode.c lcorolib.c lctype.c ldblib.c ld
 list(TRANSFORM luaFiles PREPEND ${Lua}/)
 
 idf_component_register(SRCS "main.cpp" ${vesperFiles} ${esplibFiles} ${luaFiles}
+                    REQUIRES arduino-esp32
                     INCLUDE_DIRS "." ${ESPlib} ${Vesper} ${Lua})
 
 target_compile_options(${COMPONENT_LIB} PUBLIC -Wno-missing-field-initializers)

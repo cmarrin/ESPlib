@@ -17,14 +17,16 @@
 
 #include "Vesper.h"
 
-#include "IDFWiFiPortal.h"
+#include "ESPWiFiPortal.h"
 
-mil::IDFWiFiPortal portal;
+mil::ESPWiFiPortal portal;
 Vesper controller(&portal);
 
 extern "C" {
 void app_main(void)
 {
+    initArduino();
+
     controller.setup();
 
     while (true) {
