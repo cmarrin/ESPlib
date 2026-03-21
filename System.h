@@ -149,7 +149,7 @@ class System
     // NeoPixel
     
     enum class GPIOPinMode { Output, Input, InputWithPullup };
-    static void gpioSetPinMode(uint8_t pin, GPIOPinMode mode, bool activeHigh = true);
+    static void gpioSetPinMode(uint8_t pin, GPIOPinMode mode);
     static void gpioWritePin(uint8_t pin, bool state);
     static bool gpioReadPin(uint8_t pin);
     
@@ -226,6 +226,4 @@ private:
     {
         printf("%c %s: %s\n", type, tag, vformat(fmt, args).c_str());
     }
-    
-    static bool _activeHigh;
 };

@@ -9,8 +9,6 @@ All rights reserved.
 
 #include "System.h"
 
-bool System::_activeHigh = false;
-
 // Logging
 std::string
 System::vformat(const char* fmt, va_list args)
@@ -32,7 +30,7 @@ System::vformat(const char* fmt, va_list args)
 void
 System::initLED(uint8_t channel, uint8_t pin, uint32_t numLEDs)
 {
-    System::gpioSetPinMode(LED_BUILTIN, System::GPIOPinMode::Output, InvertLed);
+    System::gpioSetPinMode(LED_BUILTIN, System::GPIOPinMode::Output);
 }
 
 void
@@ -43,9 +41,8 @@ System::setLED(uint8_t channel, uint32_t index, uint8_t r, uint8_t g, uint8_t b)
 }
 
 void
-System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode, bool activeHigh)
+System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode)
 {
-    _activeHigh = activeHigh;
     switch(mode) {
         case GPIOPinMode::Output: pinMode(pin, OUTPUT); return;
         case GPIOPinMode::Input: pinMode(pin, INPUT); return;
@@ -56,7 +53,7 @@ System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode, bool activeHigh)
 void
 System::gpioWritePin(uint8_t pin, bool state)
 {
-    state = state ^ _activeHigh;
+    state = state ^ ActiveHighLED;
     digitalWrite(pin, state ? HIGH : LOW);
 }
 
@@ -112,7 +109,7 @@ static bool ledStripInited[NumLEDChannels] = { 0 };
 void
 System::initLED(uint8_t channel, uint8_t pin, uint32_t numLeds)
 {
-    if (HaveAddressableRGB) {
+    if (HaveAddressableRGBLED) {
         if (channel >= NumLEDChannels) {
             return;
         }
@@ -131,6 +128,7 @@ System::initLED(uint8_t channel, uint8_t pin, uint32_t numLeds)
         };
 
         // LED strip backend configuration: RMT
+        // FIXME: use AddressableLEDRMT to decide on RMT or SPI
         led_strip_rmt_config_t rmt_config = {
             .clk_src = RMT_CLK_SRC_DEFAULT, // different clock source can lead to different power consumption
             .resolution_hz = 10 * 1000 * 1000,
@@ -144,14 +142,14 @@ System::initLED(uint8_t channel, uint8_t pin, uint32_t numLeds)
         ESP_ERROR_CHECK(led_strip_new_rmt_device(&strip_config, &rmt_config, &ledStrip[channel]));
         ledStripInited[channel] = true;
     } else {
-        gpioSetPinMode(LED_BUILTIN, GPIOPinMode::Output, InvertLed);
+        gpioSetPinMode(LED_BUILTIN, GPIOPinMode::Output);
     }
 }
 
 void
 System::setLED(uint8_t channel, uint32_t index, uint8_t r, uint8_t g, uint8_t b)
 {
-    if (HaveAddressableRGB) {
+    if (HaveAddressableRGBLED) {
         if (channel >= NumLEDChannels) {
             return;
         }
@@ -166,7 +164,7 @@ System::setLED(uint8_t channel, uint32_t index, uint8_t r, uint8_t g, uint8_t b)
 void
 System::refreshLEDs(uint8_t channel)
 {
-    if (HaveAddressableRGB) {
+    if (HaveAddressableRGBLED) {
         if (channel >= NumLEDChannels) {
             return;
         }
@@ -176,9 +174,8 @@ System::refreshLEDs(uint8_t channel)
 }
 
 void
-System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode, bool activeHigh)
+System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode)
 {
-    _activeHigh = activeHigh;
     gpio_reset_pin(gpio_num_t(pin));
     gpio_set_direction(gpio_num_t(pin), (mode == GPIOPinMode::Output) ? GPIO_MODE_OUTPUT : GPIO_MODE_INPUT);
 }
@@ -186,7 +183,7 @@ System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode, bool activeHigh)
 void
 System::gpioWritePin(uint8_t pin, bool state)
 {
-    state = state ^ _activeHigh;
+    state = state ^ ActiveHighLED;
     gpio_set_level(gpio_num_t(pin), state);
 }
 
@@ -313,10 +310,9 @@ static uint8_t _buttonPin = 0;
 static bool _buttonIsDown = false;
 
 void
-System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode, bool activeHigh)
+System::gpioSetPinMode(uint8_t pin, GPIOPinMode mode)
 {
     _buttonPin = pin;
-    _activeHigh = activeHigh;
 }
 
 void
@@ -328,7 +324,7 @@ bool
 System::gpioReadPin(uint8_t pin)
 {
     bool v = (pin == _buttonPin) ? _buttonIsDown : false;
-    return _activeHigh ? v : !v;
+    return v;
 }
 
 void

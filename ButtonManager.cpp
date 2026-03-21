@@ -44,7 +44,7 @@ Button::Button(uint8_t pin, uint32_t id, bool activeHigh, System::GPIOPinMode mo
 	, _id(id)
 	, _activeHigh(activeHigh)
 {
-	System::gpioSetPinMode(_pin, mode, activeHigh);
+	System::gpioSetPinMode(_pin, mode);
 }
 
 ButtonManager::ButtonManager(std::function<void(const Button&, Event)> handler, uint32_t debounceTime, uint32_t clickTime, uint32_t longPressTime)

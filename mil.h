@@ -44,25 +44,9 @@ DAMAGE.
 
 #include <string>
 
-#if defined(CONFIG_USER_HAVE_ADDRESSABLE_LED)
-static constexpr bool HaveAddressableRGB = CONFIG_USER_HAVE_ADDRESSABLE_LED;
-#else
-static constexpr bool HaveAddressableRGB = true; // ESP32C6
-#endif
-
-#if defined(CONFIG_USER_INVERT_LED)
-static constexpr bool InvertLed = CONFIG_USER_INVERT_LED;
-#else
-static constexpr bool InvertLed = true; // ESP32 (D1 Mini)
-#endif
-
 #if defined ARDUINO
 #include <Arduino.h>
 #include <Printable.h>
-
-#ifndef LED_BUILTIN
-#define LED_BUILTIN 8
-#endif
 
 #else
 #include <cstdint>
@@ -72,10 +56,41 @@ static constexpr bool InvertLed = true; // ESP32 (D1 Mini)
 #include <chrono>
 #include <functional>
 
-#if defined(CONFIG_USER_LED_BUILTIN)
-static constexpr uint8_t LED_BUILTIN = CONFIG_USER_LED_BUILTIN;
+// sdkconfig.h defines values for:
+//
+//      CONFIG_BLINK_LED_GPIO or CONFIG_BLINK_LED_STRIP
+//      CONFIG_BLINK_LED_STRIP_BACKEND_RMT or CONFIG_BLINK_LED_STRIP_BACKEND_SPI
+//      BLINK_LED_GPIO_ACTIVE_LOW or BLINK_LED_GPIO_ACTIVE_HIGH
+//      CONFIG_BLINK_LED_GPIO_NUMBER (number)
+//
+// For Mac (and Arduino?) we need to define dummy values
+
+#if defined ESP_PLATFORM
+#include "sdkconfig.h"
+#endif
+
+#if defined CONFIG_BLINK_LED_STRIP
+static constexpr bool HaveAddressableRGBLED = true;
 #else
-static constexpr uint8_t LED_BUILTIN = 8; // ESP32C6 (for ESP32 and others this is pin 2 and is an active low LED)
+static constexpr bool HaveAddressableRGBLED = false;
+#endif
+
+#if defined CONFIG_BLINK_LED_STRIP_BACKEND_RMT
+static constexpr bool AddressableLEDRMT = true;
+#else
+static constexpr bool AddressableLEDRMT = false;
+#endif
+
+#if defined BLINK_LED_GPIO_ACTIVE_HIGH
+static constexpr bool ActiveHighLED = true;
+#else
+static constexpr bool ActiveHighLED = false;
+#endif
+
+#if defined CONFIG_BLINK_LED_GPIO_NUMBER
+static constexpr int LED_BUILTIN = CONFIG_BLINK_LED_GPIO_NUMBER;
+#else
+static constexpr int LED_BUILTIN = 0;
 #endif
 
 static inline void delay(uint32_t ms) { useconds_t us = useconds_t(ms) * 1000; usleep(us); }
