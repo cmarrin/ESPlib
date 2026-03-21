@@ -18,7 +18,7 @@ static const char* LUA_WFSHANDLE = "File*";
 
 struct WFSStream
 {
-    File f;  /* stream (NULL for incompletely created streams) */
+    fs::File f;  /* stream (NULL for incompletely created streams) */
     lua_CFunction closef;  /* to close stream (NULL for closed streams) */
 };
 
@@ -43,7 +43,7 @@ static int f_tostring (lua_State *L)
     return 1;
 }
 
-static File& tofile(lua_State *L)
+static fs::File& tofile(lua_State *L)
 {
     WFSStream* p = towfsstream(L);
     if (l_unlikely(isclosed(p))) {
@@ -64,7 +64,7 @@ static WFSStream* newprefile(lua_State* L)
     p->closef = nullptr;  /* mark file handle as 'closed' */
     
     // Since the File is a c++ object we need to do a placement new on it
-    new (&(p->f)) File();
+    new (&(p->f)) fs::File();
     
     luaL_setmetatable(L, LUA_WFSHANDLE);
     return p;
@@ -183,9 +183,9 @@ static int io_usedbytes(lua_State* L)
 
 static int f_seek(lua_State* L)
 {
-    static SeekMode mode[] = { SeekSet, SeekCur, SeekEnd };
+    static fs::SeekMode mode[] = { fs::SeekSet, fs::SeekCur, fs::SeekEnd };
     static const char *const modenames[] = {"set", "cur", "end", NULL};
-    File& f = tofile(L);
+    fs::File& f = tofile(L);
     int op = luaL_checkoption(L, 2, "cur", modenames);
     lua_Integer p3 = luaL_optinteger(L, 3, 0);
     uint32_t offset = uint32_t(p3);
@@ -202,7 +202,7 @@ static int f_seek(lua_State* L)
 
 static int f_filename(lua_State* L)
 {
-    File& f = tofile(L);
+    fs::File& f = tofile(L);
     errno = 0;
     lua_pushstring(L, f.name());
     return 1;
@@ -210,7 +210,7 @@ static int f_filename(lua_State* L)
 
 static int f_opennextfile(lua_State* L)
 {
-    File& f = tofile(L);
+    fs::File& f = tofile(L);
     errno = 0;
     if (!f.isDirectory()) {
         return luaL_fileresult(L, 0, nullptr);
@@ -222,14 +222,14 @@ static int f_opennextfile(lua_State* L)
     return 1;
 }
 
-static int test_eof(lua_State *L, File& f)
+static int test_eof(lua_State *L, fs::File& f)
 {
     int c = f.peek();
     lua_pushliteral(L, "");
     return (c != EOF);
 }
 
-static int read_line(lua_State* L, File& f, bool chop)
+static int read_line(lua_State* L, fs::File& f, bool chop)
 {
     luaL_Buffer b;
     int c = 0;
@@ -253,7 +253,7 @@ static int read_line(lua_State* L, File& f, bool chop)
     return (c == '\n' || lua_rawlen(L, -1) > 0);
 }
 
-static int read_chars(lua_State* L, File& f, size_t n)
+static int read_chars(lua_State* L, fs::File& f, size_t n)
 {
     size_t nr;  /* number of chars actually read */
     uint8_t* p;
@@ -266,7 +266,7 @@ static int read_chars(lua_State* L, File& f, size_t n)
     return (nr > 0);  /* true iff read something */
 }
 
-static int g_read(lua_State* L, File& f, int first)
+static int g_read(lua_State* L, fs::File& f, int first)
 {
     int nargs = lua_gettop(L) - 1;
     int n, success;
@@ -319,7 +319,7 @@ static int f_read(lua_State* L)
 }
 
 // We support writing strings only
-static int g_write(lua_State* L, File& f, int arg)
+static int g_write(lua_State* L, fs::File& f, int arg)
 {
     int nargs = lua_gettop(L) - arg;
     int status = 1;
@@ -339,7 +339,7 @@ static int g_write(lua_State* L, File& f, int arg)
 
 static int f_write(lua_State* L)
 {
-    File& f = tofile(L);
+    fs::File& f = tofile(L);
     lua_pushvalue(L, 1);  /* push file at the stack top (to be returned) */
     return g_write(L, f, 2);
 }
@@ -347,7 +347,7 @@ static int f_write(lua_State* L)
 // peek at the next char and return it
 static int f_peek(lua_State* L)
 {
-    File& f = tofile(L);
+    fs::File& f = tofile(L);
     errno = 0;
     if (!f) {
         return luaL_fileresult(L, 0, nullptr);
@@ -358,7 +358,7 @@ static int f_peek(lua_State* L)
 
 static int f_flush(lua_State* L)
 {
-    File& f = tofile(L);
+    fs::File& f = tofile(L);
     errno = 0;
     f.flush();
     return luaL_fileresult(L, 1, nullptr);
@@ -366,7 +366,7 @@ static int f_flush(lua_State* L)
 
 static int f_position(lua_State* L)
 {
-    File& f = tofile(L);
+    fs::File& f = tofile(L);
     errno = 0;
     if (!f) {
         return luaL_fileresult(L, 0, nullptr);
@@ -377,7 +377,7 @@ static int f_position(lua_State* L)
 
 static int f_size(lua_State* L)
 {
-    File& f = tofile(L);
+    fs::File& f = tofile(L);
     errno = 0;
     if (!f) {
         return luaL_fileresult(L, 0, nullptr);
@@ -388,7 +388,7 @@ static int f_size(lua_State* L)
 
 static int f_isdir(lua_State* L)
 {
-    File& f = tofile(L);
+    fs::File& f = tofile(L);
     errno = 0;
     lua_pushboolean(L, lua_Integer(f.isDirectory()));
     return 1;

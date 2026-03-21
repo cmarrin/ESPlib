@@ -29,8 +29,8 @@ class WebFileSystem
 {
   public:
     bool begin(Application*, bool format);
-    static File open(const char* path, const char* mode = "r", bool create = false);
-    static File openNextFile();
+    static fs::File open(const char* path, const char* mode = "r", bool create = false);
+    static fs::File openNextFile();
 
     static size_t totalBytes();
     static size_t usedBytes();
@@ -60,7 +60,7 @@ class WebFileSystem
     void handleUpload(WiFiPortal*);
     void handleLandingSetup(WiFiPortal*);
 
-    File _uploadFile;
+    fs::File _uploadFile;
     bool _uploadAborted = false;
     std::string _uploadFilename;
     

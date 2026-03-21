@@ -30,7 +30,9 @@ All rights reserved.
 #include <ftw.h>
 #endif
 
-fs::FS LittleFS;
+using namespace fs;
+
+FS LittleFS;
 
 File::File(const std::filesystem::path& path, const char* mode)
 {

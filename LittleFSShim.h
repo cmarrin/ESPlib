@@ -16,6 +16,8 @@ All rights reserved.
 // File System classes for Mac and esp-idf that duplicates the functionality 
 // of the LittleFS filesystem for Arduino ESP32
 
+namespace fs {
+
 enum SeekMode {
   SeekSet = 0,
   SeekCur = 1,
@@ -94,8 +96,6 @@ class File
     // call to next() specially
     bool _dirFirst = true;
 };
-
-namespace fs {
 
 class FS
 {

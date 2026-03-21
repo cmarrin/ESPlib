@@ -165,7 +165,7 @@ WebServer::sendHTTPResponse(int code, const char* mimetype, const char* data, si
 }
 
 void
-WebServer::streamHTTPResponse(File& file, const char* mimetype, bool attach, const HTTPParser::ArgMap& extraHeaders)
+WebServer::streamHTTPResponse(fs::File& file, const char* mimetype, bool attach, const HTTPParser::ArgMap& extraHeaders)
 {
     HTTPParser::ArgMap headers = extraHeaders;
 
@@ -209,7 +209,7 @@ WebServer::sendStaticFile(const char* filename, const char* path)
             _parser->setErrorResponse(404, "File not found");
         }
     } else {
-        File file = _wfs->open(f.c_str(), "r");
+        fs::File file = _wfs->open(f.c_str(), "r");
         streamHTTPResponse(file, HTTPParser::suffixToMimeType(f).c_str(), false);
         file.close();
     }
