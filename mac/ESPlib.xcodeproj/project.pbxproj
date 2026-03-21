@@ -196,6 +196,11 @@
 		49DBBCCD2F5A6217001930A0 /* LEDCylon.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = LEDCylon.lua; path = ../LEDCylon.lua; sourceTree = SOURCE_ROOT; };
 		49DBBCDB2F5B546B001930A0 /* libtelnet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = libtelnet.h; path = ../libtelnet.h; sourceTree = SOURCE_ROOT; };
 		49DBBCDC2F5B546B001930A0 /* libtelnet.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = libtelnet.c; path = ../libtelnet.c; sourceTree = SOURCE_ROOT; };
+		49DDC7E12F6EF7C300E5AAA1 /* partitions-4mb.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = "partitions-4mb.csv"; sourceTree = "<group>"; };
+		49DDC7E22F6EF7C300E5AAA1 /* partitions-16mb.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = "partitions-16mb.csv"; sourceTree = "<group>"; };
+		49DDC7E32F6EF7C300E5AAA1 /* sdkconfig */ = {isa = PBXFileReference; lastKnownFileType = text; path = sdkconfig; sourceTree = "<group>"; };
+		49DDC7E42F6EF7C300E5AAA1 /* sdkconfig.defaults.esp32 */ = {isa = PBXFileReference; lastKnownFileType = text; path = sdkconfig.defaults.esp32; sourceTree = "<group>"; };
+		49DDC7E52F6EF7C300E5AAA1 /* sdkconfig.defaults.esp32c6 */ = {isa = PBXFileReference; lastKnownFileType = text; path = sdkconfig.defaults.esp32c6; sourceTree = "<group>"; };
 		49E65B012E9C36F800D3C6C5 /* libESPlib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libESPlib.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		49E65B632E9C3A7600D3C6C5 /* Application.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Application.h; path = ../Application.h; sourceTree = SOURCE_ROOT; };
 		49E65B642E9C3A7600D3C6C5 /* Application.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Application.cpp; path = ../Application.cpp; sourceTree = SOURCE_ROOT; };
@@ -375,6 +380,11 @@
 		495614332F4D187400A665A8 /* espidf */ = {
 			isa = PBXGroup;
 			children = (
+				49DDC7E12F6EF7C300E5AAA1 /* partitions-4mb.csv */,
+				49DDC7E22F6EF7C300E5AAA1 /* partitions-16mb.csv */,
+				49DDC7E32F6EF7C300E5AAA1 /* sdkconfig */,
+				49DDC7E42F6EF7C300E5AAA1 /* sdkconfig.defaults.esp32 */,
+				49DDC7E52F6EF7C300E5AAA1 /* sdkconfig.defaults.esp32c6 */,
 				49D3664C2F64C56F0047CAC6 /* sdkconfig.defaults */,
 				495613102F4D187400A665A8 /* components */,
 				495613142F4D187400A665A8 /* main */,
