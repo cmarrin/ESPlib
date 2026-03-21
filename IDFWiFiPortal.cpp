@@ -185,8 +185,8 @@ IDFWiFiPortal::autoConnect(char const *apName, char const *apPassword)
     ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &eventHandler, this, nullptr));
     ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &eventHandler, this, nullptr));
 
-    getParamValue("wifi_ssid", _ssid);
-    getParamValue("wifi_pass", _pass);
+    getNVSParam("wifi_ssid", _ssid);
+    getNVSParam("wifi_pass", _pass);
     
     if (!_ssid.empty()) {
         // Connect to WiFi
