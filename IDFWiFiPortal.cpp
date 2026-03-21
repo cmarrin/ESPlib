@@ -24,6 +24,7 @@ All rights reserved.
 
 using namespace mil;
 
+static const char *TAG = "WiFiPortal";
 static const char* PROV_AP_SSID = "ESP32-Provisioning";
 static const char* PROV_AP_PASS = "password123";
 static constexpr uint32_t PROV_AP_MAX_CONN = 4;
