@@ -47,7 +47,7 @@ DAMAGE.
 #if defined(CONFIG_USER_HAVE_ADDRESSABLE_LED)
 static constexpr bool HaveAddressableRGB = CONFIG_USER_HAVE_ADDRESSABLE_LED;
 #else
-static constexpr bool HaveAddressableRGB = false; // ESP32 (D1 Mini)
+static constexpr bool HaveAddressableRGB = true; // ESP32C6
 #endif
 
 #if defined(CONFIG_USER_INVERT_LED)
@@ -59,6 +59,11 @@ static constexpr bool InvertLed = true; // ESP32 (D1 Mini)
 #if defined ARDUINO
 #include <Arduino.h>
 #include <Printable.h>
+
+#ifndef LED_BUILTIN
+#define LED_BUILTIN 8
+#endif
+
 #else
 #include <cstdint>
 #include <cstdlib>
@@ -70,7 +75,7 @@ static constexpr bool InvertLed = true; // ESP32 (D1 Mini)
 #if defined(CONFIG_USER_LED_BUILTIN)
 static constexpr uint8_t LED_BUILTIN = CONFIG_USER_LED_BUILTIN;
 #else
-static constexpr uint8_t LED_BUILTIN = 2; // ESP32 (D1 Mini)
+static constexpr uint8_t LED_BUILTIN = 8; // ESP32C6 (for ESP32 and others this is pin 2 and is an active low LED)
 #endif
 
 static inline void delay(uint32_t ms) { useconds_t us = useconds_t(ms) * 1000; usleep(us); }
