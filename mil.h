@@ -60,7 +60,7 @@ DAMAGE.
 //
 //      CONFIG_BLINK_LED_GPIO or CONFIG_BLINK_LED_STRIP
 //      CONFIG_BLINK_LED_STRIP_BACKEND_RMT or CONFIG_BLINK_LED_STRIP_BACKEND_SPI
-//      BLINK_LED_GPIO_ACTIVE_LOW or BLINK_LED_GPIO_ACTIVE_HIGH
+//      CONFIG_BLINK_LED_GPIO_ACTIVE_LOW or CONFIG_BLINK_LED_GPIO_ACTIVE_HIGH
 //      CONFIG_BLINK_LED_GPIO_NUMBER (number)
 //
 // For Mac (and Arduino?) we need to define dummy values
@@ -81,7 +81,7 @@ static constexpr bool AddressableLEDRMT = true;
 static constexpr bool AddressableLEDRMT = false;
 #endif
 
-#if defined BLINK_LED_GPIO_ACTIVE_HIGH
+#if defined CONFIG_BLINK_LED_GPIO_ACTIVE_HIGH
 static constexpr bool ActiveHighLED = true;
 #else
 static constexpr bool ActiveHighLED = false;
