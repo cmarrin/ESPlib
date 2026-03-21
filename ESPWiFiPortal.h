@@ -53,20 +53,26 @@ private:
     void scanNetworks();
     void startProvisioning();
     void startWebServer(bool provision);
-    void connectHandler(WiFiPortal*);
-    void restartGetHandler(WiFiPortal*);
-    void resetGetHandler(WiFiPortal*);
-    void getWifiSetupHandler(WiFiPortal*);
+    void connectHandler();
+    void restartHandler();
+    void resetHandler();
+    void getWifiSetupHandler();
     
     void redirectRoot();
     
     Preferences _prefs;
     std::unique_ptr<WebServer> _server;
-    WebFileSystem& _wfs = nullptr;
+    WebFileSystem* _wfs = nullptr;
     HandlerCB _configHandler;
 
     struct KnownNetwork
     {
+        KnownNetwork(const std::string& ssid, int8_t rssi, bool open)
+            : ssid(ssid)
+            , rssi(rssi)
+            , open(open)
+        { }
+        
         bool operator==(const KnownNetwork& other) const { return ssid == other.ssid; }
         bool operator<(const KnownNetwork& other) const { return ssid < other.ssid; }
         std::string ssid; 
