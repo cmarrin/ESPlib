@@ -65,14 +65,22 @@ void BrightnessManager::start(uint32_t sampleRate)
 
 void BrightnessManager::computeBrightness()
 {
-	uint32_t ambientLightLevel = System::readAnalog(_lightSensor);
+	uint32_t rawLightLevel = System::readAnalog(_lightSensor);
+    uint32_t ambientLightLevel = rawLightLevel;
 
 	if (_invert) {
-		ambientLightLevel = 1024 - ambientLightLevel;
+		ambientLightLevel = 4096 - ambientLightLevel;
 	}
+ 
+    // Incoming value is 12 bits. Scale the value to 10 bits and then apply the
+    // min and max
+    ambientLightLevel /= 4;
 
 	ambientLightLevel = std::min(_maxLevel, std::max(_minLevel, ambientLightLevel));
 	ambientLightLevel -= _minLevel;
+ 
+    // Scale to full 10 bits
+    ambientLightLevel = ambientLightLevel * 1024 / (_maxLevel - _minLevel);
 
 	_ambientLightAccumulator += ambientLightLevel;
 
@@ -82,12 +90,15 @@ void BrightnessManager::computeBrightness()
 		_ambientLightSampleCount = 0;
 
 		// Use hysteresis to avoid throbbing the light level.
-		int32_t diff = _maxLevel - _minLevel;
-		int32_t ambientLightStepSize = diff * Hysteresis / 100;
-		int32_t currentAmbientLightLevel = static_cast<int32_t>(_currentAmbientLightLevel);
+		int32_t ambientLightStepSize = 1024 * Hysteresis / 100;
+		int32_t currentAmbientLightLevel = _currentAmbientLightLevel;
 
 #ifdef DEBUG_BRIGHTNESS
-		printf("**** New average ambientLightLevel=%d, old level=%d\n", int(averageAmbientLightLevel), int(currentAmbientLightLevel));
+        static int printCount = 10;
+        if (printCount-- <= 0) {
+            printf("**** New average ambientLightLevel=%d, old level=%d (raw=%d)\n", int(averageAmbientLightLevel), int(currentAmbientLightLevel), int(rawLightLevel));
+            printCount = 10;
+        }
 #endif
 
 		if (averageAmbientLightLevel <= currentAmbientLightLevel + ambientLightStepSize &&
@@ -96,12 +107,12 @@ void BrightnessManager::computeBrightness()
 		}
 
 		_currentAmbientLightLevel = averageAmbientLightLevel;
-		uint32_t brightnessLevel = (_currentAmbientLightLevel * _numBrightness + diff / 2) / diff;
-		if (brightnessLevel < _minBrightness) {
-			brightnessLevel = _minBrightness;
-		} else if (brightnessLevel > _maxBrightness) {
-			brightnessLevel = _maxBrightness;
+		if (_currentAmbientLightLevel < 0) {
+			_currentAmbientLightLevel = 0;
+		} else if (_currentAmbientLightLevel > 1023) {
+			_currentAmbientLightLevel = 1023;
 		}
+		uint32_t brightnessLevel = (_currentAmbientLightLevel * _numBrightness + 512) / 1024;
 
 #ifdef DEBUG_BRIGHTNESS
 		printf("**** Sending brightnessLevel=%d\n", int(brightnessLevel));
