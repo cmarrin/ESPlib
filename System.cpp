@@ -198,7 +198,7 @@ System::setButtonDown(bool down)
 {
 }
 
-static constexpr adc_channel_t ADCChannel = ADC_CHANNEL_3;
+static constexpr adc_channel_t ADCChannel = ADC_CHANNEL_1;
 static adc_oneshot_unit_handle_t adcHandle;
 
 void 
