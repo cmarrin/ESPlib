@@ -52,7 +52,7 @@ DAMAGE.
 
 namespace mil {
 
-static constexpr uint32_t OnCounts = 1;
+static constexpr uint32_t OnDelay = 1; // in ms
 
 class Blinker
 {
@@ -90,7 +90,7 @@ private:
         if (_count == 0) {
             System::setLED(0, 0, 0, 0, 1);
             System::refreshLEDs(0);
-        } else if (_count == OnCounts){
+            delay(OnDelay);
             System::setLED(0, 0, 0, 0, 0);
             System::refreshLEDs(0);
         }
