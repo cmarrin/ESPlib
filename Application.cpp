@@ -92,7 +92,8 @@ Application::startNetwork()
     
 	if (_needsNetworkReset) {
 		_needsNetworkReset = false;
-		_portal->resetSettings();			
+		_portal->resetSettings();
+        System::restart();
 	}
 	
 	_portal->setConfigHandler([this](WiFiPortal* portal) {
