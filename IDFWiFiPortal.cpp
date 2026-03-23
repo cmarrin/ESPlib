@@ -181,8 +181,6 @@ IDFWiFiPortal::autoConnect(char const *apName, char const *apPassword)
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     
-    scanNetworks();
-    
     ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &eventHandler, this, nullptr));
     ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &eventHandler, this, nullptr));
 
@@ -225,7 +223,6 @@ IDFWiFiPortal::autoConnect(char const *apName, char const *apPassword)
                                                pdFALSE,
                                                pdFALSE,
                                                pdMS_TO_TICKS(30000));
-
         if (bits & WIFI_CONNECTED_BIT) {
             startWebServer(false);
             return true;
@@ -566,6 +563,8 @@ static void dhcpSetCaptivePortalURL()
 void
 IDFWiFiPortal::startProvisioning()
 {
+    scanNetworks();
+    
     // Call the config handler
     if (_configHandler) {
         _configHandler(this);
@@ -656,8 +655,8 @@ IDFWiFiPortal::scanNetworks()
     esp_wifi_set_mode(WIFI_MODE_STA);
 
     ESP_ERROR_CHECK(esp_wifi_start());
-
-    esp_wifi_scan_start(nullptr, true);
+    delay(2000);
+    ESP_ERROR_CHECK(esp_wifi_scan_start(nullptr, true));
 
     uint16_t apCount = 0;
     ESP_ERROR_CHECK(esp_wifi_scan_get_ap_num(&apCount));
