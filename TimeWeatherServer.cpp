@@ -14,6 +14,8 @@ All rights reserved.
 
 using namespace mil;
 
+static const char* TAG = "Application";
+
 void TimeWeatherServer::MyJsonListener::key(const std::string& key)
 {
 	switch(_state) {
@@ -103,25 +105,27 @@ void TimeWeatherServer::MyJsonListener::endObject()
 	_state = State::None;
 }
 
-bool TimeWeatherServer::update(const char* zipCode)
+bool
+TimeWeatherServer::update(const char* zipCode)
 {
-	bool failed = false;
     std::string apiURL;
     JsonStreamingParser* parser = new JsonStreamingParser();
     MyJsonListener listener;
     parser->setListener(&listener);
 
+    System::logI(TAG, "Getting geolocation feed...");
+
+    apiURL = "http://api.openweathermap.org/geo/1.0/zip?zip=";
+    apiURL += zipCode;
+    apiURL +="&appid=";
+    apiURL += GeoLocationAPIKey;
+
+    System::logI(TAG, "Geolocation URL='%s'", apiURL.c_str());
+
     // If we can't get the geolocation, we're boned. Let's retry a few times
+    bool failed = true;
+    
     for (int i = 0; i < 5; ++i) {
-        printf("Getting geolocation feed...\n");
-
-        apiURL = "http://api.openweathermap.org/geo/1.0/zip?zip=";
-        apiURL += zipCode;
-        apiURL +="&appid=";
-        apiURL += GeoLocationAPIKey;
-
-        printf("URL='%s'\n", apiURL.c_str());
-        
         {
             HTTPFetchClient client([parser](const char* buf, uint32_t size)
             {
@@ -133,83 +137,102 @@ bool TimeWeatherServer::update(const char* zipCode)
             if (client.fetch(apiURL.c_str()) && listener.latitude() && listener.longitude()) {
                 _latitude = *listener.latitude();
                 _longitude = *listener.longitude();
+                failed = false;
                 break;
             } else {
-                printf("**** Failed to get geolocation data, retrying...\n");
+                System::logW(TAG, "Failed to get geolocation data, retrying...");
             }
         }
     }
     
-	printf("Getting weather feed...\n");
+    if (!failed) {    
+        System::logI(TAG, "Getting weather feed...");
 
-	apiURL = "http://api.weatherapi.com/v1/forecast.json?key=";
-	apiURL += WeatherAPIKey;
-	apiURL +="&q=";
-	apiURL += std::to_string(_latitude);
-	apiURL +=",";
-	apiURL += std::to_string(_longitude);
-	apiURL +="&days=1";
+        apiURL = "http://api.weatherapi.com/v1/forecast.json?key=";
+        apiURL += WeatherAPIKey;
+        apiURL +="&q=";
+        apiURL += std::to_string(_latitude);
+        apiURL +=",";
+        apiURL += std::to_string(_longitude);
+        apiURL +="&days=1";
 
-	printf("URL='%s'\n", apiURL.c_str());
+        System::logI(TAG, "weather URL='%s'", apiURL.c_str());
 
-    parser->reset();
-    
-    {
-        HTTPFetchClient client([parser](const char* buf, uint32_t size)
-        {
-            for (size_t i = 0; i < size; ++i) {
-                parser->parse(buf[i]);
+        parser->reset();
+        
+        failed = true;
+        
+        for (int i = 0; i < 5; ++i) {
+            {
+                HTTPFetchClient client([parser](const char* buf, uint32_t size)
+                {
+                    for (size_t i = 0; i < size; ++i) {
+                        parser->parse(buf[i]);
+                    }
+                });
+
+                if (client.fetch(apiURL.c_str()) && listener.currentTemp() && listener.lowTemp() && listener.highTemp() && listener.conditions()) {
+                    _currentTemp = *listener.currentTemp();
+                    _lowTemp = *listener.lowTemp();
+                    _highTemp = *listener.highTemp();
+                    _conditions = *listener.conditions();
+                    failed = false;
+                    break;
+                } else {
+                    System::logW(TAG, "Failed to get weather data, retrying...");
+                }
             }
-        });
+        }
+            
+        System::logI(TAG, "Getting time feed...");
 
-        if (client.fetch(apiURL.c_str()) && listener.currentTemp() && listener.lowTemp() && listener.highTemp() && listener.conditions()) {
-            _currentTemp = *listener.currentTemp();
-            _lowTemp = *listener.lowTemp();
-            _highTemp = *listener.highTemp();
-            _conditions = *listener.conditions();
-        } else {
-            printf("**** Failed to get weather, using old values...\n");
+        apiURL = "http://api.timezonedb.com";
+        apiURL += "/v2.1/get-time-zone?key=";
+        apiURL += TimeAPIKey;
+        apiURL +="&format=json&by=position&lat=";
+        apiURL += std::to_string(_latitude);
+        apiURL +="&lng=";
+        apiURL += std::to_string(_longitude);
+     
+        apiURL += listener.timeZone() ? *listener.timeZone() : "00000";
+
+        System::logI(TAG, "time URL='%s'", apiURL.c_str());
+
+        parser->reset();
+
+        failed = true;
+
+        for (int i = 0; i < 5; ++i) {
+            {
+                HTTPFetchClient client([parser](const char* buf, uint32_t size)
+                {
+                    for (size_t i = 0; i < size; ++i) {
+                        parser->parse(buf[i]);
+                    }
+                });
+
+                if (client.fetch(apiURL.c_str()) && listener.currentTime()) {
+                    _currentTime = *listener.currentTime();
+                    failed = false;
+                    break;
+                } else {
+                    System::logW(TAG, "Failed to get time data, retrying...");
+                }
+            }
         }
     }
     
-	printf("Getting time feed...\n");
-
-	apiURL = "http://api.timezonedb.com";
-	apiURL += "/v2.1/get-time-zone?key=";
-	apiURL += TimeAPIKey;
-	apiURL +="&format=json&by=position&lat=";
-	apiURL += std::to_string(_latitude);
-	apiURL +="&lng=";
-	apiURL += std::to_string(_longitude);
- 
-	apiURL += listener.timeZone() ? *listener.timeZone() : "00000";
-
-	printf("URL='%s'\n", apiURL.c_str());
-
-    parser->reset();
-
-    {
-        HTTPFetchClient client([parser](const char* buf, uint32_t size)
-        {
-            for (size_t i = 0; i < size; ++i) {
-                parser->parse(buf[i]);
-            }
-        });
-
-        if (client.fetch(apiURL.c_str()) && listener.currentTime()) {
-            _currentTime = *listener.currentTime();
-        } else {
-            printf("**** Failed to get time, using old value...\n");
-        }
-    }
+    // Check at interval of UpdateFrequency seconds
+    int32_t timeToNextCheck = failed ? 60 : UpdateFrequency;
+    _ticker.once_ms(timeToNextCheck * 1000, [this]() { _handler(); });
     
-	// Check at interval of UpdateFrequency seconds
-	int32_t timeToNextCheck = UpdateFrequency;
-	_ticker.once_ms(timeToNextCheck * 1000, [this]() { _handler(); });
- 
-    printf("Epoch: %u\n", (unsigned int) _currentTime);
-    printf("Weather: conditions='%s'\n", _conditions.c_str());
-    printf("    currentTemp=%d, lowTemp=%d, highTemp=%d, next setting in %d seconds\n", (int) _currentTemp, (int) _lowTemp, (int) _highTemp, (int) timeToNextCheck);
+    if (failed) {
+        System::logE(TAG, "Failed to get data. Retrying in one minute");
+    } else {
+        System::logI(TAG, "Epoch: %u", (unsigned int) _currentTime);
+        System::logI(TAG, "Weather: conditions='%s'", _conditions.c_str());
+        System::logI(TAG, "    currentTemp=%d, lowTemp=%d, highTemp=%d, next setting in %d seconds", (int) _currentTemp, (int) _lowTemp, (int) _highTemp, (int) timeToNextCheck);
+    }
 
     delete parser;
 	return !failed;
