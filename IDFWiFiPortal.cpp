@@ -217,6 +217,7 @@ IDFWiFiPortal::autoConnect(char const *apName, char const *apPassword)
         ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
         ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
         ESP_ERROR_CHECK(esp_wifi_start());
+        delay(2000);
 
         EventBits_t bits = xEventGroupWaitBits(_eventGroup,
                                                WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
@@ -583,6 +584,7 @@ IDFWiFiPortal::startProvisioning()
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &wifi_config));
     ESP_ERROR_CHECK(esp_wifi_start());
+    delay(2000);
 
     esp_netif_ip_info_t ip_info;
     esp_netif_get_ip_info(esp_netif_get_handle_from_ifkey("WIFI_AP_DEF"), &ip_info);
@@ -651,6 +653,7 @@ IDFWiFiPortal::scanNetworks()
 {
     esp_netif_create_default_wifi_sta();
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
     esp_wifi_set_mode(WIFI_MODE_STA);
 
