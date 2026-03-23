@@ -21,7 +21,7 @@ All rights reserved.
 static constexpr int CASCADE_SIZE = 4;
 static constexpr spi_host_device_t HOST = SPI2_HOST;
 static constexpr int MOSI = 4;
-static constexpr int CLK = 2;
+static constexpr int CLK = 3;
 static constexpr int CS = 7;
 
 static max7219_t dev =
