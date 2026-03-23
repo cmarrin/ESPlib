@@ -106,35 +106,37 @@ void TimeWeatherServer::MyJsonListener::endObject()
 bool TimeWeatherServer::update(const char* zipCode)
 {
 	bool failed = false;
-
-	printf("Getting geolocation feed...\n");
-
-	std::string apiURL;
-	apiURL = "http://api.openweathermap.org/geo/1.0/zip?zip=";
-    apiURL += zipCode;
-	apiURL +="&appid=";
-	apiURL += GeoLocationAPIKey;
-
-	printf("URL='%s'\n", apiURL.c_str());
-
-    JsonStreamingParser parser;
+    std::string apiURL;
+    JsonStreamingParser* parser = new JsonStreamingParser();
     MyJsonListener listener;
-    parser.setListener(&listener);
-    JsonStreamingParser* p = &parser;
-    
-    {
-        HTTPFetchClient client([p](const char* buf, uint32_t size)
-        {
-            for (size_t i = 0; i < size; ++i) {
-                p->parse(buf[i]);
-            }
-        });
+    parser->setListener(&listener);
 
-        if (client.fetch(apiURL.c_str()) && listener.latitude() && listener.longitude()) {
-            _latitude = *listener.latitude();
-            _longitude = *listener.longitude();
-        } else {
-            printf("**** Failed to get geolocation data...\n");
+    // If we can't get the geolocation, we're boned. Let's retry a few times
+    for (int i = 0; i < 5; ++i) {
+        printf("Getting geolocation feed...\n");
+
+        apiURL = "http://api.openweathermap.org/geo/1.0/zip?zip=";
+        apiURL += zipCode;
+        apiURL +="&appid=";
+        apiURL += GeoLocationAPIKey;
+
+        printf("URL='%s'\n", apiURL.c_str());
+        
+        {
+            HTTPFetchClient client([parser](const char* buf, uint32_t size)
+            {
+                for (size_t i = 0; i < size; ++i) {
+                    parser->parse(buf[i]);
+                }
+            });
+
+            if (client.fetch(apiURL.c_str()) && listener.latitude() && listener.longitude()) {
+                _latitude = *listener.latitude();
+                _longitude = *listener.longitude();
+                break;
+            } else {
+                printf("**** Failed to get geolocation data, retrying...\n");
+            }
         }
     }
     
@@ -150,13 +152,13 @@ bool TimeWeatherServer::update(const char* zipCode)
 
 	printf("URL='%s'\n", apiURL.c_str());
 
-    parser.reset();
+    parser->reset();
     
     {
-        HTTPFetchClient client([p](const char* buf, uint32_t size)
+        HTTPFetchClient client([parser](const char* buf, uint32_t size)
         {
             for (size_t i = 0; i < size; ++i) {
-                p->parse(buf[i]);
+                parser->parse(buf[i]);
             }
         });
 
@@ -184,13 +186,13 @@ bool TimeWeatherServer::update(const char* zipCode)
 
 	printf("URL='%s'\n", apiURL.c_str());
 
-    parser.reset();
+    parser->reset();
 
     {
-        HTTPFetchClient client([p](const char* buf, uint32_t size)
+        HTTPFetchClient client([parser](const char* buf, uint32_t size)
         {
             for (size_t i = 0; i < size; ++i) {
-                p->parse(buf[i]);
+                parser->parse(buf[i]);
             }
         });
 
@@ -208,6 +210,8 @@ bool TimeWeatherServer::update(const char* zipCode)
     printf("Epoch: %u\n", (unsigned int) _currentTime);
     printf("Weather: conditions='%s'\n", _conditions.c_str());
     printf("    currentTemp=%d, lowTemp=%d, highTemp=%d, next setting in %d seconds\n", (int) _currentTemp, (int) _lowTemp, (int) _highTemp, (int) timeToNextCheck);
+
+    delete parser;
 	return !failed;
 }
 
