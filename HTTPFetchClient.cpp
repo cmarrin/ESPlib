@@ -106,6 +106,8 @@ HTTPFetchClient::fetch(const char* url)
 
     esp_http_client_handle_t client = esp_http_client_init(&config);
 
+    esp_http_client_set_timeout_ms(client, 10 * 1000);
+
     esp_http_client_set_header(client, "Content-Type", "application/json");
     esp_http_client_set_header(client, "User-Agent", "ESP32 HTTP Client");
 
