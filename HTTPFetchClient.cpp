@@ -9,6 +9,8 @@ All rights reserved.
 
 #include "HTTPFetchClient.h"
 
+#include "System.h"
+
 #if defined ARDUINO
 #if defined(ESP8266)
 #include <ESP8266WiFi.h>
@@ -24,6 +26,8 @@ All rights reserved.
 #endif
 
 using namespace mil;
+
+static const char* TAG = "HTTPFetchClient";
 
 #if defined ARDUINO
 bool
@@ -58,8 +62,6 @@ HTTPFetchClient::fetch(const char* url)
 #elif defined ESP_PLATFORM
 
 #include "esp_log.h"
-
-static const char* TAG = "HTTPFetchClient";
 
 static esp_err_t eventHandler(esp_http_client_event_t *evt)
 {
@@ -99,6 +101,7 @@ HTTPFetchClient::fetch(const char* url)
 {
     esp_http_client_config_t config = { };
     config.url = url;
+    config.auth_type = HTTP_AUTH_TYPE_BASIC;
     config.event_handler = eventHandler;
     config.user_data = this;
 
@@ -106,7 +109,7 @@ HTTPFetchClient::fetch(const char* url)
 
     esp_http_client_handle_t client = esp_http_client_init(&config);
 
-    esp_http_client_set_timeout_ms(client, 10 * 1000);
+    ESP_ERROR_CHECK(esp_http_client_set_timeout_ms(client, 10 * 1000));
 
     esp_http_client_set_header(client, "Content-Type", "application/json");
     esp_http_client_set_header(client, "User-Agent", "ESP32 HTTP Client");
