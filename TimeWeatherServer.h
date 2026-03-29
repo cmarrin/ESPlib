@@ -32,7 +32,7 @@ All rights reserved.
 //
 // Get the local time and weather conditions
 
-static constexpr uint32_t UpdateFrequency = 4 * 60 * 60; // in seconds
+static constexpr uint32_t UpdateFrequency = 60 * 60; // in seconds
 
 class JsonStreamingParser;
 
