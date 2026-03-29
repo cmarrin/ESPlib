@@ -111,20 +111,20 @@ HTTPFetchClient::fetch(const char* url)
 
     ESP_ERROR_CHECK(esp_http_client_set_timeout_ms(client, 10 * 1000));
 
-    esp_http_client_set_header(client, "Content-Type", "application/json");
-    esp_http_client_set_header(client, "User-Agent", "ESP32 HTTP Client");
+    ESP_ERROR_CHECK(esp_http_client_set_header(client, "Content-Type", "application/json"));
+    ESP_ERROR_CHECK(esp_http_client_set_header(client, "User-Agent", "ESP32 HTTP Client"));
 
     esp_err_t err = esp_http_client_perform(client);
     if (err == ESP_OK) {
         ESP_LOGI(TAG, "HTTP GET Status = %d, content_length = %lld",
                 esp_http_client_get_status_code(client),
                 esp_http_client_get_content_length(client));
-        return true;
     } else {
         ESP_LOGE(TAG, "HTTP GET request failed: %s", esp_err_to_name(err));
-        return false;
     }
-    esp_http_client_cleanup(client);
+    ESP_ERROR_CHECK(esp_http_client_close(client));
+    ESP_ERROR_CHECK(esp_http_client_cleanup(client));
+    return err == ESP_OK;
 }
 #else
 // HTTP callback for Mac
