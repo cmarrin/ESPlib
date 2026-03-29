@@ -185,7 +185,7 @@ class System
     {
         va_list args;
         va_start(args, fmt);
-        log('V', tag, fmt, args);
+        log('V', VerboseColor, tag, fmt, args);
         va_end(args);
     }
     
@@ -193,7 +193,7 @@ class System
     {
         va_list args;
         va_start(args, fmt);
-        log('D', tag, fmt, args);
+        log('D', DebugColor, tag, fmt, args);
         va_end(args);
     }
     
@@ -201,7 +201,7 @@ class System
     {
         va_list args;
         va_start(args, fmt);
-        log('I', tag, fmt, args);
+        log('I', InfoColor, tag, fmt, args);
         va_end(args);
     }
     
@@ -209,7 +209,7 @@ class System
     {
         va_list args;
         va_start(args, fmt);
-        log('W', tag, fmt, args);
+        log('W', WarningColor, tag, fmt, args);
         va_end(args);
     }
     
@@ -217,13 +217,29 @@ class System
     {
         va_list args;
         va_start(args, fmt);
-        log('E', tag, fmt, args);
+        log('E', ErrorColor, tag, fmt, args);
         va_end(args);
     }
 
 private:
-    static void log(char type, const char* tag, const char* fmt, va_list args)
+#ifdef __APPLE__
+    static constexpr const char* ErrorColor = "";
+    static constexpr const char* WarningColor = "";
+    static constexpr const char* InfoColor = "";
+    static constexpr const char* VerboseColor = "";
+    static constexpr const char* DebugColor = "";
+    static constexpr const char* NoColor = "";
+#else
+    static constexpr const char* ErrorColor = "\x1B[31m";
+    static constexpr const char* WarningColor = "\x1B[33m";
+    static constexpr const char* InfoColor = "\x1B[32m";
+    static constexpr const char* VerboseColor = "\x1B[36m";
+    static constexpr const char* DebugColor = "\x1B[35m";
+    static constexpr const char* NoColor = "\x1B[0m";
+#endif
+
+static void log(char type, const char* color, const char* tag, const char* fmt, va_list args)
     {
-        printf("%c %s: %s\n", type, tag, vformat(fmt, args).c_str());
+        printf("%s%c %s: %s%s\n", color, type, tag, vformat(fmt, args).c_str(), NoColor);
     }
 };
