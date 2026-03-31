@@ -28,7 +28,6 @@ void
 Application::setup()
 {
     _portal->begin(&_wfs);
-	startStateMachine();
 
     // Setup the top level web page. If there is a /sys/shell.html in the filesystem
     // we add a button for it at the top of the landing page.
@@ -54,6 +53,9 @@ Application::setup()
         return s;
     });
     
+    // This is where we try to connect to the network
+	startStateMachine();
+
     if (clock()) {
         clock()->setup();
     }
