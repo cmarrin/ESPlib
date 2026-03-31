@@ -81,12 +81,9 @@ void Clock::loop()
                 zipcode = "93405";
             }
             
-			if (_timeWeatherServer.update(zipcode.c_str())) {
-				_currentTime = _timeWeatherServer.currentTime();
-				_app->sendInput(Input::Idle, false);
-			} else {
-				_app->sendInput(Input::UpdateFail, false);
-			}
+			_timeWeatherServer.update(zipcode.c_str());
+            _currentTime = _timeWeatherServer.currentTime();
+            _app->sendInput(Input::Idle, false);
 		}
 	}
 }
