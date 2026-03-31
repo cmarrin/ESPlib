@@ -113,6 +113,7 @@ HTTPFetchClient::fetch(const char* url)
 
     ESP_ERROR_CHECK(esp_http_client_set_header(client, "Content-Type", "application/json"));
     ESP_ERROR_CHECK(esp_http_client_set_header(client, "User-Agent", "ESP32 HTTP Client"));
+    ESP_ERROR_CHECK(esp_http_client_set_header(client, "Keep-Alive", "timeout=10,max=100"));
 
     esp_err_t err = esp_http_client_perform(client);
     if (err == ESP_OK) {
