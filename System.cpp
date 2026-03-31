@@ -347,7 +347,6 @@ System::readAnalog(uint8_t pin)
 uint32_t
 System::millis()
 {
-    printf("***** time=%f, %d\n", double(clock()), int(CLOCKS_PER_SEC));
     return uint32_t(double(clock()) / CLOCKS_PER_SEC * 1000);
 }
 
