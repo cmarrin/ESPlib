@@ -120,7 +120,6 @@ TimeWeatherServer::update(const char* zipCode)
     apiURL +="&appid=";
     apiURL += GeoLocationAPIKey;
 
-    // If we can't get the geolocation, we're boned. Let's retry a few times
     bool failed = true;
 
     HTTPFetchClient client([parser](const char* buf, uint32_t size)
@@ -142,6 +141,34 @@ TimeWeatherServer::update(const char* zipCode)
     }
     
     if (!failed) {    
+        System::logI(TAG, "Getting time feed...");
+
+        apiURL = "http://api.timezonedb.com";
+        apiURL += "/v2.1/get-time-zone?key=";
+        apiURL += TimeAPIKey;
+        apiURL +="&format=json&by=position&lat=";
+        apiURL += std::to_string(_latitude);
+        apiURL +="&lng=";
+        apiURL += std::to_string(_longitude);
+     
+        apiURL += listener.timeZone() ? *listener.timeZone() : "00000";
+
+        parser->reset();
+
+        failed = true;
+
+        for (int i = 0; i < 5; ++i) {
+            if (client.fetch(apiURL.c_str()) && listener.currentTime()) {
+                _currentTime = *listener.currentTime();
+                failed = false;
+                break;
+            } else {
+                System::logW(TAG, "Failed to get time data, retrying...");
+            }
+        }
+
+        System::logI(TAG, "Epoch: %u", (unsigned int) _currentTime);
+        
         System::logI(TAG, "Getting weather feed...");
 
         apiURL = "http://api.weatherapi.com/v1/forecast.json?key=";
@@ -168,45 +195,18 @@ TimeWeatherServer::update(const char* zipCode)
                 System::logW(TAG, "Failed to get weather data, retrying...");
             }
         }
-            
-        System::logI(TAG, "Getting time feed...");
-
-        apiURL = "http://api.timezonedb.com";
-        apiURL += "/v2.1/get-time-zone?key=";
-        apiURL += TimeAPIKey;
-        apiURL +="&format=json&by=position&lat=";
-        apiURL += std::to_string(_latitude);
-        apiURL +="&lng=";
-        apiURL += std::to_string(_longitude);
-     
-        apiURL += listener.timeZone() ? *listener.timeZone() : "00000";
-
-        parser->reset();
-
-        failed = true;
-
-        for (int i = 0; i < 5; ++i) {
-            if (client.fetch(apiURL.c_str()) && listener.currentTime()) {
-                _currentTime = *listener.currentTime();
-                failed = false;
-                break;
-            } else {
-                System::logW(TAG, "Failed to get time data, retrying...");
-            }
-        }
+        System::logI(TAG, "Weather: conditions='%s', curTemp=%d, loTemp=%d, hiTemp=%d", _conditions.c_str(), int(_currentTemp), int(_lowTemp), int(_highTemp));
     }
+
     
     // Check at interval of UpdateFrequency seconds
     int32_t timeToNextCheck = failed ? 60 : UpdateFrequency;
     _ticker.once_ms(timeToNextCheck * 1000, [this]() { _handler(); });
     
     if (failed) {
-        System::logE(TAG, "Failed to get data. Retrying in one minute");
-    } else {
-        System::logI(TAG, "Epoch: %u", (unsigned int) _currentTime);
-        System::logI(TAG, "Weather: conditions='%s'", _conditions.c_str());
-        System::logI(TAG, "    currentTemp=%d, lowTemp=%d, highTemp=%d, next setting in %d minutes", int(_currentTemp), int(_lowTemp), int(_highTemp), int(timeToNextCheck / 60));
+        System::logE(TAG, "Failed to get data");
     }
+    System::logI(TAG, "Next setting in %d minutes", int(timeToNextCheck / 60));
 
     delete parser;
 	return !failed;
