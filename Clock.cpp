@@ -23,8 +23,7 @@ Clock::Clock(Application* app)
 	
 void Clock::setup()
 {
-    _app->addParam("zipcode", "Zipcode/Postal Code, City Name, IP Address or Lat/Long (e.g., 54.851019,-8.140025)", 
-                    "93405",  MaxZipCodeLength);
+    _app->addParam("zipcode", "Zipcode", "93405",  MaxZipCodeLength);
 
 	_secondTimer.attach_ms(1000, [this]() {
         _currentTime++;
