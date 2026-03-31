@@ -255,28 +255,29 @@ WebServer::handleClient(int fdClient)
             }
         } else if (it.endpoint == filePath) {
             if (isUpload) {
-                std::string contentType = _parser->getHeader("Content-Type");
+                std::string contentType = _parser->getHTTPHeader("Content-Type");
                 if (contentType.empty()) {
                     _parser->setErrorResponse(501, "no Content-Type");
-                    return;
-                }
-
-                std::vector<std::string> multipart = HTTPParser::parseFormData(contentType);
-                if (multipart[0] != "multipart/form-data" || multipart[1] != "boundary") {
-                    _parser->setErrorResponse(501, "only multipart/form-data supported");
-                    return;
-                }
-
-                std::string lengthString = _parser->getHeader("Content-Length");
-                size_t contentLength = std::stoi(lengthString);
-                _parser->parseMultipart(contentLength, multipart[2], it.requestCB, [fdClient](uint8_t* buf, size_t size) -> ssize_t
-                {
-                    return read(fdClient, buf, size);
-                });
-                    if (_parser->errorCode()) {
-                        sendHTTPResponse(_parser->errorCode(), "text/plain", _parser->errorReason().c_str());
-                        printf("***** Error (%d):%s\n", _parser->errorCode(), _parser->errorReason().c_str());
+                } else {
+                    std::vector<std::string> multipart = HTTPParser::parseFormData(contentType);
+                    if (multipart[0] != "multipart/form-data" || multipart[1] != "boundary") {
+                        // This is not a multipart, Handle it normally
+                        if (it.requestCB) {
+                            it.requestCB();
+                        }
+                    } else {
+                        std::string lengthString = _parser->getHTTPHeader("Content-Length");
+                        size_t contentLength = std::stoi(lengthString);
+                        _parser->parseMultipart(contentLength, multipart[2], it.requestCB, [fdClient](uint8_t* buf, size_t size) -> ssize_t
+                        {
+                            return read(fdClient, buf, size);
+                        });
                     }
+                }
+                if (_parser->errorCode()) {
+                    sendHTTPResponse(_parser->errorCode(), "text/plain", _parser->errorReason().c_str());
+                    System::logE(TAG, "HTTP parser error (%d):%s", _parser->errorCode(), _parser->errorReason().c_str());
+                }
             } else {
                 if (it.requestCB) {
                     it.requestCB();

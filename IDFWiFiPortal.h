@@ -65,12 +65,16 @@ public:
     virtual size_t httpUploadTotalSize() const override;
     virtual size_t httpUploadCurrentSize() const override;
     virtual const uint8_t* httpUploadBuffer() const override;
+    virtual int receiveHTTPResponse(char* buf, size_t size) override;
     virtual std::string getHTTPArg(const char* name) override;
+    virtual void parseQuery(const char* queryString);
     virtual std::string getHTTPHeader(const char* name) override;
+    virtual void otaUpdate() override;
     virtual std::string getCPUModel() const override;
     virtual uint32_t getCPUFrequency() const override;
     virtual float getCPUTemperature() const override;
     virtual uint32_t getCPUUptime() const override;
+    virtual const std::vector<KnownNetwork>* getKnownNetworks() const { return &_knownNetworks; }
 
     virtual void setNVSParam(const char* id, const std::string& value) override;
     virtual bool getNVSParam(const char* id, std::string& value) const override;
@@ -81,28 +85,13 @@ public:
     static constexpr EventBits_t WIFI_FAIL_BIT = BIT1;
 
     bool isConnected() const { return _isConnected; }
-    void startWebServer(bool provision);
+    void startWebServer();
     void startProvisioning();
     
     void scanNetworks();
     
     static void eventHandler(void* arg, esp_event_base_t, int32_t eventId, void* eventData);
-    static void provisioningGetHandler(WiFiPortal*);
-    static void connectPostHandler(WiFiPortal*);
-    static void restartGetHandler(WiFiPortal*);
-    static void resetGetHandler(WiFiPortal*);
-    static void getWifiSetupHandler(WiFiPortal*);
-    static void faviconGetHandler(WiFiPortal*);
-    static void otaUpdateHandler(WiFiPortal*);
 
-    struct KnownNetwork
-    {
-        bool operator==(const KnownNetwork& other) const { return ssid == other.ssid; }
-        bool operator<(const KnownNetwork& other) const { return ssid < other.ssid; }
-        std::string ssid; 
-        int8_t rssi; 
-        bool open;
-    };
     std::vector<KnownNetwork> _knownNetworks;
     
     bool _isConnected = false;

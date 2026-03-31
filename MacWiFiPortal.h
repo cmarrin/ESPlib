@@ -38,7 +38,9 @@ public:
     virtual size_t httpUploadTotalSize() const override;
     virtual size_t httpUploadCurrentSize() const override;
     virtual const uint8_t* httpUploadBuffer() const override;
+    virtual int receiveHTTPResponse(char* buf, size_t size) override;
     virtual std::string getHTTPArg(const char* name) override { return _server.getHTTPArg(name); }
+    virtual void parseQuery(const char* queryString) override { return _server.parseQuery(queryString); }
     virtual std::string getHTTPHeader(const char* name) override { return _server.getHTTPHeader(name); }
     virtual std::string getCPUModel() const override;
     virtual uint32_t getCPUUptime() const override;

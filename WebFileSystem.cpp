@@ -82,17 +82,58 @@ WebFileSystem::sendWiFiPage(WiFiPortal* portal)
     portal->sendHTTPResponse(200, "text/html", reinterpret_cast<const char*>(WIFI_NAME), WIFI_LEN_NAME, HTML_IS_GZIP);
 }
 
+static std::string makeRedirectPage(const char* text)
+{
+    std::string s = "<!DOCTYPE html><html><head><title>Redirecting...</title>";
+    s += "<meta http-equiv=\"refresh\" content=\"3; url=/\">";
+    s += "</head><body>";
+    s += text;
+    s += "</body></html>";
+    return s;
+}
+
 bool
 WebFileSystem::begin(Application* app, bool format)
 {
     bool retval = LittleFS.begin(format);
     if (!retval) {
-        printf("***** error mounting littlefs\n");
+        System::logE(TAG, "***** error mounting littlefs");
     }
-    
-    app->addHTTPHandler("/", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p) { sendLandingPage(p); });
-    
+
+    app->addHTTPHandler("/", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p)
+    {
+        if (p->isProvisioning()) {
+            sendWiFiPage(p);
+        } else {
+            sendLandingPage(p);
+        }
+    });
     app->addHTTPHandler("/get-landing-setup", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p) { handleLandingSetup(p); });
+    app->addHTTPHandler("/wifi", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p) { sendWiFiPage(p); });
+    app->addHTTPHandler("/get-wifi-setup", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p) { handleWiFiSetup(p); });
+    app->addHTTPHandler("/connect", WiFiPortal::HTTPMethod::Post, [this](WiFiPortal* p) { handleConnect(p); });
+    app->addHTTPHandler("/update", WiFiPortal::HTTPMethod::Post, [this](WiFiPortal* p) { p->otaUpdate(); });
+
+    app->addHTTPHandler("/restart", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p)
+    {
+        p->sendHTTPResponse(200, "text/html", makeRedirectPage("<h1>Restarting...</h1>").c_str());
+        delay(2000);
+        System::restart();
+    });
+    
+    app->addHTTPHandler("/reset", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p)
+    {
+        p->sendHTTPResponse(200, "text/html", makeRedirectPage("<h1>Credentials Cleared</h1><p>The device will restart and enter provisioning mode.</p>").c_str());
+        delay(2000);
+        p->eraseNVSParam("wifi_ssid");
+        p->eraseNVSParam("wifi_pass");
+        System::restart();
+    });
+
+    app->addHTTPHandler("/favicon.ico", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p)
+    {
+        p->sendHTTPResponse(204, "text/plain", "No Content");
+    });
     
     app->addHTTPHandler("/filemgr", [this](WiFiPortal* p)
     {
@@ -173,7 +214,7 @@ WebFileSystem::begin(Application* app, bool format)
         if (prepareFile(p, path)) {
             fs::File file = open(path.c_str(), "r");
             std::string mime = HTTPParser::suffixToMimeType(path);
-            printf("***** File: path='%s', mime-type='%s'\n", path.c_str(), mime.c_str());
+            System::logI(TAG, "File: path='%s', mime-type='%s'", path.c_str(), mime.c_str());
                 
             if (mime.empty()) {
                 p->sendHTTPResponse(404, "text/html", "<center><h1>File cannot be displayed</h1><h2>Use Download</h2></center>");
@@ -185,7 +226,6 @@ WebFileSystem::begin(Application* app, bool format)
     });
 
     app->addHTTPHandler("/upload", WiFiPortal::HTTPMethod::Post, [this](WiFiPortal* p) { handleUpload(p); });
-
     return retval;
 }
 
@@ -399,6 +439,91 @@ WebFileSystem::handleLandingSetup(WiFiPortal* portal)
         }
     );
     portal->sendHTTPResponse(200, "application/json", response.c_str(), response.length(), false);
+}
+
+void
+WebFileSystem::handleWiFiSetup(WiFiPortal* portal)
+{
+    std::string ssid, hostname;
+    portal->getNVSParam("wifi_ssid", ssid);
+    portal->getNVSParam("hostname", hostname);
+
+    std::string response = "{" + jsonParam("ssid", ssid) + "," + jsonParam("hostname", hostname) + ",";
+    response += quote("knownNetworks") + ":[";
+
+    const std::vector<WiFiPortal::KnownNetwork>* knownNetworks = portal->getKnownNetworks();
+    
+    if (knownNetworks) {
+        bool first = true;
+        
+        for (const auto& it : *knownNetworks) {
+            if (!first) {
+                response += ",";
+            } else {
+                first = false;
+            }
+            
+            response += "{" + jsonParam("ssid", it.ssid) + ",";
+            response += jsonParam("rssi", std::to_string(it.rssi)) + ",";
+            response += jsonParam("open", std::string(it.open ? "true" : "false")) + "}";
+        }
+    }
+    
+    response += "],";
+    response += jsonParam("customTextForms", portal->getCustomTextForms());
+    response += "}";
+
+    portal->sendHTTPResponse(200, "application/json", response.c_str(), response.length(), false);
+}
+
+void
+WebFileSystem::handleConnect(WiFiPortal* portal)
+{
+    // FIXME: read the POST response which is a form-data structure.
+    // Determine the size, alloc a buffer and receive the data. On espidf
+    // receive is done with httpd_req_recv. On mac it is done with a read
+    // of the connection.
+    std::string sizeString = portal->getHTTPHeader("Content-Length");
+    size_t size = std::stoi(sizeString);
+    if (size == 0) {
+        // Some default value
+        size = 100;
+    }
+    char* buf = new char[size + 1];
+    buf[0] = '\0';
+    
+    int actualSize = portal->receiveHTTPResponse(buf, size);
+    buf[actualSize] = '\0';
+
+    portal->parseQuery(buf);
+    delete [ ] buf;
+
+    // Decode the strings
+    // FIXME: Don't forget the params from _paramMap
+    std::string ssid = HTTPParser::urlDecode(portal->getHTTPArg("ssid"));
+    std::string pass = HTTPParser::urlDecode(portal->getHTTPArg("password"));
+    std::string hostname = HTTPParser::urlDecode(portal->getHTTPArg("hostname"));
+    
+    if (!ssid.empty()) {
+        portal->getNVSParam("wifi_ssid", ssid);
+        portal->getNVSParam("wifi_pass", pass);
+    }
+    
+    if (!hostname.empty()) {
+        portal->getNVSParam("hostname", hostname);
+    }
+
+    std::string response = "<h1>Connecting to '";
+    response += ssid;
+    response += "'...</h1><p>If successful, the device will connect to the network. If failed, it will remain in provisioning mode.</p>";
+    portal->sendHTTPResponse(200, "text/html", makeRedirectPage(response.c_str()).c_str());
+
+    portal->setNVSParam("wifi_ssid", ssid);
+    portal->setNVSParam("wifi_pass", pass);
+    portal->setNVSParam("hostname", hostname);
+
+    delay(1000);
+    System::restart();
 }
 
 fs::File

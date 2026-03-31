@@ -59,6 +59,8 @@ class WebFileSystem
     
     void handleUpload(WiFiPortal*);
     void handleLandingSetup(WiFiPortal*);
+    void handleWiFiSetup(WiFiPortal*);
+    void handleConnect(WiFiPortal*);
 
     fs::File _uploadFile;
     bool _uploadAborted = false;

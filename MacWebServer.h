@@ -56,6 +56,7 @@ public:
     void streamHTTPResponse(fs::File& file, const char* mimetype, bool attach, const HTTPParser::ArgMap& extraHeaders = HTTPParser::ArgMap());
 
     std::string getHTTPArg(const char* name) { return _parser ? _parser->getHTTPArg(name) : ""; }
+    void parseQuery(const char* queryString) { if (_parser) _parser->parseQuery(queryString); }
     std::string getHTTPHeader(const char* name) { return _parser ? _parser->getHTTPHeader(name) : ""; }
     WiFiPortal::HTTPUploadStatus httpUploadStatus() const { return _parser ? _parser->httpUploadStatus() : WiFiPortal::HTTPUploadStatus::None; }
     std::string httpUploadFilename() const { return _parser ? _parser->httpUploadFilename() : ""; }
@@ -63,6 +64,8 @@ public:
     size_t httpUploadCurrentSize() const { return _parser ? _parser->httpUploadCurrentSize() : 0; }
     const uint8_t* httpUploadBuffer() const { return _parser ? _parser->httpUploadBuffer() : nullptr; }
 
+    int receiveHTTPResponse(char* buf, size_t size) { return int(read(_fdClient, buf, size)); }
+    
 private:
     void handleClient(int fdClient);
     void handleServer(int fdServer);

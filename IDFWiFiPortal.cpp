@@ -29,6 +29,15 @@ static const char* PROV_AP_SSID = "ESP32-Provisioning";
 static const char* PROV_AP_PASS = "password123";
 static constexpr uint32_t PROV_AP_MAX_CONN = 4;
 
+// HTTP Error (404) Handler when connected - show a 404 page
+static esp_err_t connectedHTTP404ErrorHandler(httpd_req_t *req, httpd_err_code_t err)
+{
+    ESP_ERROR_CHECK(httpd_resp_set_status(req, "404 Not Found"));
+    httpd_resp_send(req, "<h1><b>Page not found</b></h1>", HTTPD_RESP_USE_STRLEN);
+    ESP_LOGI(TAG, "%s page not found", req->uri);
+    return ESP_OK;
+}
+
 void
 IDFWiFiPortal::begin(WebFileSystem* wfs)
 {
@@ -58,6 +67,11 @@ IDFWiFiPortal::begin(WebFileSystem* wfs)
     esp_log_level_set("wifi", ESP_LOG_ERROR);
     esp_log_level_set("wifi_init", ESP_LOG_ERROR);
 
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+
+    startWebServer();
+    httpd_register_err_handler(_server, HTTPD_404_NOT_FOUND, connectedHTTP404ErrorHandler);
 }
 
 void
@@ -119,7 +133,7 @@ IDFWiFiPortal::thunkHandler(httpd_req_t* req)
 
     if (self->_parser->errorCode()) {
         self->sendHTTPResponse(self->_parser->errorCode(), "text/plain", self->_parser->errorReason().c_str());
-        printf("***** Error (%d):%s\n", self->_parser->errorCode(), self->_parser->errorReason().c_str());
+        System::logE(TAG, "HTTP parser error (%d):%s\n", self->_parser->errorCode(), self->_parser->errorReason().c_str());
     }
     
     self->_parser.reset();
@@ -131,13 +145,18 @@ IDFWiFiPortal::thunkHandler(httpd_req_t* req)
 int32_t
 IDFWiFiPortal::addHTTPHandler(const char* endpoint, HTTPMethod method, HandlerCB requestCB)
 {
+    if (!_server) {
+        System::logE(TAG, "can't add HTTP handler for '%s', server not initialized", endpoint);
+        return -1;
+    }
+    
     httpd_uri_t uri = {
         .uri = endpoint,
         .method = (method == HTTPMethod::Post) ? HTTP_POST : HTTP_GET,
         .handler = thunkHandler,
         .user_ctx = new HandlerThunk(requestCB, this)
     };
-    httpd_register_uri_handler(_server, &uri);
+    ESP_ERROR_CHECK(httpd_register_uri_handler(_server, &uri));
     return 0;
 }
 
@@ -171,16 +190,14 @@ IDFWiFiPortal::addStaticHTTPHandler(const char *uri, const char *path)
 bool
 IDFWiFiPortal::autoConnect(char const *apName, char const *apPassword)
 {
-    // Initialize
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
-    
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &eventHandler, this, nullptr));
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &eventHandler, this, nullptr));
+    scanNetworks();
 
     getNVSParam("wifi_ssid", _ssid);
     getNVSParam("wifi_pass", _pass);
-    
+
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &eventHandler, this, nullptr));
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &eventHandler, this, nullptr));
+        
     if (!_ssid.empty()) {
         // Connect to WiFi
         ESP_LOGI(TAG, "Found credentials, connecting to '%s'", _ssid.c_str());
@@ -219,7 +236,6 @@ IDFWiFiPortal::autoConnect(char const *apName, char const *apPassword)
                                                pdFALSE,
                                                pdMS_TO_TICKS(30000));
         if (bits & WIFI_CONNECTED_BIT) {
-            startWebServer(false);
             return true;
         } 
         ESP_LOGW(TAG, "Failed to connect with stored credentials");
@@ -248,15 +264,6 @@ static esp_err_t portalHTTP404ErrorHandler(httpd_req_t *req, httpd_err_code_t er
     httpd_resp_send(req, "Redirect to the captive portal", HTTPD_RESP_USE_STRLEN);
 
     ESP_LOGI(TAG, "Redirecting to root");
-    return ESP_OK;
-}
-
-// HTTP Error (404) Handler when connected - show a 404 page
-static esp_err_t connectedHTTP404ErrorHandler(httpd_req_t *req, httpd_err_code_t err)
-{
-    ESP_ERROR_CHECK(httpd_resp_set_status(req, "404 Not Found"));
-    httpd_resp_send(req, "<h1><b>Page not found</b></h1>", HTTPD_RESP_USE_STRLEN);
-    ESP_LOGI(TAG, "%s page not found", req->uri);
     return ESP_OK;
 }
 
@@ -356,32 +363,31 @@ IDFWiFiPortal::httpUploadBuffer() const
     return _parser ? _parser->httpUploadBuffer() : nullptr;
 }
 
+int
+IDFWiFiPortal::receiveHTTPResponse(char* buf, size_t size)
+{
+    return httpd_req_recv(_activeRequest, buf, size);
+}
+
 std::string
 IDFWiFiPortal::getHTTPArg(const char* name)
 {
-    if (!hasHTTPArg(name)) {
+    if (!_activeRequest || !_parser) {
         return "";
     }
 
-    std::string s =  _parser->getHTTPArg(name);
-    if (s.empty()) {
-        ESP_LOGW(TAG, "getHTTPArg '%s' is empty", name);
-    }
-    return s;
+    return _parser->getHTTPArg(name);
 }
 
-bool
-IDFWiFiPortal::hasHTTPArg(const char* name)
+void
+IDFWiFiPortal::parseQuery(const char* queryString)
 {
-    if (!_activeRequest || !_parser) {
-        ESP_LOGW(TAG, "hasHTTPArg can't get '%s' arg. No parser", name);
-        return false;
+    if (_activeRequest && _parser) {
+        _parser->parseQuery(queryString);
     }
-    
-    return _parser->hasHTTPArg(name);
 }
 
-const std::string
+std::string
 IDFWiFiPortal::getHTTPHeader(const char* name)
 {
     if (!_activeRequest) {
@@ -552,7 +558,13 @@ static void dhcpSetCaptivePortalURL()
 void
 IDFWiFiPortal::startProvisioning()
 {
-    scanNetworks();
+    _provisioning = true;
+    
+    if (_server) {
+        httpd_register_err_handler(_server, HTTPD_404_NOT_FOUND, portalHTTP404ErrorHandler);
+    } else {
+        System::logE(TAG, "HTTP server not started, can't register provisioning error handler");
+    }
     
     // Call the config handler
     if (_configHandler) {
@@ -580,8 +592,6 @@ IDFWiFiPortal::startProvisioning()
 
     dhcpSetCaptivePortalURL();
 
-    startWebServer(true);
-
     // Start the DNS server that will redirect all queries to the softAP IP
     dns_server_config_t config = {
         .num_of_entries = 1,
@@ -602,9 +612,10 @@ IDFWiFiPortal::startProvisioning()
 }
 
 void
-IDFWiFiPortal::startWebServer(bool provision)
+IDFWiFiPortal::startWebServer()
 {
     if (_server) {
+        System::logW(TAG, "Web Server already started");
         return;
     }
 
@@ -613,61 +624,55 @@ IDFWiFiPortal::startWebServer(bool provision)
     config.uri_match_fn = httpd_uri_match_wildcard;
     config.lru_purge_enable = true;
 
-    if (httpd_start(&_server, &config) == ESP_OK) {
-        // If we're provisioning we bring up the captive portal (wifi setup) page.
-        // Otherwise we bring up the landing page, which shows buttons for all
-        // the functionality you can get to. This page is customizable both by
-        // rearranging the buttons and by adding custom html.
-        if (provision) {
-            addHTTPHandler("/", WiFiPortal::HTTPMethod::Get, provisioningGetHandler);
-            httpd_register_err_handler(_server, HTTPD_404_NOT_FOUND, portalHTTP404ErrorHandler);
-        } else {
-            addHTTPHandler("/wifi", WiFiPortal::HTTPMethod::Get, provisioningGetHandler);
-            httpd_register_err_handler(_server, HTTPD_404_NOT_FOUND, connectedHTTP404ErrorHandler);
-        }
-        addHTTPHandler("/update", HTTPMethod::Post, otaUpdateHandler);
-        addHTTPHandler("/restart", HTTPMethod::Get, restartGetHandler);
-        addHTTPHandler("/connect", HTTPMethod::Post, connectPostHandler);
-        addHTTPHandler("/reset", WiFiPortal::HTTPMethod::Get, resetGetHandler);
-        addHTTPHandler("/get-wifi-setup", WiFiPortal::HTTPMethod::Get, getWifiSetupHandler);
-        addHTTPHandler("/favicon.ico", WiFiPortal::HTTPMethod::Get, faviconGetHandler);
+    esp_err_t err = httpd_start(&_server, &config);
+    if (err == ESP_OK) {
+        System::logI(TAG, "Web Server started");
     } else {
-        ESP_LOGE(TAG, "Failed to start web server");
+        System::logE(TAG, "failed to start Web Server (%s)", esp_err_to_name(err));
     }
 }
 
 void
 IDFWiFiPortal::scanNetworks()
 {
-    esp_netif_create_default_wifi_sta();
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-    esp_wifi_set_mode(WIFI_MODE_STA);
-
-    ESP_ERROR_CHECK(esp_wifi_start());
-    delay(2000);
-    ESP_ERROR_CHECK(esp_wifi_scan_start(nullptr, true));
-
-    uint16_t apCount = 0;
-    ESP_ERROR_CHECK(esp_wifi_scan_get_ap_num(&apCount));
-    ESP_LOGI(TAG, "Total APs scanned = %u", apCount);
-    if (apCount) {
-        std::vector<wifi_ap_record_t> apInfo(apCount);
-        ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&apCount, apInfo.data()));
+    esp_netif_t *sta_netif = esp_netif_create_default_wifi_sta();
+    if (!sta_netif) {
+        System::logE(TAG, "failed to create default STA");
+    } else {
+        wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+        ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+        esp_wifi_set_mode(WIFI_MODE_STA);
+        ESP_ERROR_CHECK(esp_wifi_start());
         
-        // Copy the ssids to list
-        _knownNetworks.clear();
-        for (auto& it : apInfo) {
-            _knownNetworks.push_back({ std::string(reinterpret_cast<const char*>(it.ssid)), it.rssi, it.authmode == WIFI_AUTH_OPEN });
+        esp_err_t err = esp_wifi_scan_start(nullptr, true);
+        if (err == ESP_OK) {
+            System::logI(TAG, "scanNetworks succeeded");
+        } else {
+            System::logE(TAG, "scanNetworks failed (%s)", esp_err_to_name(err));
+            return;
         }
 
-        // Get rid of duplicates
-        std::sort(_knownNetworks.begin(), _knownNetworks.end());
-        _knownNetworks.erase(std::unique(_knownNetworks.begin(), _knownNetworks.end()), _knownNetworks.end());
-    
-        for (auto& it : _knownNetworks) {
-            ESP_LOGI(TAG, "********** ssid='%s', rssi=%d, open=%s", it.ssid.c_str(), int(it.rssi), it.open ? "true" : "false");
+        uint16_t apCount = 0;
+        ESP_ERROR_CHECK(esp_wifi_scan_get_ap_num(&apCount));
+        System::logI(TAG, "Total APs scanned = %u", apCount);
+        
+        if (apCount) {
+            std::vector<wifi_ap_record_t> apInfo(apCount);
+            ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&apCount, apInfo.data()));
+            
+            // Copy the ssids to list
+            _knownNetworks.clear();
+            for (auto& it : apInfo) {
+                _knownNetworks.push_back({ std::string(reinterpret_cast<const char*>(it.ssid)), it.rssi, it.authmode == WIFI_AUTH_OPEN });
+            }
+
+            // Get rid of duplicates
+            std::sort(_knownNetworks.begin(), _knownNetworks.end());
+            _knownNetworks.erase(std::unique(_knownNetworks.begin(), _knownNetworks.end()), _knownNetworks.end());
+        
+            for (auto& it : _knownNetworks) {
+                System::logI(TAG, "********** ssid='%s', rssi=%d, open=%s", it.ssid.c_str(), int(it.rssi), it.open ? "true" : "false");
+            }
         }
     }
     
@@ -727,226 +732,92 @@ IDFWiFiPortal::eventHandler(void* arg, esp_event_base_t eventBase, int32_t event
 }
 
 void
-IDFWiFiPortal::provisioningGetHandler(WiFiPortal* portal)
+IDFWiFiPortal::otaUpdate()
 {
-    IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(portal);
-
-    // Send the portal page
-    if (self->_wfs) {
-        self->_wfs->sendWiFiPage(self);
-    }
-}
-
-void
-IDFWiFiPortal::connectPostHandler(WiFiPortal* portal)
-{
-    IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(portal);
-    
-    char buf[128];
-    int ret = httpd_req_recv(self->_activeRequest, buf, sizeof(buf) - 1);
-    if (ret <= 0) {
-        if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
-            httpd_resp_send_408(self->_activeRequest);
-        }
-        return;
-    }
-    buf[ret] = '\0';
-
-    char ssidBuf[33] = {0};
-    char passBuf[65] = {0};
-    
-    char hostnameBuf[65] = {0};
-    
-    if (httpd_query_key_value(buf, "ssid", ssidBuf, sizeof(ssidBuf)) != ESP_OK) {
-        httpd_resp_send_err(self->_activeRequest, HTTPD_400_BAD_REQUEST, "Missing 'ssid' parameter");
-        return;
-    }
-    httpd_query_key_value(buf, "password", passBuf, sizeof(passBuf));
-    
-    httpd_query_key_value(buf, "hostname", hostnameBuf, sizeof(hostnameBuf));
-    
-    // Decode the strings
-    std::string ssid = HTTPParser::urlDecode(ssidBuf);
-    std::string pass = HTTPParser::urlDecode(passBuf);
-
-    std::string hostname = HTTPParser::urlDecode(hostnameBuf);
-    
-    if (ssid.empty()) {
-        self->getNVSParam("wifi_ssid", ssid);
-        self->getNVSParam("wifi_pass", pass);
-    }
-    
-    if (hostname.empty()) {
-        self->getNVSParam("hostname", hostname);
-    }
-
-    std::string response = "<h1>Connecting to '";
-    response += ssid;
-    response += "'...</h1><p>If successful, the device will connect to the network. If failed, it will remain in provisioning mode.</p>";
-    httpd_resp_sendstr(self->_activeRequest, response.c_str());
-
-    self->setNVSParam("wifi_ssid", ssid);
-    self->setNVSParam("wifi_pass", pass);
-
-    self->setNVSParam("hostname", hostname);
-
-    vTaskDelay(pdMS_TO_TICKS(1000));
-    esp_restart();
-}
-
-void
-IDFWiFiPortal::restartGetHandler(WiFiPortal* portal)
-{
-    IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(portal);
-    
-    const char* resp_str = "<h1>Restarting...</h1>";
-    httpd_resp_send(self->_activeRequest, resp_str, HTTPD_RESP_USE_STRLEN);
-    
-    vTaskDelay(pdMS_TO_TICKS(2000));
-    esp_restart();
-}
-
-void
-IDFWiFiPortal::resetGetHandler(WiFiPortal* portal)
-{
-    IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(portal);
-    
-    const char* resp_str = "<h1>Credentials Cleared</h1><p>The device will restart and enter provisioning mode.</p>";
-    httpd_resp_send(self->_activeRequest, resp_str, HTTPD_RESP_USE_STRLEN);
-    
-    vTaskDelay(pdMS_TO_TICKS(2000));
-    self->resetSettings();
-    esp_restart();
-}
-
-void
-IDFWiFiPortal::getWifiSetupHandler(WiFiPortal* portal)
-{
-    IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(portal);
-    
-    std::string ssid, hostname;
-    self->getNVSParam("wifi_ssid", ssid);
-    self->getNVSParam("hostname", hostname);
-
-    std::string response = "{" + WebFileSystem::jsonParam("ssid", ssid) + "," + WebFileSystem::jsonParam("hostname", hostname) + ",";
-    response += WebFileSystem::quote("knownNetworks") + ":[";
-
-    bool first = true;
-    
-    for (const auto& it : self->_knownNetworks) {
-        if (!first) {
-            response += ",";
-        } else {
-            first = false;
-        }
-        
-        response += "{" + WebFileSystem::jsonParam("ssid", it.ssid) + ",";
-        response += WebFileSystem::jsonParam("rssi", std::to_string(it.rssi)) + ",";
-        response += WebFileSystem::jsonParam("open", std::string(it.open ? "true" : "false")) + "}";
-    }
-    response += "]}";
-
-    httpd_resp_send(self->_activeRequest, response.c_str(), HTTPD_RESP_USE_STRLEN);
-}
-
-void
-IDFWiFiPortal::faviconGetHandler(WiFiPortal* portal)
-{
-    IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(portal);
-
-    httpd_resp_set_status(self->_activeRequest, "204 No Content");
-    httpd_resp_send(self->_activeRequest, NULL, 0);
-}
-
-void
-IDFWiFiPortal::otaUpdateHandler(WiFiPortal* p)
-{
-    IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(p);
-    
     bool finished = false;
     
-    switch(p->httpUploadStatus()) {
-        case WiFiPortal::HTTPUploadStatus::Start: {
-            std::string f = HTTPParser::urlDecode(p->getHTTPArg("path")) + "/" + p->httpUploadFilename();
-            self->_otaUpdateAborted = false;
-            size_t length = self->_parser->httpUploadContentLength();
+    switch(httpUploadStatus()) {
+        case HTTPUploadStatus::Start: {
+            std::string f = HTTPParser::urlDecode(getHTTPArg("path")) + "/" + httpUploadFilename();
+            _otaUpdateAborted = false;
+            size_t length = _parser->httpUploadContentLength();
 
-            self->_updatePartition = esp_ota_get_next_update_partition(nullptr);
-            if (!self->_updatePartition) {
-                printf("ota Update: no updatePartition\n");
-                self->_otaUpdateAborted = true;
+            _updatePartition = esp_ota_get_next_update_partition(nullptr);
+            if (!_updatePartition) {
+                System::logW(TAG, "ota Update: no updatePartition");
+                _otaUpdateAborted = true;
                 finished = true;
             } else {
-                ESP_LOGI(TAG, "Writing to partition subtype %d at offset 0x%04x", int(self->_updatePartition->subtype), int(self->_updatePartition->address));
-                esp_err_t err = esp_ota_begin(self->_updatePartition, length ? length : OTA_WITH_SEQUENTIAL_WRITES, &self->_otaUpdateHandle);
+                System::logI(TAG, "Writing to partition subtype %d at offset 0x%04x", int(_updatePartition->subtype), int(_updatePartition->address));
+                esp_err_t err = esp_ota_begin(_updatePartition, length ? length : OTA_WITH_SEQUENTIAL_WRITES, &_otaUpdateHandle);
                 if (err != ESP_OK) {
-                    ESP_LOGE(TAG, "esp_ota_begin failed (%s)", esp_err_to_name(err));
-                    self->_otaUpdateAborted = true;
+                    System::logE(TAG, "esp_ota_begin failed (%s)", esp_err_to_name(err));
+                    _otaUpdateAborted = true;
                     finished = true;
                 } else {
-                    ESP_LOGI(TAG, "esp_ota_begin succeeded");
+                    System::logI(TAG, "esp_ota_begin succeeded");
                 }
             }
             break;
         }
-        case WiFiPortal::HTTPUploadStatus::Write:
-            if (!self->_otaUpdateAborted) {
+        case HTTPUploadStatus::Write:
+            if (!_otaUpdateAborted) {
                 // Write the received chunk to the file
-                size_t currentSize = p->httpUploadCurrentSize();
+                size_t currentSize = httpUploadCurrentSize();
 
-                esp_err_t err = esp_ota_write(self->_otaUpdateHandle, reinterpret_cast<const void *>(p->httpUploadBuffer()), currentSize);
+                esp_err_t err = esp_ota_write(_otaUpdateHandle, reinterpret_cast<const void *>(httpUploadBuffer()), currentSize);
                 if (err != ESP_OK) {
-                    ESP_LOGE(TAG, "esp_ota_write failed (%s)", esp_err_to_name(err));
-                    self->_otaUpdateAborted = true;
+                    System::logE(TAG, "esp_ota_write failed (%s)", esp_err_to_name(err));
+                    _otaUpdateAborted = true;
                     finished = true;
-                    esp_ota_abort(self->_otaUpdateHandle);
+                    esp_ota_abort(_otaUpdateHandle);
                 }
             }
             break;
         case WiFiPortal::HTTPUploadStatus::End: {
             finished = true;
 
-            esp_err_t err = esp_ota_end(self->_otaUpdateHandle);
+            esp_err_t err = esp_ota_end(_otaUpdateHandle);
             if (err != ESP_OK) {
-                ESP_LOGE(TAG, "esp_ota_end failed (%s)", esp_err_to_name(err));
-                self->_otaUpdateAborted = true;
-                esp_ota_abort(self->_otaUpdateHandle);
+                System::logE(TAG, "esp_ota_end failed (%s)", esp_err_to_name(err));
+                _otaUpdateAborted = true;
+                esp_ota_abort(_otaUpdateHandle);
             } else {
-                err = esp_ota_set_boot_partition(self->_updatePartition);
+                err = esp_ota_set_boot_partition(_updatePartition);
                 if (err != ESP_OK) {
-                    ESP_LOGE(TAG, "esp_ota_set_boot_partition failed (%s)", esp_err_to_name(err));
-                    self->_otaUpdateAborted = true;
-                    esp_ota_abort(self->_otaUpdateHandle);
+                    System::logE(TAG, "esp_ota_set_boot_partition failed (%s)", esp_err_to_name(err));
+                    _otaUpdateAborted = true;
+                    esp_ota_abort(_otaUpdateHandle);
                 }
             }
             break;
         }
         case WiFiPortal::HTTPUploadStatus::Aborted:
-            printf("handleUpload: Upload Aborted\n");
-            self->_otaUpdateAborted = true;
+            System::logW(TAG, "handleUpload: Upload Aborted");
+            _otaUpdateAborted = true;
             finished = true;
-            esp_ota_abort(self->_otaUpdateHandle);
+            esp_ota_abort(_otaUpdateHandle);
             break;
         case WiFiPortal::HTTPUploadStatus::None:
-            printf("Invalid ota update status\n");
-            self->_otaUpdateAborted = true;
+            System::logW(TAG, "Invalid ota update status");
+            _otaUpdateAborted = true;
             finished = true;
             break;
     }
     
     if (finished) {
-        if (self->_otaUpdateAborted) {
-            p->sendHTTPResponse(500, "text/plain", "Upload Aborted");
-            printf("Reply sent: ota Update Aborted\n");
-        } else if (p->httpUploadTotalSize() > 0) { // Check if any bytes were received
-            p->sendHTTPResponse(200, "text/html", "<h1>OTA Update Successful. Restarting...</h1>");
-            printf("Reply sent: Successful ota update, restarting...\n");
-            vTaskDelay(pdMS_TO_TICKS(2000));
-            esp_restart();
+        if (_otaUpdateAborted) {
+            sendHTTPResponse(500, "text/plain", "Upload Aborted");
+            System::logW(TAG, "Reply sent: ota Update Aborted");
+        } else if (httpUploadTotalSize() > 0) { // Check if any bytes were received
+            sendHTTPResponse(200, "text/html", "<h1>OTA Update Successful. Restarting...</h1>");
+            System::logI(TAG, "Reply sent: Successful ota update, restarting...\n");
+            delay(2000);
+            System::restart();
         } else {
             // This might happen if the file was empty or write failed early
-            p->sendHTTPResponse(500, "text/plain", "ota Update Failed or Empty File");
-            printf("Reply sent: ota Update Failed/Empty\n");
+            sendHTTPResponse(500, "text/plain", "ota Update Failed or Empty File");
+            System::logE(TAG, "Reply sent: ota Update Failed/Empty\n");
         }
     }
 }

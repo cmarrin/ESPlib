@@ -56,15 +56,20 @@ public:
 
     using HandlerCB = std::function<void(WiFiPortal*)>;
 
+    struct KnownNetwork
+    {
+        bool operator==(const KnownNetwork& other) const { return ssid == other.ssid; }
+        bool operator<(const KnownNetwork& other) const { return ssid < other.ssid; }
+        std::string ssid; 
+        int8_t rssi; 
+        bool open;
+    };
+
     WiFiPortal() { }
     virtual ~WiFiPortal() { }
     
     virtual void begin(WebFileSystem*) { }
 
-    // Reset the saved SSID and password. On the next reboot or when autoConnect is called
-    // the captive portal will be started
-    virtual void resetSettings() { }
-    
     // Set the callback that will be called when the system enters the captive portal
     virtual void setConfigHandler(HandlerCB) { }
 
@@ -93,10 +98,6 @@ public:
     // the main thread (e.g., Arduino). Otherwise this method is empty.
     virtual void process() { }
     
-    // Manually start the web portal. This is done after successful connection to
-    // the network to make the web pages available at run time.
-    virtual void startWebPortal() { }
-    
     // Return the IP address. In config mode, this is the soft AP IP address.
     virtual std::string getIP() { return ""; }
 
@@ -116,17 +117,27 @@ public:
     virtual size_t httpUploadTotalSize() const { return 0; }
     virtual size_t httpUploadCurrentSize() const { return 0; }
     virtual const uint8_t* httpUploadBuffer() const { return nullptr; }
+    
+    // This method receives data from an open response. It's used for non-multipart POST
+    virtual int receiveHTTPResponse(char* buf, size_t size) { return 0; }
 
     // Extract the value for the passed name from the passed uri. Arguments start after the first '?' and are of the form
     // <name>=<value>. Args are separated with '&'.
     virtual std::string getHTTPArg(const char* name) { return ""; }
-    virtual bool hasHTTPArg(const char* name) { return false; }
+    
+    // Add values to the arg list, for instance from a form-data response
+    virtual void parseQuery(const char* queryString) { }
+
+    virtual std::string getHTTPHeader(const char* name) { return ""; }
+
+    virtual void otaUpdate() { }
 
     // Get Info
     virtual std::string getCPUModel() const { return ""; }
     virtual uint32_t getCPUFrequency() const { return 50; }
     virtual float getCPUTemperature() const { return 25.0; }
     virtual uint32_t getCPUUptime() const { return 0; }
+    virtual const std::vector<KnownNetwork>* getKnownNetworks() const { return nullptr; }
 
     // Get/Set/Erase params in non-volatile storage
     virtual void setNVSParam(const char* id, const std::string& value) { }
@@ -145,13 +156,27 @@ public:
     // "custom" menu item
     void setCustomInfoHandler(std::function<std::string()> cb) { _customInfoHTMLHandler = cb; }
     const std::string getCustomInfoHTML() const { return _customInfoHTMLHandler ? _customInfoHTMLHandler() : ""; }
+    const std::string getCustomTextForms() const
+    {
+        std::string forms = "[ ";
+        bool first = true;
+        for (const auto& it : _paramMap) {
+            if (!first) {
+                forms += ", ";
+            } else {
+                first = false;
+            }
+            forms += "{ 'id' : '" + it.first + "', 'label' : '" + it.second.label + "', 'maxLength' : '" + std::to_string(it.second.maxLength) + "' }";
+        }
+        forms += " ]";
+        return forms;
+    }
 
     const std::string& getGateway() const { return _currentGW; }
     const std::string& getMask() const { return _currentMSK; }
     const std::string& getDNS() const { return _currentDNS; }
 
-    std::string value;
-
+    bool isProvisioning() const { return _provisioning; }
   private:
     // Param Map
     // FIXME: We're saving the param info, but not adding it to the web page yet
@@ -187,6 +212,8 @@ public:
     std::string _currentGW = "0.0.0.0";
     std::string _currentMSK = "255.255.255.255";
     std::string _currentDNS = "0.0.0.0";
+    
+    bool _provisioning = false;
 
   private:
     std::string _title;
