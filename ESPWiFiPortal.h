@@ -27,7 +27,6 @@ public:
     virtual void addStaticHTTPHandler(const char *uri, const char *path) override;
     virtual bool autoConnect(char const *apName, char const *apPassword = NULL) override;
     virtual void process() override;
-    virtual void startWebPortal() override;
     virtual std::string getIP() override;
     virtual const char* getSSID() override;
     virtual void sendHTTPResponse(int code, const char* mimetype = nullptr, const char* data = "") override;

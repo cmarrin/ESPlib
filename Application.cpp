@@ -118,7 +118,6 @@ Application::startNetwork()
 	_enableNetwork = true;
 	_blinker.setRate(ConnectedRate);
  
-    _portal->startWebPortal();
 	delay(500);
  
     _portal->addStaticHTTPHandler("/fs", "/");

@@ -279,12 +279,6 @@ ESPWiFiPortal::process()
     _server->handleClient();
 }
 
-void
-ESPWiFiPortal::startWebPortal()
-{
-    startWebServer(false);
-}
-
 std::string
 ESPWiFiPortal::getIP()
 {

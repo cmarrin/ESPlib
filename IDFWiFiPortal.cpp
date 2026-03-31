@@ -267,12 +267,6 @@ static esp_err_t connectedHTTP404ErrorHandler(httpd_req_t *req, httpd_err_code_t
 }
 
 void
-IDFWiFiPortal::startWebPortal()
-{
-    startWebServer(false);
-}
-
-void
 IDFWiFiPortal::sendHTTPResponse(int code, const char* mimetype, const char* data)
 {
     sendHTTPResponse(code, mimetype, data, strlen(data), false);

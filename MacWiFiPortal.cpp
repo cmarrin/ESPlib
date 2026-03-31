@@ -65,11 +65,6 @@ MacWiFiPortal::process()
     delay(1);
 }
 
-void
-MacWiFiPortal::startWebPortal()
-{
-}
-
 std::string
 MacWiFiPortal::getIP()
 {
