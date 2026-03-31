@@ -105,7 +105,7 @@ HTTPFetchClient::fetch(const char* url)
     config.event_handler = eventHandler;
     config.user_data = this;
 
-    ESP_LOGI(TAG, "HTTP request with url '%s'", url);
+    System::logI(TAG, "HTTP request with url '%s'", url);
 
     esp_http_client_handle_t client = esp_http_client_init(&config);
 
@@ -117,11 +117,11 @@ HTTPFetchClient::fetch(const char* url)
 
     esp_err_t err = esp_http_client_perform(client);
     if (err == ESP_OK) {
-        ESP_LOGI(TAG, "HTTP GET Status = %d, content_length = %lld",
+        System::logI(TAG, "HTTP GET Status = %d, content_length = %lld",
                 esp_http_client_get_status_code(client),
                 esp_http_client_get_content_length(client));
     } else {
-        ESP_LOGE(TAG, "HTTP GET request failed: %s", esp_err_to_name(err));
+        System::logE(TAG, "HTTP GET request failed: %s", esp_err_to_name(err));
     }
     ESP_ERROR_CHECK(esp_http_client_close(client));
     ESP_ERROR_CHECK(esp_http_client_cleanup(client));
@@ -139,6 +139,8 @@ static size_t httpCB(char* p, size_t size, size_t nmemb, void* data)
 bool
 HTTPFetchClient::fetch(const char* url)
 {
+    System::logI(TAG, "HTTP request with url '%s'", url);
+
     bool success = true;
 
     CURL* curl = curl_easy_init();
@@ -157,7 +159,9 @@ HTTPFetchClient::fetch(const char* url)
         
         // Check for errors
         if(res != CURLE_OK) {
-            printf("curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+            System::logE(TAG, "curl_easy_perform() failed: %s", curl_easy_strerror(res));
+        } else {
+            System::logI(TAG, "curl_easy_perform succeeded");
         }
         
         // always cleanup
