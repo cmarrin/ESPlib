@@ -74,7 +74,6 @@ public:
     virtual uint32_t getCPUFrequency() const override;
     virtual float getCPUTemperature() const override;
     virtual uint32_t getCPUUptime() const override;
-    virtual const std::vector<KnownNetwork>* getKnownNetworks() const { return &_knownNetworks; }
 
     virtual void setNVSParam(const char* id, const std::string& value) override;
     virtual bool getNVSParam(const char* id, std::string& value) const override;
@@ -91,8 +90,6 @@ public:
     void scanNetworks();
     
     static void eventHandler(void* arg, esp_event_base_t, int32_t eventId, void* eventData);
-
-    std::vector<KnownNetwork> _knownNetworks;
     
     bool _isConnected = false;
     EventGroupHandle_t _eventGroup;

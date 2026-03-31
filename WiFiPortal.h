@@ -137,7 +137,6 @@ public:
     virtual uint32_t getCPUFrequency() const { return 50; }
     virtual float getCPUTemperature() const { return 25.0; }
     virtual uint32_t getCPUUptime() const { return 0; }
-    virtual const std::vector<KnownNetwork>* getKnownNetworks() const { return nullptr; }
 
     // Get/Set/Erase params in non-volatile storage
     virtual void setNVSParam(const char* id, const std::string& value) { }
@@ -177,6 +176,9 @@ public:
     const std::string& getDNS() const { return _currentDNS; }
 
     bool isProvisioning() const { return _provisioning; }
+    
+    const std::vector<KnownNetwork>* getKnownNetworks() const { return &_knownNetworks; }
+
   private:
     // Param Map
     // FIXME: We're saving the param info, but not adding it to the web page yet
@@ -214,6 +216,7 @@ public:
     std::string _currentDNS = "0.0.0.0";
     
     bool _provisioning = false;
+    std::vector<KnownNetwork> _knownNetworks;
 
   private:
     std::string _title;

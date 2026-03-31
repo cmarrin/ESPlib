@@ -27,6 +27,12 @@ MacWiFiPortal::begin(WebFileSystem* wfs)
     if (!WebFileSystem::exists("/.nvs")) {
         WebFileSystem::mkdir("/.nvs");
     }
+    
+    // Fill in _knownNetworks with some dummy data
+    _knownNetworks.emplace_back("My Network", -50, false);
+    _knownNetworks.emplace_back("I Am Open", -90, true);
+    _knownNetworks.emplace_back("fishhook", -70, false);
+    _knownNetworks.emplace_back("Suliban", -100, true);
 }
 
 void
@@ -137,7 +143,6 @@ MacWiFiPortal::getCPUUptime() const
 {
     return (std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now() - _startTime)).count();
 }
-
 
 void
 MacWiFiPortal::setNVSParam(const char* id, const std::string& value)

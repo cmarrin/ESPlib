@@ -76,7 +76,6 @@ private:
         int8_t rssi; 
         bool open;
     };
-    std::vector<KnownNetwork> _knownNetworks;
 };
 
 }
