@@ -30,13 +30,6 @@ ESPWiFiPortal::begin(WebFileSystem* wfs)
 }
 
 void
-ESPWiFiPortal::resetSettings()
-{
-    eraseNVSParam("wifi_ssid");
-    eraseNVSParam("wifi_pass");
-}
-
-void
 ESPWiFiPortal::setConfigHandler(HandlerCB f)
 {
     _configHandler = f;
@@ -240,7 +233,6 @@ void
 ESPWiFiPortal::resetHandler()
 {
     sendHTTPResponse(200, "text/html", makeRestartPage("<h1>Credentials Cleared</h1><p>The device will restart and enter provisioning mode.</p>").c_str());
-    resetSettings();
     delay(2000);
     System::restart();
 }

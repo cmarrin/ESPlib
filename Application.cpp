@@ -92,7 +92,8 @@ Application::startNetwork()
     
 	if (_needsNetworkReset) {
 		_needsNetworkReset = false;
-		_portal->resetSettings();
+        eraseNVSParam("wifi_ssid");
+        eraseNVSParam("wifi_pass");
         System::restart();
 	}
 	

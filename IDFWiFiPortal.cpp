@@ -57,13 +57,7 @@ IDFWiFiPortal::begin(WebFileSystem* wfs)
     esp_log_level_set("httpd_parse", ESP_LOG_ERROR);
     esp_log_level_set("wifi", ESP_LOG_ERROR);
     esp_log_level_set("wifi_init", ESP_LOG_ERROR);
-}
 
-void
-IDFWiFiPortal::resetSettings()
-{
-    eraseNVSParam("wifi_ssid");
-    eraseNVSParam("wifi_pass");
 }
 
 void

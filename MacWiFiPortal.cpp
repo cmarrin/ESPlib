@@ -30,11 +30,6 @@ MacWiFiPortal::begin(WebFileSystem* wfs)
 }
 
 void
-MacWiFiPortal::resetSettings()
-{
-}
-
-void
 MacWiFiPortal::setConfigHandler(HandlerCB)
 {
 }

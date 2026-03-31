@@ -50,7 +50,6 @@ class IDFWiFiPortal : public WiFiPortal
 public:
     virtual void begin(WebFileSystem*) override;
 
-    virtual void resetSettings() override;
     virtual void setConfigHandler(HandlerCB) override;
     virtual int32_t addHTTPHandler(const char* endpoint, HTTPMethod, HandlerCB requestCB) override;
     virtual void addStaticHTTPHandler(const char *uri, const char *path) override;
