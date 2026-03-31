@@ -37,7 +37,6 @@ public:
     virtual size_t httpUploadCurrentSize() const override;
     virtual const uint8_t* httpUploadBuffer() const override;
     virtual std::string getHTTPArg(const char* name) override;
-    virtual bool hasHTTPArg(const char* name) override;
     virtual std::string getCPUModel() const override;
     virtual uint32_t getCPUFrequency() const override;
     virtual float getCPUTemperature() const override;

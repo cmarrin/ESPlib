@@ -355,12 +355,6 @@ ESPWiFiPortal::getHTTPArg(const char* name)
     return _server->arg(name).c_str();
 }
 
-bool
-ESPWiFiPortal::hasHTTPArg(const char* name)
-{
-    return !getHTTPArg(name).empty();
-}
-
 std::string
 ESPWiFiPortal::getCPUModel() const
 {

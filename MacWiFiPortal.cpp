@@ -120,16 +120,10 @@ MacWiFiPortal::httpUploadBuffer() const
     return _server.httpUploadBuffer();
 }
 
-std::string
-MacWiFiPortal::getHTTPArg(const char* name)
+int
+MacWiFiPortal::receiveHTTPResponse(char* buf, size_t size)
 {
-    return _server.getHTTPArg(name);
-}
-
-bool
-MacWiFiPortal::hasHTTPArg(const char* name)
-{
-    return _server.hasHTTPArg(name);
+    return _server.receiveHTTPResponse(buf, size);
 }
 
 std::string
