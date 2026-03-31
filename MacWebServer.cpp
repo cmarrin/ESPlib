@@ -20,7 +20,9 @@ All rights reserved.
 #include "WebFileSystem.h"
 
 using namespace mil;
-    
+
+static const char *TAG = "MacWebServer";
+
 int
 WebServer::start(WebFileSystem* wfs, int port)
 {
@@ -222,7 +224,7 @@ WebServer::handleClient(int fdClient)
     _fdClient = fdClient;
 
     if (_parser) {
-        printf("***** Already in the middle of a request\n");
+        System::logW(TAG, "***** Already in the middle of a request\n");
         _parser.reset();
         return;
     }
