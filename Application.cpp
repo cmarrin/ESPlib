@@ -11,7 +11,6 @@ All rights reserved.
 
 using namespace mil;
 
-static constexpr int MaxHostnameLength = 40;
 static const char* TAG = "Application";
 
 Application::Application(WiFiPortal* portal, const char* configPortalName, bool haveClock)
@@ -83,7 +82,6 @@ void
 Application::startNetwork()
 {
 	_blinker.setRate(ConnectingRate);
-    addParam("hostname", "Hostname", "esp32",  MaxHostnameLength);
     
     std::string hostname;
     if (getNVSParam("hostname", hostname)) {
