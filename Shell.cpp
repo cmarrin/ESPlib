@@ -192,41 +192,43 @@ Shell::handleShellCommand(const std::string& incomingCmd, PrintCB printCB)
 void
 Shell::tcpServerTask()
 {
-    int listenSocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (listenSocket < 0) {
-        System::logE(TAG, "Unable to create listen socket %i: errno %d", listenSocket, errno);
+    _serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+    if (_serverSocket < 0) {
+        System::logE(TAG, "Unable to create listen socket %i: errno %d", _serverSocket, errno);
         return;
     }
     
     int opt = 1;
-    setsockopt(listenSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-    System::logI(TAG, "Listen socket %i created", listenSocket);
+    setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    System::logI(TAG, "Listen socket %i created", _serverSocket);
 
     struct sockaddr_in address;
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(TelnetPort);
 
-    int err = bind(listenSocket, (struct sockaddr *)&address, sizeof(address));
+    int err = bind(_serverSocket, (struct sockaddr *)&address, sizeof(address));
     if (err != 0) {
-        System::logE(TAG, "Listen socket %i unable to bind: errno %d", listenSocket, errno);
-        close(listenSocket);
+        System::logE(TAG, "Listen socket %i unable to bind: errno %d", _serverSocket, errno);
+        close(_serverSocket);
+        _serverSocket = -1;
         return;
     }
-    System::logI(TAG, "Listen socket %i bound, port %d", listenSocket, TelnetPort);
+    System::logI(TAG, "Listen socket %i bound, port %d", _serverSocket, TelnetPort);
 
-    err = listen(listenSocket, 1);
+    err = listen(_serverSocket, 1);
     if (err != 0) {
-        System::logE(TAG, "Error occurred during listen socket %i: errno %d", listenSocket, errno);
-        close(listenSocket);
+        System::logE(TAG, "Error occurred during listen socket %i: errno %d", _serverSocket, errno);
+        close(_serverSocket);
+        _serverSocket = -1;
         return;
     }
 
-    while (1) {
+    while (!_terminating) {
         System::logI(TAG, "Socket listening for new connection");
         struct sockaddr_storage sourceAddr;
         socklen_t addrLen = sizeof(sourceAddr);
-        int sock = accept(listenSocket, (struct sockaddr *)&sourceAddr, &addrLen);
+        int sock = accept(_serverSocket, (struct sockaddr *)&sourceAddr, &addrLen);
         
         if (sock < 0) {
             System::logE(TAG, "Unable to accept connection: errno %d", errno);

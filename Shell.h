@@ -27,7 +27,14 @@ class WiFiPortal;
 
 class Shell
 {
-  public:    
+  public:
+    ~Shell()
+    {
+        _terminating = true;
+        close(_serverSocket);
+        _serverThread.join();
+    }
+    
     bool begin(Application* app);
     
   private:
@@ -53,6 +60,8 @@ class Shell
     std::vector<std::string> _dirs;
     
     std::thread _serverThread;
+    int _serverSocket = -1;
+    bool _terminating = false;
     
     struct TelnetClient
     {
