@@ -23,7 +23,7 @@ Clock::Clock(Application* app)
 	
 void Clock::setup()
 {
-    _app->addParam("zipcode", "Zipcode", "93405",  MaxZipCodeLength);
+    _app->addFormEntry("zipcode", "Zipcode", "93405",  MaxZipCodeLength);
 
 	_secondTimer.attach_ms(1000, [this]() {
         _currentTime++;

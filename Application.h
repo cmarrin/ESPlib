@@ -103,9 +103,9 @@ public:
         System::restart();
     }
     
-    void addParam(const char *id, const char *label, const char *defaultValue, int length)
+    void addFormEntry(const char *id, const char *label, const char *defaultValue, int length)
     {
-        _portal->addParam(id, label, defaultValue, length);
+        _portal->addFormEntry(id, label, defaultValue, length);
     }
     
     void setNVSParam(const char* id, const std::string& value) { _portal->setNVSParam(id, value); }

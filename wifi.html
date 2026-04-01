@@ -218,14 +218,11 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" maxlength="64" placeholder="Enter password">
             </div>
-            <hr/>
             <div class="input-group">
                 <label>Hostname</label>
                 <input type="text" name="hostname" id="hostname" maxlength="40">
             </div>
             <hr/>
-            <button type="submit" class="btn">Connect</button>
-            <br>
         </form>
         <hr/>
         <br>
@@ -236,7 +233,29 @@
         const knownNetworks = document.getElementById('known-networks');
         const ssidInput = document.getElementById('ssid');
         const hostnameInput = document.getElementById('hostname');
+        const wifiForm = document.getElementById('wifi-form');
 
+        function addInput(id, label, maxLength, value, defaultValue)
+        {
+            const element = document.createElement('div');
+            element.classList.add('input-group');
+            
+            const labelElement = document.createElement('label');
+            labelElement.innerText = label;
+            element.appendChild(labelElement);
+            
+            const inputElement = document.createElement('input');
+            inputElement.type = "text";
+            inputElement.id = id;
+            inputElement.name = id;
+            inputElement.maxLength = maxLength;
+            inputElement.value = value;
+            inputElement.placeholder = defaultValue;
+            element.appendChild(inputElement);
+            
+            wifiForm.appendChild(element);
+        }
+        
         function selectItem(event)
         {
             ssidInput.value = event.textContent;
@@ -296,6 +315,18 @@
                         const itemElement = createItemElement(item);
                         knownNetworks.appendChild(itemElement);
                     }
+                    for (const form of items.customTextForms) {
+                        addInput(form.id, form.label, form.maxLength, form.value, form.defaultValue);
+                    }
+
+                    // Now add the submit button
+                    
+                    wifiForm.appendChild(document.createElement('hr'));
+                    let button = document.createElement('button');
+                    button.type = "submit";
+                    button.classList.add('btn');
+                    button.innerText = "Connect";
+                    wifiForm.appendChild(button);
                 })
                 .catch(error => console.error('Error fetching wifi setup:', error));
         }

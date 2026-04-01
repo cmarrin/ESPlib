@@ -165,7 +165,17 @@ public:
             } else {
                 first = false;
             }
-            forms += "{ 'id' : '" + it.first + "', 'label' : '" + it.second.label + "', 'maxLength' : '" + std::to_string(it.second.maxLength) + "' }";
+            
+            // Get current value
+            std::string value;
+            getNVSParam(it.first.c_str(), value);
+        
+            forms += "{ \"id\" : \"" + it.first + 
+                     "\", \"label\" : \"" + it.second.label + 
+                     "\", \"maxLength\" : \"" + std::to_string(it.second.maxLength) + 
+                     "\", \"value\" : \"" + value + 
+                     "\", \"defaultValue\" : \"" + it.second.defaultValue + 
+                     "\" }";
         }
         forms += " ]";
         return forms;
@@ -182,11 +192,11 @@ public:
   private:
     // Param Map
     // FIXME: We're saving the param info, but not adding it to the web page yet
-    struct ParamMapValue { std::string label; uint32_t maxLength; };
+    struct ParamMapValue { std::string label; uint32_t maxLength; std::string defaultValue; };
     std::map<std::string, ParamMapValue> _paramMap;
 
   public:
-    void addParam(const char *id, const char* label, const char* defaultValue, uint32_t maxLength)
+    void addFormEntry(const char *id, const char* label, const char* defaultValue, uint32_t maxLength)
     {
         // First we have to see if there is a saved value for this id. If so use it in place of the defaultValue
         std::string value;
@@ -203,8 +213,23 @@ public:
         auto entry = _paramMap.find(id);
         if (entry == _paramMap.end()) {
             // New map entry
-            _paramMap.insert({ id, { label, maxLength } });
+            _paramMap.insert({ id, { label, maxLength, defaultValue } });
         }
+    }
+    
+    bool getFormEntryId(uint32_t i, std::string& value)
+    {
+        if (i >= _paramMap.size()) {
+            return false;
+        }
+        for (const auto& it : _paramMap) {
+            if (i == 0) {
+                value = it.first;
+                return true;
+            }
+            --i;
+        }
+        return false;
     }
     
   protected:

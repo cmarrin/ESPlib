@@ -470,7 +470,8 @@ WebFileSystem::handleWiFiSetup(WiFiPortal* portal)
     }
     
     response += "],";
-    response += jsonParam("customTextForms", portal->getCustomTextForms());
+    response += quote("customTextForms") + ":";
+    response += portal->getCustomTextForms();
     response += "}";
 
     portal->sendHTTPResponse(200, "application/json", response.c_str(), response.length(), false);
@@ -484,7 +485,7 @@ WebFileSystem::handleConnect(WiFiPortal* portal)
     // receive is done with httpd_req_recv. On mac it is done with a read
     // of the connection.
     std::string sizeString = portal->getHTTPHeader("Content-Length");
-    size_t size = std::stoi(sizeString);
+    size_t size = strtol(sizeString.c_str(), nullptr, 10);
     if (size == 0) {
         // Some default value
         size = 100;
@@ -499,7 +500,6 @@ WebFileSystem::handleConnect(WiFiPortal* portal)
     delete [ ] buf;
 
     // Decode the strings
-    // FIXME: Don't forget the params from _paramMap
     std::string ssid = HTTPParser::urlDecode(portal->getHTTPArg("ssid"));
     std::string pass = HTTPParser::urlDecode(portal->getHTTPArg("password"));
     std::string hostname = HTTPParser::urlDecode(portal->getHTTPArg("hostname"));
@@ -521,6 +521,16 @@ WebFileSystem::handleConnect(WiFiPortal* portal)
     portal->setNVSParam("wifi_ssid", ssid);
     portal->setNVSParam("wifi_pass", pass);
     portal->setNVSParam("hostname", hostname);
+
+    // Set the custom values
+    for (uint32_t i = 0; ;++i) {
+        std::string id;
+        if (!portal->getFormEntryId(i, id)) {
+            break;
+        }
+        std::string value = HTTPParser::urlDecode(portal->getHTTPArg(id.c_str()));
+        portal->setNVSParam(id.c_str(), value);
+    }
 
     delay(1000);
     System::restart();
