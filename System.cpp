@@ -92,7 +92,7 @@ System::restart()
 }
 
 bool
-System::isRestarting() const
+System::isRestarting()
 {
     return false;
 }
@@ -246,7 +246,7 @@ System::restart()
 }    
 
 bool
-System::isRestarting() const
+System::isRestarting()
 {
     return false;
 }
