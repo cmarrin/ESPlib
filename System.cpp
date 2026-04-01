@@ -89,7 +89,13 @@ void
 System::restart()
 {
     ESP.restart();
-}    
+}
+
+bool
+System::isRestarting() const
+{
+    return false;
+}
 
 #elif defined ESP_PLATFORM
 
@@ -239,6 +245,12 @@ System::restart()
     esp_restart();
 }    
 
+bool
+System::isRestarting() const
+{
+    return false;
+}
+
 Ticker::~Ticker()
 {
     stop();
@@ -350,10 +362,20 @@ System::millis()
     return uint32_t(double(clock()) / CLOCKS_PER_SEC * 1000);
 }
 
+static bool _restarting = false;
+
 void
 System::restart()
 {
-    printf("***** RESTART *****\n");
+    _restarting = true;
 }    
+
+bool
+System::isRestarting()
+{
+    bool b = _restarting;
+    _restarting = false;
+    return b;
+}
 
 #endif

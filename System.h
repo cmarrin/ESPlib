@@ -171,6 +171,7 @@ class System
     static uint32_t millis();
     
     static void restart();
+    static bool isRestarting();
     
     static std::string vformat(const char* fmt, va_list);
 
