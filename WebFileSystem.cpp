@@ -504,12 +504,12 @@ WebFileSystem::handleConnect(WiFiPortal* portal)
     std::string pass = HTTPParser::urlDecode(portal->getHTTPArg("password"));
     std::string hostname = HTTPParser::urlDecode(portal->getHTTPArg("hostname"));
     
-    if (!ssid.empty()) {
+    if (ssid.empty()) {
         portal->getNVSParam("wifi_ssid", ssid);
         portal->getNVSParam("wifi_pass", pass);
     }
     
-    if (!hostname.empty()) {
+    if (hostname.empty()) {
         portal->getNVSParam("hostname", hostname);
     }
 
