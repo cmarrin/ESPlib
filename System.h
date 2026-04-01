@@ -77,6 +77,8 @@ class Ticker
 public:
     using callback_t = std::function<void(void)>;
     
+    ~Ticker() { stop(); }
+    
     void once_ms(uint32_t ms, callback_t callback)
     {
         _ms = ms;
