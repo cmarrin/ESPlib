@@ -53,6 +53,7 @@ DAMAGE.
 namespace mil {
 
 static constexpr uint32_t OnDelay = 1; // in ms
+static constexpr uint8_t Brightness = 10; // 1 - 255
 
 class Blinker
 {
@@ -88,7 +89,7 @@ private:
         }
 
         if (_count == 0) {
-            System::setLED(0, 0, 0, 0, 1);
+            System::setLED(0, 0, 0, 0, Brightness);
             System::refreshLEDs(0);
             delay(OnDelay);
             System::setLED(0, 0, 0, 0, 0);
