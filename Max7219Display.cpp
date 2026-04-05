@@ -194,7 +194,7 @@ Max7219Display::refresh()
 {
 #if defined ESP_PLATFORM
     // Write to the display
-    uint8_t* buffer = _matrix.getBuffer();
+    uint8_t* buffer = reinterpret_cast<uint8_t*>(_matrix.getBuffer());
     
     for (int i = 0; i < 32; ++i) {
         uint32_t row = (3 - (i % 4)) * 8 + (i / 4);
