@@ -35,9 +35,9 @@ static max7219_t dev =
 
 using namespace mil;
 
-Max7219Display::Max7219Display(std::function<void()> scrollDone, std::function<void(const uint8_t* buffer)> renderCB)
 	: _matrix(32, 8)
     , _scrollDone(scrollDone)
+Max7219Display::Max7219Display(std::function<void()> scrollDone, std::function<void(const void* buffer)> renderCB)
     , _renderCB(renderCB)
 {
 #if defined ESP_PLATFORM

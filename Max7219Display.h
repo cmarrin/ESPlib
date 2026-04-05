@@ -23,7 +23,7 @@ namespace mil {
 class Max7219Display
 {
 public:
-    Max7219Display(std::function<void()> scrollDone, std::function<void(const uint8_t* buffer)> renderCB);
+    Max7219Display(std::function<void()> scrollDone, std::function<void(const void* buffer)> renderCB);
 
     void clear();
     void setBrightness(uint32_t level);
@@ -53,7 +53,7 @@ private:
     int32_t _scrollW;
     ScrollType _scrollType;
     std::function<void()> _scrollDone;
-    std::function<void(const uint8_t* buffer)> _renderCB;
+    std::function<void(const void* buffer)> _renderCB;
 };
 
 }
