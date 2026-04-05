@@ -50,9 +50,14 @@ namespace mil {
 
 class Graphics {
   public:
-    Graphics(int16_t w, int16_t h);
+    virtual void begin(uint16_t w, uint16_t h);
+    virtual void end() { }
 
-    virtual void drawPixel(int16_t x, int16_t y, uint16_t color) = 0;
+    virtual void drawPixel(int16_t x, int16_t y, uint32_t color) = 0;
+    virtual void* getBuffer() const { return nullptr; }
+    
+    uint32_t rgbToColor(uint8_t r, uint8_t g, uint8_t b);
+    uint32_t hsvToColor(uint16_t h, uint8_t s = 255, uint8_t v = 255);
   
     void setFont(const GFXfont* f = nullptr) { _font = f; }
     void writeChar(uint8_t c);
@@ -77,7 +82,7 @@ class Graphics {
     void getTextBounds(const char* string, int16_t x, int16_t y, int16_t& x1, int16_t& y1, uint16_t& w, uint16_t& h);
     
   protected:
-    void drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg);
+    void drawChar(int16_t x, int16_t y, unsigned char c, uint32_t color, uint32_t bg);
     void charBounds(char c, int16_t& x, int16_t& y, int16_t& minx, int16_t& miny, int16_t& maxx, int16_t& maxy);
 
     int16_t WIDTH = 0;      ///< This is the 'raw' display width - never changes
@@ -97,15 +102,30 @@ class Graphics {
 class GraphicsCanvas1 : public Graphics
 {
   public:
-    GraphicsCanvas1(uint16_t w, uint16_t h);
-    ~GraphicsCanvas1();
+    virtual void begin(uint16_t w, uint16_t h) override;
+    virtual void end() override;
     
-    virtual void drawPixel(int16_t x, int16_t y, uint16_t color) override;
-    void fillScreen(uint16_t color);
-    uint8_t* getBuffer() const { return _buffer; }
+    virtual void drawPixel(int16_t x, int16_t y, uint32_t color) override;
+    void fillScreen(uint32_t color);
+    virtual void* getBuffer() const override{ return _buffer; }
 
   private:
     uint8_t* _buffer;
+};
+
+// A GFX 24 bit RGB canvas context for graphics
+class GraphicsCanvas24 : public Graphics
+{
+  public:
+    virtual void begin(uint16_t w, uint16_t h) override;
+    virtual void end() override;
+    
+    virtual void drawPixel(int16_t x, int16_t y, uint32_t color) override;
+    void fillScreen(uint32_t color);
+    virtual void* getBuffer() const override{ return _buffer; }
+
+  private:
+    uint32_t* _buffer;
 };
 
 }

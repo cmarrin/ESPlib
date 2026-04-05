@@ -13,15 +13,72 @@ All rights reserved.
 
 using namespace mil;
 
-Graphics::Graphics(int16_t w, int16_t h)
-    : WIDTH(w)
-    , HEIGHT(h)
+void
+Graphics::begin(uint16_t w, uint16_t h)
 {
+    WIDTH = w;
+    HEIGHT = h;
     _width = WIDTH;
     _height = HEIGHT;
     _rotation = Rotation::Angle0;
     _cursorY = _cursorX = 0;
     _font = nullptr;
+}
+
+// FIXME: Handle rgb swizzling and gamma
+uint32_t
+Graphics::rgbToColor(uint8_t r, uint8_t g, uint8_t b)
+{
+    return (uint32_t(r) << 16) | (uint32_t(g) << 8) | b;
+}
+
+uint32_t
+Graphics::hsvToColor(uint16_t hue, uint8_t sat, uint8_t val)
+{
+    // From Adafruit_Neopixel library
+    uint8_t r, g, b;
+
+    hue = (hue * 1530L + 32768) / 65536;
+    
+    if (hue < 510) { // Red to Green-1
+        b = 0;
+        if (hue < 255) { //   Red to Yellow-1
+            r = 255;
+            g = hue;       //     g = 0 to 254
+        } else {         //   Yellow to Green-1
+            r = 510 - hue; //     r = 255 to 1
+            g = 255;
+        }
+    } else if (hue < 1020) { // Green to Blue-1
+        r = 0;
+        if (hue < 765) { //   Green to Cyan-1
+            g = 255;
+            b = hue - 510;  //     b = 0 to 254
+        } else {          //   Cyan to Blue-1
+            g = 1020 - hue; //     g = 255 to 1
+            b = 255;
+        }
+    } else if (hue < 1530) { // Blue to Red-1
+        g = 0;
+        if (hue < 1275) { //   Blue to Magenta-1
+            r = hue - 1020; //     r = 0 to 254
+            b = 255;
+        } else { //   Magenta to Red-1
+            r = 255;
+            b = 1530 - hue; //     b = 255 to 1
+        }
+    } else { // Last 0.5 Red (quicker than % operator)
+        r = 255;
+        g = b = 0;
+    }
+
+    // Apply saturation and value to R,G,B, pack into 32-bit result:
+    uint32_t v1 = 1 + val;  // 1 to 256; allows >>8 instead of /255
+    uint16_t s1 = 1 + sat;  // 1 to 256; same reason
+    uint8_t s2 = 255 - sat; // 255 to 0
+    return ((((((r * s1) >> 8) + s2) * v1) & 0xff00) << 8) |
+            (((((g * s1) >> 8) + s2) * v1) & 0xff00) |
+            (((((b * s1) >> 8) + s2) * v1) >> 8);
 }
 
 // TEXT- AND CHARACTER-HANDLING FUNCTIONS ----------------------------------
@@ -50,7 +107,7 @@ Graphics::writeChar(uint8_t c)
 }
 
 void
-Graphics::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg)
+Graphics::drawChar(int16_t x, int16_t y, unsigned char c, uint32_t color, uint32_t bg)
 {
     c -= _font->first;
     GFXglyph* glyph = _font->glyph + c;
@@ -170,9 +227,11 @@ Graphics::getTextBounds(const char *str, int16_t x, int16_t y, int16_t& x1, int1
     }
 }
 
-GraphicsCanvas1::GraphicsCanvas1(uint16_t w, uint16_t h)
-    : Graphics(w, h)
+void
+GraphicsCanvas1::begin(uint16_t w, uint16_t h)
 {
+    Graphics::begin(w, h);
+
     uint16_t bytes = ((w + 7) / 8) * h;
     _buffer = new uint8_t[bytes];
     if (_buffer != nullptr) {
@@ -180,13 +239,15 @@ GraphicsCanvas1::GraphicsCanvas1(uint16_t w, uint16_t h)
     }
 }
 
-GraphicsCanvas1::~GraphicsCanvas1()
+void
+GraphicsCanvas1::end()
 {
     delete [ ] _buffer;
+    _buffer = nullptr;
 }
 
 void
-GraphicsCanvas1::drawPixel(int16_t x, int16_t y, uint16_t color)
+GraphicsCanvas1::drawPixel(int16_t x, int16_t y, uint32_t color)
 {
     if (!_buffer || x < 0 || y < 0 || x >= _width || y >= _height) {
         return;
@@ -227,10 +288,76 @@ GraphicsCanvas1::drawPixel(int16_t x, int16_t y, uint16_t color)
 }
 
 void
-GraphicsCanvas1::fillScreen(uint16_t color)
+GraphicsCanvas1::fillScreen(uint32_t color)
 {
     if (_buffer) {
         uint16_t bytes = ((WIDTH + 7) / 8) * HEIGHT;
         memset(_buffer, color ? 0xff : 0x00, bytes);
+    }
+}
+
+void
+GraphicsCanvas24::begin(uint16_t w, uint16_t h)
+{
+    Graphics::begin(w, h);
+
+    // Allocate the buffer as 32 bit for simplicity
+    _buffer = new uint32_t[w * h];
+    if (_buffer != nullptr) {
+        memset(_buffer, 0, w * h * 4);
+    }
+}
+
+void
+GraphicsCanvas24::end()
+{
+    delete [ ] _buffer;
+    _buffer = nullptr;
+}
+
+void
+GraphicsCanvas24::drawPixel(int16_t x, int16_t y, uint32_t color)
+{
+    if (!_buffer || x < 0 || y < 0 || x >= _width || y >= _height) {
+        return;
+    }
+    
+    if (_flipX) {
+        x = _width - x - 1;
+    }
+    if (_flipY) {
+        y = _height - y - 1;
+    }
+
+    int16_t t;
+    switch (_rotation) {
+        case Rotation::Angle0: break;
+        case Rotation::Angle90:
+            t = x;
+            x = WIDTH - 1 - y;
+            y = t;
+            break;
+        case Rotation::Angle180:
+            x = WIDTH - 1 - x;
+            y = HEIGHT - 1 - y;
+            break;
+        case Rotation::Angle270:
+            t = x;
+            x = y;
+            y = HEIGHT - 1 - t;
+            break;
+    }
+
+    _buffer[y * _width + x] = color;
+}
+
+void
+GraphicsCanvas24::fillScreen(uint32_t color)
+{
+    if (_buffer) {
+        uint16_t bytes = WIDTH  * HEIGHT;
+        for (int i = 0; i < bytes; i++) {
+            _buffer[i] = color;
+        }
     }
 }
