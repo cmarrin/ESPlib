@@ -72,6 +72,8 @@ private:
 //                                   Mac
 //**************************************************************************
 
+#include "Graphics.h"
+
 #include <functional>
 #include <thread>
 #include <atomic>
@@ -232,8 +234,12 @@ class System
         va_end(args);
     }
 
-private:
+  private:
 #ifdef __APPLE__
+  public:
+    static void setRenderCB(std::function<void(const void* buffer)> renderCB);
+    
+  private:
     static constexpr const char* ErrorColor = "";
     static constexpr const char* WarningColor = "";
     static constexpr const char* InfoColor = "";

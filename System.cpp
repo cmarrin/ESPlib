@@ -304,19 +304,42 @@ Ticker::_static_callback(void *arg)
 //                                   Mac
 //**************************************************************************
 
+std::function<void(const void* buffer)> _renderCB;
+GraphicsCanvas24 _canvas;
+
+void
+System::setRenderCB(std::function<void(const void* buffer)> renderCB)
+{
+    _renderCB = renderCB;
+}
+
 void
 System::initLED(uint8_t channel, uint8_t pin, uint32_t numLeds)
 {
+    if (channel == 1) {
+        // This is the GraphicsCanvas24 used for neopixels
+        if (_canvas.getBuffer()) {
+            // Already initialized
+            return;
+        }
+        _canvas.begin(numLeds, 1);
+    }
 }
 
 void
 System::setLED(uint8_t channel, uint32_t index, uint8_t r, uint8_t g, uint8_t b)
 {
+    if (channel == 1 && _canvas.getBuffer() && index < _canvas.width()) {
+        _canvas.drawPixel(index, 0, _canvas.rgbToColor(r, g, b));
+    }
 }
 
 void
 System::refreshLEDs(uint8_t channel)
 {
+    if (_renderCB && channel == 1) {
+        _renderCB(_canvas.getBuffer());
+    }
 }
 
 // Simulate a button
