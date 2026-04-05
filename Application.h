@@ -126,7 +126,6 @@ public:
     Clock* clock() const { return _clock.get(); }
 
 protected:
-    System _system;
     WiFiPortal* _portal;
     WebFileSystem _wfs;
     Shell _shell;
