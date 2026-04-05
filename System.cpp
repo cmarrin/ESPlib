@@ -32,7 +32,7 @@ System::vformat(const char* fmt, va_list args)
 void
 System::initLED(uint8_t channel, uint8_t pin, uint32_t numLEDs)
 {
-    System::gpioSetPinMode(LED_BUILTIN, System::GPIOPinMode::Output);
+    System::gpioSetPinMode(pin, System::GPIOPinMode::Output);
 }
 
 void
@@ -111,20 +111,31 @@ System::isRestarting()
 
 static constexpr int NumLEDChannels = 4;
 
-static led_strip_handle_t ledStrip[NumLEDChannels];
-static bool ledStripInited[NumLEDChannels] = { 0 };
+struct LEDConfig
+{
+    led_strip_handle_t handle;
+    bool isInited;
+    bool isAddressable;
+    uint8_t pin;
+};
+
+static LEDConfig ledStrip[NumLEDChannels] = { 0 };
+
+// Channel 0 is used for the Blinker. It can be addressable
+// or not. The other are always addressable
 
 void
 System::initLED(uint8_t channel, uint8_t pin, uint32_t numLeds)
 {
-    if (HaveAddressableRGBLED) {
-        if (channel >= NumLEDChannels) {
-            return;
-        }
+    if (channel >= NumLEDChannels) {
+        return;
+    }
+    
+    if (channel != 0 || HaveAddressableRGBLED) {
         
-        if (ledStripInited[channel]) {
-            led_strip_del(ledStrip[channel]);
-            ledStripInited[channel] = false;
+        if (ledStrip[channel].isInited) {
+            led_strip_del(ledStrip[channel].handle);
+            ledStrip[channel].isInited = false;
         }
 
         led_strip_config_t strip_config = {
@@ -147,38 +158,39 @@ System::initLED(uint8_t channel, uint8_t pin, uint32_t numLeds)
         };
 
         // LED Strip object handle
-        ESP_ERROR_CHECK(led_strip_new_rmt_device(&strip_config, &rmt_config, &ledStrip[channel]));
-        ledStripInited[channel] = true;
+        ESP_ERROR_CHECK(led_strip_new_rmt_device(&strip_config, &rmt_config, &(ledStrip[channel].handle)));
+        ledStrip[channel].isAddressable = true;
     } else {
-        gpioSetPinMode(LED_BUILTIN, GPIOPinMode::Output);
+        gpioSetPinMode(pin, GPIOPinMode::Output);
+        ledStrip[channel].isAddressable = false;
     }
+    ledStrip[channel].pin = pin;
+    ledStrip[channel].isInited = true;
 }
 
 void
 System::setLED(uint8_t channel, uint32_t index, uint8_t r, uint8_t g, uint8_t b)
 {
-    if (HaveAddressableRGBLED) {
-        if (channel >= NumLEDChannels) {
-            return;
-        }
-        
-        ESP_ERROR_CHECK(led_strip_set_pixel(ledStrip[channel], index, r, g, b));
+    if (channel >= NumLEDChannels || !ledStrip[channel].isInited) {
+        return;
+    }
+    
+    if (ledStrip[channel].isAddressable) {
+        ESP_ERROR_CHECK(led_strip_set_pixel(ledStrip[channel].handle, index, r, g, b));
     } else {
         bool on = r == 0 && g == 0 && b == 0;
-        gpioWritePin(LED_BUILTIN, on);
+        gpioWritePin(ledStrip[channel].pin, on);
     }
 }
 
 void
 System::refreshLEDs(uint8_t channel)
 {
-    if (HaveAddressableRGBLED) {
-        if (channel >= NumLEDChannels) {
-            return;
-        }
-        
-        ESP_ERROR_CHECK(led_strip_refresh(ledStrip[channel]));
+    if (channel >= NumLEDChannels || !ledStrip[channel].isInited || !ledStrip[channel].isAddressable) {
+        return;
     }
+        
+    ESP_ERROR_CHECK(led_strip_refresh(ledStrip[channel].handle));
 }
 
 void
