@@ -35,11 +35,12 @@ static max7219_t dev =
 
 using namespace mil;
 
-	: _matrix(32, 8)
-    , _scrollDone(scrollDone)
 Max7219Display::Max7219Display(std::function<void()> scrollDone, std::function<void(const void* buffer)> renderCB)
+	: _scrollDone(scrollDone)
     , _renderCB(renderCB)
 {
+    _matrix.begin(32, 8);
+    
 #if defined ESP_PLATFORM
     // Configure SPI bus
     spi_bus_config_t cfg =
