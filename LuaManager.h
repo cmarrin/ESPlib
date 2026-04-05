@@ -14,6 +14,7 @@ All rights reserved.
 #include <bitset>
 #include <map>
 #include <condition_variable>
+#include <functional>
 #include <thread>
 
 // Lua Interface
