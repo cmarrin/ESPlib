@@ -29,11 +29,12 @@ All rights reserved.
 // The state machine sends messages to the main app to show information
 // about the current network status.
 
+#pragma once
+
 #include <cassert>
 #include <ctime>
 #include <cstring>
 
-#include "mil.h"
 #include "Clock.h"
 #include "StateMachine.h"
 #include "Blinker.h"

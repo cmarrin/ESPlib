@@ -38,7 +38,6 @@ Contact us at source [at] embeddedadventures.com
 // This version works over i2c
 //
 
-#include <mil.h>
 #include "DSP7S04B.h"
 
 using namespace mil;

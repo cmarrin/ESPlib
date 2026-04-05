@@ -9,8 +9,6 @@ All rights reserved.
 
 #pragma once
 
-#include <mil.h>
-
 #include "Graphics.h"
 #include "System.h"
 

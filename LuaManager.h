@@ -9,8 +9,6 @@ All rights reserved.
 
 #pragma once
 
-#include "mil.h"
-
 #include "lua.hpp"
 
 #include <bitset>

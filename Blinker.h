@@ -37,8 +37,6 @@ DAMAGE.
 
 #pragma once
 
-#include "mil.h"
-
 #include "System.h"
 
 // Blinker class
