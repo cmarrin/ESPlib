@@ -23,6 +23,13 @@ using namespace mil;
 static const char* TAG = "Shell";
 static constexpr int TelnetPort = 23;
 
+Shell::~Shell()
+{
+    _terminating = true;
+    close(_serverSocket);
+    _serverThread.join();
+}
+
 bool
 Shell::begin(Application* app)
 {

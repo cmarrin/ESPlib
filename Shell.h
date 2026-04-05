@@ -28,12 +28,7 @@ class WiFiPortal;
 class Shell
 {
   public:
-    ~Shell()
-    {
-        _terminating = true;
-        close(_serverSocket);
-        _serverThread.join();
-    }
+    ~Shell();
     
     bool begin(Application* app);
     
