@@ -480,10 +480,6 @@ WebFileSystem::handleWiFiSetup(WiFiPortal* portal)
 void
 WebFileSystem::handleConnect(WiFiPortal* portal)
 {
-    // FIXME: read the POST response which is a form-data structure.
-    // Determine the size, alloc a buffer and receive the data. On espidf
-    // receive is done with httpd_req_recv. On mac it is done with a read
-    // of the connection.
     std::string sizeString = portal->getHTTPHeader("Content-Length");
     size_t size = strtol(sizeString.c_str(), nullptr, 10);
     if (size == 0) {

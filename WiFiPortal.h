@@ -191,7 +191,6 @@ public:
 
   private:
     // Param Map
-    // FIXME: We're saving the param info, but not adding it to the web page yet
     struct ParamMapValue { std::string label; uint32_t maxLength; std::string defaultValue; };
     std::map<std::string, ParamMapValue> _paramMap;
 
