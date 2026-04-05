@@ -10,100 +10,147 @@ All rights reserved.
 #include "TimeWeatherServer.h"
 
 #include "HTTPFetchClient.h"
+#include "JsonListener.h"
 #include "JsonStreamingParser.h"
 
 using namespace mil;
 
 static const char* TAG = "TimeWeatherServer";
 
-void TimeWeatherServer::MyJsonListener::key(const std::string& key)
+class MyJsonListener : public JsonListener
 {
-	switch(_state) {
-        default: break;
-		case State::None:
-        if (key == "timestamp") {
-            _state = State::Timestamp;
-        } else if (key == "lat") {
-            _state = State::Latitude;
-        } else if (key == "lon") {
-            _state = State::Longitude;
-        } else if (key == "current") {
-			_state = State::Current;
-		} else if (key == "forecast") {
-			_state = State::Forecast;
-		}
-		break;
-		case State::Current:
-		if (key == "temp_f") {
-			_state = State::CurrentTemp;
-		} else if (key == "condition") {
-			_state = State::Condition;
-		}
-		break;
-		case State::Condition:
-		if (key == "text") {
-			_state = State::ConditionText;
-		}
-		break;
-		case State::Forecast:
-		if (key == "forecastday") {
-			_state = State::ForecastDay;
-		}
-		break;
-		case State::ForecastDay:
-		if (key == "day") {
-			_state = State::Day;
-		}
-		break;
-		case State::Day:
-		if (key == "maxtemp_f") {
-			_state = State::MaxTemp;
-		} else if (key == "mintemp_f") {
-			_state = State::MinTemp;
-		}
-		break;
-	}
-}
+  public:
+    virtual ~MyJsonListener() { }
 
-void TimeWeatherServer::MyJsonListener::value(const std::string& value)
-{
-	switch(_state) {
-        default: break;
-        case State::Timestamp:
-        _currentTime = uint32_t(atol(value.c_str()));
-        _state = State::None;
-        break;
-       case State::Latitude:
-        _latitude = float(atof(value.c_str()));
-        _state = State::None;
-        break;
-      case State::Longitude:
-        _longitude = float(atof(value.c_str()));
-        _state = State::None;
-        break;
-  		case State::ConditionText: 
-		_conditions = value;
-		_state = State::Current;
-		break;
-		case State::CurrentTemp: 
-		_currentTemp = int32_t(std::stof(value) + 0.5);
-		_state = State::Current;
-		break;
-		case State::MinTemp:
-		_lowTemp = int32_t(std::stof(value) + 0.5);
-		_state = State::Day;
-		break;
-		case State::MaxTemp: 
-		_highTemp = int32_t(std::stof(value) + 0.5);
-		_state = State::Day;
-		break;
-	}
-}
+    virtual void key(const std::string& key) override
+    {
+        switch(_state) {
+            default: break;
+            case State::None:
+            if (key == "timestamp") {
+                _state = State::Timestamp;
+            } else if (key == "lat") {
+                _state = State::Latitude;
+            } else if (key == "lon") {
+                _state = State::Longitude;
+            } else if (key == "current") {
+                _state = State::Current;
+            } else if (key == "forecast") {
+                _state = State::Forecast;
+            }
+            break;
+            case State::Current:
+            if (key == "temp_f") {
+                _state = State::CurrentTemp;
+            } else if (key == "condition") {
+                _state = State::Condition;
+            }
+            break;
+            case State::Condition:
+            if (key == "text") {
+                _state = State::ConditionText;
+            }
+            break;
+            case State::Forecast:
+            if (key == "forecastday") {
+                _state = State::ForecastDay;
+            }
+            break;
+            case State::ForecastDay:
+            if (key == "day") {
+                _state = State::Day;
+            }
+            break;
+            case State::Day:
+            if (key == "maxtemp_f") {
+                _state = State::MaxTemp;
+            } else if (key == "mintemp_f") {
+                _state = State::MinTemp;
+            }
+            break;
+        }
+    }
+    
+    virtual void value(const std::string& value) override
+    {
+        switch(_state) {
+            default: break;
+            case State::Timestamp:
+            _currentTime = uint32_t(atol(value.c_str()));
+            _state = State::None;
+            break;
+           case State::Latitude:
+            _latitude = float(atof(value.c_str()));
+            _state = State::None;
+            break;
+          case State::Longitude:
+            _longitude = float(atof(value.c_str()));
+            _state = State::None;
+            break;
+            case State::ConditionText: 
+            _conditions = value;
+            _state = State::Current;
+            break;
+            case State::CurrentTemp: 
+            _currentTemp = int32_t(std::stof(value) + 0.5);
+            _state = State::Current;
+            break;
+            case State::MinTemp:
+            _lowTemp = int32_t(std::stof(value) + 0.5);
+            _state = State::Day;
+            break;
+            case State::MaxTemp: 
+            _highTemp = int32_t(std::stof(value) + 0.5);
+            _state = State::Day;
+            break;
+        }
+    }
+    
+    virtual void whitespace(char c) override { }
+    virtual void startDocument() override { }
+    virtual void endArray() override { }
+    virtual void endObject() override { _state = State::None; }
+    virtual void endDocument() override { }
+    virtual void startArray() override { }
+    virtual void startObject() override { }
 
-void TimeWeatherServer::MyJsonListener::endObject()
-{
-	_state = State::None;
-}
+    std::optional<uint32_t> currentTime() const { return _currentTime; }
+    std::optional<float> latitude() const { return _latitude; }
+    std::optional<float> longitude() const { return _longitude; }
+    std::optional<int32_t> currentTemp() const { return _currentTemp; }
+    std::optional<int32_t> lowTemp() const { return _lowTemp; }
+    std::optional<int32_t> highTemp() const { return _highTemp; }
+    std::optional<std::string> conditions() const { return _conditions; }
+    std::optional<std::string> timeZone() const { return _timeZone; }
+
+  private:
+    enum class State {
+        None,
+        Timestamp,
+        Latitude,
+        Longitude,
+        Current,
+            CurrentTemp,
+            Condition,
+                ConditionText,
+        Forecast,
+            ForecastDay,
+                Day,
+                    MinTemp,	
+                    MaxTemp,	
+    };
+
+    State _state = State::None;
+
+    std::optional<uint32_t> _currentTime = std::nullopt;
+    std::optional<float> _longitude = std::nullopt;
+    std::optional<float> _latitude = std::nullopt;
+    std::optional<int32_t> _currentTemp = 0;
+    std::optional<int32_t> _lowTemp = 0;
+    std::optional<int32_t> _highTemp = 0;
+    std::optional<std::string> _conditions;
+    std::optional<std::string> _timeZone;
+};
 
 bool
 TimeWeatherServer::update(const char* zipCode)
