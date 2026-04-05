@@ -31,6 +31,8 @@ All rights reserved.
 
 #include <functional>
 
+namespace mil {
+
 class Ticker
 {
 public:
@@ -62,6 +64,8 @@ private:
     esp_timer_handle_t _timer = nullptr;
 };
 
+}
+
 #else // Mac
 
 //**************************************************************************
@@ -71,6 +75,8 @@ private:
 #include <functional>
 #include <thread>
 #include <atomic>
+
+namespace mil {
 
 class Ticker
 {
@@ -138,6 +144,8 @@ private:
     std::mutex _mutex;
     bool _run = false;
 };
+
+}
 
 #endif
 

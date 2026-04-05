@@ -9,6 +9,8 @@ All rights reserved.
 
 #include "System.h"
 
+using namespace mil;
+
 // Logging
 std::string
 System::vformat(const char* fmt, va_list args)

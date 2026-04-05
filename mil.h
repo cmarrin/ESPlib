@@ -69,6 +69,8 @@ DAMAGE.
 #include "sdkconfig.h"
 #endif
 
+namespace mil {
+
 #if defined CONFIG_BLINK_LED_STRIP
 static constexpr bool HaveAddressableRGBLED = true;
 #else
@@ -96,8 +98,6 @@ static constexpr int LED_BUILTIN = 0;
 #define NEO_GRB 0
 #define NEO_KHZ800 0
 
-namespace mil {
-
 class DSP7S04B
 {
 public:
@@ -123,4 +123,3 @@ private:
 }
 
 #endif
-
