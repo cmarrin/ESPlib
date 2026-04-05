@@ -221,7 +221,7 @@ HTTPParser::parseMultipart(size_t size, const std::string& boundary, HandlerCB r
                     _uploadTotalSize += _uploadCurrentSize;
                     if (requestCB) {
                         requestCB();
-                        delay(10);
+                        System::delay(10);
                     }
                     index = 0;
                     

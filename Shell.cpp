@@ -257,7 +257,7 @@ Shell::tcpServerTask()
         // FIXME: ultimately we need to keep all the client threads in a list
         // along with their socket so we can kill them and stuff like that
         
-        delay(20);
+        System::delay(20);
     }  
 }
 

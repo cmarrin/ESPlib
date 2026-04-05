@@ -63,7 +63,7 @@ void
 MacWiFiPortal::process()
 {
     _server.process();
-    delay(1);
+    System::delay(1);
 }
 
 std::string

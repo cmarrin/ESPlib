@@ -106,7 +106,7 @@ static int luaDelay(lua_State* L)
 {
     lua_Number ms = lua_tonumber(L, -1);
     
-    delay(ms);
+    System::delay(ms);
     return 0;
 }
 

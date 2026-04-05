@@ -148,8 +148,8 @@ private:
 class System
 {
   public:
-    // NeoPixel
-    
+    static void delay(uint32_t ms) { useconds_t us = useconds_t(ms) * 1000; usleep(us); }
+
     enum class GPIOPinMode { Output, Input, InputWithPullup };
     static void gpioSetPinMode(uint8_t pin, GPIOPinMode mode);
     static void gpioWritePin(uint8_t pin, bool state);

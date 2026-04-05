@@ -117,14 +117,14 @@ WebFileSystem::begin(Application* app, bool format)
     app->addHTTPHandler("/restart", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p)
     {
         p->sendHTTPResponse(200, "text/html", makeRedirectPage("<h1>Restarting...</h1>").c_str());
-        delay(2000);
+        System::delay(2000);
         System::restart();
     });
     
     app->addHTTPHandler("/reset", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p)
     {
         p->sendHTTPResponse(200, "text/html", makeRedirectPage("<h1>Credentials Cleared</h1><p>The device will restart and enter provisioning mode.</p>").c_str());
-        delay(2000);
+        System::delay(2000);
         p->eraseNVSParam("wifi_ssid");
         p->eraseNVSParam("wifi_pass");
         System::restart();
@@ -532,7 +532,7 @@ WebFileSystem::handleConnect(WiFiPortal* portal)
         portal->setNVSParam(id.c_str(), value);
     }
 
-    delay(1000);
+    System::delay(1000);
     System::restart();
 }
 

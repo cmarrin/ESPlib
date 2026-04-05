@@ -91,7 +91,7 @@ private:
         if (_count == 0) {
             System::setLED(0, 0, 0, 0, Brightness);
             System::refreshLEDs(0);
-            delay(OnDelay);
+            System::delay(OnDelay);
             System::setLED(0, 0, 0, 0, 0);
             System::refreshLEDs(0);
         }

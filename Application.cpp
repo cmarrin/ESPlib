@@ -119,7 +119,7 @@ Application::startNetwork()
 	_enableNetwork = true;
 	_blinker.setRate(ConnectedRate);
  
-	delay(500);
+	System::delay(500);
  
     _portal->addStaticHTTPHandler("/fs", "/");
     
@@ -205,7 +205,7 @@ void Application::startStateMachine()
 			, { Input::LongPress, State::Restart }
 		}
 	);
-	_stateMachine.addState(State::Restart, [this] { restart(); delay(1000); }, State::Connecting);
+	_stateMachine.addState(State::Restart, [this] { restart(); System::delay(1000); }, State::Connecting);
 	
 	// Network reset
 	_stateMachine.addState(State::AskResetNetwork, [this] { showString(Message::AskResetNetwork); },

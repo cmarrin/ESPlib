@@ -93,8 +93,6 @@ static constexpr int LED_BUILTIN = CONFIG_BLINK_LED_GPIO_NUMBER;
 static constexpr int LED_BUILTIN = 0;
 #endif
 
-static inline void delay(uint32_t ms) { useconds_t us = useconds_t(ms) * 1000; usleep(us); }
-
 #define NEO_GRB 0
 #define NEO_KHZ800 0
 
