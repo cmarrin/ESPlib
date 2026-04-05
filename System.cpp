@@ -381,10 +381,15 @@ System::readAnalog(uint8_t pin)
 	return 0;
 }
 
+std::chrono::steady_clock::time_point _startTime;
+
 uint32_t
 System::millis()
 {
-    return uint32_t(double(clock()) / CLOCKS_PER_SEC * 1000);
+    if (_startTime == std::chrono::steady_clock::time_point()) {
+        _startTime = std::chrono::steady_clock::now();
+    }
+    return ((std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now() - _startTime)).count()) * 1000;
 }
 
 static bool _restarting = false;
