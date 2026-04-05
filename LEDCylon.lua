@@ -100,7 +100,7 @@ function setColorHSV(a, i, h, s, v)
 	setColorRGB(a, i, hsvToRGB(h, s, v))
 end
 
-initLED(1, 11, 60)
+initLED(1, 11, NUM_LEDS)
 
 fadeAll(leds, 0)
 
