@@ -228,7 +228,7 @@ IDFWiFiPortal::autoConnect(char const *apName, char const *apPassword)
         ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
         ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
         ESP_ERROR_CHECK(esp_wifi_start());
-        delay(2000);
+        System::delay(2000);
 
         EventBits_t bits = xEventGroupWaitBits(_eventGroup,
                                                WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
@@ -584,7 +584,7 @@ IDFWiFiPortal::startProvisioning()
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &wifi_config));
     ESP_ERROR_CHECK(esp_wifi_start());
-    delay(2000);
+    System::delay(2000);
 
     esp_netif_ip_info_t ip_info;
     esp_netif_get_ip_info(esp_netif_get_handle_from_ifkey("WIFI_AP_DEF"), &ip_info);
@@ -607,7 +607,7 @@ IDFWiFiPortal::startProvisioning()
 
     // Don't ever return. When we get valid credentials we will reset and try again
     while (true) {
-        vTaskDelay(pdMS_TO_TICKS(100));
+        System::delay(100);
     }
 }
 
@@ -812,7 +812,7 @@ IDFWiFiPortal::otaUpdate()
         } else if (httpUploadTotalSize() > 0) { // Check if any bytes were received
             sendHTTPResponse(200, "text/html", "<h1>OTA Update Successful. Restarting...</h1>");
             System::logI(TAG, "Reply sent: Successful ota update, restarting...\n");
-            delay(2000);
+            System::delay(2000);
             System::restart();
         } else {
             // This might happen if the file was empty or write failed early
