@@ -4,7 +4,7 @@
 -- This tests turning all LEDs on and then changing only 
 -- one LED on each loop
 
-local NUM_LEDS = 60
+local NUM_LEDS = 8
 local leds = { n = NUM_LEDS * 3 }
 
 -- send a to led strip
@@ -39,7 +39,7 @@ function setColor(a, i, r, g, b)
 	a[index + 2] = b
 end
 
-initLED(1, 11, 60)
+initLED(1, 10, NUM_LEDS)
 setColorAll(leds, 0, 0, 5)
 refresh(leds)
 

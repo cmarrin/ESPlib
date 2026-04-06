@@ -24,6 +24,9 @@ for j = 1, 4, 1 do
 	down = not down
 end
 
+__print__("LEDTest finished\n")
+
+--[[
 -- Test the 60 LED strip
 initLED(1, 11, 60)
 
@@ -63,4 +66,4 @@ for j = 1, 4, 1 do
 	end
 	down = not down
 end
-
+--]]
