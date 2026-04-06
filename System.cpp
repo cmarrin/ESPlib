@@ -117,6 +117,7 @@ struct LEDConfig
     bool isInited;
     bool isAddressable;
     uint8_t pin;
+    uint32_t numLEDs;
 };
 
 static LEDConfig ledStrip[NumLEDChannels] = { 0 };
@@ -125,7 +126,7 @@ static LEDConfig ledStrip[NumLEDChannels] = { 0 };
 // or not. The other are always addressable
 
 void
-System::initLED(uint8_t channel, uint8_t pin, uint32_t numLeds)
+System::initLED(uint8_t channel, uint8_t pin, uint32_t numLEDs)
 {
     if (channel >= NumLEDChannels) {
         return;
@@ -140,7 +141,7 @@ System::initLED(uint8_t channel, uint8_t pin, uint32_t numLeds)
 
         led_strip_config_t strip_config = {
             .strip_gpio_num = pin,
-            .max_leds = numLeds,
+            .max_leds = numLEDs,
             .led_model = LED_MODEL_WS2812,
             .color_component_format = LED_STRIP_COLOR_COMPONENT_FMT_GRB,
             .flags = { .invert_out = false },
@@ -166,6 +167,7 @@ System::initLED(uint8_t channel, uint8_t pin, uint32_t numLeds)
     }
     ledStrip[channel].pin = pin;
     ledStrip[channel].isInited = true;
+    ledStrip[channel].numLEDs = numLEDs;
 }
 
 void
@@ -175,7 +177,7 @@ System::setLED(uint8_t channel, uint32_t index, uint8_t r, uint8_t g, uint8_t b)
         return;
     }
     
-    if (ledStrip[channel].isAddressable) {
+    if (ledStrip[channel].isAddressable && index < ledStrip[channel].numLEDs) {
         ESP_ERROR_CHECK(led_strip_set_pixel(ledStrip[channel].handle, index, r, g, b));
     } else {
         bool on = r == 0 && g == 0 && b == 0;
@@ -326,7 +328,7 @@ System::setRenderCB(std::function<void(const void* buffer)> renderCB)
 }
 
 void
-System::initLED(uint8_t channel, uint8_t pin, uint32_t numLeds)
+System::initLED(uint8_t channel, uint8_t pin, uint32_t numLEDs)
 {
     if (channel == 1) {
         // This is the GraphicsCanvas24 used for neopixels
@@ -334,7 +336,7 @@ System::initLED(uint8_t channel, uint8_t pin, uint32_t numLeds)
             // Already initialized
             return;
         }
-        _canvas.begin(numLeds, 1);
+        _canvas.begin(numLEDs, 1);
     }
 }
 
