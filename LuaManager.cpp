@@ -17,6 +17,8 @@ All rights reserved.
 
 using namespace mil;
 
+static const char* TAG = "LuaManager";
+
 std::map<uint8_t, std::shared_ptr<LuaManager>> LuaManager::_managers;
 std::bitset<LuaManager::MaxIds> LuaManager::_usedIds;
 std::mutex LuaManager::_mutex;
@@ -46,6 +48,8 @@ LuaManager::LuaManager(PrintCB printCB)
 {
     _id = nextId();
     
+    System::logI(TAG, "creating manager with id=%d\n", int(_id));
+    
     _luaState = luaL_newstate();
     luaL_openlibs(_luaState);
     luaL_requiref(_luaState, "wfs", luaopen_wfs, 1);
@@ -57,6 +61,7 @@ LuaManager::LuaManager(PrintCB printCB)
 
 LuaManager::~LuaManager()
 {
+    System::logI(TAG, "deleting manager with id=%d\n", int(_id));
     clearId(_id);
     lua_close(_luaState);
 }
@@ -121,7 +126,6 @@ LuaManager::execute(const std::string& filename, int cpl, std::vector<std::strin
                     std::function<void(const char*, size_t)> printCB)
 {
     std::shared_ptr<LuaManager> mgr = std::make_shared<LuaManager>(printCB);
-    std::unique_lock<std::mutex> lk(_mutex);
     
     mgr->_command = filename;
 
@@ -164,12 +168,15 @@ LuaManager::execute(const std::string& filename, int cpl, std::vector<std::strin
     _managers.emplace(mgr->_id, mgr);
     mgr->_thread = std::thread([mgr, filename]() { mgr->commandThread(filename); });
 
-    // Wait until the thread gets going
-    if (mgr->_status == Status::NotStarted) {
+    // Wait for the thread to finish
+    {
+        std::unique_lock<std::mutex> lk(_mutex);
         mgr->_statusCond.wait(lk);
     }
-    
-    return mgr;
+    mgr->finish();
+
+    // For now we only return when the thread is done, so return a null mgr
+    return nullptr;
 }
 
 std::shared_ptr<LuaManager>
@@ -181,7 +188,6 @@ LuaManager::getManager(uint8_t id)
         return nullptr;
     }
     
-    // Grab a pointer to the mgr so it sticks around until we return
     return it->second;
 }
 
@@ -211,9 +217,6 @@ LuaManager::commandThread(const std::string& filename)
     {
         std::unique_lock<std::mutex> lk(_mutex);
         _status = Status::Running;
-    
-        // Notify main thread in case it's waiting for things to get going
-        _statusCond.notify_all();
     }
 
     std::string realPath = WebFileSystem::realPath(filename.c_str());
