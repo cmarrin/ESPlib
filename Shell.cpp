@@ -187,7 +187,7 @@ Shell::handleShellCommand(const std::string& incomingCmd, PrintCB printCB)
     std::string path = makeCmdPath("/sys/", cmd.c_str(), ".lua");
     
     if (!WebFileSystem::exists(path.c_str())) {
-        std::string s = path + ": command not found";
+        std::string s = path + ": command not found\n";
         LuaManager::print(printCB, s.c_str(), s.length());
         return;
     }
