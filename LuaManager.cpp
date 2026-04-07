@@ -34,11 +34,7 @@ LuaManager::printHandler(lua_State *L)
         const char* s = lua_tostring(L, i);
         if (s) {
             size_t size = strlen(s);
-            if (_printCB) {
-                _printCB(s, size);
-            } else {
-                printf("%s", s);
-            }
+            print(_printCB, s, size);
         }
     }
 }
@@ -204,11 +200,7 @@ LuaManager::commandThread(const std::string& filename)
         _status = Status::Done;
         _errorString = lua_tostring(_luaState, -1);
         std::string err = " Lua file '" + command() + "' failed to run: " + _errorString + "\n";
-        if (_printCB) {
-            _printCB(err.c_str(), err.length());
-        } else {
-            printf("%s", err.c_str());
-        }
+        print(_printCB, err.c_str(), err.length());
     } else {
         std::unique_lock<std::mutex> lk(_mutex);
         _status = Status::Done;

@@ -104,7 +104,7 @@ Shell::showDirs(PrintCB printCB) const
     for (int i = int(_dirs.size() - 1); i >= 0; --i) {
         dirs += _dirs[i] + " ";
     };
-    printCB((dirs + "\n").c_str(), dirs.length() + 1);
+    LuaManager::print(printCB, (dirs + "\n").c_str(), dirs.length() + 1);
 }
 
 void
@@ -119,7 +119,7 @@ Shell::handleShellCommand(const std::string& incomingCmd, PrintCB printCB)
     }
     if (cmd.empty()) {
         std::string s = "no command supplied";
-        printCB(s.c_str(), s.length());
+        LuaManager::print(printCB, s.c_str(), s.length());
         return;
     }
 
@@ -136,12 +136,12 @@ Shell::handleShellCommand(const std::string& incomingCmd, PrintCB printCB)
         std::string date(" ");
         date += _app->clock() ? _app->clock()->prettyTime().c_str() : "no clock";
         date += "\n";
-        printCB(date.c_str(), date.length());
+        LuaManager::print(printCB, date.c_str(), date.length());
         return;
     }
     
     if (cmd == "pwd") {
-        printCB((_dirs.back() + "\n").c_str(), _dirs.back().length() + 1);
+        LuaManager::print(printCB, (_dirs.back() + "\n").c_str(), _dirs.back().length() + 1);
         return;
     }
     
@@ -152,7 +152,7 @@ Shell::handleShellCommand(const std::string& incomingCmd, PrintCB printCB)
 
         if (!WebFileSystem::exists(cwd.c_str())) {
             std::string response = cmd + ": " + cwd + ": No such file or directory\n";
-            printCB(response.c_str(), response.length());
+            LuaManager::print(printCB, response.c_str(), response.length());
         } else {
             if (cmd == "cd") {
                 _dirs.pop_back();
@@ -169,7 +169,7 @@ Shell::handleShellCommand(const std::string& incomingCmd, PrintCB printCB)
     if (cmd == "popd") {
         if (_dirs.size() == 1) {
             std::string s = "popd: directory stack empty\n";
-            printCB(s.c_str(), s.length());
+            LuaManager::print(printCB, s.c_str(), s.length());
         } else {
             _dirs.pop_back();
             WebFileSystem::setCWD(_dirs.back().c_str());
@@ -188,7 +188,7 @@ Shell::handleShellCommand(const std::string& incomingCmd, PrintCB printCB)
     
     if (!WebFileSystem::exists(path.c_str())) {
         std::string s = path + ": command not found";
-        printCB(s.c_str(), s.length());
+        LuaManager::print(printCB, s.c_str(), s.length());
         return;
     }
 

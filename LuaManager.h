@@ -54,6 +54,15 @@ public:
     
     static std::shared_ptr<LuaManager> getManager(uint8_t id);
     
+    static void print(PrintCB printCB, const char* buf, size_t size)
+    {
+        if (printCB) {
+            printCB(buf, size);
+        } else {
+            printf("%s", buf);
+        }
+    }
+
 private:
     static constexpr int MaxIds = 32;
     
