@@ -56,8 +56,8 @@ class Graphics {
     virtual void drawPixel(int16_t x, int16_t y, uint32_t color) = 0;
     virtual void* getBuffer() const { return nullptr; }
     
-    uint32_t rgbToColor(uint8_t r, uint8_t g, uint8_t b);
-    uint32_t hsvToColor(uint16_t h, uint8_t s = 255, uint8_t v = 255);
+    static uint32_t rgbToColor(uint8_t r, uint8_t g, uint8_t b);
+    static void hsvToRGB(uint8_t& r, uint8_t& g, uint8_t& b, uint16_t h, uint8_t s = 255, uint8_t v = 255);
   
     void setFont(const GFXfont* f = nullptr) { _font = f; }
     void writeChar(uint8_t c);

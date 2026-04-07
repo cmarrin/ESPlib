@@ -32,12 +32,10 @@ Graphics::rgbToColor(uint8_t r, uint8_t g, uint8_t b)
     return (uint32_t(r) << 16) | (uint32_t(g) << 8) | b;
 }
 
-uint32_t
-Graphics::hsvToColor(uint16_t hue, uint8_t sat, uint8_t val)
+void
+Graphics::hsvToRGB(uint8_t& r, uint8_t& g, uint8_t& b, uint16_t hue, uint8_t sat, uint8_t val)
 {
     // From Adafruit_Neopixel library
-    uint8_t r, g, b;
-
     hue = (hue * 1530L + 32768) / 65536;
     
     if (hue < 510) { // Red to Green-1
@@ -76,9 +74,9 @@ Graphics::hsvToColor(uint16_t hue, uint8_t sat, uint8_t val)
     uint32_t v1 = 1 + val;  // 1 to 256; allows >>8 instead of /255
     uint16_t s1 = 1 + sat;  // 1 to 256; same reason
     uint8_t s2 = 255 - sat; // 255 to 0
-    return ((((((r * s1) >> 8) + s2) * v1) & 0xff00) << 8) |
-            (((((g * s1) >> 8) + s2) * v1) & 0xff00) |
-            (((((b * s1) >> 8) + s2) * v1) >> 8);
+    r  = ((((r * s1) >> 8) + s2) * v1) >> 8;
+    g  = ((((g * s1) >> 8) + s2) * v1) >> 8;
+    b  = ((((b * s1) >> 8) + s2) * v1) >> 8;
 }
 
 // TEXT- AND CHARACTER-HANDLING FUNCTIONS ----------------------------------
