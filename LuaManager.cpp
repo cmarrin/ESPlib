@@ -62,8 +62,6 @@ LuaManager::LuaManager(PrintCB printCB)
 LuaManager::~LuaManager()
 {
     System::logI(TAG, "deleting manager with id=%d\n", int(_id));
-    clearId(_id);
-    lua_close(_luaState);
 }
 
 static int printLua(lua_State *L)
@@ -167,16 +165,8 @@ LuaManager::execute(const std::string& filename, int cpl, std::vector<std::strin
 
     _managers.emplace(mgr->_id, mgr);
     mgr->_thread = std::thread([mgr, filename]() { mgr->commandThread(filename); });
-
-    // Wait for the thread to finish
-    {
-        std::unique_lock<std::mutex> lk(_mutex);
-        mgr->_statusCond.wait(lk);
-    }
-    mgr->finish();
-
-    // For now we only return when the thread is done, so return a null mgr
-    return nullptr;
+    mgr->_thread.detach();
+    return mgr;
 }
 
 std::shared_ptr<LuaManager>
@@ -192,23 +182,12 @@ LuaManager::getManager(uint8_t id)
 }
 
 void
-LuaManager::finish()
+LuaManager::waitForFinish()
 {
-    // Wait for the thread to exit
-    _thread.join();
-    
-    // Tear it all down
     std::unique_lock<std::mutex> lk(_mutex);
-
-    const auto& it = _managers.find(_id);
-    if (it == _managers.end()) {
-        // Uh oh. Manager is gone. For now just leave
-        return;
+    if (_status != Status::Done) {
+        _statusCond.wait(lk);
     }
-    
-    // Grab a pointer to the mgr so it sticks around until we return
-    std::shared_ptr<LuaManager> mgr = it->second;
-    _managers.erase(it);
 }
 
 void
@@ -222,7 +201,7 @@ LuaManager::commandThread(const std::string& filename)
     std::string realPath = WebFileSystem::realPath(filename.c_str());
     if (luaL_dofile(_luaState, realPath.c_str()) != LUA_OK) {
         std::unique_lock<std::mutex> lk(_mutex);
-        _status = Status::Error;
+        _status = Status::Done;
         _errorString = lua_tostring(_luaState, -1);
         std::string err = " Lua file '" + command() + "' failed to run: " + _errorString + "\n";
         if (_printCB) {
@@ -237,4 +216,14 @@ LuaManager::commandThread(const std::string& filename)
     }
     
     _statusCond.notify_all();
+
+    std::unique_lock<std::mutex> lk(_mutex);
+
+    clearId(_id);
+    lua_close(_luaState);
+
+    const auto& it = _managers.find(_id);
+    if (it != _managers.end()) {
+        _managers.erase(it);
+    }
 }

@@ -27,14 +27,15 @@ class LuaManager
 {
 public:
     using PrintHandlerCB = std::function<void(const char* s, size_t size)>;
-    enum class Status { NotStarted, Running, PrintBufferFull, WaitingForInput, Done, Error };
+    enum class Status { NotStarted, Running, WaitingForInput, Done };
     
     LuaManager(PrintCB printCB);
     ~LuaManager();
     
-    static std::shared_ptr<LuaManager> execute(const std::string& filename, int cpl, std::vector<std::string> args,
-                                                std::function<void(const char*, size_t)> printCB);
-    void finish();
+    static std::shared_ptr<LuaManager> execute(const std::string& filename, int cpl = 0, std::vector<std::string> args = std::vector<std::string>(),
+                                                std::function<void(const char*, size_t)> printCB = nullptr);
+                                                
+    void waitForFinish();
     
     const char* toString(int idx) const { return lua_tostring(_luaState, idx); }
     
@@ -43,7 +44,7 @@ public:
     bool isDone() const
     {
         std::unique_lock<std::mutex> lk(_mutex);
-        return _status == Status::Done || _status == Status::Error;
+        return _status == Status::Done;
     }
     
     const std::string& errorString() const { return _errorString; }
