@@ -8,8 +8,8 @@ initLED(1, 10, 8)
 local down = false
 
 for j = 1, 4, 1 do
-	for i = 0, 50, 1 do
-		local brightness = down and (50 - i) or i
+	for i = 0, 200, 4 do
+		local brightness = down and (200 - i) or i
 		setLED(1, 0, 0, 0, brightness)
 		setLED(1, 1, 0, brightness, 0)
 		setLED(1, 2, 0, brightness, brightness)
