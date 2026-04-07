@@ -12,7 +12,6 @@ All rights reserved.
 #include "Application.h"
 #include "HTTPParser.h"
 
-#include <filesystem>
 #include "lua.hpp"
 
 using namespace mil;
@@ -639,4 +638,15 @@ WebFileSystem::lexicallyNormal(const std::string& path)
     dest += "/" + path.substr(cur);
     
     return dest;
+}
+
+std::string
+WebFileSystem::extension(const std::string& path)
+{
+    std::string suffix;
+    size_t pos = path.rfind('.');
+    if (pos != std::string::npos) {
+        suffix = path.substr(pos + 1);
+    }
+    return suffix;
 }
