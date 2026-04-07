@@ -300,6 +300,11 @@ void
 GraphicsCanvas24::begin(uint16_t w, uint16_t h)
 {
     Graphics::begin(w, h);
+    
+    if (_buffer) {
+        delete [ ] _buffer;
+        _buffer = nullptr;
+    }
 
     // Allocate the buffer as 32 bit for simplicity
     _buffer = new uint32_t[w * h];

@@ -11,8 +11,9 @@ All rights reserved.
 
 #include "HTTPParser.h"
 
+#include "WebFileSystem.h"
+
 #include <cstring>
-#include <filesystem>
 
 using namespace mil;
 
@@ -379,12 +380,7 @@ SuffixToTypeEntry suffixToTypeArray[ ] = {
 std::string
 HTTPParser::suffixToMimeType(const std::string& filename)
 {
-    std::string suffix;
-    size_t pos = filename.rfind('.');
-    if (pos != std::string::npos) {
-        suffix = filename.substr(pos + 1);
-    }
-    
+    std::string suffix = WebFileSystem::extension(filename);
     for_each(suffix.begin(), suffix.end(), [](char& c) {
         c = std::tolower(c);
     });
