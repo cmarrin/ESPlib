@@ -645,7 +645,7 @@ WebFileSystem::extension(const std::string& path)
     std::string suffix;
     size_t pos = path.rfind('.');
     if (pos != std::string::npos) {
-        suffix = path.substr(pos + 1);
+        suffix = path.data() + pos + 1;
     }
     return suffix;
 }
