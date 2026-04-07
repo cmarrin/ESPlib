@@ -72,8 +72,6 @@ private:
 //                                   Mac
 //**************************************************************************
 
-#include "Graphics.h"
-
 #include <functional>
 #include <thread>
 #include <atomic>
@@ -154,6 +152,12 @@ private:
 //**************************************************************************
 //                            Generic System Class
 //**************************************************************************
+
+#include "Graphics.h"
+
+namespace mil {
+
+using RenderCB = std::function<void(const Graphics* gfx)>;
 
 class System
 {
@@ -244,7 +248,7 @@ class System
   private:
 #ifdef __APPLE__
   public:
-    static void setRenderCB(std::function<void(const void* buffer)> renderCB);
+    static void setRenderCB(RenderCB renderCB);
     
   private:
     static constexpr const char* ErrorColor = "";
@@ -267,3 +271,5 @@ static void log(char type, const char* color, const char* tag, const char* fmt, 
         printf("%s%c %s: %s%s\n", color, type, tag, vformat(fmt, args).c_str(), NoColor);
     }
 };
+
+}

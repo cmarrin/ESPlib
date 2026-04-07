@@ -35,7 +35,7 @@ static max7219_t dev =
 
 using namespace mil;
 
-Max7219Display::Max7219Display(std::function<void()> scrollDone, std::function<void(const void* buffer)> renderCB)
+Max7219Display::Max7219Display(std::function<void()> scrollDone, RenderCB renderCB)
 	: _scrollDone(scrollDone)
     , _renderCB(renderCB)
 {
@@ -202,7 +202,7 @@ Max7219Display::refresh()
     }
 #else
     if (_renderCB) {
-        _renderCB(_matrix.getBuffer());
+        _renderCB(&_matrix);
     }
 #endif
 }
