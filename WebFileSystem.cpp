@@ -230,7 +230,6 @@ WebFileSystem::begin(Application* app, bool format)
         std::string path;
         if (prepareFile(p, path)) {
             std::string suffix = extension(path);
-printf("********** run: path='%s', suffix='%s'\n", path.c_str(), suffix.c_str());
             if (suffix != "lua" && suffix != "luac") {
                 p->sendHTTPResponse(404, "text/html", "<center><h1>File cannot be run</h1><h2>Can only run .lua and .luac files</h2></center>");
                 return true;
