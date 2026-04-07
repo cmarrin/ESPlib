@@ -123,6 +123,8 @@ public:
     {
         _portal->addHTTPHandler(endpoint, WiFiPortal::HTTPMethod::Get, h);
     }
+
+    void handleShellCommand(const std::string& incomingCmd, PrintCB printCB = nullptr) { _shell.handleShellCommand(incomingCmd, printCB); }
     
     Clock* clock() const { return _clock.get(); }
 

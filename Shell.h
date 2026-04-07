@@ -32,8 +32,9 @@ class Shell
     
     bool begin(Application* app);
     
-  private:
     void handleShellCommand(const std::string& cmd, PrintCB);
+
+  private:
     void tcpServerTask();
     void tcpClientTask(int sock);
     void telnetHandler(int sock, telnet_t* telnet, telnet_event_t* event);
