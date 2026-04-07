@@ -231,7 +231,8 @@ WebFileSystem::begin(Application* app, bool format)
         if (prepareFile(p, path)) {
             std::string suffix = extension(path);
             if (suffix != "lua" && suffix != "luac") {
-                p->sendHTTPResponse(404, "text/html", "<center><h1>File cannot be run</h1><h2>Can only run .lua and .luac files</h2></center>");
+                p->sendHTTPResponse(404, "text/html",
+                    makeRedirectPage("<center><h1>File cannot be run</h1><h2>Can only run .lua and .luac files</h2></center>").c_str());
                 return true;
             }
             
@@ -239,7 +240,7 @@ WebFileSystem::begin(Application* app, bool format)
             std::string response = "Running Lua file '" + path + "'";
             System::logI(TAG, response.c_str());
             response = "<center><h1>" + response + "</h1></center>";
-            p->sendHTTPResponse(200, "text/html", response.c_str());
+            p->sendHTTPResponse(200, "text/html", makeRedirectPage(response.c_str()).c_str());
         }
         return true;
     });
