@@ -124,7 +124,11 @@ public:
         _portal->addHTTPHandler(endpoint, WiFiPortal::HTTPMethod::Get, h);
     }
 
-    void handleShellCommand(const std::string& incomingCmd, PrintCB printCB = nullptr) { _shell.handleShellCommand(incomingCmd, printCB); }
+    int8_t handleShellCommand(const std::string& incomingCmd, PrintCB printCB = nullptr)
+    {
+        return _shell.handleShellCommand(incomingCmd, printCB);
+    }
+    void terminateShellCommand(int8_t id) { LuaManager::terminate(id); }
     
     Clock* clock() const { return _clock.get(); }
 

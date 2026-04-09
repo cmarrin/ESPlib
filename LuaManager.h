@@ -32,7 +32,7 @@ public:
     LuaManager(PrintCB printCB);
     ~LuaManager();
     
-    static std::shared_ptr<LuaManager> execute(const std::string& filename, int cpl = 0, std::vector<std::string> args = std::vector<std::string>(),
+    static int8_t execute(const std::string& filename, int cpl = 0, std::vector<std::string> args = std::vector<std::string>(),
                                                 std::function<void(const char*, size_t)> printCB = nullptr);
                                                 
     void waitForFinish();
@@ -62,6 +62,8 @@ public:
             printf("%s", buf);
         }
     }
+    
+    static void terminate(int8_t id);
 
 private:
     static constexpr int MaxIds = 32;
@@ -88,7 +90,7 @@ private:
     static std::bitset<MaxIds> _usedIds;
     static std::mutex _mutex;
     
-    uint8_t _id;
+    int8_t _id;
     Status _status = Status::NotStarted;
     std::string _errorString;
     

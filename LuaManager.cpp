@@ -115,7 +115,7 @@ static int luaMillis(lua_State* L)
     return 1;
 }
 
-std::shared_ptr<LuaManager>
+int8_t
 LuaManager::execute(const std::string& filename, int cpl, std::vector<std::string> args,
                     std::function<void(const char*, size_t)> printCB)
 {
@@ -162,7 +162,23 @@ LuaManager::execute(const std::string& filename, int cpl, std::vector<std::strin
     _managers.emplace(mgr->_id, mgr);
     mgr->_thread = std::thread([mgr, filename]() { mgr->commandThread(filename); });
     mgr->_thread.detach();
-    return mgr;
+    return mgr->_id;
+}
+
+void
+LuaManager::terminate(int8_t id)
+{
+    std::unique_lock<std::mutex> lk(_mutex);
+
+    const auto& it = _managers.find(id);
+    if (it == _managers.end()) {
+        // Uh oh. Manager is gone. For now just leave
+        System::logE(TAG, "termination failed, id %d does not exist", int(id));
+        return;
+    }
+    
+    System::logI(TAG, "terminating Lua program with id %d", int(id));
+    lua_stop(it->second->_luaState);
 }
 
 std::shared_ptr<LuaManager>

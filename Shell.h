@@ -32,7 +32,8 @@ class Shell
     
     bool begin(Application* app);
     
-    void handleShellCommand(const std::string& cmd, PrintCB);
+    int8_t handleShellCommand(const std::string& cmd, PrintCB);
+    void terminateShellCommand(int8_t id) { LuaManager::terminate(id); }
 
   private:
     void tcpServerTask();

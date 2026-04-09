@@ -107,7 +107,7 @@ Shell::showDirs(PrintCB printCB) const
     LuaManager::print(printCB, (dirs + "\n").c_str(), dirs.length() + 1);
 }
 
-void
+int8_t
 Shell::handleShellCommand(const std::string& incomingCmd, PrintCB printCB)
 {
     std::string cmd = incomingCmd;
@@ -120,7 +120,7 @@ Shell::handleShellCommand(const std::string& incomingCmd, PrintCB printCB)
     if (cmd.empty()) {
         std::string s = "no command supplied";
         LuaManager::print(printCB, s.c_str(), s.length());
-        return;
+        return -1;
     }
 
     // Make sure the WebFileSystem has the right cwd
@@ -137,12 +137,12 @@ Shell::handleShellCommand(const std::string& incomingCmd, PrintCB printCB)
         date += _app->clock() ? _app->clock()->prettyTime().c_str() : "no clock";
         date += "\n";
         LuaManager::print(printCB, date.c_str(), date.length());
-        return;
+        return -1;
     }
     
     if (cmd == "pwd") {
         LuaManager::print(printCB, (_dirs.back() + "\n").c_str(), _dirs.back().length() + 1);
-        return;
+        return -1;
     }
     
     if (cmd == "cd" || cmd == "pushd") {
@@ -163,7 +163,7 @@ Shell::handleShellCommand(const std::string& incomingCmd, PrintCB printCB)
                 showDirs(printCB);
             }
         }
-        return;
+        return -1;
     }
     
     if (cmd == "popd") {
@@ -175,12 +175,12 @@ Shell::handleShellCommand(const std::string& incomingCmd, PrintCB printCB)
             WebFileSystem::setCWD(_dirs.back().c_str());
             showDirs(printCB);
         }
-        return;
+        return -1;
     }
     
     if (cmd == "dirs") {
         showDirs(printCB);
-        return;
+        return -1;
     }
     
     // FIXME: for now all commands are .lua in the sys folder
@@ -189,11 +189,11 @@ Shell::handleShellCommand(const std::string& incomingCmd, PrintCB printCB)
     if (!WebFileSystem::exists(path.c_str())) {
         std::string s = path + ": command not found\n";
         LuaManager::print(printCB, s.c_str(), s.length());
-        return;
+        return -1;
     }
 
     // Execute command
-    LuaManager::execute(path.c_str(), _termChars, args, printCB);
+    return LuaManager::execute(path.c_str(), _termChars, args, printCB);
 }
 
 void
