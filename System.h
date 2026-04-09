@@ -176,10 +176,10 @@ class System
     // pin, an addressable RGB LED, or a strip of addressable LEDs.
     static void initLED(uint8_t channel, uint8_t pin, uint32_t numLEDs);
     static void setLED(uint8_t channel, uint32_t index, uint8_t r, uint8_t g, uint8_t b);
-    static void setAllLEDs(uint8_t channel, uint32_t count, uint8_t r, uint8_t g, uint8_t b)
+    static void setLEDs(uint8_t channel, uint32_t startIndex, uint32_t count, uint8_t r, uint8_t g, uint8_t b)
     {
         for (int i = 0; i < count; ++i) {
-            setLED(channel, i, r, g, b);
+            setLED(channel, startIndex + i, r, g, b);
         }
     }
     

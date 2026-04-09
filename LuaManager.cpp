@@ -93,6 +93,34 @@ static int luaSetLED(lua_State* L)
     return 0;
 }
 
+static int luaSetLEDs(lua_State* L)
+{
+    lua_Number b = lua_tonumber(L, -1);
+    lua_Number g = lua_tonumber(L, -2);
+    lua_Number r = lua_tonumber(L, -3);
+    lua_Number count = lua_tonumber(L, -4);
+    lua_Number startIndex = lua_tonumber(L, -5);
+    lua_Number channel = lua_tonumber(L, -6);
+    
+    System::setLEDs(channel, startIndex, count, r, g, b);
+    return 0;
+}
+
+static int luaHSVToRGB(lua_State* L)
+{
+    lua_Number v = std::max(0, std::min(255, int(lua_tonumber(L, -1))));
+    lua_Number s = std::max(0, std::min(255, int(lua_tonumber(L, -2))));
+    lua_Number h = std::max(0, std::min(255, int(lua_tonumber(L, -3))));
+
+    uint8_t r, g, b;
+    Graphics::hsvToRGB(r, g, b, h * 256, s, v);
+    
+    lua_pushnumber(L, r);
+    lua_pushnumber(L, g);
+    lua_pushnumber(L, b);
+    return 3;
+}
+
 static int luaRefreshLEDs(lua_State* L)
 {
     lua_Number channel = lua_tonumber(L, -1);
@@ -139,6 +167,10 @@ LuaManager::execute(const std::string& filename, int cpl, std::vector<std::strin
     lua_setglobal(mgr->_luaState, "initLED");
     lua_pushcfunction(mgr->_luaState, luaSetLED);
     lua_setglobal(mgr->_luaState, "setLED");
+    lua_pushcfunction(mgr->_luaState, luaSetLEDs);
+    lua_setglobal(mgr->_luaState, "setLEDs");
+    lua_pushcfunction(mgr->_luaState, luaHSVToRGB);
+    lua_setglobal(mgr->_luaState, "hsvToRGB");
     lua_pushcfunction(mgr->_luaState, luaRefreshLEDs);
     lua_setglobal(mgr->_luaState, "refreshLEDs");
     lua_pushcfunction(mgr->_luaState, luaDelay);
