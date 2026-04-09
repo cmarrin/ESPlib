@@ -178,6 +178,9 @@ System::setLED(uint8_t channel, uint32_t index, uint8_t r, uint8_t g, uint8_t b)
     }
     
     if (ledStrip[channel].isAddressable && index < ledStrip[channel].numLEDs) {
+        r = Graphics::gamma(r);
+        g = Graphics::gamma(g);
+        b = Graphics::gamma(b);
         ESP_ERROR_CHECK(led_strip_set_pixel(ledStrip[channel].handle, index, r, g, b));
     } else {
         bool on = r == 0 && g == 0 && b == 0;
