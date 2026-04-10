@@ -51,7 +51,7 @@ DAMAGE.
 namespace mil {
 
 static constexpr uint32_t OnDelay = 1; // in ms
-static constexpr uint8_t Brightness = 10; // 1 - 255
+static constexpr uint8_t Brightness = 50; // 1 - 255
 
 class Blinker
 {
