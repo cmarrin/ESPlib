@@ -296,6 +296,13 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		490799812F89AC6600BBEE73 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		4956130C2F4D187400A665A8 /* include */ = {
 			isa = PBXGroup;
 			children = (
@@ -597,6 +604,10 @@
 			productRefGroup = 49E65B022E9C36F800D3C6C5 /* Products */;
 			projectDirPath = "";
 			projectReferences = (
+				{
+					ProductGroup = 490799812F89AC6600BBEE73 /* Products */;
+					ProjectRef = 4934EB132F0B50460054B78E /* lua.xcodeproj */;
+				},
 				{
 					ProductGroup = 490799782F89ABEA00BBEE73 /* Products */;
 					ProjectRef = 490799772F89ABEA00BBEE73 /* lua.xcodeproj */;
