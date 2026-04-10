@@ -183,8 +183,8 @@ System::setLED(uint8_t channel, uint32_t index, uint8_t r, uint8_t g, uint8_t b)
         b = Graphics::gamma(b);
         ESP_ERROR_CHECK(led_strip_set_pixel(ledStrip[channel].handle, index, r, g, b));
     } else {
-        bool on = r == 0 && g == 0 && b == 0;
-        gpioWritePin(ledStrip[channel].pin, on);
+        bool off = r == 0 && g == 0 && b == 0;
+        gpioWritePin(ledStrip[channel].pin, !off);
     }
 }
 
