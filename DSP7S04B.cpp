@@ -229,13 +229,17 @@ DSP7S04B::setBrightness(uint8_t level)
 
 void DSP7S04B::refresh()
 {
-    uint8_t buf[9] = { uint8_t(I2CCmd::SetRaw) };
+    uint8_t buf[4] = { uint8_t(I2CCmd::SetRaw) };
     uint8_t* b = reinterpret_cast<uint8_t*>(_canvas.getBuffer());
-    memcpy(buf + 1, b, 8);
-    buf[1] = 0xff;
-    esp_err_t result = i2c_master_transmit(display_dev_handle, buf, sizeof(buf), -1);
-    if (result != 0) {
-        System::logE(TAG, "Error sending raw data to display (%d)", int(result));
+    for (uint8_t i = 0; i < 4; ++i) {
+        buf[1] = i;
+        buf[2] = b[i * 2 + 1];
+        buf[3] = b[i * 2];
+
+        esp_err_t result = i2c_master_transmit(display_dev_handle, buf, sizeof(buf), -1);
+        if (result != 0) {
+            System::logE(TAG, "Error sending raw data to display (%d)", int(result));
+        }
     }
 }
 
