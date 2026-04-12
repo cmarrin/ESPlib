@@ -138,6 +138,7 @@ DSP7S04B::DSP7S04B(RenderCB renderCB) :_renderCB(renderCB)
 {
     // The canvas has 2 bytes for each digit, starting from the left
     _canvas.begin(8, 1);
+    System::logI(TAG, "Starting DSP7S04B");
     
 #if defined ESP_PLATFORM
     i2c_master_bus_config_t bus_config;
