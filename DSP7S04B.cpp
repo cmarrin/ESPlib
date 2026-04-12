@@ -136,7 +136,6 @@ static const uint8_t SevenSegmentASCII[96] = {
 
 DSP7S04B::DSP7S04B(RenderCB renderCB) :_renderCB(renderCB)
 {
-printf("******** DSP7S04B: init\n");
     // The canvas has 2 bytes for each digit, starting from the left
     _canvas.begin(8, 1);
     
@@ -161,7 +160,6 @@ printf("******** DSP7S04B: init\n");
     };
 
     ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus_handle, &dev_config, &display_dev_handle));
-printf("******** DSP7S04B: init complete\n");
 
 #endif
 }
@@ -221,18 +219,15 @@ DSP7S04B::clearDisplay()
 void
 DSP7S04B::setBrightness(uint8_t level)
 {
-printf("******** DSP7S04B:setBrightness enter %d\n", int(level));
     uint8_t buf[2] = { uint8_t(I2CCmd::SetBrightness), level };
     esp_err_t result = i2c_master_transmit(display_dev_handle, buf, sizeof(buf), -1);
     if (result != 0) {
         System::logE(TAG, "Error setting display brightness (%d)", int(result));
     }
-printf("******** DSP7S04B:setBrightness leave\n");
 }
 
 void DSP7S04B::refresh()
 {
-printf("******** DSP7S04B:refresh enter\n");
     uint8_t buf[9] = { uint8_t(I2CCmd::SetRaw) };
     uint8_t* b = reinterpret_cast<uint8_t*>(_canvas.getBuffer());
     memcpy(buf + 1, b, 8);
@@ -241,7 +236,6 @@ printf("******** DSP7S04B:refresh enter\n");
     if (result != 0) {
         System::logE(TAG, "Error sending raw data to display (%d)", int(result));
     }
-printf("******** DSP7S04B:refresh leave\n");
 }
 
 #else
