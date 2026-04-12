@@ -34,44 +34,46 @@ Contact us at source [at] embeddedadventures.com
 */
 
 //
-// A library for accessing the DSP-7204H 7 segment 4 digit display (with colon) from Embedded Adventures
-// This version works over i2c
+// This code implements the interface for the Embedded Adventures 4 digit
+// clock display over i2c. The interface is here:
 //
+//  https://www.embeddedadventures.com/datasheets/DSP-7S04B_hw_v3_doc_v1.pdf
+//
+// Display is written to in raw mode. That way we can write to a GraphicsCanvas1
+// and then transfer to the display all at once. This allows us to simulate
+// on the Mac
 
-#pragma once 
+#pragma once
 
-#include <Wire.h>
-
-#define EA_DSP7S04_ADDR_DEFAULT 0x32
-
-#define MODE_ON 		1
-#define MODE_OFF 		0
-#define CMD_DOT 		0x03
-#define CMD_COLON 		0x04
-#define CMD_PRINT 		0x01
-#define CMD_TEST_MODE 	0x00
-#define CMD_RAW 		0x02
-#define CMD_CLEAR 		0x05
-#define CMD_LEVEL 		0x06
+#include "Graphics.h"
+#include "System.h"
 
 namespace mil {
 
-    class DSP7S04B
-    {
-    public:
-        DSP7S04B(uint8_t addr = EA_DSP7S04_ADDR_DEFAULT) : _addr(addr) { }
-        
-        void print(const char* str);				// print a string on the display
-        void setRaw(uint8_t pos, uint16_t data);	// set segments directly
-        void setDot(uint8_t pos, bool on);			// turn a dot (0-3) on or off
-        void setColon(bool on) { _colon = on; }		// turn colon on or off
-        void setTestMode(bool on);					// turn on or off test mode (pass MODE_ON or MODE_OFF)
-        void clearDisplay(void);					// clear entire display
-        void setBrightness(uint8_t level);			// set brightness 0-dull 255-bright
+class DSP7S04B
+{
+public:
+    DSP7S04B(RenderCB renderCB);
+    
+    void begin();
+    
+    void print(const char* str);
+    void clearDisplay(void);
+    void setDot(uint8_t pos, bool on);
+    void setColon(bool on);
 
-    private: 
-        uint8_t _addr;
-        bool _colon = false;   
-    };
+    // Platform specific
+    void setBrightness(uint8_t level);
+    void refresh();
+
+private: 
+    GraphicsCanvas1 _canvas;
+    
+    // Raw format. Each digit is 2 bytes.
+    // Upper byte is DP, G, F, E, D, C, B, A
+    // Lower byte is all 0, except the rightmost digit which has the colon in the LSB
+    
+    RenderCB _renderCB;
+};
 
 }

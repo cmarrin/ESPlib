@@ -95,31 +95,6 @@ static constexpr int LED_BUILTIN = CONFIG_BLINK_LED_GPIO_NUMBER;
 static constexpr int LED_BUILTIN = 0;
 #endif
 
-#define NEO_GRB 0
-#define NEO_KHZ800 0
-
-class DSP7S04B
-{
-public:
-    void setDot(uint8_t pos, bool on) { if (on) { printf("Dot set\n"); } }
-    void setColon(bool on) { _colon = on; }
-    void clearDisplay(void) { }
-    void setBrightness(uint8_t b) { printf("*** Brightness set to %d\n", (int) b); }
-
-    void print(const char* str)
-    {
-        if (_colon) {
-            printf("%c%c:%c%c\n", str[0], str[1], str[2], str[3]);
-        } else {
-            printf("%s\n", str);
-        }
-    }
-      
-private: 
-     bool _colon = false;
- 
-};
-
 }
 
 #endif
