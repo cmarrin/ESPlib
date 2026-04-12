@@ -22,6 +22,7 @@
 		4968BAE62F19CAE00038B8A9 /* HTTPParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4968BAE52F19CAD40038B8A9 /* HTTPParser.h */; };
 		4968BAE82F19CAEB0038B8A9 /* HTTPParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4968BAE72F19CAE90038B8A9 /* HTTPParser.cpp */; };
 		496D0E292F4A92FB005772FD /* libcurl.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 496D0E282F4A92FB005772FD /* libcurl.tbd */; };
+		497554F52F8B167B004BED08 /* DSP7S04B.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B6D2E9C3A7600D3C6C5 /* DSP7S04B.cpp */; };
 		49D723E72F329F270057DE87 /* LuaWFS.h in Headers */ = {isa = PBXBuildFile; fileRef = 49D723E62F329F1D0057DE87 /* LuaWFS.h */; };
 		49D723EA2F329FFC0057DE87 /* LuaWFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49D723E82F329F2D0057DE87 /* LuaWFS.cpp */; };
 		49DBBCDD2F5B546B001930A0 /* libtelnet.h in Headers */ = {isa = PBXBuildFile; fileRef = 49DBBCDB2F5B546B001930A0 /* libtelnet.h */; };
@@ -372,6 +373,13 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		4975429F2F89C56E004BED08 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		49D3729B2F65D7D90047CAC6 /* main */ = {
 			isa = PBXGroup;
 			children = (
@@ -598,6 +606,10 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
+					ProductGroup = 4975429F2F89C56E004BED08 /* Products */;
+					ProjectRef = 4934EB132F0B50460054B78E /* lua.xcodeproj */;
+				},
+				{
 					ProductGroup = 490799782F89ABEA00BBEE73 /* Products */;
 					ProjectRef = 490799772F89ABEA00BBEE73 /* lua.xcodeproj */;
 				},
@@ -668,6 +680,7 @@
 				49E65BAA2E9C3A7600D3C6C5 /* TimeWeatherServer.cpp in Sources */,
 				4968BAE82F19CAEB0038B8A9 /* HTTPParser.cpp in Sources */,
 				49E65BAD2E9C3A7600D3C6C5 /* LittleFSShim.cpp in Sources */,
+				497554F52F8B167B004BED08 /* DSP7S04B.cpp in Sources */,
 				49E65BAE2E9C3A7600D3C6C5 /* BrightnessManager.cpp in Sources */,
 				49E65BAF2E9C3A7600D3C6C5 /* WebFileSystem.cpp in Sources */,
 				492744442E9DBF6F00AF8FA1 /* MacWebServer.cpp in Sources */,
