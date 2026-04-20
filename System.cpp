@@ -223,7 +223,6 @@ System::setButtonDown(bool down)
 {
 }
 
-static constexpr adc_channel_t ADCChannel = ADC_CHANNEL_1;
 static adc_oneshot_unit_handle_t adcHandle;
 
 void 
@@ -237,14 +236,14 @@ System::initAnalog(int pin)
         .atten = ADC_ATTEN_DB_12,
         .bitwidth = ADC_BITWIDTH_DEFAULT,
     };
-    ESP_ERROR_CHECK(adc_oneshot_config_channel(adcHandle, ADCChannel, &config));
+    ESP_ERROR_CHECK(adc_oneshot_config_channel(adcHandle, adc_channel_t(pin), &config));
 }
 
 uint32_t
 System::readAnalog(uint8_t pin)
 {
     int raw;
-    ESP_ERROR_CHECK(adc_oneshot_read(adcHandle, ADCChannel, &raw));
+    ESP_ERROR_CHECK(adc_oneshot_read(adcHandle, adc_channel_t(pin), &raw));
     if (raw < 0) {
         raw = 0;
     }
