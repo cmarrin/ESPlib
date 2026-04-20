@@ -7,7 +7,7 @@
  *
  * ------------------------------------------------------------------------
  *
- * Copyright (c) 2010-2023, Salvatore Sanfilippo <antirez at gmail dot com>
+ * Copyright (c) 2010-2014, Salvatore Sanfilippo <antirez at gmail dot com>
  * Copyright (c) 2010-2013, Pieter Noordhuis <pcnoordhuis at gmail dot com>
  *
  * All rights reserved.
@@ -43,55 +43,17 @@
 extern "C" {
 #endif
 
-#include <stddef.h> /* For size_t. */
-
-extern char *linenoiseEditMore;
-
-/* The linenoiseState structure represents the state during line editing.
- * We pass this state to functions implementing specific editing
- * functionalities. */
- 
- // CFM: Replaced in and out fileno's with callbacks for read and write
- 
- typedef int (*IOCB)(const char* buf, size_t size, void* userData);
- 
-struct linenoiseState {
-    IOCB readCB;
-    IOCB writeCB;
-    void* ioUserData;
-    int in_completion;  /* The user pressed TAB and we are now in completion
-                         * mode, so input is handled by completeLine(). */
-    size_t completion_idx; /* Index of next completion to propose. */
-    char *buf;          /* Edited line buffer. */
-    size_t buflen;      /* Edited line buffer size. */
-    const char *prompt; /* Prompt to display. */
-    size_t plen;        /* Prompt length. */
-    size_t pos;         /* Current cursor position. */
-    size_t oldpos;      /* Previous refresh cursor position. */
-    size_t len;         /* Current edited line length. */
-    size_t cols;        /* Number of columns in terminal. */
-    size_t oldrows;     /* Rows used by last refrehsed line (multiline mode) */
-    size_t oldrpos;        /* Cursor row from last refresh (for multiline clearing). */
-    int history_index;  /* The history index we are currently editing. */
-};
+#include <sys/types.h>
+#include <unistd.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
 typedef struct linenoiseCompletions {
   size_t len;
   char **cvec;
 } linenoiseCompletions;
 
-/* Non blocking API. */
-int linenoiseEditStart(struct linenoiseState *l, char *buf, size_t buflen, const char *prompt, size_t cols);
-char *linenoiseEditFeed(struct linenoiseState *l);
-void linenoiseEditStop(struct linenoiseState *l);
-void linenoiseHide(struct linenoiseState *l);
-void linenoiseShow(struct linenoiseState *l);
-
-/* Blocking API. */
-char *linenoise(const char *prompt, size_t cols);
-void linenoiseFree(void *ptr);
-
-/* Completion API. */
 typedef void(linenoiseCompletionCallback)(const char *, linenoiseCompletions *);
 typedef char*(linenoiseHintsCallback)(const char *, int *color, int *bold);
 typedef void(linenoiseFreeHintsCallback)(void *);
@@ -100,17 +62,25 @@ void linenoiseSetHintsCallback(linenoiseHintsCallback *);
 void linenoiseSetFreeHintsCallback(linenoiseFreeHintsCallback *);
 void linenoiseAddCompletion(linenoiseCompletions *, const char *);
 
-/* History API. */
+int linenoiseProbe(void);
+char *linenoise(const char *prompt);
+void linenoiseFree(void *ptr);
 int linenoiseHistoryAdd(const char *line);
 int linenoiseHistorySetMaxLen(int len);
 int linenoiseHistorySave(const char *filename);
 int linenoiseHistoryLoad(const char *filename);
-
-/* Other utilities. */
+void linenoiseHistoryFree(void);
 void linenoiseClearScreen(void);
 void linenoiseSetMultiLine(int ml);
-void linenoiseMaskModeEnable(void);
-void linenoiseMaskModeDisable(void);
+void linenoiseSetDumbMode(int set);
+bool linenoiseIsDumbMode(void);
+void linenoisePrintKeyCodes(void);
+void linenoiseAllowEmpty(bool);
+int linenoiseSetMaxLineLen(size_t len);
+
+typedef ssize_t (*linenoise_read_bytes_fn)(int, void*, size_t);
+void linenoiseSetReadFunction(linenoise_read_bytes_fn read_fn);
+void linenoiseSetReadCharacteristics(void);
 
 #ifdef __cplusplus
 }
