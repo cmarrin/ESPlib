@@ -7,7 +7,7 @@
  *
  * ------------------------------------------------------------------------
  *
- * Copyright (c) 2010-2014, Salvatore Sanfilippo <antirez at gmail dot com>
+ * Copyright (c) 2010-2023, Salvatore Sanfilippo <antirez at gmail dot com>
  * Copyright (c) 2010-2013, Pieter Noordhuis <pcnoordhuis at gmail dot com>
  *
  * All rights reserved.
@@ -36,54 +36,99 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __LINENOISE_H
-#define __LINENOISE_H
+#pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "mil.h"
 
-#include <sys/types.h>
-#include <unistd.h>
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
+namespace mil {
 
-typedef struct linenoiseCompletions {
-  size_t len;
-  char **cvec;
-} linenoiseCompletions;
+class LineNoise
+{
+  public:
+    struct Completions
+    {
+        size_t len;
+        char **cvec;
+    };
 
-typedef void(linenoiseCompletionCallback)(const char *, linenoiseCompletions *);
-typedef char*(linenoiseHintsCallback)(const char *, int *color, int *bold);
-typedef void(linenoiseFreeHintsCallback)(void *);
-void linenoiseSetCompletionCallback(linenoiseCompletionCallback *);
-void linenoiseSetHintsCallback(linenoiseHintsCallback *);
-void linenoiseSetFreeHintsCallback(linenoiseFreeHintsCallback *);
-void linenoiseAddCompletion(linenoiseCompletions *, const char *);
+    /* The State structure represents the state during line editing.
+     * We pass this state to functions implementing specific editing
+     * functionalities. */
+    struct State {
+        int in_completion;  /* The user pressed TAB and we are now in completion
+                             * mode, so input is handled by completeLine(). */
+        size_t completion_idx; /* Index of next completion to propose. */
+        int ifd;            /* Terminal stdin file descriptor. */
+        int ofd;            /* Terminal stdout file descriptor. */
+        char *buf;          /* Edited line buffer. */
+        size_t buflen;      /* Edited line buffer size. */
+        const char *prompt; /* Prompt to display. */
+        size_t plen;        /* Prompt length. */
+        size_t pos;         /* Current cursor position. */
+        size_t oldpos;      /* Previous refresh cursor position. */
+        size_t len;         /* Current edited line length. */
+        size_t cols;        /* Number of columns in terminal. */
+        size_t oldrows;     /* Rows used by last refrehsed line (multiline mode) */
+        int oldrpos;        /* Cursor row from last refresh (for multiline clearing). */
+        int history_index;  /* The history index we are currently editing. */
+    };
 
-int linenoiseProbe(void);
-char *linenoise(const char *prompt);
-void linenoiseFree(void *ptr);
-int linenoiseHistoryAdd(const char *line);
-int linenoiseHistorySetMaxLen(int len);
-int linenoiseHistorySave(const char *filename);
-int linenoiseHistoryLoad(const char *filename);
-void linenoiseHistoryFree(void);
-void linenoiseClearScreen(void);
-void linenoiseSetMultiLine(int ml);
-void linenoiseSetDumbMode(int set);
-bool linenoiseIsDumbMode(void);
-void linenoisePrintKeyCodes(void);
-void linenoiseAllowEmpty(bool);
-int linenoiseSetMaxLineLen(size_t len);
+    using CompletionCB = std::function<void(const char*, Completions*)>;
+    using HintsCB = std::function<char*(const char*, int *color, int *bold)>;
+    using FreeHintsCB = std::function<void(void*)>;
 
-typedef ssize_t (*linenoise_read_bytes_fn)(int, void*, size_t);
-void linenoiseSetReadFunction(linenoise_read_bytes_fn read_fn);
-void linenoiseSetReadCharacteristics(void);
+    LineNoise() { }
+    ~LineNoise() { }
+  
+    /* Non blocking API. */
+    int editStart(State*, int stdin_fd, int stdout_fd, char *buf, size_t buflen, const char *prompt);
+    char* editFeed(State*);
+    void editStop(State*);
+    void hide(State*);
+    void show(State*);
 
-#ifdef __cplusplus
+    /* Blocking API. */
+    char *linenoise(const char *prompt);
+    void linenoiseFree(void *ptr);
+
+    // CFM - Called when finished with this instance of linenoise
+    void linenoiseFinish(struct linenoiseState*);
+
+    /* Completion API. */
+    void linenoiseSetCompletionCallback(linenoiseCompletionCallback *);
+    void linenoiseSetHintsCallback(linenoiseHintsCallback *);
+    void linenoiseSetFreeHintsCallback(linenoiseFreeHintsCallback *);
+    void linenoiseAddCompletion(linenoiseCompletions *, const char *);
+
+    /* History API. */
+    int linenoiseHistoryAdd(const char *line);
+    int linenoiseHistorySetMaxLen(int len);
+    int linenoiseHistorySave(const char *filename);
+    int linenoiseHistoryLoad(const char *filename);
+
+    /* Other utilities. */
+    void linenoiseClearScreen(void);
+    void linenoiseSetMultiLine(int ml);
+    void linenoisePrintKeyCodes(void);
+    void linenoiseMaskModeEnable(void);
+    void linenoiseMaskModeDisable(void);
+
+  private:
+    static constexpr uint32_t DefaultHistoryMaxLen = 100;
+    static constexpr uint32_t MaxLine = 4096; // FIXME: This is way, way too big
+
+    CompletionCB _completionCB;
+    HintsCB _hintsCB;
+    FreeHintsCB _freeHintsCB;
+
+    void refreshLineWithCompletion(State*, Completions*, int flags);
+    void refreshLineWithFlags(State *, int flags);
+
+    bool _maskMode = false; /* Show "***" instead of input. For passwords. */
+    bool _mlMode = false;  /* Multi line mode. Default is single line. */
+    uint32_t _historyMaxLen = DefaultHistoryMaxLen;
+    uint32_t _historyLen = 0;
+    char** _history = NULL; // FIXME: how do we get rid of this?
+};
+
 }
-#endif
-
-#endif /* __LINENOISE_H */

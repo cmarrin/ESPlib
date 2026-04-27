@@ -23,7 +23,6 @@
 		4968BAE82F19CAEB0038B8A9 /* HTTPParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4968BAE72F19CAE90038B8A9 /* HTTPParser.cpp */; };
 		496D0E292F4A92FB005772FD /* libcurl.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 496D0E282F4A92FB005772FD /* libcurl.tbd */; };
 		497554F52F8B167B004BED08 /* DSP7S04B.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E65B6D2E9C3A7600D3C6C5 /* DSP7S04B.cpp */; };
-		49B9C0D92F96BF6700E04A28 /* linenoise.c in Sources */ = {isa = PBXBuildFile; fileRef = 49B9C0D82F96BF6700E04A28 /* linenoise.c */; };
 		49B9C0DA2F96BF6700E04A28 /* linenoise.h in Headers */ = {isa = PBXBuildFile; fileRef = 49B9C0D72F96BF6700E04A28 /* linenoise.h */; };
 		49D723E72F329F270057DE87 /* LuaWFS.h in Headers */ = {isa = PBXBuildFile; fileRef = 49D723E62F329F1D0057DE87 /* LuaWFS.h */; };
 		49D723EA2F329FFC0057DE87 /* LuaWFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49D723E82F329F2D0057DE87 /* LuaWFS.cpp */; };
@@ -159,7 +158,7 @@
 		4968BAE72F19CAE90038B8A9 /* HTTPParser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = HTTPParser.cpp; path = ../HTTPParser.cpp; sourceTree = "<group>"; };
 		496D0E282F4A92FB005772FD /* libcurl.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libcurl.tbd; path = usr/lib/libcurl.tbd; sourceTree = SDKROOT; };
 		49B9C0D72F96BF6700E04A28 /* linenoise.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = linenoise.h; path = ../linenoise.h; sourceTree = SOURCE_ROOT; };
-		49B9C0D82F96BF6700E04A28 /* linenoise.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = linenoise.c; path = ../linenoise.c; sourceTree = SOURCE_ROOT; };
+		49B9C0D82F96BF6700E04A28 /* linenoise.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = linenoise.cpp; path = ../linenoise.cpp; sourceTree = SOURCE_ROOT; };
 		49D3664C2F64C56F0047CAC6 /* sdkconfig.defaults */ = {isa = PBXFileReference; lastKnownFileType = text; path = sdkconfig.defaults; sourceTree = "<group>"; };
 		49D372972F65D7D90047CAC6 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		49D372982F65D7D90047CAC6 /* idf_component.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = idf_component.yml; sourceTree = "<group>"; };
@@ -440,7 +439,7 @@
 				49DBBCDB2F5B546B001930A0 /* libtelnet.h */,
 				49DBBCDC2F5B546B001930A0 /* libtelnet.c */,
 				49B9C0D72F96BF6700E04A28 /* linenoise.h */,
-				49B9C0D82F96BF6700E04A28 /* linenoise.c */,
+				49B9C0D82F96BF6700E04A28 /* linenoise.cpp */,
 				49E65B7C2E9C3A7600D3C6C5 /* LittleFSShim.h */,
 				49E65B7D2E9C3A7600D3C6C5 /* LittleFSShim.cpp */,
 				491673D92EA865290028A6F0 /* LuaManager.h */,
@@ -695,7 +694,6 @@
 				49E65BB02E9C3A7600D3C6C5 /* ButtonManager.cpp in Sources */,
 				49FDEBA92F606CEF001D6A6A /* Graphics.cpp in Sources */,
 				49E65BB12E9C3A7600D3C6C5 /* Clock.cpp in Sources */,
-				49B9C0D92F96BF6700E04A28 /* linenoise.c in Sources */,
 				49DBBCDE2F5B546B001930A0 /* libtelnet.c in Sources */,
 				49F81A232F60D3F0006B36FE /* Max7219Display.cpp in Sources */,
 				49E65BB22E9C3A7600D3C6C5 /* System.cpp in Sources */,
