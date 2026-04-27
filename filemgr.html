@@ -6,30 +6,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Manager</title>
     <style>
+        :root {
+            --primary-color: #007bff;
+            --primary-color-hover: #0056b3;
+            --danger-color: #c22;
+            --danger-color-hover: #800;
+            --bg-color: #ccc;
+            --text-color: #212529;
+            --card-bg: #ddd;
+            --border-color: #dee2e6;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            --transition-speed: 0.3s;
+        }
+
+        /* Dark mode */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary-color: #007bff;
+                --primary-color-hover: #0056b3;
+                --primary-color-disabled: #606060;
+                --bg-color: #1a1a1a;
+                --text-color: #ffffff;
+                --card-bg: #2a2a2a;
+                --border-color: #dee2e6;
+                --border-radius: 8px;
+                --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+                --transition-speed: 0.3s;
+            }
+        }
+        
+        a:link      { color: var(--primary-color); }
+        a:visited   { color: var(--primary-color); }
+        a:hover     { color: var(--primary-color-hover); }
+        a:active    { color: var(--primary-color); }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            height:100%;
-            color: #333;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
             margin: 0;
-            padding: 0;
+            padding: 1rem;
             overflow:hidden;
-        }
-
-        .header {
-            background-color: #ffffff;
-            padding: 10px;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
         }
 
+        .container {
+            width: 100%;
+            max-width: 420px;
+            padding: 2rem;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            text-align: center;
+            transition: box-shadow var(--transition-speed);
+        }
+
+        .container:hover {
+             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        
         h1 {
-            margin: 0;
-            font-size: 24px;
-            color: #007acc;
-            text-align:center;
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
         }
 
         .menu-bar {
@@ -44,23 +89,24 @@
             width: 100px;
             height: auto;
             padding: 10px;
-            background-color: #007acc;
+            background-color: var(--primary-color);
             border: none;
             border-radius: 5px;
             color: #ffffff;
             cursor: pointer;
-            font-size: 14px;
+            font-size:14px;
+            font-weight: 600;
             margin-left:5px;
             text-align:center;
         }
 
         .menu-bar button:hover {
-            background-color: #005f99;
+            background-color: var(--primary-color-hover);
             transition: background .2s ease-in-out;
         }
 
        .menu-bar button:disabled {
-            background-color: #606060;
+            background-color: var(--primary-color-disabled);
             color:#a0a0a0;
         }
         
@@ -86,11 +132,12 @@
             display:none;
 		}
 		
-        .container {
+        .file-container {
             position:relative;
             justify-content:center;
             display:flex;
             height:100%;
+            text-align: left;
         }
         
         .folder-bar {
@@ -102,6 +149,7 @@
             background-color: #246;
             font-size:13px;
             border-radius: 5px;
+            text-align: left;
         }
         
         .folder-bar span {
@@ -130,7 +178,7 @@
         }
         
         .file-manager {
-            height: calc(100vh - 230px);
+            height: calc(100vh - 340px);
             display:inline-block;
             margin-top: 35px;
             width:350px;
@@ -147,7 +195,6 @@
             display:inline-block;
             justify-content: flex-start;
             align-items: center;
-            background-color: #ffffff;
             border-radius: 5px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             padding:5px;
@@ -170,7 +217,7 @@
         
         .name {
             margin-right:5px;
-            width:240px;
+            width:230px;
             display:inline-block;
             vertical-align:middle;
             text-overflow:ellipsis;
@@ -253,94 +300,70 @@
         #storage-bar.storage-critical {
             background-color:#b00;
         }
-        
-        body.invert,body.invert a,body.invert h1 {
-            background-color:#060606;
-            color:#fff;
-        }
-        body.invert .header {
-            background-color:#060606;
-            color:#fff;
-        }
-        body.invert .item {
-            background-color:#060606;
-            color:#fff;
-        }
-        body.invert .item:hover {
-            background-color: #203f55;
-            transition: background .2s ease-in-out;
-        }
-        body.invert .selected {
-            background-color:#007acc;
-            color:#fff;
-        }
-        body.invert .selected:hover {
-            background-color:#006abb;
-            color:#fff;
-        }
-
     </style>
 </head>
 
-<body class="invert">
-    <h1>Esp File Manager</h1>
-    <div id="storage">
-        <div id="storage-text">
-            <span><b>Storage - </b></span>
-            <span>total:</span>
-            <span id="storage-total">1.27MB</span>
-            <span> | used:</span>
-            <span id="storage-used">123.5KB</span>
-        </div>
-        <div id="storage-box">
-            <div id="storage-bar" class="storage-normal" style="width:40px"></div>
-        </div>
-    </div>
-    
-    <input type="file" class="file-upload-input" id="file-upload" multiple>
-    <div class="menu-bar">
-        <div class="menu-bar-row">
-            <div class="menu-bar-item"><button id="upload-button">Upload</button></div>
-            <div class="menu-bar-item"><button id="view-button" disabled>View</button></div>
-            <div class="menu-bar-item"><button id="new-folder-button">New Folder</button></div>
-        </div>
-        <div class="menu-bar-row">
-            <div class="menu-bar-item"><button id="run-button">Run</button></div>
-            <div class="menu-bar-item"><button id="download-button" disabled>Download</button></div>
-            <div class="menu-bar-item"><button id="delete-button" disabled>Delete</button></div>
-        </div>
-    </div>
-
+<body>
     <div class="container">
-        <div class="folder-bar">
-            <button id="back-button" disabled>Back</button>
-            <span>Folder: </span>
-            <span id="folder-name">/abc/iii</span>
+        <h1 id="title">Esp File Manager</h1>
+        <div id="storage">
+            <div id="storage-text">
+                <span><b>Storage - </b></span>
+                <span>total:</span>
+                <span id="storage-total">1.27MB</span>
+                <span> | used:</span>
+                <span id="storage-used">123.5KB</span>
+            </div>
+            <div id="storage-box">
+                <div id="storage-bar" class="storage-normal" style="width:40px"></div>
+            </div>
         </div>
-        <div id="file-manager" class="file-manager">
-            <!-- these are dummy items used for testing. They will be replaced -->
-            <!--
-            <div class="item selected">
-                <div class="icon file">📄</div>
-                <div class="name">Cincinnati Zoo Tickets.pdf</div>
-                <div class="size">127.5kb</div>
+        
+        <input type="file" class="file-upload-input" id="file-upload" multiple>
+        <div class="menu-bar">
+            <div class="menu-bar-row">
+                <div class="menu-bar-item"><button id="upload-button">Upload</button></div>
+                <div class="menu-bar-item"><button id="view-button" disabled>View</button></div>
+                <div class="menu-bar-item"><button id="new-folder-button">New Folder</button></div>
             </div>
-            <div class="item" style="background-color: #203f55">
-                <div class="icon file">📄</div>
-                <div class="name">A Short One.pdf</div>
-                <div class="size">256.5kb</div>
+            <div class="menu-bar-row">
+                <div class="menu-bar-item"><button id="run-button">Run</button></div>
+                <div class="menu-bar-item"><button id="download-button" disabled>Download</button></div>
+                <div class="menu-bar-item"><button id="delete-button" disabled>Delete</button></div>
             </div>
-            <div class="item">
-                <div class="icon file">📄</div>
-                <div class="name">A Really Really Really Really Really Long One.pdf</div>
-                <div class="size">256.5kb</div>
+        </div>
+
+        <div class="file-container">
+            <div class="folder-bar">
+                <button id="back-button" disabled>Back</button>
+                <span>Folder: </span>
+                <span id="folder-name">/abc/iii</span>
             </div>
-            <div class="item">
-                <div class="icon file">📄</div>
-                <div class="name">Another File.pdf</div>
-                <div class="size">1573b</div>
+            <div id="file-manager" class="file-manager">
+                <!-- these are dummy items used for testing. They will be replaced -->
+                <!---->
+                <div class="item selected">
+                    <div class="icon file">📄</div>
+                    <div class="name">Cincinnati Zoo Tickets.pdf</div>
+                    <div class="size">127.5kb</div>
+                </div>
+                <div class="item">
+                    <div class="icon file">📄</div>
+                    <div class="name">A Short One.pdf</div>
+                    <div class="size">256.5kb</div>
+                </div>
+                <div class="item">
+                    <div class="icon file">📄</div>
+                    <div class="name">A Really Really Really Really Really Long One.pdf</div>
+                    <div class="size">256.5kb</div>
+                </div>
+                <div class="item">
+                    <div class="icon file">📄</div>
+                    <div class="name">Another File.pdf</div>
+                    <div class="size">1573b</div>
+                </div>
+                <!---->
             </div>
-            -->
         </div>
     </div>
     <div id="upload-modal" class="upload-modal">
