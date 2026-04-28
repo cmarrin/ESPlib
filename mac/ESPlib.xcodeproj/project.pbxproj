@@ -177,6 +177,7 @@
 		49DDC7E32F6EF7C300E5AAA1 /* sdkconfig */ = {isa = PBXFileReference; lastKnownFileType = text; path = sdkconfig; sourceTree = "<group>"; };
 		49DDC7E42F6EF7C300E5AAA1 /* sdkconfig.defaults.esp32 */ = {isa = PBXFileReference; lastKnownFileType = text; path = sdkconfig.defaults.esp32; sourceTree = "<group>"; };
 		49DDC7E52F6EF7C300E5AAA1 /* sdkconfig.defaults.esp32c6 */ = {isa = PBXFileReference; lastKnownFileType = text; path = sdkconfig.defaults.esp32c6; sourceTree = "<group>"; };
+		49E225FC2FA13B20007436BC /* WebUIPanel.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = WebUIPanel.md; path = ../WebUIPanel.md; sourceTree = SOURCE_ROOT; };
 		49E65B012E9C36F800D3C6C5 /* libESPlib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libESPlib.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		49E65B632E9C3A7600D3C6C5 /* Application.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Application.h; path = ../Application.h; sourceTree = SOURCE_ROOT; };
 		49E65B642E9C3A7600D3C6C5 /* Application.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Application.cpp; path = ../Application.cpp; sourceTree = SOURCE_ROOT; };
@@ -410,6 +411,7 @@
 		49E65AF82E9C36F800D3C6C5 = {
 			isa = PBXGroup;
 			children = (
+				49E225FC2FA13B20007436BC /* WebUIPanel.md */,
 				4934EB132F0B50460054B78E /* lua.xcodeproj */,
 				490799622F89A8E100BBEE73 /* Scripts */,
 				490799612F89A8D500BBEE73 /* Lua */,
