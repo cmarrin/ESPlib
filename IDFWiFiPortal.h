@@ -126,9 +126,24 @@ public:
     
     struct HandlerThunk
     {
-        HandlerThunk(HandlerCB handler, WiFiPortal* portal) : _handler(handler), _portal(portal) { }
+        HandlerThunk(HandlerCB handler, WiFiPortal* portal, const char* endpoint)
+            : _handler(handler)
+            , _portal(portal)
+            , _endpoint(endpoint)
+        {
+            // If the endpoint has a "/*" wildcard, get rid of it
+            size_t len = strlen(endpoint);        
+            if (len > 2) {
+                if (endpoint[len - 2] == '/' && endpoint[len - 1] == '*') {
+                    len -= 2;
+                }
+            }
+            _endpoint = std::string(endpoint, len);
+        }
+        
         HandlerCB _handler;
         WiFiPortal* _portal;
+        std::string _endpoint;
     };
     
     static esp_err_t thunkHandler(httpd_req_t*);

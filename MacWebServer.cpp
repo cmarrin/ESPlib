@@ -243,17 +243,23 @@ WebServer::handleClient(int fdClient)
         filePath = "/" + filePath;
     }
     
-    // We don't handle wildcards so the endpoint is the filePath
-    // If we have a static handler it will split the filePath into
-    // the endpoint part and the file part
+    std::string endpointTail;
+    
     for (const auto& it : _handlers) {
-        if (it.isStatic) {
-            // Match the front of the filePath with it.endpoint
+        if (it.type == HTTPHandler::EndpointType::Static || it.type == HTTPHandler::EndpointType::Wildcard) {
+             // Match the front of the filePath with it.endpoint
             if (it.endpoint == filePath.substr(0, it.endpoint.length())) {
-                sendStaticFile(filePath.substr(it.endpoint.length()).c_str(), it.path.c_str());
-                break;
+                endpointTail = filePath.substr(it.endpoint.length()).c_str();
+            } else {
+                continue;
             }
-        } else if (it.endpoint == filePath) {
+        } else if (it.endpoint != filePath) {
+            continue;
+        }
+        
+        if (it.type == HTTPHandler::EndpointType::Static) {
+            sendStaticFile(endpointTail.c_str(), it.path.c_str());
+        } else {
             if (isUpload) {
                 std::string contentType = _parser->getHTTPHeader("Content-Type");
                 if (contentType.empty()) {
@@ -263,7 +269,7 @@ WebServer::handleClient(int fdClient)
                     if (multipart[0] != "multipart/form-data" || multipart[1] != "boundary") {
                         // This is not a multipart, Handle it normally
                         if (it.requestCB) {
-                            it.requestCB();
+                            it.requestCB(endpointTail.c_str());
                         }
                     } else {
                         std::string lengthString = _parser->getHTTPHeader("Content-Length");
@@ -280,7 +286,7 @@ WebServer::handleClient(int fdClient)
                 }
             } else {
                 if (it.requestCB) {
-                    it.requestCB();
+                    it.requestCB(endpointTail.c_str());
                 }
             }
             break;

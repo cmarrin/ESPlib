@@ -99,7 +99,7 @@ WebFileSystem::begin(Application* app, bool format)
         System::logE(TAG, "***** error mounting littlefs");
     }
 
-    app->addHTTPHandler("/", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p)
+    app->addHTTPHandler("/", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p, const char*)
     {
         if (p->isProvisioning()) {
             sendWiFiPage(p);
@@ -107,20 +107,20 @@ WebFileSystem::begin(Application* app, bool format)
             sendLandingPage(p);
         }
     });
-    app->addHTTPHandler("/get-landing-setup", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p) { handleLandingSetup(p); });
-    app->addHTTPHandler("/wifi", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p) { sendWiFiPage(p); });
-    app->addHTTPHandler("/get-wifi-setup", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p) { handleWiFiSetup(p); });
-    app->addHTTPHandler("/connect", WiFiPortal::HTTPMethod::Post, [this](WiFiPortal* p) { handleConnect(p); });
-    app->addHTTPHandler("/update", WiFiPortal::HTTPMethod::Post, [this](WiFiPortal* p) { p->otaUpdate(); });
+    app->addHTTPHandler("/get-landing-setup", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p, const char*) { handleLandingSetup(p); });
+    app->addHTTPHandler("/wifi", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p, const char*) { sendWiFiPage(p); });
+    app->addHTTPHandler("/get-wifi-setup", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p, const char*) { handleWiFiSetup(p); });
+    app->addHTTPHandler("/connect", WiFiPortal::HTTPMethod::Post, [this](WiFiPortal* p, const char*) { handleConnect(p); });
+    app->addHTTPHandler("/update", WiFiPortal::HTTPMethod::Post, [this](WiFiPortal* p, const char*) { p->otaUpdate(); });
 
-    app->addHTTPHandler("/restart", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p)
+    app->addHTTPHandler("/restart", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p, const char*)
     {
         p->sendHTTPResponse(200, "text/html", makeRedirectPage("<h1>Restarting...</h1>").c_str());
         System::delay(2000);
         System::restart();
     });
     
-    app->addHTTPHandler("/reset", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p)
+    app->addHTTPHandler("/reset", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p, const char*)
     {
         p->sendHTTPResponse(200, "text/html", makeRedirectPage("<h1>Credentials Cleared</h1><p>The device will restart and enter provisioning mode.</p>").c_str());
         System::delay(2000);
@@ -129,18 +129,26 @@ WebFileSystem::begin(Application* app, bool format)
         System::restart();
     });
 
-    app->addHTTPHandler("/favicon.ico", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p)
+    app->addHTTPHandler("/favicon.ico", WiFiPortal::HTTPMethod::Get, [this](WiFiPortal* p, const char*)
     {
         p->sendHTTPResponse(204, "text/plain", "No Content");
     });
     
-    app->addHTTPHandler("/filemgr", [this](WiFiPortal* p)
+    app->addHTTPHandler("/uipanel/*", [this](WiFiPortal* p, const char* tail)
+    {
+        System::logI(TAG, "Handle uipanel with the name '%s'", tail);
+        std::string s = std::string("Future home of the ") + tail + " UI Panel";
+        p->sendHTTPResponse(200, "text/plain", s.c_str());
+        return true;
+    });
+
+    app->addHTTPHandler("/filemgr", [this](WiFiPortal* p, const char*)
     {
         p->sendHTTPResponse(200, "text/html", reinterpret_cast<const char*>(FILEMGR_NAME), FILEMGR_LEN_NAME, HTML_IS_GZIP);
         return true;
     });
 
-    app->addHTTPHandler("/get-folder-contents", [this](WiFiPortal* p)
+    app->addHTTPHandler("/get-folder-contents", [this](WiFiPortal* p, const char*)
     {
         std::string s = "0,";
         s += std::to_string(totalBytes()) + "," + std::to_string(usedBytes());
@@ -153,7 +161,7 @@ WebFileSystem::begin(Application* app, bool format)
         return true;
     });
 
-    app->addHTTPHandler("/newfolder", [this](WiFiPortal* p)
+    app->addHTTPHandler("/newfolder", [this](WiFiPortal* p, const char*)
     {
         std::string path = HTTPParser::urlDecode(p->getHTTPArg("path"));
         
@@ -171,7 +179,7 @@ WebFileSystem::begin(Application* app, bool format)
         return true;
     });
 
-    app->addHTTPHandler("/delete", [this](WiFiPortal* p)
+    app->addHTTPHandler("/delete", [this](WiFiPortal* p, const char*)
     {
         std::string path;
         if (prepareFile(p, path)) {
@@ -196,7 +204,7 @@ WebFileSystem::begin(Application* app, bool format)
     });
 
     // Open file (downloads with "attachment" disposition) - this downloads the file to the client
-    app->addHTTPHandler("/download", [this](WiFiPortal* p)
+    app->addHTTPHandler("/download", [this](WiFiPortal* p, const char*)
     {
         std::string path;
         if (prepareFile(p, path)) {
@@ -207,7 +215,7 @@ WebFileSystem::begin(Application* app, bool format)
     });
 
     // Open file (downloads with "inline" disposition) - this displays the content in a web page
-    app->addHTTPHandler("/file", [this](WiFiPortal* p)
+    app->addHTTPHandler("/file", [this](WiFiPortal* p, const char*)
     {
         std::string path;
         if (prepareFile(p, path)) {
@@ -225,7 +233,7 @@ WebFileSystem::begin(Application* app, bool format)
     });
 
     // Run the file if it is .lua or .luac
-    app->addHTTPHandler("/run", [this](WiFiPortal* p)
+    app->addHTTPHandler("/run", [this](WiFiPortal* p, const char*)
     {
         std::string path;
         if (prepareFile(p, path)) {
@@ -245,7 +253,7 @@ WebFileSystem::begin(Application* app, bool format)
         return true;
     });
 
-    app->addHTTPHandler("/upload", WiFiPortal::HTTPMethod::Post, [this](WiFiPortal* p) { handleUpload(p); });
+    app->addHTTPHandler("/upload", WiFiPortal::HTTPMethod::Post, [this](WiFiPortal* p, const char*) { handleUpload(p); });
     return retval;
 }
 

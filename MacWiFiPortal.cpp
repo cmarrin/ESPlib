@@ -43,7 +43,7 @@ MacWiFiPortal::setConfigHandler(HandlerCB)
 int32_t
 MacWiFiPortal::addHTTPHandler(const char* endpoint, HTTPMethod method, HandlerCB requestCB)
 {
-   _server.addHTTPHandler(endpoint, method, [this, requestCB]() { requestCB(this); });
+   _server.addHTTPHandler(endpoint, method, [this, requestCB](const char* tail) { requestCB(this, tail); });
     return 0;
 }
 

@@ -54,7 +54,7 @@ public:
     enum class HTTPUploadStatus { None, Start, Write, End, Aborted };
     enum class HTTPMethod { Get, Post, Put };
 
-    using HandlerCB = std::function<void(WiFiPortal*)>;
+    using HandlerCB = std::function<void(WiFiPortal*, const char* tail)>;
 
     struct KnownNetwork
     {

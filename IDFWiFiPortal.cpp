@@ -86,7 +86,20 @@ IDFWiFiPortal::thunkHandler(httpd_req_t* req)
     HandlerThunk* thunk = reinterpret_cast<HandlerThunk*>(req->user_ctx);
     IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(thunk->_portal);
     self->_activeRequest = req;
-
+    
+    std::string endpointTail;
+    std::string uri = std::string(req->uri);
+    
+    // If this is a wildcard match, save the tail for the callback
+    if (thunk->_endpoint == uri.substr(0, thunk->_endpoint.length())) {
+        endpointTail = uri.substr(thunk->_endpoint.length()).c_str();
+        
+        // If it ends in '?', get rid of it
+        if (endpointTail.back() == '?') {
+            endpointTail.pop_back();
+        }
+    }
+    
     self->_parser = std::make_unique<HTTPParser>();
 
     // Get the arg string
@@ -111,14 +124,14 @@ IDFWiFiPortal::thunkHandler(httpd_req_t* req)
             std::vector<std::string> multipart = HTTPParser::parseFormData(contentType);
             if (multipart[0] != "multipart/form-data" || multipart[1] != "boundary") {
                 // This is not a multipart, Handle it normally
-                thunk->_handler(thunk->_portal);
+                thunk->_handler(thunk->_portal, endpointTail.c_str());
             } else {
                 std::string lengthString = self->getHTTPHeader("Content-Length");
                 size_t contentLength = std::stoi(lengthString);
                 self->_parser->parseMultipart(contentLength, multipart[2],
-                    [thunk]()
+                    [thunk](const char*)
                     {
-                        thunk->_handler(thunk->_portal);
+                        thunk->_handler(thunk->_portal, nullptr);
                     },
                     [req](uint8_t* buf, size_t size) -> ssize_t
                     {
@@ -128,7 +141,7 @@ IDFWiFiPortal::thunkHandler(httpd_req_t* req)
             }
         }
     } else {
-        thunk->_handler(thunk->_portal);
+        thunk->_handler(thunk->_portal, endpointTail.c_str());
     }
 
     if (self->_parser->errorCode()) {
@@ -154,7 +167,7 @@ IDFWiFiPortal::addHTTPHandler(const char* endpoint, HTTPMethod method, HandlerCB
         .uri = endpoint,
         .method = (method == HTTPMethod::Post) ? HTTP_POST : HTTP_GET,
         .handler = thunkHandler,
-        .user_ctx = new HandlerThunk(requestCB, this)
+        .user_ctx = new HandlerThunk(requestCB, this, endpoint)
     };
     ESP_ERROR_CHECK(httpd_register_uri_handler(_server, &uri));
     return 0;
@@ -163,7 +176,7 @@ IDFWiFiPortal::addHTTPHandler(const char* endpoint, HTTPMethod method, HandlerCB
 void
 IDFWiFiPortal::addStaticHTTPHandler(const char *uri, const char *path)
 {
-    addHTTPHandler((std::string(uri) + "/*").c_str(), HTTPMethod::Get, [uri, path](WiFiPortal* p) {
+    addHTTPHandler((std::string(uri) + "/*").c_str(), HTTPMethod::Get, [uri, path](WiFiPortal* p, const char*) {
         IDFWiFiPortal* self = reinterpret_cast<IDFWiFiPortal*>(p);
         
         std::string endpoint(uri);
@@ -568,7 +581,7 @@ IDFWiFiPortal::startProvisioning()
     
     // Call the config handler
     if (_configHandler) {
-        _configHandler(this);
+        _configHandler(this, nullptr);
     }
     esp_netif_create_default_wifi_ap();
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();

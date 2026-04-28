@@ -53,7 +53,7 @@ class HTTPParser
     static constexpr int UploadBufferActualSize = UploadBufferReturnSize + 80;
 
     using ReadCB = std::function<ssize_t(uint8_t* buf, size_t size)>;
-    using HandlerCB = std::function<void()>;
+    using HandlerCB = std::function<void(const char* tail)>;
     
     using ArgMap = std::map<std::string, std::string>;
 

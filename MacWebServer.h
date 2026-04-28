@@ -42,13 +42,24 @@ public:
     
     int32_t addHTTPHandler(const char* endpoint, WiFiPortal::HTTPMethod method, HTTPParser::HandlerCB requestCB)
     {
-        _handlers.emplace_back(endpoint, "", requestCB, false);
+        // We handle only a very simple wildcard type. If the endpoint ends with "/*" then we
+        // strip it off and set the type to Wildcard
+        size_t len = strlen(endpoint);
+        HTTPHandler::EndpointType type = HTTPHandler::EndpointType::Fixed;
+        
+        if (len > 2) {
+            if (endpoint[len - 2] == '/' && endpoint[len - 1] == '*') {
+                type = HTTPHandler::EndpointType::Wildcard;
+                len -= 2;
+            }
+        }
+        _handlers.emplace_back(std::string(endpoint, len).c_str(), "", requestCB, type);
         return int32_t(_handlers.size());
     }
 
     void addStaticHTTPHandler(const char* uri, const char* path)
     {
-        _handlers.emplace_back(uri, path, nullptr, true);
+        _handlers.emplace_back(uri, path, nullptr, HTTPHandler::EndpointType::Static);
     }
 
     void sendHTTPResponse(int code, const char* mimetype = nullptr, const char* data = "", const HTTPParser::ArgMap& extraHeaders = HTTPParser::ArgMap());
@@ -76,9 +87,10 @@ private:
     
     struct HTTPHandler
     {
+        enum class EndpointType { Fixed, Static, Wildcard };
         std::string endpoint, path;
         HTTPParser::HandlerCB requestCB;
-        bool isStatic;
+        EndpointType type;
     };
     
     std::vector<HTTPHandler> _handlers;

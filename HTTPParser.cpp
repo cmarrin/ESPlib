@@ -128,7 +128,7 @@ HTTPParser::parseMultipart(size_t size, const std::string& boundary, HandlerCB r
             // Start upload
             _uploadStatus = WiFiPortal::HTTPUploadStatus::Start;
             if (requestCB) {
-                requestCB();
+                requestCB(nullptr);
             }
             
             int bufferOverflow = 0;
@@ -221,7 +221,7 @@ HTTPParser::parseMultipart(size_t size, const std::string& boundary, HandlerCB r
                     _uploadCurrentSize = haveBoundary ? (index - boundary.size() - 4) : UploadBufferReturnSize;
                     _uploadTotalSize += _uploadCurrentSize;
                     if (requestCB) {
-                        requestCB();
+                        requestCB(nullptr);
                         System::delay(10);
                     }
                     index = 0;
@@ -242,7 +242,7 @@ HTTPParser::parseMultipart(size_t size, const std::string& boundary, HandlerCB r
 
             _uploadStatus = aborted ? WiFiPortal::HTTPUploadStatus::Aborted : WiFiPortal::HTTPUploadStatus::End;
             if (requestCB) {
-                requestCB();
+                requestCB(nullptr);
             }
         }
     }
