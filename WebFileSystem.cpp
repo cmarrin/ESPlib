@@ -91,6 +91,22 @@ static std::string makeRedirectPage(const char* text)
     return s;
 }
 
+static std::string makeUIPanelPage(const char* panelName)
+{
+    std::string s = "<!DOCTYPE html><html><head><title>UI Panel</title>";
+    s += "<link rel=\"stylesheet\" href=\"/fs/sys/ui/uipanel.css\">";
+    s += "</head><body>";
+    s += "<div class=\"container\">";
+    s += "<h1 id=\"title\">Placeholder Title</h1>";
+    s += "<div id=\"uipanel\">Placeholder UI</div>";
+    s += "<script>const uipanelName = \"";
+    s += "panelName";
+    s += "\";</script>";
+    s += "<script src=\"/fs/sys/ui/uipanel.js\"></script>";
+    s += "</body></html>";
+    return s;
+}
+
 bool
 WebFileSystem::begin(Application* app, bool format)
 {
@@ -137,8 +153,8 @@ WebFileSystem::begin(Application* app, bool format)
     app->addHTTPHandler("/uipanel/*", [this](WiFiPortal* p, const char* tail)
     {
         System::logI(TAG, "Handle uipanel with the name '%s'", tail);
-        std::string s = std::string("Future home of the ") + tail + " UI Panel";
-        p->sendHTTPResponse(200, "text/plain", s.c_str());
+        std::string s = makeUIPanelPage(tail);
+        p->sendHTTPResponse(200, "text/html", s.c_str());
         return true;
     });
 
