@@ -16,7 +16,7 @@ All rights reserved.
 
 using namespace mil;
 
-// There are a couple of bare "const"
+// There are a couple of bare "const" to make the data from the .h files
 
 #define USE_GZIP_HTML
 #ifdef USE_GZIP_HTML
