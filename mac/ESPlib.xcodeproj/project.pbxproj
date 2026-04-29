@@ -120,8 +120,7 @@
 		490799682F89AA2B00BBEE73 /* MacWiFiPortal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MacWiFiPortal.h; path = ../MacWiFiPortal.h; sourceTree = SOURCE_ROOT; };
 		490799692F89AA2B00BBEE73 /* MacWiFiPortal.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MacWiFiPortal.cpp; path = ../MacWiFiPortal.cpp; sourceTree = SOURCE_ROOT; };
 		4907996A2F89AAC000BBEE73 /* cvtHTML.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = cvtHTML.sh; path = ../cvtHTML.sh; sourceTree = SOURCE_ROOT; };
-		4907996B2F89AAC000BBEE73 /* instcoo.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = instcoo.sh; path = ../instcoo.sh; sourceTree = SOURCE_ROOT; };
-		4907996C2F89AAC000BBEE73 /* instlcl.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = instlcl.sh; path = ../instlcl.sh; sourceTree = SOURCE_ROOT; };
+		4907996C2F89AAC000BBEE73 /* instlfs.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = instlfs.sh; path = ../instlfs.sh; sourceTree = SOURCE_ROOT; };
 		4907996D2F89AAF800BBEE73 /* getopt.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = getopt.lua; path = ../getopt.lua; sourceTree = SOURCE_ROOT; };
 		4907996E2F89AAF800BBEE73 /* LEDCylon.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = LEDCylon.lua; path = ../LEDCylon.lua; sourceTree = SOURCE_ROOT; };
 		4907996F2F89AAF800BBEE73 /* LEDRace.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = LEDRace.lua; path = ../LEDRace.lua; sourceTree = SOURCE_ROOT; };
@@ -178,6 +177,7 @@
 		49DDC7E42F6EF7C300E5AAA1 /* sdkconfig.defaults.esp32 */ = {isa = PBXFileReference; lastKnownFileType = text; path = sdkconfig.defaults.esp32; sourceTree = "<group>"; };
 		49DDC7E52F6EF7C300E5AAA1 /* sdkconfig.defaults.esp32c6 */ = {isa = PBXFileReference; lastKnownFileType = text; path = sdkconfig.defaults.esp32c6; sourceTree = "<group>"; };
 		49E225FC2FA13B20007436BC /* WebUIPanel.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = WebUIPanel.md; path = ../WebUIPanel.md; sourceTree = SOURCE_ROOT; };
+		49E225FE2FA17A16007436BC /* uipanel-test.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "uipanel-test.html"; path = "../uipanel-test.html"; sourceTree = SOURCE_ROOT; };
 		49E65B012E9C36F800D3C6C5 /* libESPlib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libESPlib.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		49E65B632E9C3A7600D3C6C5 /* Application.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Application.h; path = ../Application.h; sourceTree = SOURCE_ROOT; };
 		49E65B642E9C3A7600D3C6C5 /* Application.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Application.cpp; path = ../Application.cpp; sourceTree = SOURCE_ROOT; };
@@ -248,6 +248,7 @@
 		490799602F89A8CB00BBEE73 /* HTML */ = {
 			isa = PBXGroup;
 			children = (
+				49E225FE2FA17A16007436BC /* uipanel-test.html */,
 				490799722F89AB2F00BBEE73 /* filemgr.html */,
 				490799732F89AB2F00BBEE73 /* landing.html */,
 				490799742F89AB2F00BBEE73 /* shell.html */,
@@ -272,8 +273,7 @@
 			isa = PBXGroup;
 			children = (
 				4907996A2F89AAC000BBEE73 /* cvtHTML.sh */,
-				4907996B2F89AAC000BBEE73 /* instcoo.sh */,
-				4907996C2F89AAC000BBEE73 /* instlcl.sh */,
+				4907996C2F89AAC000BBEE73 /* instlfs.sh */,
 			);
 			name = Scripts;
 			sourceTree = "<group>";
