@@ -177,7 +177,6 @@
 		49DDC7E42F6EF7C300E5AAA1 /* sdkconfig.defaults.esp32 */ = {isa = PBXFileReference; lastKnownFileType = text; path = sdkconfig.defaults.esp32; sourceTree = "<group>"; };
 		49DDC7E52F6EF7C300E5AAA1 /* sdkconfig.defaults.esp32c6 */ = {isa = PBXFileReference; lastKnownFileType = text; path = sdkconfig.defaults.esp32c6; sourceTree = "<group>"; };
 		49E225FC2FA13B20007436BC /* WebUIPanel.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = WebUIPanel.md; path = ../WebUIPanel.md; sourceTree = SOURCE_ROOT; };
-		49E225FE2FA17A16007436BC /* uipanel-test.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "uipanel-test.html"; path = "../uipanel-test.html"; sourceTree = SOURCE_ROOT; };
 		49E225FF2FA18299007436BC /* uipanel.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = uipanel.css; path = ../uipanel.css; sourceTree = SOURCE_ROOT; };
 		49E226002FA18299007436BC /* uipanel.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = uipanel.js; path = ../uipanel.js; sourceTree = SOURCE_ROOT; };
 		49E65B012E9C36F800D3C6C5 /* libESPlib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libESPlib.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -250,7 +249,6 @@
 		490799602F89A8CB00BBEE73 /* HTML */ = {
 			isa = PBXGroup;
 			children = (
-				49E225FE2FA17A16007436BC /* uipanel-test.html */,
 				49E225FF2FA18299007436BC /* uipanel.css */,
 				49E226002FA18299007436BC /* uipanel.js */,
 				490799722F89AB2F00BBEE73 /* filemgr.html */,
