@@ -98,10 +98,12 @@ static std::string makeUIPanelPage(const char* panelName)
     s += "</head><body>";
     s += "<div class=\"container\">";
     s += "<h1 id=\"title\">Placeholder Title</h1>";
-    s += "<div id=\"uipanel\">Placeholder UI</div>";
+    s += "<div id=\"uipanel\">Placeholder UI</div></div>";
     s += "<script>const uipanelJSON = \"/fs/sys/ui";
     s += panelName;
-    s += ".json\";</script>";
+    s += ".json\"; const uipanelName=\"";
+    s += panelName;
+    s += "\"</script>";
     s += "<script src=\"/fs/sys/ui/uipanel.js\"></script>";
     s += "</body></html>";
     return s;

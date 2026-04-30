@@ -8,16 +8,20 @@ A Web UI Panel consists of a JSON file specifying the widget layout and behavior
 
 	http://<hostname>/uipanel/<panel name>
 	
-This request looks up a file with the name **\<panel name>.json** and serves an HTML file called uipanel.html which has a js global variable named *panelName* filled in with <panel name>. This HTML file then does an HTTP request for <panel name>.json. When delivered it parses the file and constructs the HTML required to display the requested widgets.
+This request serves a small webpage with references to CSS and JS files which implement the UI. The JS loads the JSON and uses it to build a UI panel. These files are located in the filesystem at:
 
-When a widget interaction takes place and XMLHTTPRequest is generated to the endpoint:
+    /fs/sys/ui/uipanel.css
+    /fs/sys/ui/uipanel.js
+    /fs/sys/ui/<panel name>.json
 
-	http://<hostname>panel/<panel name>?<params>
+The webpage is mostly generic but includes two JS global variables. The first is *uiPanelJSON*, the path to the JSON file. It's used to fetch the JSON file. The second is *uipanelName*, the root name of the panel. It's used to notify the server which panel was used when an interaction takes place. The JSON specifies the widget types which are known to the JS. The widgets are added to the DOM inside a **\<div>** with the id *uipanel*.
+
+When a widget interaction takes place a request is sent to:
+
+	http://<hostname>/uipanel?<params>
 	
-Params sent are *name* (the **\<panel name>**), *widget* (the widget name), and *value* (the widget value). When received a Lua program with the name **\<panel name>.lua** is executed passing the *widget* and *value* parameters as string arguments. This program then performs whatever operation is appropriate for those arguments.
+Params sent are *name* (the **\<panel name>**), *widget* (the widget name), and *value* (the widget value). When received a Lua program located at:
 
-To insert the **\<panel name>** into *panel.html* a simple token system is used. The panel.html file has a "**{panel-name}**" string which is replaced with the **\<panel name>** using:
-
-	pitem.replace("{panel-name}",  <panel name>);
+	/sys/ui/<panel name>.lua
 	
-**widget-panel.html** is compiled into the runtime, similar to **landing.html** and others. **\<panel name>.json** and **\<panel name>.lua** are in the **/sys/panels** folder.
+is executed passing the *widget* and *value* parameters as string arguments. This program then performs whatever operation is appropriate for those arguments.
