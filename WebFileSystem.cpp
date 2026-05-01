@@ -154,15 +154,21 @@ WebFileSystem::begin(Application* app, bool format)
     
     app->addHTTPHandler("/uipanel/*", [this](WiFiPortal* p, const char* tail)
     {
-        if (tail && tail[0] != '\0') {
-            System::logI(TAG, "Handle uipanel with the name '%s'", tail);
-            std::string s = makeUIPanelPage(tail);
-            p->sendHTTPResponse(200, "text/html", s.c_str());
-        } else {
+        // Incoming tail is either "/<panel name>" or "/". Anything else is an error
+        std::string tailString(tail);
+        if (tailString[0] != '/') {
+            // Error
+            System::logI(TAG, "Unrecognized UI Panel operation: '%s'", tail);
+            p->sendHTTPResponse(400, "text/plain", "Bad Request");
+        } else if (tailString.length() == 1) {
             System::logI(TAG, "UI changed: panelName='%s', widget='%s', value='%s'", 
                          p->getHTTPArg("name").c_str(), p->getHTTPArg("widget").c_str(), p->getHTTPArg("value").c_str());
             
             p->sendHTTPResponse(200, "text/plain", "OK");
+        } else {
+            System::logI(TAG, "Handle uipanel with the name '%s'", tail);
+            std::string s = makeUIPanelPage(tail);
+            p->sendHTTPResponse(200, "text/html", s.c_str());
         }
         return true;
     });
