@@ -477,7 +477,7 @@ HTTPParser::parseRequest(ReadCB cb)
             // Handle first line
             std::vector<std::string> parsedLine = split(line, ' ');
             _method = parsedLine[0];
-            _path = parsedLine[1];
+            _path = urlDecode(parsedLine[1]);
         } else {
             std::vector<std::string> keyValue = parseKeyValue(line);
             _headers[keyValue[0]] = keyValue[1];
