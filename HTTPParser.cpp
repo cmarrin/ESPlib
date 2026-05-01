@@ -268,7 +268,7 @@ HTTPParser::getLine(ReadCB cb)
             if (c == '\n') {
                 break;
             } else {
-                printf("Expected newline in parseRequestHeader\n");
+                printf("Expected newline in parseRequest\n");
                 return "";
             }
         }
@@ -456,7 +456,7 @@ HTTPParser::parseQuery(const std::string& query)
 }
 
 bool
-HTTPParser::parseRequestHeader(ReadCB cb)
+HTTPParser::parseRequest(ReadCB cb)
 {
     bool isFirstLine = true;
     

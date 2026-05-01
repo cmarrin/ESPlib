@@ -231,7 +231,7 @@ WebServer::handleClient(int fdClient)
     
     _parser = std::make_unique<HTTPParser>();
     
-    _parser->parseRequestHeader([fdClient](uint8_t* buf, size_t size) -> ssize_t {
+    _parser->parseRequest([fdClient](uint8_t* buf, size_t size) -> ssize_t {
         return read(fdClient, buf, size);
     });
     
