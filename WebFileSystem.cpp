@@ -154,9 +154,16 @@ WebFileSystem::begin(Application* app, bool format)
     
     app->addHTTPHandler("/uipanel/*", [this](WiFiPortal* p, const char* tail)
     {
-        System::logI(TAG, "Handle uipanel with the name '%s'", tail);
-        std::string s = makeUIPanelPage(tail);
-        p->sendHTTPResponse(200, "text/html", s.c_str());
+        if (tail && tail[0] != '\0') {
+            System::logI(TAG, "Handle uipanel with the name '%s'", tail);
+            std::string s = makeUIPanelPage(tail);
+            p->sendHTTPResponse(200, "text/html", s.c_str());
+        } else {
+            System::logI(TAG, "UI changed: panelName='%s', widget='%s', value='%s'", 
+                         p->getHTTPArg("name").c_str(), p->getHTTPArg("widget").c_str(), p->getHTTPArg("value").c_str());
+            
+            p->sendHTTPResponse(200, "text/plain", "OK");
+        }
         return true;
     });
 
