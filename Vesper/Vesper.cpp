@@ -17,7 +17,7 @@ Vesper::Vesper(mil::WiFiPortal* portal)
 void
 Vesper::setup()
 {
-    System::delay(500);
+    mil::System::delay(500);
     Application::setup();
 
     setTitle((std::string("<center>MarrinTech Vesper Controller v") + Version + "</center>").c_str());
