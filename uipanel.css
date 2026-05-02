@@ -93,6 +93,12 @@ h1 {
 }
 .color-picker {
 }
+.select-widget {
+    background-color: #444;
+    border-color:var(--border-color);
+    color: var(--text-color);
+    font-size: 16px;
+}
 p {
     margin: 5px 0;
     font-size: 16px;

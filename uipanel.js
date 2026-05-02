@@ -20,9 +20,9 @@
                     </div>`;
                 case "select":
                     let s = `<div class="widget">
-                        <label class="widget-label" for="${widget.name}">${widget.label}:</label>
-                        <select id="${widget.name}">
-                            <option value="">Select option:</option>`;
+                         <label class="widget-label" for="${widget.name}">${widget.label}</label>
+                           <select class="widget-control select-widget" id="${widget.name}">
+                                <option value="">Select option:</option>`;
                     
                     for (const entry of widget.list) {
                         s += `<option value="${entry}">${entry}</option>`;
