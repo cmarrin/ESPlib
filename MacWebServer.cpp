@@ -16,6 +16,7 @@ All rights reserved.
 #include<arpa/inet.h>
 #include<unistd.h>
 #include <thread>
+#include <fcntl.h>
 
 #include "WebFileSystem.h"
 
@@ -49,6 +50,12 @@ WebServer::start(WebFileSystem* wfs, int port)
     //bind  socket to port.
     if (bind(fdServer, (struct sockaddr*)& serverAddr, sizeof(serverAddr)) < 0) {
         printf("Failed to bind server socket.\n");
+        return -1;
+    }
+
+    if (fcntl(fdServer, F_SETFL, O_NONBLOCK) < 0) {
+        perror("Failed to set server socket to non-blocking");
+        close(fdServer);
         return -1;
     }
 
@@ -307,10 +314,14 @@ WebServer::handleServer(int fdServer)
     while (1) {
         int fdClient = accept(fdServer, (struct sockaddr*)&clientAddr, &clientAddrSize);
         if (fdClient < 0) {
-            printf("Failed to accept client request.\n");
-            return;
+            if (errno != EAGAIN && errno != EWOULDBLOCK) {
+                perror("Failed to accept client request");
+                return;
+            }
+            System::delay(10);
+        } else {
+            // process() will process the client
+            _clientsToProcess.push_back(fdClient);
         }
-        // process() will process the client
-        _clientsToProcess.push_back(fdClient);
     }
 }

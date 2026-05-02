@@ -261,7 +261,11 @@ HTTPParser::getLine(ReadCB cb)
         uint8_t c;
         ssize_t size = cb(&c, 1);
         if (size != 1) {
-            return "";
+            if (errno != EAGAIN && errno != EWOULDBLOCK) {
+                perror("error from read during getLine");
+                return "";
+            }
+            System::delay(1);
         }
 
         if (needNewLine) {
