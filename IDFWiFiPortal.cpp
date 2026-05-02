@@ -114,7 +114,7 @@ IDFWiFiPortal::thunkHandler(httpd_req_t* req)
             ESP_LOGE(TAG, "Failed to extract query URL");
         } else {
             std::string args(buf.data(), queryURLLen);
-            self->_parser->parseQuery(args);
+            self->_parser->parseQuery(HTTPParser::urlDecode(args));
         }
     }
     
