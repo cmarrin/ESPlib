@@ -18,6 +18,17 @@
                         <label class="widget-label" for="${widget.name}">${widget.label}</label>
                         <input class="widget-control" type="color" id="${widget.name}" value="#000">
                     </div>`;
+                case "select":
+                    let s = `<div class="widget">
+                        <label class="widget-label" for="${widget.name}">${widget.label}:</label>
+                        <select id="${widget.name}">
+                            <option value="">Select option:</option>`;
+                    
+                    for (const entry of widget.list) {
+                        s += `<option value="${entry}">${entry}</option>`;
+                    }
+                    s += "</select></div>";
+                    return s;
                 default:
                     console.log("makeWidget: unrecognized type - " + widget.type);
                     return "";
@@ -34,6 +45,11 @@
                     break;
                 case "colorPicker":
                     document.getElementById(widget.name).addEventListener('input', function() {
+                        sendWidgetChange(panelName, widget.name, this.value);
+                    });
+                    break;
+                case "select":
+                    document.getElementById(widget.name).addEventListener('change', function() {
                         sendWidgetChange(panelName, widget.name, this.value);
                     });
                     break;
