@@ -93,10 +93,12 @@ IDFWiFiPortal::thunkHandler(httpd_req_t* req)
     // If this is a wildcard match, save the tail for the callback
     if (thunk->_endpoint == uri.substr(0, thunk->_endpoint.length())) {
         endpointTail = uri.substr(thunk->_endpoint.length()).c_str();
-        
-        // If it ends in '?', get rid of it
-        if (endpointTail.back() == '?') {
-            endpointTail.pop_back();
+
+        // If this is a wildcard match the query string will still be at the end
+        // of the endpointTail. It is also in the queryString so we can just toss it.
+        std::string::size_type n = endpointTail.find('?');
+        if (n != std::string::npos) {
+            endpointTail.erase(n);
         }
     }
     
