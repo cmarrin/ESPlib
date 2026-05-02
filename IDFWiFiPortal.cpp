@@ -343,7 +343,6 @@ IDFWiFiPortal::streamHTTPResponse(fs::File& file, const char* mimetype, bool att
         }
     }
     
-    ESP_LOGI(TAG, "File sending complete");
     httpd_resp_set_hdr(_activeRequest, "Connection", "close");
     httpd_resp_send_chunk(_activeRequest, NULL, 0);
 }
