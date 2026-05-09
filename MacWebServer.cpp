@@ -276,7 +276,7 @@ WebServer::handleClient(int fdClient)
                     if (multipart[0] != "multipart/form-data" || multipart[1] != "boundary") {
                         // This is not a multipart, Handle it normally
                         if (it.requestCB) {
-                            it.requestCB(endpointTail.c_str());
+                            it.requestCB();
                         }
                     } else {
                         std::string lengthString = _parser->getHTTPHeader("Content-Length");
@@ -293,7 +293,7 @@ WebServer::handleClient(int fdClient)
                 }
             } else {
                 if (it.requestCB) {
-                    it.requestCB(endpointTail.c_str());
+                    it.requestCB();
                 }
             }
             break;

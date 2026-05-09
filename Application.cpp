@@ -97,7 +97,7 @@ Application::startNetwork()
         System::restart();
 	}
 	
-	_portal->setConfigHandler([this](WiFiPortal* portal, const char*) {
+	_portal->setConfigHandler([this](WiFiPortal* portal) {
 		printf("Entered config mode:ip=%s, ssid='%s'\n", portal->getIP().c_str(), portal->getSSID());
 		_blinker.setRate(ConfigRate);
 		sendInput(Input::NetConfig, true);
