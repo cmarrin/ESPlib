@@ -1,5 +1,3 @@
-        console.log("uipanelJSON=" + uipanelJSON);
-
         // Widget is an object with type, name and label properties.
         // Return a string with the HTML for the widget
         function makeWidget(panelName, widget)
@@ -70,7 +68,6 @@
 
                     for (const widget of items.widgets) {
                         const htmlString = makeWidget(items.name, widget);
-                        console.log("htmlString='" + htmlString + "'");
                         document.getElementById('uipanel').innerHTML += htmlString;
                     }
                     for (const widget of items.widgets) {
@@ -82,14 +79,14 @@
         
         function sendWidgetChange(name, widget, value)
         {
-            const uri = `/uipanel/?name=${name}&widget=${widget}&value=${encodeURIComponent(value)}`;
+            const uri = `/uipanel?op=change&name=${name}&widget=${widget}&value=${encodeURIComponent(value)}`;
             const http = new XMLHttpRequest();
             http.open("GET", uri, true);
             http.onreadystatechange = function()
             {
                 if (http.readyState == 4) {
                     if (http.status != 200) {
-                        alert(http.responseText);
+                        alert("sendWidgetChange error: status=" + http.status + "response=" + http.responseText);
                     }
                 }
             }
