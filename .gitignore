@@ -13,3 +13,4 @@ settings.json
 *.gz.h
 *.html.gz
 sdkconfig
+landing.h
