@@ -109,7 +109,12 @@ System::isRestarting()
 #include "led_strip.h"
 #include "esp_adc/adc_oneshot.h"
 
+#include <mutex>
+
 static constexpr int NumLEDChannels = 4;
+
+// Use a mutex to protect access to LED string functions
+static std::mutex _mutex;
 
 struct LEDConfig
 {
@@ -131,9 +136,10 @@ System::initLED(uint8_t channel, uint8_t pin, uint32_t numLEDs)
     if (channel >= NumLEDChannels) {
         return;
     }
-    
+
+    std::unique_lock<std::mutex> lk(_mutex);
+
     if (channel != 0 || HaveAddressableRGBLED) {
-        
         if (ledStrip[channel].isInited) {
             led_strip_del(ledStrip[channel].handle);
             ledStrip[channel].isInited = false;
@@ -173,6 +179,8 @@ System::initLED(uint8_t channel, uint8_t pin, uint32_t numLEDs)
 void
 System::setLED(uint8_t channel, uint32_t index, uint8_t r, uint8_t g, uint8_t b)
 {
+    std::unique_lock<std::mutex> lk(_mutex);
+
     if (channel >= NumLEDChannels || !ledStrip[channel].isInited) {
         return;
     }
@@ -191,6 +199,8 @@ System::setLED(uint8_t channel, uint32_t index, uint8_t r, uint8_t g, uint8_t b)
 void
 System::refreshLEDs(uint8_t channel)
 {
+    std::unique_lock<std::mutex> lk(_mutex);
+
     if (channel >= NumLEDChannels || !ledStrip[channel].isInited || !ledStrip[channel].isAddressable) {
         return;
     }
