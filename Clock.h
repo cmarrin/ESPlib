@@ -43,8 +43,6 @@ private:
 	
 	uint32_t _currentTime = 0;
 	bool _needsUpdate = true;
-	
-    std::string _customMenuHTML;
 };
 
 }
