@@ -475,10 +475,20 @@ void
 WebFileSystem::handleLandingSetup(WiFiPortal* portal)
 {
     std::string customMenu;
+    
+    // Add Shell button if it exists
     if (exists("/sys/shell.html")) {
         customMenu += "<form action='/fs/sys/shell.html' method='get'><button class='btn'>Shell</button></form><br/>";
     }
 
+    // Add UI panel button if it exists
+    if (exists("/sys/ui/uipanel.json")) {
+        customMenu += "<form action='/uipanel' method='get'><button class='btn'>UI Panel</button>";
+        customMenu += "<input type='hidden' name='op' value='new' />";
+        customMenu += "<input type='hidden' name='name' value='uipanel' />";
+        customMenu += "</form><br/>";
+    }
+    
     std::string response = makeJSON(
         {
             { "title", portal->getTitle() },
