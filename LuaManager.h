@@ -26,6 +26,7 @@ using PrintCB = std::function<void(const char* buf, size_t size)>;
 class LuaManager
 {
 public:
+    using Event = std::pair<std::string, std::string>;
     using PrintHandlerCB = std::function<void(const char* s, size_t size)>;
     enum class Status { NotStarted, Running, WaitingForInput, Done };
     
@@ -36,6 +37,9 @@ public:
                                                 std::function<void(const char*, size_t)> printCB = nullptr);
                                                 
     void waitForFinish();
+    
+    static void sendEvent(int8_t id, const Event&);
+    static bool getEvent(int8_t id, Event&); // Returns false if no event
     
     const char* toString(int idx) const { return lua_tostring(_luaState, idx); }
     
@@ -97,6 +101,8 @@ private:
     std::string _command;
     
     PrintCB _printCB;
+    
+    std::queue<Event> _eventQueue;
 };
 
 }

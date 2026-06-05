@@ -143,6 +143,26 @@ static int luaMillis(lua_State* L)
     return 1;
 }
 
+static int luaGetEvent(lua_State* L)
+{
+    // Lua expects a single value which is either a table or nil
+
+    // Get the LuaManager ptr
+    lua_getglobal(L, "__LuaManager__");
+    LuaManager* self = (LuaManager*) lua_touserdata(L, -1);
+    lua_pop(L, 1);
+
+    LuaManager::Event ev;
+    if (LuaManager::getEvent(self->id(), ev)) {
+        lua_createtable(L, 0, 1);
+        lua_pushstring(L, ev.second.c_str());
+        lua_setfield(L, -2, ev.first.c_str());
+    } else {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
 int8_t
 LuaManager::execute(const std::string& filename, int cpl, std::vector<std::string> args,
                     std::function<void(const char*, size_t)> printCB)
@@ -266,4 +286,29 @@ LuaManager::commandThread(const std::string& filename)
     if (it != _managers.end()) {
         _managers.erase(it);
     }
+}
+
+void
+LuaManager::sendEvent(int8_t id, const Event&ev)
+{
+    std::unique_lock<std::mutex> lk(_mutex);
+    std::shared_ptr<LuaManager> mgr = getManager(id);
+    if (mgr) {
+        mgr->_eventQueue.push(ev);
+    }
+}
+
+bool
+LuaManager::getEvent(int8_t id, Event& ev)
+{
+    std::unique_lock<std::mutex> lk(_mutex);
+    std::shared_ptr<LuaManager> mgr = getManager(id);
+    if (mgr) {
+        if (!mgr->_eventQueue.empty()) {
+            ev = mgr->_eventQueue.front();
+            mgr->_eventQueue.pop();
+            return true;
+        }
+    }
+    return false;
 }
