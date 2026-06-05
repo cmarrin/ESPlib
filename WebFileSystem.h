@@ -68,6 +68,8 @@ class WebFileSystem
     std::string _uploadFilename;
     
     static std::string _cwd;
+    
+    int8_t _currentLuaUICommand = -1;
 };
 
 }

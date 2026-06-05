@@ -159,12 +159,38 @@ WebFileSystem::begin(Application* app, bool format)
         std::string widget = p->getHTTPArg("widget");
         std::string value = p->getHTTPArg("value");
         
+        // When the "new" op is called the Lua program associated with the panel is started.
+        // If a Lua program is running when "new" is called it is terminated.
+        // if it's not running when "change" is called it's an error.
+        
         if (op == "new") {
-            System::logI(TAG, "Handle uipanel with the name '%s'", name.c_str());
+            if (_currentLuaUICommand != -1) {
+                LuaManager::terminate(_currentLuaUICommand);
+            }
+
+            std::string path = "/sys/ui/";
+            path += name;
+            path += ".lua";
+            if (!exists(path.c_str())) {
+                System::logW(TAG, "No Lua uipanel command with the name '%s'", name.c_str());
+                return false;
+            }
+
+            _currentLuaUICommand = LuaManager::execute(path.c_str());
+            System::logI(TAG, "Running Lua uipanel command '%s'", path.c_str());
+            
+            System::logI(TAG, "Creating uipanel with the name '%s'", name.c_str());
             std::string s = makeUIPanelPage(name.c_str());
             p->sendHTTPResponse(200, "text/html", s.c_str());
         } else if (op == "change") {
             System::logI(TAG, "UI changed: panelName='%s', widget='%s', value='%s'", name.c_str(), widget.c_str(), value.c_str());
+            
+            if (_currentLuaUICommand == -1) {
+                System::logW(TAG, "No Lua uipanel command running");
+                return false;
+            }
+
+            LuaManager::sendEvent(_currentLuaUICommand, { widget, value });
             p->sendHTTPResponse(200, "text/plain", "OK");
         } else {
             // Error
