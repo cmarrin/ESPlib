@@ -224,15 +224,15 @@ LuaManager::terminate(int8_t id)
 {
     std::unique_lock<std::mutex> lk(_mutex);
 
-    const auto& it = _managers.find(id);
-    if (it == _managers.end()) {
+    std::shared_ptr<LuaManager> mgr = getManager(id);
+    if (!mgr) {
         // Uh oh. Manager is gone. For now just leave
         System::logE(TAG, "termination failed, id %d does not exist", int(id));
         return;
     }
     
     System::logI(TAG, "terminating Lua program with id %d", int(id));
-    lua_stop(it->second->_luaState);
+    lua_stop(mgr->_luaState);
 }
 
 std::shared_ptr<LuaManager>
