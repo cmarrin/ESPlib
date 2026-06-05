@@ -193,7 +193,7 @@ Shell::handleShellCommand(const std::string& incomingCmd, PrintCB printCB)
     }
 
     // Execute command
-    return LuaManager::execute(path.c_str(), _termChars, args, printCB);
+    return LuaManager::execute(path.c_str(), args, _termChars, printCB);
 }
 
 void

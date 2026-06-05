@@ -33,8 +33,8 @@ public:
     LuaManager(PrintCB printCB);
     ~LuaManager();
     
-    static int8_t execute(const std::string& filename, int cpl = 0, std::vector<std::string> args = std::vector<std::string>(),
-                                                std::function<void(const char*, size_t)> printCB = nullptr);
+    static int8_t execute(const std::string& filename, std::vector<std::string> args = std::vector<std::string>(),
+                                                int cpl = 0, std::function<void(const char*, size_t)> printCB = nullptr);
                                                 
     void waitForFinish();
     

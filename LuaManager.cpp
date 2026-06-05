@@ -164,8 +164,8 @@ static int luaGetEvent(lua_State* L)
 }
 
 int8_t
-LuaManager::execute(const std::string& filename, int cpl, std::vector<std::string> args,
-                    std::function<void(const char*, size_t)> printCB)
+LuaManager::execute(const std::string& filename, std::vector<std::string> args,
+                    int cpl, std::function<void(const char*, size_t)> printCB)
 {
     std::shared_ptr<LuaManager> mgr = std::make_shared<LuaManager>(printCB);
     
