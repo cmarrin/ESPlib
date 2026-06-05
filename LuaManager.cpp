@@ -197,6 +197,8 @@ LuaManager::execute(const std::string& filename, int cpl, std::vector<std::strin
     lua_setglobal(mgr->_luaState, "delay");
     lua_pushcfunction(mgr->_luaState, luaMillis);
     lua_setglobal(mgr->_luaState, "millis");
+    lua_pushcfunction(mgr->_luaState, luaGetEvent);
+    lua_setglobal(mgr->_luaState, "getEvent");
 
     // Set an 'arg' global with the args
     lua_createtable(mgr->_luaState, int(args.size()), 0);
