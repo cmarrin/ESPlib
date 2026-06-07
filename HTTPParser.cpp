@@ -253,6 +253,7 @@ std::string
 HTTPParser::getLine(ReadCB cb)
 {
     std::string s;
+    int32_t waitCount = 100;
     
     // Get a line
     bool needNewLine = false;
@@ -265,7 +266,11 @@ HTTPParser::getLine(ReadCB cb)
                 perror("error from read during getLine");
                 return "";
             }
+            if (waitCount-- <= 0) {
+                return "";
+            }
             System::delay(1);
+            continue;
         }
 
         if (needNewLine) {
@@ -279,8 +284,10 @@ HTTPParser::getLine(ReadCB cb)
         
         if (c == '\r') {
             needNewLine = true;
-        } else {
+        } else if (c) {
             s += c;
+        } else {
+            break;
         }
     }
     return s;
