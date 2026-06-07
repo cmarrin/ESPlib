@@ -121,6 +121,34 @@ static int luaHSVToRGB(lua_State* L)
     return 3;
 }
 
+static int luaRGBToHSV(lua_State* L)
+{
+    lua_Number b = std::max(0, std::min(255, int(lua_tonumber(L, -1))));
+    lua_Number g = std::max(0, std::min(255, int(lua_tonumber(L, -2))));
+    lua_Number r = std::max(0, std::min(255, int(lua_tonumber(L, -3))));
+
+    uint8_t h, s, v;
+    Graphics::rgbToHSV(h, s, v, r, g, b);
+    
+    lua_pushnumber(L, h);
+    lua_pushnumber(L, s);
+    lua_pushnumber(L, v);
+    return 3;
+}
+
+static int luaHTMLToHSV(lua_State* L)
+{
+    const char* str = lua_tostring(L, -1);
+
+    uint8_t h, s, v;
+    Graphics::htmlToHSV(h, s, v, str);
+    
+    lua_pushnumber(L, h);
+    lua_pushnumber(L, s);
+    lua_pushnumber(L, v);
+    return 3;
+}
+
 static int luaRefreshLEDs(lua_State* L)
 {
     lua_Number channel = lua_tonumber(L, -1);
@@ -191,6 +219,10 @@ LuaManager::execute(const std::string& filename, std::vector<std::string> args,
     lua_setglobal(mgr->_luaState, "setLEDs");
     lua_pushcfunction(mgr->_luaState, luaHSVToRGB);
     lua_setglobal(mgr->_luaState, "hsvToRGB");
+    lua_pushcfunction(mgr->_luaState, luaRGBToHSV);
+    lua_setglobal(mgr->_luaState, "rgbToHSV");
+    lua_pushcfunction(mgr->_luaState, luaHTMLToHSV);
+    lua_setglobal(mgr->_luaState, "htmlToHSV");
     lua_pushcfunction(mgr->_luaState, luaRefreshLEDs);
     lua_setglobal(mgr->_luaState, "refreshLEDs");
     lua_pushcfunction(mgr->_luaState, luaDelay);
