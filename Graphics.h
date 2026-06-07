@@ -58,6 +58,8 @@ class Graphics {
     
     static uint32_t rgbToColor(uint8_t r, uint8_t g, uint8_t b);
     static void hsvToRGB(uint8_t& r, uint8_t& g, uint8_t& b, uint16_t h, uint8_t s = 255, uint8_t v = 255);
+    static void rgbToHSV(uint8_t& h, uint8_t& s, uint8_t& v, uint8_t r, uint8_t g, uint8_t b);
+    static void htmlToHSV(uint8_t& h, uint8_t& s, uint8_t& v, const char* c); // HTML color string starts with '#', 2 digits for R, G and B
     static uint8_t gamma(uint8_t c) { return _gammaTable[c]; }
     void setFont(const GFXfont* f = nullptr) { _font = f; }
     void writeChar(uint8_t c);

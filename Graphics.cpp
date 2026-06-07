@@ -10,6 +10,7 @@ All rights reserved.
 #include "Graphics.h"
 
 #include <cstring>
+#include <cctype>
 
 using namespace mil;
 
@@ -77,6 +78,62 @@ Graphics::hsvToRGB(uint8_t& r, uint8_t& g, uint8_t& b, uint16_t hue, uint8_t sat
     r  = ((((r * s1) >> 8) + s2) * v1) >> 8;
     g  = ((((g * s1) >> 8) + s2) * v1) >> 8;
     b  = ((((b * s1) >> 8) + s2) * v1) >> 8;
+}
+
+void
+Graphics::rgbToHSV(uint8_t& hue, uint8_t& sat, uint8_t& val, uint8_t r, uint8_t g, uint8_t b)
+{
+    double h = 0;
+    double s = 0;
+    double v = 0;
+    
+    double min = std::min(std::min(r, g), b);
+    double max = std::max(std::max(r, g), b);
+    double delta = max - min;
+    
+    v = max;
+    
+    if (max == 0) {
+        s = 0;
+    } else {
+        s = delta / max;
+    }
+    
+    if (s == 0) {
+        h = 0;
+    } else {
+		if (r == v) {
+			h = (g - b) / delta;
+		} else if (g == v) {
+			h = 2 + (b - r) / delta;
+		} else if (b == v) {
+			h = 4 + (r - g) / delta;
+        }
+		h *= 60;
+
+		if (h < 0.0) {
+			h = h + 360;
+        }
+    }
+    
+    hue = h / 360 * 255;
+    sat = s * 255;
+    val = v;
+}
+
+void
+Graphics::htmlToHSV(uint8_t& hue, uint8_t& sat, uint8_t& val, const char* c)
+{
+    std::string color(c);
+    if (color.length() != 7 || color[0] != '#') {
+        hue = 0;
+        sat = 0;
+        val = 0;
+    }
+    uint8_t r = std::stoi(color.substr(1, 2), nullptr, 16);
+    uint8_t g = std::stoi(color.substr(3, 2), nullptr, 16);
+    uint8_t b = std::stoi(color.substr(5, 2), nullptr, 16);
+    rgbToHSV(hue, sat, val, r, g, b);
 }
 
 // TEXT- AND CHARACTER-HANDLING FUNCTIONS ----------------------------------
