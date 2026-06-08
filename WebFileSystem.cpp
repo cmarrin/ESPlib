@@ -154,20 +154,11 @@ WebFileSystem::begin(Application* app, bool format)
     
     app->addHTTPHandler("/uipanel", [this](WiFiPortal* p)
     {
-        std::string op = p->getHTTPArg("op");
         std::string name = p->getHTTPArg("name");
         std::string widget = p->getHTTPArg("widget");
         std::string value = p->getHTTPArg("value");
         
-        // When the "new" op is called the Lua program associated with the panel is started.
-        // If a Lua program is running when "new" is called it is terminated.
-        // if it's not running when "change" is called it's an error.
-        
-        if (op == "new") {
-            if (_currentLuaUICommand != -1) {
-                LuaManager::terminate(_currentLuaUICommand);
-            }
-
+        if (_currentLuaUICommand == -1) {
             std::string path = "/sys/ui/";
             path += name;
             path += ".lua";
@@ -182,7 +173,9 @@ WebFileSystem::begin(Application* app, bool format)
             System::logI(TAG, "Creating uipanel with the name '%s'", name.c_str());
             std::string s = makeUIPanelPage(name.c_str());
             p->sendHTTPResponse(200, "text/html", s.c_str());
-        } else if (op == "change") {
+        }
+        
+        if (!widget.empty()) {
             System::logI(TAG, "UI changed: panelName='%s', widget='%s', value='%s'", name.c_str(), widget.c_str(), value.c_str());
             
             if (_currentLuaUICommand == -1) {
@@ -192,10 +185,6 @@ WebFileSystem::begin(Application* app, bool format)
 
             LuaManager::sendEvent(_currentLuaUICommand, { widget, value });
             p->sendHTTPResponse(200, "text/plain", "OK");
-        } else {
-            // Error
-            System::logI(TAG, "Unrecognized UI Panel operation: '%s'", op.c_str());
-            p->sendHTTPResponse(400, "text/plain", "Bad Request");
         }
         return true;
     });
@@ -510,7 +499,6 @@ WebFileSystem::handleLandingSetup(WiFiPortal* portal)
     // Add UI panel button if it exists
     if (exists("/sys/ui/uipanel.json")) {
         customMenu += "<form action='/uipanel' method='get'><button class='btn'>UI Panel</button>";
-        customMenu += "<input type='hidden' name='op' value='new' />";
         customMenu += "<input type='hidden' name='name' value='uipanel' />";
         customMenu += "</form><br/>";
     }
