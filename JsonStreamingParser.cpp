@@ -38,8 +38,8 @@ JsonStreamingParser::reset()
     _bufferPos = 0;
     _unicodeEscapeBufferPos = 0;
     _unicodeBufferPos = 0;
-    _currentLine = 0;
-    _currentChar = 0;
+    _currentLine = 1;
+    _currentChar = 1;
     _errorString.clear();
 }
 
@@ -55,7 +55,7 @@ JsonStreamingParser::parse(char c)
     // Handle current line and char
     if (c == '\n') {
         _currentLine++;
-        _currentChar = 0;
+        _currentChar = 1;
     } else {
         _currentChar++;
     }
@@ -73,10 +73,9 @@ JsonStreamingParser::parse(char c)
     switch (_state) {
         case State::InString:
             if (c == '"') {
-                if (!endString()) {
-                    return false;
-                }
-            } else if (c == '\\') {
+                return endString();
+            }
+            if (c == '\\') {
                 _state = State::StartEscape;
             } else if ((c < 0x1f) || (c == 0x7f)) {
                 _errorString = "Unescaped control character encountered";
@@ -245,6 +244,7 @@ bool
 JsonStreamingParser::endString()
 {
     Stack popped = _stack.back();
+    _stack.pop_back();
     if (popped == Stack::Key) {
         _buffer[_bufferPos] = '\0';
         _myListener->key(_buffer);
@@ -302,6 +302,7 @@ bool
 JsonStreamingParser::endArray()
 {
     Stack popped = _stack.back();
+    _stack.pop_back();
     if (popped != Stack::Array) {
         _errorString = "Unexpected end of array encountered";
         return false;
@@ -325,6 +326,7 @@ bool
 JsonStreamingParser::endObject()
 {
     Stack popped = _stack.back();
+    _stack.pop_back();
     if (popped != Stack::Object) {
         _errorString = "Unexpected end of object encountered";
         return false;

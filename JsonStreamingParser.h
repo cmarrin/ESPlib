@@ -33,6 +33,10 @@ class JsonStreamingParser {
     bool parse(char c);
     void setListener(JsonListener* listener);
     void reset();
+    std::string errorString()
+    {
+        return _errorString + " at line " + std::to_string(_currentLine) + ", char " + std::to_string(_currentChar);
+    }
 
   private:
     static constexpr int BufferSize = 512;
@@ -99,7 +103,7 @@ class JsonStreamingParser {
     int _unicodeBufferPos = 0;
     int _unicodeHighSurrogate = 0;
     
-    int _currentLine = 0;
-    int _currentChar = 0;
+    int _currentLine = 1;
+    int _currentChar = 1;
     std::string _errorString;
 };
