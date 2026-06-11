@@ -10,13 +10,13 @@ All rights reserved.
 #include "TimeWeatherServer.h"
 
 #include "HTTPFetchClient.h"
-#include "JsonStreamingParser.h"
+#include "JSONParser.h"
 
 using namespace mil;
 
 static const char* TAG = "TimeWeatherServer";
 
-class MyJSONParser : public JsonStreamingParser
+class MyJSONParser : public JSONParser
 {
   public:
     virtual void handleKey(const std::string& key) override

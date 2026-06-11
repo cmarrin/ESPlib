@@ -23,18 +23,18 @@ SOFTWARE.
 See more at http://blog.squix.ch and https://github.com/squix78/json-streaming-parser
 */
 
-#include "JsonStreamingParser.h"
+#include "JSONParser.h"
 
 #include <cstring>
 
 using namespace mil;
 
-JsonStreamingParser::JsonStreamingParser() {
+JSONParser::JSONParser() {
     reset();
 }
 
 void
-JsonStreamingParser::reset()
+JSONParser::reset()
 {
     _state = State::StartDocument;
     _bufferPos = 0;
@@ -46,7 +46,7 @@ JsonStreamingParser::reset()
 }
 
 bool
-JsonStreamingParser::parse(char c)
+JSONParser::parse(char c)
 {
     // Handle current line and char
     if (c == '\n') {
@@ -227,7 +227,7 @@ JsonStreamingParser::parse(char c)
 }
 
 void
-JsonStreamingParser::increaseBufferPointer()
+JSONParser::increaseBufferPointer()
 {
     if (_bufferPos + 1 < BufferSize - 1) {
         _bufferPos = _bufferPos + 1;
@@ -237,7 +237,7 @@ JsonStreamingParser::increaseBufferPointer()
 }
 
 bool
-JsonStreamingParser::endString()
+JSONParser::endString()
 {
     Stack popped = _stack.back();
     _stack.pop_back();
@@ -258,7 +258,7 @@ JsonStreamingParser::endString()
 }
   
 bool
-JsonStreamingParser::startValue(char c)
+JSONParser::startValue(char c)
 {
     if (c == '[') {
         startArray();
@@ -288,14 +288,14 @@ JsonStreamingParser::startValue(char c)
 }
 
 bool
-JsonStreamingParser::isDigit(char c)
+JSONParser::isDigit(char c)
 {
     // Only concerned with the first character in a number.
     return (c >= '0' && c <= '9') || c == '-';
 }
 
 bool
-JsonStreamingParser::endArray()
+JSONParser::endArray()
 {
     Stack popped = _stack.back();
     _stack.pop_back();
@@ -312,14 +312,14 @@ JsonStreamingParser::endArray()
 }
 
 void
-JsonStreamingParser::startKey()
+JSONParser::startKey()
 {
     _stack.push_back(Stack::Key);
     _state = State::InString;
 }
 
 bool
-JsonStreamingParser::endObject()
+JSONParser::endObject()
 {
     Stack popped = _stack.back();
     _stack.pop_back();
@@ -336,7 +336,7 @@ JsonStreamingParser::endObject()
 }
 
 bool
-JsonStreamingParser::processEscapeCharacters(char c)
+JSONParser::processEscapeCharacters(char c)
 {
     if (c == '"') {
         _buffer[_bufferPos] = '"';
@@ -375,7 +375,7 @@ JsonStreamingParser::processEscapeCharacters(char c)
 }
 
 bool
-JsonStreamingParser::processUnicodeCharacter(char c)
+JSONParser::processUnicodeCharacter(char c)
 {
     if (!isHexCharacter(c)) {
         _errorString = "Expected hex character for escaped Unicode character";
@@ -393,13 +393,13 @@ JsonStreamingParser::processUnicodeCharacter(char c)
 }
 
 bool
-JsonStreamingParser::isHexCharacter(char c)
+JSONParser::isHexCharacter(char c)
 {
     return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
 }
 
 int
-JsonStreamingParser::getHexArrayAsDecimal(char hexArray[], int length)
+JSONParser::getHexArrayAsDecimal(char hexArray[], int length)
 {
     int result = 0;
     for (int i = 0; i < length; i++) {
@@ -418,7 +418,7 @@ JsonStreamingParser::getHexArrayAsDecimal(char hexArray[], int length)
 }
 
 bool
-JsonStreamingParser::doesCharArrayContain(char myArray[], int length, char c)
+JSONParser::doesCharArrayContain(char myArray[], int length, char c)
 {
     for (int i = 0; i < length; i++) {
       if (myArray[i] == c) {
@@ -429,7 +429,7 @@ JsonStreamingParser::doesCharArrayContain(char myArray[], int length, char c)
 }
 
 bool
-JsonStreamingParser::endUnicodeSurrogateInterstitial()
+JSONParser::endUnicodeSurrogateInterstitial()
 {
     char unicodeEscape = _unicodeEscapeBuffer[_unicodeBufferPos - 1];
     if (unicodeEscape != 'u') {
@@ -443,7 +443,7 @@ JsonStreamingParser::endUnicodeSurrogateInterstitial()
 }
 
 void
-JsonStreamingParser::endNumber()
+JSONParser::endNumber()
 {
     _buffer[_bufferPos] = '\0';
     handleValue(_buffer);
@@ -452,7 +452,7 @@ JsonStreamingParser::endNumber()
 }
 
 int
-JsonStreamingParser::convertDecimalBufferToInt(char myArray[], int length)
+JSONParser::convertDecimalBufferToInt(char myArray[], int length)
 {
     int result = 0;
     for (int i = 0; i < length; i++) {
@@ -463,14 +463,14 @@ JsonStreamingParser::convertDecimalBufferToInt(char myArray[], int length)
 }
 
 void
-JsonStreamingParser::endDocument()
+JSONParser::endDocument()
 {
     handleEndDocument();
     _state = State::Done;
 }
 
 bool
-JsonStreamingParser::endTrue()
+JSONParser::endTrue()
 {
     _buffer[_bufferPos] = '\0';
     if (strcmp(_buffer, "true") == 0) {
@@ -485,7 +485,7 @@ JsonStreamingParser::endTrue()
 }
 
 bool
-JsonStreamingParser::endFalse()
+JSONParser::endFalse()
 {
     _buffer[_bufferPos] = '\0';
     if (strcmp(_buffer, "false") == 0) {
@@ -499,7 +499,8 @@ JsonStreamingParser::endFalse()
     return true;
 }
 
-bool JsonStreamingParser::endNull()
+bool
+JSONParser::endNull()
 {
     _buffer[_bufferPos] = '\0';
     if (strcmp(_buffer, "null") == 0) {
@@ -514,7 +515,7 @@ bool JsonStreamingParser::endNull()
 }
 
 void
-JsonStreamingParser::startArray()
+JSONParser::startArray()
 {
     handleStartArray();
     _state = State::InArray;
@@ -522,7 +523,7 @@ JsonStreamingParser::startArray()
 }
 
 void
-JsonStreamingParser::startObject()
+JSONParser::startObject()
 {
     handleStartObject();
     _state = State::InObject;
@@ -530,14 +531,14 @@ JsonStreamingParser::startObject()
 }
 
 void
-JsonStreamingParser::startString()
+JSONParser::startString()
 {
     _stack.push_back(Stack::String);
     _state = State::InString;
 }
 
 void
-JsonStreamingParser::startNumber(char c)
+JSONParser::startNumber(char c)
 {
     _state = State::InNumber;
     _buffer[_bufferPos] = c;
@@ -545,7 +546,7 @@ JsonStreamingParser::startNumber(char c)
 }
 
 void
-JsonStreamingParser::endUnicodeCharacter(int codepoint)
+JSONParser::endUnicodeCharacter(int codepoint)
 {
     _buffer[_bufferPos] = convertCodepointToCharacter(codepoint);
     increaseBufferPointer();
@@ -555,7 +556,7 @@ JsonStreamingParser::endUnicodeCharacter(int codepoint)
 }
 
 char
-JsonStreamingParser::convertCodepointToCharacter(int num)
+JSONParser::convertCodepointToCharacter(int num)
 {
     if (num <= 0x7F) {
         return (char) (num);

@@ -11,7 +11,7 @@ All rights reserved.
 
 #include "Application.h"
 #include "HTTPParser.h"
-#include "JsonStreamingParser.h"
+#include "JSONParser.h"
 
 #include "lua.hpp"
 
@@ -504,7 +504,7 @@ WebFileSystem::makeJSON(const KeyValues& json)
 void
 WebFileSystem::parseJSONFile(const std::string& filename, KeyValues& keyValues)
 {
-    class MyJSONParser : public JsonStreamingParser
+    class MyJSONParser : public JSONParser
     {
       public:
         MyJSONParser(KeyValues* v) : _keyValues(v) { }

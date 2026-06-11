@@ -29,9 +29,9 @@ See more at http://blog.squix.ch and https://github.com/squix78/json-streaming-p
 
 namespace mil {
 
-class JsonStreamingParser {
+class JSONParser {
   public:
-    JsonStreamingParser();
+    JSONParser();
     bool parse(char c);
     void reset();
     std::string errorString()
