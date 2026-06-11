@@ -123,7 +123,7 @@ function makeUIPanel(jsonPath)
 
 function sendWidgetChange(name, widget, value)
 {
-    const uri = `/uipanel?name=${name}&widget=${widget}&value=${encodeURIComponent(value)}`;
+    const uri = `/uipanel?op=change&name=${name}&widget=${widget}&value=${encodeURIComponent(value)}`;
     const http = new XMLHttpRequest();
     http.open("GET", uri, true);
     http.onreadystatechange = function()
