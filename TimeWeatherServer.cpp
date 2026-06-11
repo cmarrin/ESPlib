@@ -106,13 +106,7 @@ class MyJsonListener : public JsonListener
         }
     }
     
-    virtual void whitespace(char c) override { }
-    virtual void startDocument() override { }
-    virtual void endArray() override { }
     virtual void endObject() override { _state = State::None; }
-    virtual void endDocument() override { }
-    virtual void startArray() override { }
-    virtual void startObject() override { }
 
     std::optional<uint32_t> currentTime() const { return _currentTime; }
     std::optional<float> latitude() const { return _latitude; }
@@ -172,7 +166,10 @@ TimeWeatherServer::update(const char* zipCode)
     HTTPFetchClient client([parser](const char* buf, uint32_t size)
     {
         for (size_t i = 0; i < size; ++i) {
-            parser->parse(buf[i]);
+            if (!parser->parse(buf[i])) {
+                System::logE(TAG, parser->errorString().c_str());
+                return;
+            }
         }
     });
     

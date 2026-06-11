@@ -31,8 +31,6 @@ All rights reserved.
 
 static constexpr uint32_t UpdateFrequency = 60 * 60; // in seconds
 
-class JsonStreamingParser;
-
 namespace mil {
 
 class TimeWeatherServer
