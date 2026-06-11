@@ -10,19 +10,16 @@ All rights reserved.
 #include "TimeWeatherServer.h"
 
 #include "HTTPFetchClient.h"
-#include "JsonListener.h"
 #include "JsonStreamingParser.h"
 
 using namespace mil;
 
 static const char* TAG = "TimeWeatherServer";
 
-class MyJsonListener : public JsonListener
+class MyJSONParser : public JsonStreamingParser
 {
   public:
-    virtual ~MyJsonListener() { }
-
-    virtual void key(const std::string& key) override
+    virtual void handleKey(const std::string& key) override
     {
         switch(_state) {
             default: break;
@@ -71,7 +68,7 @@ class MyJsonListener : public JsonListener
         }
     }
     
-    virtual void value(const std::string& value) override
+    virtual void handleValue(const std::string& value) override
     {
         switch(_state) {
             default: break;
@@ -106,7 +103,7 @@ class MyJsonListener : public JsonListener
         }
     }
     
-    virtual void endObject() override { _state = State::None; }
+    virtual void handleEndObject() override { _state = State::None; }
 
     std::optional<uint32_t> currentTime() const { return _currentTime; }
     std::optional<float> latitude() const { return _latitude; }
@@ -150,9 +147,7 @@ bool
 TimeWeatherServer::update(const char* zipCode)
 {
     std::string apiURL;
-    JsonStreamingParser* parser = new JsonStreamingParser();
-    MyJsonListener listener;
-    parser->setListener(&listener);
+    std::unique_ptr<MyJSONParser> parser = std::make_unique<MyJSONParser>();
 
     System::logI(TAG, "Getting geolocation feed...");
 
@@ -163,20 +158,20 @@ TimeWeatherServer::update(const char* zipCode)
 
     bool failed = true;
 
-    HTTPFetchClient client([parser](const char* buf, uint32_t size)
+    HTTPFetchClient client([p = parser.get()](const char* buf, uint32_t size)
     {
         for (size_t i = 0; i < size; ++i) {
-            if (!parser->parse(buf[i])) {
-                System::logE(TAG, parser->errorString().c_str());
+            if (!p->parse(buf[i])) {
+                System::logE(TAG, p->errorString().c_str());
                 return;
             }
         }
     });
     
     for (int i = 0; i < 5; ++i) {
-        if (client.fetch(apiURL.c_str()) && listener.latitude() && listener.longitude()) {
-            _latitude = *listener.latitude();
-            _longitude = *listener.longitude();
+        if (client.fetch(apiURL.c_str()) && parser->latitude() && parser->longitude()) {
+            _latitude = *parser->latitude();
+            _longitude = *parser->longitude();
             failed = false;
             break;
         } else {
@@ -195,15 +190,15 @@ TimeWeatherServer::update(const char* zipCode)
         apiURL +="&lng=";
         apiURL += std::to_string(_longitude);
      
-        apiURL += listener.timeZone() ? *listener.timeZone() : "00000";
+        apiURL += parser->timeZone() ? *parser->timeZone() : "00000";
 
         parser->reset();
 
         failed = true;
 
         for (int i = 0; i < 5; ++i) {
-            if (client.fetch(apiURL.c_str()) && listener.currentTime()) {
-                _currentTime = *listener.currentTime();
+            if (client.fetch(apiURL.c_str()) && parser->currentTime()) {
+                _currentTime = *parser->currentTime();
                 failed = false;
                 break;
             } else {
@@ -228,11 +223,11 @@ TimeWeatherServer::update(const char* zipCode)
         failed = true;
         
         for (int i = 0; i < 5; ++i) {
-            if (client.fetch(apiURL.c_str()) && listener.currentTemp() && listener.lowTemp() && listener.highTemp() && listener.conditions()) {
-                _currentTemp = *listener.currentTemp();
-                _lowTemp = *listener.lowTemp();
-                _highTemp = *listener.highTemp();
-                _conditions = *listener.conditions();
+            if (client.fetch(apiURL.c_str()) && parser->currentTemp() && parser->lowTemp() && parser->highTemp() && parser->conditions()) {
+                _currentTemp = *parser->currentTemp();
+                _lowTemp = *parser->lowTemp();
+                _highTemp = *parser->highTemp();
+                _conditions = *parser->conditions();
                 failed = false;
                 break;
             } else {
@@ -252,7 +247,6 @@ TimeWeatherServer::update(const char* zipCode)
     }
     System::logI(TAG, "Next setting in %d minutes", int(timeToNextCheck / 60));
 
-    delete parser;
 	return !failed;
 }
 

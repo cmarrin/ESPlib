@@ -28,6 +28,8 @@ class WiFiPortal;
 class WebFileSystem
 {
   public:
+    using KeyValues = std::vector<std::pair<std::string, std::string>>;
+    
     bool begin(Application*, bool format);
     static fs::File open(const char* path, const char* mode = "r", bool create = false);
     static fs::File openNextFile();
@@ -52,7 +54,11 @@ class WebFileSystem
 
     static inline std::string quote(const std::string& s) { return "\"" + s + "\""; }
     static inline std::string jsonParam(const std::string& n, const std::string& v) { return quote(n) + ":" + quote(v); }
-    static std::string makeJSON(std::vector<std::pair<std::string, std::string>> json);
+    static std::string makeJSON(const KeyValues& json);
+    static void parseJSONFile(const std::string& filename, KeyValues&);
+    
+    // Deserialize a subset of JSON that contains a single object of key/value strings
+    static void deserializeKeyValuePairs(KeyValues& v, const std::string& s);
     
   private:
     bool prepareFile(WiFiPortal* p, std::string& path);
@@ -70,6 +76,8 @@ class WebFileSystem
     static std::string _cwd;
     
     int8_t _currentLuaUICommand = -1;
+    
+    KeyValues _uiWidgetValues;
 };
 
 }

@@ -27,6 +27,8 @@ See more at http://blog.squix.ch and https://github.com/squix78/json-streaming-p
 
 #include <cstring>
 
+using namespace mil;
+
 JsonStreamingParser::JsonStreamingParser() {
     reset();
 }
@@ -41,12 +43,6 @@ JsonStreamingParser::reset()
     _currentLine = 1;
     _currentChar = 1;
     _errorString.clear();
-}
-
-void
-JsonStreamingParser::setListener(JsonListener* listener)
-{
-  _myListener = listener;
 }
 
 bool
@@ -209,7 +205,7 @@ JsonStreamingParser::parse(char c)
             }
             break;
         case State::StartDocument:
-            _myListener->startDocument();
+            handleStartDocument();
             if (c == '[') {
                 startArray();
             } else if (c == '{') {
@@ -247,11 +243,11 @@ JsonStreamingParser::endString()
     _stack.pop_back();
     if (popped == Stack::Key) {
         _buffer[_bufferPos] = '\0';
-        _myListener->key(_buffer);
+        handleKey(_buffer);
         _state = State::EndKey;
     } else if (popped == Stack::String) {
         _buffer[_bufferPos] = '\0';
-        _myListener->value(_buffer);
+        handleValue(_buffer);
         _state = State::AfterValue;
     } else {
         _errorString = "Unexpected end of string";
@@ -307,7 +303,7 @@ JsonStreamingParser::endArray()
         _errorString = "Unexpected end of array encountered";
         return false;
     }
-    _myListener->endArray();
+    handleEndArray();
     _state = State::AfterValue;
     if (_stack.empty()) {
         endDocument();
@@ -331,7 +327,7 @@ JsonStreamingParser::endObject()
         _errorString = "Unexpected end of object encountered";
         return false;
     }
-    _myListener->endObject();
+    handleEndObject();
     _state = State::AfterValue;
     if (_stack.empty()) {
         endDocument();
@@ -450,7 +446,7 @@ void
 JsonStreamingParser::endNumber()
 {
     _buffer[_bufferPos] = '\0';
-    _myListener->value(_buffer);
+    handleValue(_buffer);
     _bufferPos = 0;
     _state = State::AfterValue;
 }
@@ -469,7 +465,7 @@ JsonStreamingParser::convertDecimalBufferToInt(char myArray[], int length)
 void
 JsonStreamingParser::endDocument()
 {
-    _myListener->endDocument();
+    handleEndDocument();
     _state = State::Done;
 }
 
@@ -478,7 +474,7 @@ JsonStreamingParser::endTrue()
 {
     _buffer[_bufferPos] = '\0';
     if (strcmp(_buffer, "true") == 0) {
-        _myListener->value("true");
+        handleValue("true");
     } else {
         _errorString = "Expected 'true'";
         return false;
@@ -493,7 +489,7 @@ JsonStreamingParser::endFalse()
 {
     _buffer[_bufferPos] = '\0';
     if (strcmp(_buffer, "false") == 0) {
-        _myListener->value("false");
+        handleValue("false");
     } else {
         _errorString = "Expected 'false'";
         return false;
@@ -507,7 +503,7 @@ bool JsonStreamingParser::endNull()
 {
     _buffer[_bufferPos] = '\0';
     if (strcmp(_buffer, "null") == 0) {
-        _myListener->value("null");
+        handleValue("null");
     } else {
         _errorString = "Expected 'null'";
         return false;
@@ -520,7 +516,7 @@ bool JsonStreamingParser::endNull()
 void
 JsonStreamingParser::startArray()
 {
-    _myListener->startArray();
+    handleStartArray();
     _state = State::InArray;
     _stack.push_back(Stack::Array);
 }
@@ -528,7 +524,7 @@ JsonStreamingParser::startArray()
 void
 JsonStreamingParser::startObject()
 {
-    _myListener->startObject();
+    handleStartObject();
     _state = State::InObject;
     _stack.push_back(Stack::Object);
 }

@@ -25,18 +25,30 @@ See more at http://blog.squix.ch and https://github.com/squix78/json-streaming-p
 
 #pragma once
 
-#include "JsonListener.h"
+#include "mil.h"
+
+namespace mil {
 
 class JsonStreamingParser {
   public:
     JsonStreamingParser();
     bool parse(char c);
-    void setListener(JsonListener* listener);
     void reset();
     std::string errorString()
     {
         return _errorString + " at line " + std::to_string(_currentLine) + ", char " + std::to_string(_currentChar);
     }
+
+  protected:
+    virtual void handleWhitespace(char c) { }
+    virtual void handleStartDocument() { }
+    virtual void handleKey(const std::string& key) { }
+    virtual void handleValue(const std::string& value) { }
+    virtual void handleEndArray() { }
+    virtual void handleEndObject() { }
+    virtual void handleEndDocument() { }
+    virtual void handleStartArray() { }
+    virtual void handleStartObject() { }
 
   private:
     static constexpr int BufferSize = 512;
@@ -89,7 +101,6 @@ class JsonStreamingParser {
     
     State _state;
     std::vector<Stack> _stack;
-    JsonListener* _myListener;
 
     bool _doEmitWhitespace = false;
     
@@ -107,3 +118,5 @@ class JsonStreamingParser {
     int _currentChar = 1;
     std::string _errorString;
 };
+
+}
