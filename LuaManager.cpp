@@ -206,6 +206,9 @@ LuaManager::execute(const std::string& filename, std::vector<std::string> args,
     // Set the require path
     std::string realRequirePath = WebFileSystem::realPath("/sys/?.lua");
     luaL_dostring(mgr->_luaState, (std::string("package.path = \"") + realRequirePath + "\"").c_str());
+    
+    // set the path for file i/o
+    std::filesystem::current_path(WebFileSystem::realPath("/sys/"));
 
     // add a print method
     lua_register(mgr->_luaState, "__print__", printLua);
