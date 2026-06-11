@@ -27,108 +27,79 @@ See more at http://blog.squix.ch and https://github.com/squix78/json-streaming-p
 
 #include "JsonListener.h"
 
-#define STATE_START_DOCUMENT     0
-#define STATE_DONE               -1
-#define STATE_IN_ARRAY           1
-#define STATE_IN_OBJECT          2
-#define STATE_END_KEY            3
-#define STATE_AFTER_KEY          4
-#define STATE_IN_STRING          5
-#define STATE_START_ESCAPE       6
-#define STATE_UNICODE            7
-#define STATE_IN_NUMBER          8
-#define STATE_IN_TRUE            9
-#define STATE_IN_FALSE           10
-#define STATE_IN_NULL            11
-#define STATE_AFTER_VALUE        12
-#define STATE_UNICODE_SURROGATE  13
-
-#define STACK_OBJECT             0
-#define STACK_ARRAY              1
-#define STACK_KEY                2
-#define STACK_STRING             3
-
-#define BUFFER_MAX_LENGTH  512
-
 class JsonStreamingParser {
-  private:
-
-
-    int state;
-    int stack[20];
-    int stackPos = 0;
-    JsonListener* myListener;
-
-    bool doEmitWhitespace = false;
-    // fixed length buffer array to prepare for c code
-    char buffer[BUFFER_MAX_LENGTH];
-    int bufferPos = 0;
-
-    char unicodeEscapeBuffer[10];
-    int unicodeEscapeBufferPos = 0;
-
-    char unicodeBuffer[10];
-    int unicodeBufferPos = 0;
-
-    int characterCounter = 0;
-
-    int unicodeHighSurrogate = 0;
-
-    void increaseBufferPointer();
-
-    void endString();
-
-    void endArray();
-
-    void startValue(char c);
-
-    void startKey();
-
-    void processEscapeCharacters(char c);
-
-    bool isDigit(char c);
-
-    bool isHexCharacter(char c);
-
-    char convertCodepointToCharacter(int num);
-
-    void endUnicodeCharacter(int codepoint);
-
-    void startNumber(char c);
-
-    void startString();
-
-    void startObject();
-
-    void startArray();
-
-    void endNull();
-
-    void endFalse();
-
-    void endTrue();
-
-    void endDocument();
-
-    int convertDecimalBufferToInt(char myArray[], int length);
-
-    void endNumber();
-
-    void endUnicodeSurrogateInterstitial();
-
-    bool doesCharArrayContain(char myArray[], int length, char c);
-
-    int getHexArrayAsDecimal(char hexArray[], int length);
-
-    void processUnicodeCharacter(char c);
-
-    void endObject();
-
-
-
   public:
     JsonStreamingParser();
-    void parse(char c);
+    bool parse(char c);
     void setListener(JsonListener* listener);
     void reset();
+
+  private:
+    static constexpr int BufferSize = 512;
+    
+    enum class State {
+        StartDocument,
+        Done,
+        InArray,
+        InObject,
+        EndKey,
+        AfterKey,
+        InString,
+        StartEscape,
+        Unicode,
+        InNumber,
+        InTrue,
+        InFalse,
+        InNull,
+        AfterValue,
+        UnicodeSurrogate,
+    };
+    
+    enum class Stack { Object, Array, Key, String };
+
+    void increaseBufferPointer();
+    bool endString();
+    bool endArray();
+    bool startValue(char c);
+    void startKey();
+    bool processEscapeCharacters(char c);
+    bool isDigit(char c);
+    bool isHexCharacter(char c);
+    char convertCodepointToCharacter(int num);
+    void endUnicodeCharacter(int codepoint);
+    void startNumber(char c);
+    void startString();
+    void startObject();
+    void startArray();
+    bool endNull();
+    bool endFalse();
+    bool endTrue();
+    void endDocument();
+    int convertDecimalBufferToInt(char myArray[], int length);
+    void endNumber();
+    bool endUnicodeSurrogateInterstitial();
+    bool doesCharArrayContain(char myArray[], int length, char c);
+    int getHexArrayAsDecimal(char hexArray[], int length);
+    bool processUnicodeCharacter(char c);
+    bool endObject();
+    
+    State _state;
+    std::vector<Stack> _stack;
+    JsonListener* _myListener;
+
+    bool _doEmitWhitespace = false;
+    
+    char _buffer[BufferSize];
+    int _bufferPos = 0;
+
+    char _unicodeEscapeBuffer[10];
+    int _unicodeEscapeBufferPos = 0;
+
+    char _unicodeBuffer[10];
+    int _unicodeBufferPos = 0;
+    int _unicodeHighSurrogate = 0;
+    
+    int _currentLine = 0;
+    int _currentChar = 0;
+    std::string _errorString;
 };

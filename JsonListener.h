@@ -28,26 +28,14 @@ See more at http://blog.squix.ch and https://github.com/squix78/json-streaming-p
 #include "mil.h"
 
 class JsonListener {
-  private:
-
   public:
-    
-    virtual void whitespace(char c) = 0;
-  
-    virtual void startDocument() = 0;
-
-    virtual void key(const std::string& key) = 0;
-
-    virtual void value(const std::string& value) = 0;
-
-    virtual void endArray() = 0;
-
-    virtual void endObject() = 0;
-
-    virtual void endDocument() = 0;
-
-    virtual void startArray() = 0;
-
-    virtual void startObject() = 0;
- 
+    virtual void whitespace(char c) { }
+    virtual void startDocument() { }
+    virtual void key(const std::string& key) { }
+    virtual void value(const std::string& value) { }
+    virtual void endArray() { }
+    virtual void endObject() { }
+    virtual void endDocument() { }
+    virtual void startArray() { }
+    virtual void startObject() { }
 };
