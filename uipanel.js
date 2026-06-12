@@ -121,6 +121,31 @@ function makeUIPanel(jsonPath)
         .catch(error => console.error('Error fetching UI Panel', error));
 }
 
+function updateUIPanel(jsonPath)
+{
+    // Fetch the JSON that has the widget values
+    fetch(jsonPath, {mode: 'no-cors'})
+        .then(response => response.text())
+        .then(data => {
+            const items = JSON.parse(data);
+
+            // FIXME: Eventually the widgetValues file will contain and object
+            // with a list of properties with the effect as the key and an
+            // Object with all the widget values. For now it's just a single
+            // level object with all the widget names
+            for (const key in items) {
+                let widget = document.getElementById(key);
+                if (widget.type == "checkbox") {
+                    widget.checked = items[key] == "true";
+                } else {
+                    widget.value = items[key];
+                }
+                sendWidgetChange(uipanelName, key, items[key]);
+            }
+        })
+        .catch(error => console.error('Error fetching UI Panel', error));
+}
+
 function sendWidgetChange(name, widget, value)
 {
     const uri = `/uipanel?op=change&name=${name}&widget=${widget}&value=${encodeURIComponent(value)}`;
@@ -138,3 +163,4 @@ function sendWidgetChange(name, widget, value)
 }
 
 makeUIPanel(uipanelJSON);
+updateUIPanel(uipanelWidgetValues);

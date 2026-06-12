@@ -92,21 +92,21 @@ static std::string makeRedirectPage(const char* text)
     return s;
 }
 
-static std::string makeUIPanelPage(const char* panelName)
+static std::string makeUIPanelPage(const std::string& panelName)
 {
-    std::string s = "<!DOCTYPE html><html><head><title>UI Panel</title>";
-    s += "<link rel=\"stylesheet\" href=\"/fs/sys/ui/uipanel.css\">";
-    s += "</head><body>";
-    s += "<div class=\"container\">";
-    s += "<h1 id=\"title\">Placeholder Title</h1>";
-    s += "<div id=\"uipanel\">Placeholder UI</div></div>";
-    s += "<script>const uipanelJSON = \"/fs/sys/ui/";
-    s += panelName;
-    s += ".json\"; const uipanelName=\"";
-    s += panelName;
-    s += "\"</script>";
-    s += "<script src=\"/fs/sys/ui/uipanel.js\"></script>";
-    s += "</body></html>";
+    std::string s = "<!DOCTYPE html><html><head><title>UI Panel</title>\n";
+    s += "<link rel=\"stylesheet\" href=\"/fs/sys/ui/uipanel.css\">\n";
+    s += "</head><body>\n";
+    s += "<div class=\"container\">\n";
+    s += "<h1 id=\"title\">Placeholder Title</h1>\n";
+    s += "<div id=\"uipanel\">Placeholder UI</div></div>\n";
+    s += "<script>\n";
+    s += "const uipanelJSON = \"/fs/sys/ui/" + panelName + ".json\"\n";
+    s += "const uipanelWidgetValues = \"/fs/sys/ui/" + panelName + ".widgetValues.json\"\n";
+    s += "const uipanelName=\"" + panelName + "\"\n";
+    s += "</script>\n";
+    s += "<script src=\"/fs/sys/ui/uipanel.js\"></script>\n";
+    s += "</body></html>\n";
     return s;
 }
 
@@ -184,7 +184,7 @@ WebFileSystem::begin(Application* app, bool format)
             System::logI(TAG, "Running Lua uipanel command '%s'", path.c_str());
             
             System::logI(TAG, "Creating uipanel with the name '%s'", name.c_str());
-            std::string s = makeUIPanelPage(name.c_str());
+            std::string s = makeUIPanelPage(name);
             p->sendHTTPResponse(200, "text/html", s.c_str());
         } else if (op == "change") {
             System::logI(TAG, "UI changed: panelName='%s', widget='%s', value='%s'", name.c_str(), widget.c_str(), value.c_str());
