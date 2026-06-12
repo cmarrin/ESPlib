@@ -69,6 +69,8 @@ class File
     bool isDirectory() const { return _isDir; }
     File openNextFile();
     
+    FILE* rawFile() const { return _file; }
+    
     operator bool() const { return _isDir || (_file && _error == 0); }
 
     int error() const { return _error; }
