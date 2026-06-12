@@ -55,7 +55,6 @@ class WebFileSystem
     static inline std::string quote(const std::string& s) { return "\"" + s + "\""; }
     static inline std::string jsonParam(const std::string& n, const std::string& v) { return quote(n) + ":" + quote(v); }
     static std::string makeJSON(const KeyValues& json);
-    static void parseJSONFile(const std::string& filename, KeyValues&);
     
     // Deserialize a subset of JSON that contains a single object of key/value strings
     static void deserializeKeyValuePairs(KeyValues& v, const std::string& s);
