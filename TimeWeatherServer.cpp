@@ -19,7 +19,7 @@ static const char* TAG = "TimeWeatherServer";
 class MyJSONParser : public JSONParser
 {
   public:
-    virtual void handleKey(const std::string& key) override
+    virtual bool handleKey(const std::string& key) override
     {
         switch(_state) {
             default: break;
@@ -66,9 +66,10 @@ class MyJSONParser : public JSONParser
             }
             break;
         }
+        return true;
     }
     
-    virtual void handleValue(const std::string& value) override
+    virtual bool handleValue(const std::string& value) override
     {
         switch(_state) {
             default: break;
@@ -101,9 +102,10 @@ class MyJSONParser : public JSONParser
             _state = State::Day;
             break;
         }
+        return true;
     }
     
-    virtual void handleEndObject() override { _state = State::None; }
+    virtual bool handleEndObject() override { _state = State::None; return true; }
 
     std::optional<uint32_t> currentTime() const { return _currentTime; }
     std::optional<float> latitude() const { return _latitude; }
@@ -161,7 +163,7 @@ TimeWeatherServer::update(const char* zipCode)
     HTTPFetchClient client([p = parser.get()](const char* buf, uint32_t size)
     {
         for (size_t i = 0; i < size; ++i) {
-            if (!p->parse(buf[i])) {
+            if (!p->parseNextChar(buf[i])) {
                 System::logE(TAG, p->errorString().c_str());
                 return;
             }
