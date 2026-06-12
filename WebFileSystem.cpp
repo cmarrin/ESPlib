@@ -166,7 +166,14 @@ WebFileSystem::begin(Application* app, bool format)
         
         if (op == "new") {
             // Preload the widget values
-            //parseJSONFile(std::string("/sys/ui/") + name + ".widgetValues.txt", _uiWidgetValues);
+            std::string filename = std::string("/sys/ui/") + name + ".widgetValues.txt";
+            fs::File file = open(filename.c_str(), "r");
+            
+            try {
+                _uiWidgetValues = nlohmann::json::parse(file.rawFile());
+            } catch (const nlohmann::json::exception& e) {
+                System::logE(TAG, "error parsing widgetValues: %s", e.what());
+            }
 
             if (_currentLuaUICommand != -1) {
                 LuaManager::terminate(_currentLuaUICommand);

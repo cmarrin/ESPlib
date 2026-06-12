@@ -15,6 +15,8 @@ All rights reserved.
 #include "LittleFSShim.h"
 #endif
 
+#include "json.hpp"
+
 // Web based filesystem. It can be integrated with WebServer
 // so HTTP requests can be made to upload files, read existing
 // files, create directories, delete files and directories and do
@@ -76,7 +78,7 @@ class WebFileSystem
     
     int8_t _currentLuaUICommand = -1;
     
-    KeyValues _uiWidgetValues;
+    nlohmann::json _uiWidgetValues;
 };
 
 }
