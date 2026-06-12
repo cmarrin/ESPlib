@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4905F6F32FDC7FC400CB6C64 /* json.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4905F6F22FDC7FC400CB6C64 /* json.hpp */; };
 		490799762F89ABCA00BBEE73 /* MacWiFiPortal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 490799692F89AA2B00BBEE73 /* MacWiFiPortal.cpp */; };
 		4907997F2F89ABF500BBEE73 /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4907997E2F89ABEB00BBEE73 /* liblua.a */; };
 		491673DA2EA865380028A6F0 /* LuaManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 491673D92EA865290028A6F0 /* LuaManager.h */; };
@@ -112,6 +113,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4905F6F22FDC7FC400CB6C64 /* json.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = json.hpp; path = ../json.hpp; sourceTree = SOURCE_ROOT; };
 		490799642F89A9FE00BBEE73 /* ESPWiFiPortal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ESPWiFiPortal.h; path = ../ESPWiFiPortal.h; sourceTree = SOURCE_ROOT; };
 		490799652F89A9FE00BBEE73 /* ESPWiFiPortal.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ESPWiFiPortal.cpp; path = ../ESPWiFiPortal.cpp; sourceTree = SOURCE_ROOT; };
 		490799662F89AA2B00BBEE73 /* IDFWiFiPortal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IDFWiFiPortal.h; path = ../IDFWiFiPortal.h; sourceTree = SOURCE_ROOT; };
@@ -416,6 +418,7 @@
 				490799622F89A8E100BBEE73 /* Scripts */,
 				490799612F89A8D500BBEE73 /* Lua */,
 				490799602F89A8CB00BBEE73 /* HTML */,
+				4905F6F22FDC7FC400CB6C64 /* json.hpp */,
 				49E65B632E9C3A7600D3C6C5 /* Application.h */,
 				49E65B642E9C3A7600D3C6C5 /* Application.cpp */,
 				49E65B652E9C3A7600D3C6C5 /* Blinker.h */,
@@ -495,6 +498,7 @@
 				49E65B962E9C3A7600D3C6C5 /* Shell.h in Headers */,
 				49D723E72F329F270057DE87 /* LuaWFS.h in Headers */,
 				4968BAE62F19CAE00038B8A9 /* HTTPParser.h in Headers */,
+				4905F6F32FDC7FC400CB6C64 /* json.hpp in Headers */,
 				49E65B982E9C3A7600D3C6C5 /* WiFiPortal.h in Headers */,
 				49FDEBAA2F606CEF001D6A6A /* Graphics.h in Headers */,
 				49E65B992E9C3A7600D3C6C5 /* Clock.h in Headers */,
@@ -889,8 +893,13 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEAD_CODE_STRIPPING = YES;
 				EXECUTABLE_PREFIX = lib;
+				GCC_ENABLE_CPP_EXCEPTIONS = YES;
+				GCC_ENABLE_CPP_RTTI = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
-				HEADER_SEARCH_PATHS = "$(CONFIGURATION_BUILD_DIR)/usr/local/include";
+				HEADER_SEARCH_PATHS = (
+					"$(CONFIGURATION_BUILD_DIR)/usr/local/include",
+					"$(PROJECT_DIR)/../JSON/single_include/nlohmann",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -902,8 +911,13 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEAD_CODE_STRIPPING = YES;
 				EXECUTABLE_PREFIX = lib;
+				GCC_ENABLE_CPP_EXCEPTIONS = YES;
+				GCC_ENABLE_CPP_RTTI = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
-				HEADER_SEARCH_PATHS = "$(CONFIGURATION_BUILD_DIR)/usr/local/include";
+				HEADER_SEARCH_PATHS = (
+					"$(CONFIGURATION_BUILD_DIR)/usr/local/include",
+					"$(PROJECT_DIR)/../JSON/single_include/nlohmann",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
