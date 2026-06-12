@@ -46,7 +46,7 @@ JSONParser::reset()
 }
 
 bool
-JSONParser::parse(char c)
+JSONParser::parseNextChar(char c)
 {
     // Handle current line and char
     if (c == '\n') {
@@ -180,7 +180,7 @@ JSONParser::parse(char c)
             } else {
                 endNumber();
                 // we have consumed one beyond the end of the number
-                parse(c);
+                parseNextChar(c);
             }
             break;
         case State::InTrue:
