@@ -25,10 +25,11 @@
 
 namespace mil {
 
-class JSONParser {
+class JSONParser
+{
   public:
     JSONParser();
-    bool parse(char c);
+    bool parseNextChar(char c);
     void reset();
     std::string errorString()
     {
@@ -36,15 +37,15 @@ class JSONParser {
     }
 
   protected:
-    virtual void handleWhitespace(char c) { }
-    virtual void handleStartDocument() { }
-    virtual void handleKey(const std::string& key) { }
-    virtual void handleValue(const std::string& value) { }
-    virtual void handleEndArray() { }
-    virtual void handleEndObject() { }
-    virtual void handleEndDocument() { }
-    virtual void handleStartArray() { }
-    virtual void handleStartObject() { }
+    virtual bool handleWhitespace(char c) { return true; }
+    virtual bool handleStartDocument() { return true; }
+    virtual bool handleKey(const std::string& key) { return true; }
+    virtual bool handleValue(const std::string& value) { return true; }
+    virtual bool handleEndArray() { return true; }
+    virtual bool handleEndObject() { return true; }
+    virtual bool handleEndDocument() { return true; }
+    virtual bool handleStartArray() { return true; }
+    virtual bool handleStartObject() { return true; }
 
   private:
     static constexpr int BufferSize = 512;
