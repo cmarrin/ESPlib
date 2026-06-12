@@ -166,7 +166,7 @@ WebFileSystem::begin(Application* app, bool format)
         
         if (op == "new") {
             // Preload the widget values
-            parseJSONFile(std::string("/sys/ui/") + name + ".widgetValues.txt", _uiWidgetValues);
+            //parseJSONFile(std::string("/sys/ui/") + name + ".widgetValues.txt", _uiWidgetValues);
 
             if (_currentLuaUICommand != -1) {
                 LuaManager::terminate(_currentLuaUICommand);
@@ -499,52 +499,6 @@ WebFileSystem::makeJSON(const KeyValues& json)
     }
     s += "}";
     return s;
-}
-
-void
-WebFileSystem::parseJSONFile(const std::string& filename, KeyValues& keyValues)
-{
-    class MyJSONParser : public JSONParser
-    {
-      public:
-        MyJSONParser(KeyValues* v) : _keyValues(v) { }
-        
-        virtual void handleKey(const std::string& key) override
-        {
-            if (!_key.empty()) {
-                System::logE(TAG, "key not empty, expected value in deserializeKeyValuePairs");
-                _key.clear();
-                return;
-            }
-            _key = key;
-        }
-        
-        virtual void handleValue(const std::string& value) override
-        {
-            if (_key.empty()) {
-                System::logE(TAG, "expected key in deserializeKeyValuePairs");
-                return;
-            }
-            _keyValues->emplace_back(_key, value);
-            _key.clear();
-        }
-
-      private:
-        std::string _key;
-        KeyValues* _keyValues;
-    };
-    
-    keyValues.clear();
-    std::unique_ptr<MyJSONParser> parser = std::make_unique<MyJSONParser>(&keyValues);
-    
-    fs::File f = WebFileSystem::open(filename.c_str(), "r");
-    while (true) {
-        int c = f.read();
-        if (c < 0) {
-            break;
-        }
-        parser->parse(c);
-    }
 }
 
 void
