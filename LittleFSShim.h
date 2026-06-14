@@ -53,6 +53,7 @@ class File
     
     int write(uint8_t);
     int write(const uint8_t* buf, size_t size);
+    int write(const char* buf, size_t size);
     int read();
     int peek();
     void flush();
