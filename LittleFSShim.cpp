@@ -95,6 +95,19 @@ File::write(const uint8_t* buf, size_t size)
 }
 
 int
+File::write(const char* buf, size_t size)
+{
+    if (isDirectory()) {
+        return -1;
+    }
+    
+    errno = 0;
+    int r = int(fwrite(buf, 1, size, _file));
+    _error = errno;
+    return r;
+}
+
+int
 File::write(uint8_t c)
 {
     return write(&c, 1);
