@@ -193,6 +193,27 @@ WebFileSystem::begin(Application* app, bool format)
 
             LuaManager::sendEvent(_currentLuaUICommand, { widget, value });
             p->sendHTTPResponse(200, "text/plain", "OK");
+        } else if (op == "widgetValues") {
+            std::string sizeString = p->getHTTPHeader("Content-Length");
+            size_t size = strtol(sizeString.c_str(), nullptr, 10);
+            if (size != 0) {
+                // Read the JSON content
+                char* buf = new char[size + 1];
+                buf[0] = '\0';
+    
+                int actualSize = p->receiveHTTPResponse(buf, size);
+                buf[actualSize] = '\0';
+                
+                // Save the JSON widget values
+                std::string filename = std::string("/sys/ui/") + name + ".widgetValues.json";
+                fs::File file = open(filename.c_str(), "w");
+                if (!file) {
+                    System::logI(TAG, "Can't open file '%s' for write", filename.c_str());
+                } else {
+                    file.write(buf, size);
+                }
+                delete [ ] buf;
+            }
         } else {
             // Error
             System::logI(TAG, "Unrecognized UI Panel operation: '%s'", op.c_str());

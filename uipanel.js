@@ -43,6 +43,9 @@
 
 // Widget is an object with type, name and label properties.
 // Return a string with the HTML for the widget
+
+let _widgetValues = null;
+
 function makeWidget(panelName, widget)
 {
     switch(widget.type) {
@@ -127,23 +130,41 @@ function updateUIPanel(jsonPath)
     fetch(jsonPath, {mode: 'no-cors'})
         .then(response => response.text())
         .then(data => {
-            const items = JSON.parse(data);
-
-            // FIXME: Eventually the widgetValues file will contain and object
-            // with a list of properties with the effect as the key and an
-            // Object with all the widget values. For now it's just a single
-            // level object with all the widget names
-            for (const key in items) {
-                let widget = document.getElementById(key);
-                if (widget.type == "checkbox") {
-                    widget.checked = items[key] == "true";
-                } else {
-                    widget.value = items[key];
-                }
-                sendWidgetChange(uipanelName, key, items[key]);
+            _widgetValues = JSON.parse(data);
+            
+            // If the JSON has no currentEffect property, make one
+            if (!_widgetValues.hasOwnProperty("currentEffect")) {
+                _widgetValues.currentEffect = "None";
+            }
+            // If the JSON has no effects property, make one
+            if (!_widgetValues.hasOwnProperty("effects")) {
+                _widgetValues.effects = { };
             }
         })
-        .catch(error => console.error('Error fetching UI Panel', error));
+        .catch(function() {
+            // File does not exist. Make an initial version
+            _widgetValues = { currentEffect : "None", effects : { } };
+        })
+        .finally(() => {
+            // Now we have a valid _widgetValues object, set the local UI and send the
+            // widget values to the server
+            if (_widgetValues.currentEffect !== "None") {
+                sendWidgetChange(uipanelName, "effect", _widgetValues.currentEffect);
+                
+                if (_widgetValues.effects.hasOwnProperty(_widgetValues.currentEffect)) {
+                    const items = _widgetValues.effects[_widgetValues.currentEffect]
+                    for (const key in items) {
+                        let widget = document.getElementById(key);
+                        if (widget.type == "checkbox") {
+                            widget.checked = items[key] == "true";
+                        } else {
+                            widget.value = items[key];
+                        }
+                        sendWidgetChange(uipanelName, key, items[key]);
+                    }
+                }
+            }
+        });
 }
 
 function sendWidgetChange(name, widget, value)
@@ -160,6 +181,17 @@ function sendWidgetChange(name, widget, value)
         }
     }
     http.send();
+    
+    uploadJSON(name);
+}
+
+function uploadJSON(name)
+{
+    let xhr = new XMLHttpRequest();
+    const uri = `/uipanel?op=widgetValues&name=${name}`;
+    xhr.open("POST", uri);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.send(JSON.stringify(_widgetValues));
 }
 
 makeUIPanel(uipanelJSON);
