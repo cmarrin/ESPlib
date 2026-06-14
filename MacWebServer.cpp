@@ -216,6 +216,7 @@ WebServer::sendStaticFile(const char* filename, const char* path)
     if (!_wfs || !_wfs->exists(f.c_str())) {
        if (_parser) {
             _parser->setErrorResponse(404, "File not found");
+            sendHTTPResponse(404, "text/plain", "File not found");
         }
     } else {
         fs::File file = _wfs->open(f.c_str(), "r");
