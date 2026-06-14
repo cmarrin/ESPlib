@@ -165,16 +165,6 @@ WebFileSystem::begin(Application* app, bool format)
         // if it's not running when "change" is called it's an error.
         
         if (op == "new") {
-            // Preload the widget values
-            std::string filename = std::string("/sys/ui/") + name + ".widgetValues.txt";
-            fs::File file = open(filename.c_str(), "r");
-            
-            try {
-                _uiWidgetValues = nlohmann::json::parse(file.rawFile());
-            } catch (const nlohmann::json::exception& e) {
-                System::logE(TAG, "error parsing widgetValues: %s", e.what());
-            }
-
             if (_currentLuaUICommand != -1) {
                 LuaManager::terminate(_currentLuaUICommand);
             }
